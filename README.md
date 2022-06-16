@@ -35,4 +35,3 @@ A read-only , line-based formatted text storage.
 - all source file including pitaka.json in same folder.
 - output to a zip file
 
-
