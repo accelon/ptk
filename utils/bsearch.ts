@@ -1,3 +1,16 @@
+export const bsearchNumber = (arr:number[], obj:number) =>{
+  let low = 0, high = arr.length-1, mid;
+  while (low < high) {
+    mid = (low + high) >> 1;
+    if (arr[mid] === obj)  {
+      while (mid>-1 &&arr[mid-1]===obj ) mid--; //值重覆的元素，回逆到第一個
+      return mid;
+    }
+    (arr[mid] < obj) ? low = mid + 1 : high = mid;
+  }
+  return low;
+}
+
 const bsearch = (arr:string[], obj:string) =>{
   let low = 0, high = arr.length-1, mid;
   while (low < high) {
@@ -9,7 +22,7 @@ const bsearch = (arr:string[], obj:string) =>{
     (arr[mid] < obj) ? low = mid + 1 : high = mid;
   }
   return low;
-};
+}
 
 export type StringGetter = (idx:number) => string ;
 export const bsearchgetter =  (getter: StringGetter, obj:string) =>{  

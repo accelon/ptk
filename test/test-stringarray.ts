@@ -1,8 +1,8 @@
-﻿import {StringArray} from '../utils/stringarray.ts';
+﻿// @ts-ignore
+import {StringArray} from '../utils/stringarray.ts';
 let test=0,pass=0;
 console.time('load');
 import bigfile from './bigfile.mjs'
-import bigfile_indexed from './bigfile_indexed.mjs'
 console.timeEnd('load');
 console.log('bigfile length',bigfile.length);
 
@@ -11,15 +11,10 @@ console.log('bigfile length',bigfile.length);
 //console.timeEnd('split');
 
 console.time('stringarray');
-const sa1=new StringArray(bigfile);
+const sa=new StringArray(bigfile,'=');
 console.timeEnd('stringarray'); 
 //console.log(sa.len());
 
-console.time('stringarray_indexed');
-const sa2=new StringArray(bigfile_indexed,true);
-console.timeEnd('stringarray_indexed');
-
-const sa=sa2;
 let tofind,at;
 
 //return the length
@@ -48,7 +43,8 @@ at=sa.find(tofind);
 pass += sa.get(at).startsWith(tofind) ? 1:0; test++;
 
 for (let i=0;i<10;i++) {
-	tofind=(Math.floor(Math.random()*100000)).toString().padStart(6,' ');
+	tofind='      '+(Math.floor(Math.random()*100000)).toString();
+	tofind=tofind.slice(tofind.length-6);
 	at=sa.find(tofind);
 	pass += sa.get(at).startsWith(tofind) ? 1:0; test++;	
 }
