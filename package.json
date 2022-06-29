@@ -1,0 +1,20 @@
+{
+  "name": "ptk",
+  "version": "1.0.0",
+  "description": "A read-only , line-based formatted text storage.",
+  "main": "index.ts",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/accelon/ptk.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/accelon/ptk/issues"
+  },
+  "homepage": "https://github.com/accelon/ptk#readme"
+}
