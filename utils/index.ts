@@ -8,3 +8,9 @@ export * from './unicode.ts'
 export * from './bsearch.ts'
 export * from './stringarray.ts'
 export * from './cjk.ts'
+export * from './lazip.ts'
+export const escapeTemplateString=str=>str.replace(/\\/g,"\\\\").replace(/`/g,"\\`").replace(/\$\{/g,'$\\{');
+export function pagejsonpfn(nchunk,folder){
+    const jsfn=nchunk.toString().padStart(3,'0')+'.js'
+    return folder?folder+'/'+jsfn:jsfn;
+}

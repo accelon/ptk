@@ -2,3 +2,5 @@
 build
 dist
 *.mjs
+*.zip
+*.txt

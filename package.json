@@ -4,6 +4,8 @@
   "description": "A read-only , line-based formatted text storage.",
   "main": "index.ts",
   "scripts": {
+    "build" :"esbuild node.ts --platform=node --bundle --format=cjs --outfile=nodebundle.js",
+    "dev" :"esbuild node.ts --watch --platform=node  --bundle --format=cjs --outfile=nodebundle.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "repository": {
