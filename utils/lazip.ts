@@ -113,7 +113,7 @@ const LaZip= async function(url,JSZip){
 }
 
 export const writePitakaZip=async(filename:string,zip:JSZip, writeFilePromise)=>{
-    const buf=await zip.generateAsync({type:'arraybuffer',compression:'DEFLATE'});
+    const buf=await zip.generateAsync({type:'arraybuffer'});
     const arr=Buffer.from(buf);
     arr[7] |= 0x80 ; //set the flag , so that we know it is a pitaka zip
     arr.writeInt32LE(arr.length,0xA);

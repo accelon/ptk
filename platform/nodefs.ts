@@ -9,7 +9,6 @@ export const writeChanged=(fn,buf,enc='utf8')=>{ //write to fn only if changed
 const nodefs=new Promise(resolve=>{
     if (typeof process!=='undefined' &&  parseInt(process.version.substr(1))>12) {
         import('fs').then(fs=>{
-            global.writeChanged=writeChanged;
             global.fs=fs;
             import('path').then(p=>{
                 global.Path=p;
