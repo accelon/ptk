@@ -1,13 +1,11 @@
 {
   "name": "ptk",
-  "version": "1.0.0",
-  "description": "A read-only , line-based formatted text storage.",
-  "main": "index.ts",
-  "scripts": {
-    "build-cjs" :"esbuild node.ts --platform=node --bundle --format=cjs --outfile=nodebundle.js",
-    "dev-cjs" :"esbuild node.ts --watch --platform=node  --bundle --format=cjs --outfile=nodebundle.js",
-    "build" :"esbuild iife.ts --bundle --outfile=index.js",
-    "dev" :"esbuild iife.ts --watch --bundle --outfile=index.js",
+  "version": "0.1.9",
+  "description": "Backend for accelon2021",
+  "type":"module",
+  "bin":"cli/bin.js",
+  "main": "./index.ts",
+   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "repository": {
@@ -20,5 +18,7 @@
   "bugs": {
     "url": "https://github.com/accelon/ptk/issues"
   },
-  "homepage": "https://github.com/accelon/ptk#readme"
+  "homepage": "https://github.com/accelon/ptk#readme",
+  "dependencies": {
+  }
 }

@@ -1,8 +1,7 @@
-
 const m=(typeof navigator!=='undefined') && navigator.userAgent.match(/Chrome\/(\d+)/);
-const ready=m&&parseInt(m[1])>=86;
+export const supprtedBrowser=m&&parseInt(m[1])>=86;
 
-async function verifyPermission(fileHandle, readWrite) {
+export async function verifyPermission(fileHandle, readWrite) {
     const options = {};
     if (readWrite) {
       options.mode = 'readwrite';
@@ -18,51 +17,20 @@ async function verifyPermission(fileHandle, readWrite) {
     // The user didn't grant permission, so return false.
     return false;
 }
-const openFileOption={
+export const openSourceOption={
   id:'inputfile',
+  startIn:'desktop',
   multiple:true,
   types:[
-    {
-      description: 'OpenLit Zip Files',
+  {
+      description: 'Source Files',
       accept: {
-          'text/json': ['.zip','.json']
+          'text/plain': ['.off']
       }
-    } ,
-   {
-      description: 'Haodoo Files',
-      accept: {
-          'text/json': ['.updb','.json']
-      }
-    },
-
-    {
-      description: 'Text Files',
-      accept: {
-          'text/plain': ['.txt'],
-          'text/json': ['.json']
-      }
-  },  
-
-      {
-        description: 'Html Files',
-        accept: {
-            'text/html': ['.html','.htm'],
-            'text/json': ['.json']
-        }
-      }
-      ,
-      { 
-        description: 'XML Files',
-        accept: {
-            'text/xml': ['.xml'],
-            'text/json': ['.json']
-        },
-        
-      },
-
+  }
   ]
 }
-const openOneZipFileOption={
+export const openOneZipFileOption={
   id:'zipinputfile',
   types:[
       {
@@ -73,7 +41,7 @@ const openOneZipFileOption={
       }
   ]
 }
-const openPtkFileOption={
+export const openPtkFileOption={
   id:'ptkinputfile',
   multiple:true,
   types:[
@@ -85,7 +53,7 @@ const openPtkFileOption={
       }
   ]
 }
-const saveZipOption={
+export const saveZipOption={
   id:'zipfile',
   multiple:true,
   types:[
@@ -97,27 +65,15 @@ const saveZipOption={
       }
   ]
 }
-const savePitakaOption={
-  id:'ptkfile',
+export const saveSourceOption={
+  id:'savesource',
+  startIn:'desktop',
   types:[
       {
-          description: 'Pitaka File',
+          description: 'Source Files',
           accept: {
-              'application/octet-stream': ['.ptk'],
+              'text/plain': ['.off'],
           }
       }
   ]
 }
-const saveTxtOption={
-  id:'textfile',
-  types:[
-      {
-          description: 'Text File',
-          accept: {
-              'text/plain': ['.txt','.off'],
-          }
-      }
-  ]
-}
-export default {ready,verifyPermission,openFileOption,openOneZipFileOption,openPtkFileOption,
-  saveZipOption,savePitakaOption,saveTxtOption};

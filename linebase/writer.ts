@@ -29,10 +29,9 @@ export function addLine (line:string){
 	if (this._accsize>this.pagesize) this.newPage();
 	this._data.push(line);
 }
-export function addLines(buf:string){
-	const lines=buf.split(/\r?\n/);
-	this.newPage();
+export function addLines(lines:string[]){
+	if (this._data.length) this.newPage(); //start a new page
 	for (let i=0;i<lines.length;i++) {
-		append(lines[i]);
+		this.addLine(lines[i]);
 	}
 }

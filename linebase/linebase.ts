@@ -58,6 +58,10 @@ export class LineBase {
 			},10);
 		})
 	}
+	build(){
+		if (this.sealed) throw 'already sealed';
+		console.log('building')
+	}
     setPage(page,header,payload){
     	if (page==0) {
 	        this.header=header;
