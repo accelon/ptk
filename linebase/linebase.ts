@@ -16,7 +16,7 @@ export class LineBase {
 		this._accsize=0;
 		this.pagesize=opts.pagesize||1024*64;
 		this.pages=[];
-		this.header=null;
+		this.header={};
 		this.name=opts.name||'';
 		this.zip=opts.zip;
 		this.folder=opts.folder || this.name;
@@ -42,6 +42,9 @@ export class LineBase {
 	    	this.addLine=addLine.bind(this);
 	    }
 	}
+	setName(name) {
+		this.name=name;
+	}
 	slice(nline,to){
 		return this._data.slice(nline,to);
 	}
@@ -51,7 +54,7 @@ export class LineBase {
 		let timer=0;
 		return new Promise( (resolve)=>{
 			timer=setInterval(()=>{
-				if (that.header) {
+				if (that.payload) {
 					clearInterval(timer);
 					resolve(true);
 				}
@@ -65,7 +68,7 @@ export class LineBase {
     setPage(page,header,payload){
     	if (page==0) {
 	        this.header=header;
-    	    this.payload=payload;
+    	    this.payload=payload||'nopayload';
     	} else if (page>0) {
     		let i=0;
     		while (i<payload.length) {

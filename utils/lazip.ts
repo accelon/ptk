@@ -112,12 +112,18 @@ const LaZip= async function(url,JSZip){
     return {readTextFile,fetchFile,jszip};
 }
 
-export const writePitakaZip=async(filename:string,zip:JSZip, writeFilePromise)=>{
+export const makePitakaZip=async(zip:JSZip, writer)=>{
     const buf=await zip.generateAsync({type:'arraybuffer'});
-    const arr=Buffer.from(buf);
+    const arr=new Uint8Array(buf);
     arr[7] |= 0x80 ; //set the flag , so that we know it is a pitaka zip
-    arr.writeInt32LE(arr.length,0xA);
-    await writeFilePromise(filename,arr);
+    const sizebuf=new Uint32Array([arr.length]);
+    const sizebuf8=new Uint8Array(sizebuf.buffer);
+    
+    arr[10]=sizebuf8[0];  //Buffer.writeInt32LE(arr.length,0xA);
+    arr[11]=sizebuf8[1];
+    arr[12]=sizebuf8[2];
+    arr[13]=sizebuf8[3];
+    await writer(arr);
 }
 // LaZip.JSZip=JSZip;
 // LaZip.loadAsync=JSZip.loadAsync;

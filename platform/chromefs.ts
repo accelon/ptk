@@ -25,42 +25,21 @@ export const openSourceOption={
   {
       description: 'Source Files',
       accept: {
-          'text/plain': ['.off']
+          'text/plain': ['.off','.txt']
       }
   }
   ]
 }
-export const openOneZipFileOption={
-  id:'zipinputfile',
-  types:[
-      {
-          description: 'zip Files',
-          accept: {
-              'application/zip': ['.zip'],
-          }
-      }
-  ]
-}
-export const openPtkFileOption={
-  id:'ptkinputfile',
+
+export const savePtkOption={
+  id:'ptkfile',
   multiple:true,
+  startIn:'desktop',
   types:[
       {
-          description: 'Ptk Files',
+          description: 'Ptk File',
           accept: {
-              'application/zip': ['.zip'],
-          }
-      }
-  ]
-}
-export const saveZipOption={
-  id:'zipfile',
-  multiple:true,
-  types:[
-      {
-          description: 'Zip File',
-          accept: {
-              'application/zip': ['.zip'],
+              'application/zip': ['.ptk'],
           }
       }
   ]
@@ -72,7 +51,7 @@ export const saveSourceOption={
       {
           description: 'Source Files',
           accept: {
-              'text/plain': ['.off'],
+              'text/plain': ['.off','.txt']
           }
       }
   ]
