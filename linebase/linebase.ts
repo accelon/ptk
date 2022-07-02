@@ -1,6 +1,6 @@
 import {loadJSONP,loadNodeJsZip,loadFetch,loadNodeJs} from './loadpage.ts'
 import {loadLines,notloadedPage} from './readline.ts';
-import {writePages,addLines,addLine} from './writer.ts';
+import {writePages,addBuffer,addLine} from './writer.ts';
 
 interface ILineBase {
 	protected _data:string[];
@@ -38,7 +38,7 @@ export class LineBase {
 	        this._loader(0);
 	    } else {
 	    	this.writePages=writePages.bind(this);
-	    	this.addLines=addLines.bind(this);
+	    	this.addBuffer=addBuffer.bind(this);
 	    	this.addLine=addLine.bind(this);
 	    }
 	}

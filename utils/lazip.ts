@@ -1,5 +1,8 @@
-// obsolete code
+// Lazy Zip, read compressed file from zip only when needed.
 // import JSZip from 'lazip' //need tailored version of jszip.
+// a memory of zip file size is allocated
+// only central directory of zip is fill up at the beginning.
+
 
 function readInt(buf,idx,size) {
     var result = 0,  i;
@@ -8,7 +11,6 @@ function readInt(buf,idx,size) {
     }
     return result;
 }
-
 
 const readBlob = async (file, zipbuf, offset, end)=>{
     const blob=file.slice(offset,end);

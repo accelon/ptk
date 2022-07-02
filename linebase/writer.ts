@@ -40,9 +40,12 @@ function addFilename(filename:string){
 		this.header.filestarts.push(this._data.length)
 	}
 }
-export function addLines(lines:string[], filename:string=''){
-	if (this._data.length) this.newPage(); //start a new page
+export function addBuffer(buffer:string, filename:string=''){
+	if (buffer.length+this._accsize>this.pagesize && this._data.length) {
+		this.newPage(); //start a new page for big buffer.
+	}
 	filename && addFilename.call(this, filename.replace(/[\*]/,''));
+	const lines=buffer.split(/\r?\n/);
 	for (let i=0;i<lines.length;i++) {
 		this.addLine(lines[i]);
 	}
