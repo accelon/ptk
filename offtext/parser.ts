@@ -121,16 +121,17 @@ export const parseOfftextLine=(str:string,idx:number=0)=>{
     resolveTagWidth(text,tags);
     return [text,tags];
 }
-export const extractTocTag=(buf:string,opts={})=>{
-    const toctags=[];
-    const tagname=opts.tagname||'z';
+export const extractTag=(buf:string,opts={})=>{
+    const alltags=[];
+    const tagname=opts.tagname;
+    const line=opts.line||0;
     const lines=buf.split(/\r?\n/);
     for (let i=0;i<lines.length;i++) {
         const [text,tags]=parseOfftextLine(lines[i]);
-        const ztags=tags.filter(it=>it.name.startsWith(tagname));
-        ztags.forEach(tag=>{
-            toctags.push({line:i, id: tag.id, name:tag.name ,text:text.slice(tag.offset,tag.w) })    
+        const rawtags=tagname?tags.filter(it=>it.name.startsWith(tagname)):tags;
+        rawtags.forEach(tag=>{
+            alltags.push({line:line+i, id: tag.id, name:tag.name ,text:text.slice(tag.offset,tag.w) })
         })
     }
-    return toctags;
+    return alltags;
 }
