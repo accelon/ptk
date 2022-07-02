@@ -30,10 +30,20 @@ export const openSourceOption={
   }
   ]
 }
-
 export const savePtkOption={
   id:'ptkfile',
-  multiple:true,
+  startIn:'desktop',
+  types:[
+      {
+          description: 'Ptk File',
+          accept: {
+              'application/zip': ['.ptk'],
+          }
+      }
+  ]
+}
+export const openPtkOption={
+  id:'ptkfile',
   startIn:'desktop',
   types:[
       {

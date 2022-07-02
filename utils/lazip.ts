@@ -8,7 +8,20 @@ function readInt(buf,idx,size) {
     }
     return result;
 }
+
+
+const readBlob = async (file, zipbuf, offset, end)=>{
+    const blob=file.slice(offset,end);
+    const buf=await blob.arrayBuffer();
+    const arr=new Uint8Array(buf);
+    zipbuf.set(arr,offset)
+    return true;
+}
 const fetchBuf= async (url,zipbuf,offset,end)=>{
+    if (url.name &&url.size) {
+        return await readBlob(url,zipbuf,offset,end)
+    }
+
     const res=await fetch(url,{headers: {
         'content-type': 'multipart/byteranges',
         'range': 'bytes='+offset+'-'+end,
@@ -21,6 +34,7 @@ const fetchBuf= async (url,zipbuf,offset,end)=>{
     }
     return false;
 }
+
 const fetchZIPEntries=async (url,zipbuf)=>{
     const i=zipbuf.length-22; //skip the localPart Header
     const dirSize=readInt(zipbuf,i+0xc,4)
@@ -28,8 +42,10 @@ const fetchZIPEntries=async (url,zipbuf)=>{
     return await fetchBuf(url,zipbuf,dirOffset,dirOffset+dirSize);
 }
 const debug=false;
+
 const LaZip= async function(url,JSZip){
     if (!JSZip) throw "need to pass in JSZip constructor"
+
     const headbuf=new Uint8Array(16);
     const ok=await fetchBuf(url,headbuf, 0, 15);
 
@@ -83,7 +99,9 @@ const LaZip= async function(url,JSZip){
             const entry=jszip.fileEntries[i];
             const {localHeaderOffset,compressedSize}=entry;
             const sz=localHeaderOffset+compressedSize+1024; //assuming no per file comment
-            await fetchBuf(url+'#'+fn,zipbuf, localHeaderOffset, sz);
+            
+            //await fetchBuf(url+'#'+fn,zipbuf, localHeaderOffset, sz);
+            await fetchBuf(url,zipbuf, localHeaderOffset, sz);
 
             //defering readLocalFiles()
             jszip.reader.setIndex(entry.localHeaderOffset+4); //signature 4 bytes
@@ -109,7 +127,11 @@ const LaZip= async function(url,JSZip){
         if (!f) f=await fetchFile(fn);
         if (f) return await f.async("string");
     }
-    return {readTextFile,fetchFile,jszip};
+    const folders=[];
+    for (let fn in jszip.fileNames) {
+        if (fn.endsWith('/')) folders.push(fn.slice(0,fn.length-1));
+    }
+    return {readTextFile,fetchFile,jszip, folders};
 }
 
 export const makePitakaZip=async(zip:JSZip, writer)=>{
