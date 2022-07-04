@@ -146,7 +146,18 @@ const LaZip= async function(url,JSZip){
     }
     return {readTextFile,fetchFile,jszip, folders};
 }
-
+export const makeZipFromJson=async(name ,JSZip)=>{
+    const files=(await fs.promises.readdir(name)).filter(fn=>fn.match(/^\d+\.js$/));
+    files.sort((a,b)=>parseInt(a)-parseInt(b))
+    const zip=new JSZip();
+    for (let i=0;i<files.length;i++) {
+        const buf=await fs.promises.readFile(name+'/'+files[i]);
+        await zip.file( name+'/'+files[i], buf , {compression:'DEFLATE'});
+    }
+    const buffer=await makePitakaZip(zip);
+    await fs.promises.writeFile(name+'.ptk', buffer);
+    return {fn:name+'.ptk',size:buffer.length};
+}
 export const makePitakaZip=async(zip:JSZip, writer)=>{
     const buf=await zip.generateAsync({type:'arraybuffer'});
     const arr=new Uint8Array(buf);

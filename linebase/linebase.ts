@@ -23,6 +23,7 @@ export class LineBase {
 		this.zip=opts.zip;
 		this.folder=opts.folder || this.name;
 	    this.loadLines=loadLines.bind(this);
+	    this.onAddLine=null;
 	    if (this.name) {
 	    	this.sealed=true;
 	        if (typeof window!=='undefined') {

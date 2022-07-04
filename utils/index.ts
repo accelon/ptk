@@ -26,3 +26,12 @@ export const lineBreaksOffset=str=>{
     }
     return out;
 }
+export const JSONParse=(str:string)=>{
+    const at1=str.indexOf('{')
+    const at2=str.lastIndexOf('}')
+    if (at1>-1 && at2>at1) {
+        str=str.slice(at1,at2+1);
+    }
+    str=str.replace(/['"]?([a-zA-Z\d]+)['"]? *\:/g,'"$1":');
+    return JSON.parse(str);
+}

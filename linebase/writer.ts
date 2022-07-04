@@ -47,6 +47,11 @@ export function append(buffer:(string|string[]), name:string='', type=''){
 	addSection.call(this, name, type );
 	const lines=Array.isArray(buffer)?buffer:buffer.split(/\r?\n/);
 	for (let i=0;i<lines.length;i++) {
-		addLine.call(this,lines[i]);
+		if (this.onAddLine) {
+			const text = this.onAddLine(lines[i], i , name);
+			if (typeof text==='string') addLine.call(this,text);
+		} else {
+			addLine.call(this,r);
+		}
 	}
 }

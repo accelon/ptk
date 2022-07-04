@@ -1,11 +1,8 @@
 import z from "./z.ts"
-
 const Labels={z}
 
-
-
-import {extractTag} from '../offtext/parser.ts'
-
+import {extractTag} from "../offtext/parser.ts"
+export * from "./offtext.ts"
 export const syntaxCheck=(editingbuffer:string)=>{
 	const tags = extractTag(editingbuffer);
 	const errors=[];
