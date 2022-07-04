@@ -12,26 +12,28 @@ function readInt(buf,idx,size) {
     return result;
 }
 
-const readBlob = async (file, zipbuf, offset, end)=>{
-    const blob=file.slice(offset,end);
+const readBlob = async (file, zipbuf, fileoffset, end, bufferoffset)=>{
+    const blob=file.slice(fileoffset,end);
     const buf=await blob.arrayBuffer();
     const arr=new Uint8Array(buf);
-    zipbuf.set(arr,offset)
+    if (typeof bufferoffset=='undefined') bufferoffset=fileoffset;
+    zipbuf.set(arr,bufferoffset);
     return true;
 }
-const fetchBuf= async (url,zipbuf,offset,end)=>{
+const fetchBuf= async (url,zipbuf,fileoffset,end, bufferoffset)=>{ 
     if (url.name &&url.size) {
-        return await readBlob(url,zipbuf,offset,end)
+        return await readBlob(url,zipbuf,fileoffset,end, bufferoffset)
     }
 
     const res=await fetch(url,{headers: {
         'content-type': 'multipart/byteranges',
-        'range': 'bytes='+offset+'-'+end,
+        'range': 'bytes='+fileoffset+'-'+end,
     }});
 
+    if (typeof bufferoffset=='undefined') bufferoffset=fileoffset;
     if (res.ok) {
         const lastpart=new Uint8Array( await res.arrayBuffer());
-        zipbuf.set(lastpart , offset);
+        zipbuf.set(lastpart , bufferoffset);
         return true;
     }
     return false;
@@ -74,6 +76,9 @@ const LaZip= async function(url,JSZip){
     debug&&console.timeEnd('head')
 
     debug&&console.time('allot memory')
+    //to simplify loading central directory, allocate a buffer same size as zip file.
+    //as cnetral directory is stored at the end.
+    //GC may reclaim it after jszip does it work
     const zipbuf=new Uint8Array(filesize);
     let bufoffset=filesize-1024;
     if (bufoffset<0) bufoffset=0;   
@@ -90,23 +95,27 @@ const LaZip= async function(url,JSZip){
     }
     debug&&console.timeEnd('load entries')
 
-
     debug&&console.time('loadAsync')
     const jszip=await JSZip.loadAsync(zipbuf,{lazyfetch:true});
     debug&&console.timeEnd('loadAsync')
-
+    jszip.reader.data=null;//allow GC to free zipbuf
+    jszip.reader.length=0;
     const fetchFile=async function(fn){
+        const jsfile=this;
         const i=jszip.fileNames[fn]; //all filenames in zip
         if (i>-1) {
             const entry=jszip.fileEntries[i];
             const {localHeaderOffset,compressedSize}=entry;
             const sz=localHeaderOffset+compressedSize+1024; //assuming no per file comment
             
-            //await fetchBuf(url+'#'+fn,zipbuf, localHeaderOffset, sz);
-            await fetchBuf(url,zipbuf, localHeaderOffset, sz);
+            //allocate a buffer just enough to hold the compressed content
+            const filebuf=new Uint8Array(sz);
+            await fetchBuf(url,filebuf, localHeaderOffset, sz, 0);
 
-            //defering readLocalFiles()
-            jszip.reader.setIndex(entry.localHeaderOffset+4); //signature 4 bytes
+            jszip.reader.data=filebuf;   //set the reader, 
+            jszip.reader.length=filebuf.length;
+
+            jszip.reader.setIndex(4); //signature 4 bytes
             entry.readLocalPart(jszip.reader);
             entry.processAttributes();
 
@@ -119,7 +128,8 @@ const LaZip= async function(url,JSZip){
                 unixPermissions: entry.unixPermissions,
                 dosPermissions: entry.dosPermissions
             });
-            //compressed data is ready
+            jszip.reader.data=null;//allow GC to free filebuf
+            jszip.reader.length=0;
             return jszip.files[fn];
         }
         return null;
@@ -129,6 +139,7 @@ const LaZip= async function(url,JSZip){
         if (!f) f=await fetchFile(fn);
         if (f) return await f.async("string");
     }
+ 
     const folders=[];
     for (let fn in jszip.fileNames) {
         if (fn.endsWith('/')) folders.push(fn.slice(0,fn.length-1));

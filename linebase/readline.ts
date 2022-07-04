@@ -1,6 +1,6 @@
 import {bsearchNumber} from '../utils/bsearch.ts';
 const pageOfLine=(line,starts)=>{
-    if (line>=starts[starts.length-1]) return starts.length;
+    if (line>=starts[starts.length-1]) return starts.length-1;
     return bsearchNumber(starts,line,true);
 }
 export function notloadedPage(from,to){

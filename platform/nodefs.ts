@@ -19,5 +19,10 @@ const nodefs=new Promise(resolve=>{
         resolve(null)
     }
 })
-
+export const readTextContent=(fn,enc='utf8')=>{
+    let s=fs.readFileSync(fn,enc);
+    if (s.charCodeAt(0)===0xfeff) s=s.substr(1);
+    return s.replace(/\r?\n/g,'\n');
+}
+export  const readTextLines=(fn,enc='utf8')=>readTextContent(fn,enc).split(/\r?\n/);
 export {nodefs};

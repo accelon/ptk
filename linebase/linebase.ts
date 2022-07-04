@@ -61,13 +61,10 @@ export class LineBase {
 			},10);
 		})
 	}
-	build(){
-		if (this.sealed) throw 'already sealed';
-		console.log('building')
-	}
     setPage(page,header,payload){
     	if (page==0) {
 	        this.header=header;
+	        this.pages=header.starts;
     	    this.payload=payload||'nopayload';
     	} else if (page>0) {
     		let i=0;
@@ -81,5 +78,17 @@ export class LineBase {
 	private newPage(){
 		this.pages.push(this._data.length);
 		this._accsize=0;
+	}
+	fileRange(name:string):[from,to] {
+		
+		const notfound=[0,0];
+		const starts=this.header.filestarts;
+		if (!this.header.filenames || !this.header.filenames.length) return notfound;
+		const at=this.header.filenames.indexOf(name);
+		if (at>-1) {
+			const endoflastfile=at< starts.length-1?starts[at+1]:this.pages[this.pages.length-1];
+			return [starts[at], endoflastfile]
+		}
+		return notfound;
 	}
 }

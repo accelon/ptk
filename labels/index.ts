@@ -1,6 +1,9 @@
 import z from "./z.ts"
 
-const Labels={z};
+const Labels={z}
+
+
+
 import {extractTag} from '../offtext/parser.ts'
 
 export const syntaxCheck=(editingbuffer:string)=>{
