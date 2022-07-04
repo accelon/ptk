@@ -15,3 +15,14 @@ export function pagejsonpfn(nchunk,folder){
     const jsfn=nchunk.toString().padStart(3,'0')+'.js'
     return folder?folder+'/'+jsfn:jsfn;
 }
+export const lineBreaksOffset=str=>{
+    let i=0,at=0;
+    const out=[];
+    while (i<str.length) {
+        const at=str.indexOf('\n',i);
+        if (at==-1) break;
+        out.push(at);
+        i=at+1;
+    }
+    return out;
+}

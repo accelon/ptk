@@ -1,10 +1,10 @@
 import {loadJSONP,loadNodeJsZip,loadFetch,loadNodeJs} from './loadpage.ts'
-import {loadLines,notloadedPage} from './readline.ts';
-import {writePages,addBuffer,addLine} from './writer.ts';
-
+import {loadLines,pageOfLine} from './readline.ts';
+import {writePages,append} from './writer.ts';
+import {lineBreaksOffset} from '../utils/'
 interface ILineBase {
 	protected _data:string[];
-	pages:number[];
+	pagestarts:number[];
 	protected header:Map;
 	private _accsize:number;
 	private pagesize:number;
@@ -12,17 +12,17 @@ interface ILineBase {
 }
 export class LineBase {
 	constructor (opts={}) {
-		this._data=[];
+		this._data=[];      // write time, line splited
+		this._pages=[];     // read time,   line not split
+		this._lineoffsets=[]; // lineoffsets of each page
 		this._accsize=0;
 		this.pagesize=opts.pagesize||1024*64;
-		this.pages=[];
-		this.header={};
+		this.pagestarts=[];
+		this.header={starts:[],sectionnames:[],sectionstarts:[],sectiontypes:[]};
 		this.name=opts.name||'';
 		this.zip=opts.zip;
 		this.folder=opts.folder || this.name;
-		this.loadedPage=[];
 	    this.loadLines=loadLines.bind(this);
-	    this.notloadedPage=notloadedPage.bind(this);
 	    if (this.name) {
 	    	this.sealed=true;
 	        if (typeof window!=='undefined') {
@@ -38,15 +38,37 @@ export class LineBase {
 	        this._loader(0);
 	    } else {
 	    	this.writePages=writePages.bind(this);
-	    	this.addBuffer=addBuffer.bind(this);
-	    	this.addLine=addLine.bind(this);
+	    	this.append=append.bind(this);
 	    }
 	}
 	setName(name) {
 		this.name=name;
 	}
-	slice(nline,to){
-		return this._data.slice(nline,to);
+	getPageLineOffset(page,line){
+		if (page>=this._pages.length) return 0;
+
+		if (line==0) return 0;
+		if (line>= this._lineoffsets[page].length) return this._pages[page].length;
+		return this._lineoffsets[page][line-1];
+	}
+	slice(nline,to){ //combine array of string from loaded pages
+		const p1=pageOfLine(nline,this.pagestarts);
+		const p2=pageOfLine(to,this.pagestarts);
+		let i=0, out='' ,slicefrom,sliceto;
+		for (let i=p1;i<=p2;i++) {
+			if (!this._pages[i]) return [];//page not loaded yet
+			if (i==p1 || i==p2) { // first or last part
+				const slicefrom=this.getPageLineOffset(i, nline- (p1>0?this.pagestarts[p1-1]:0))+1;
+				const sliceto=  this.getPageLineOffset(i, to- (p2>0?this.pagestarts[p2-1]:0) );
+				if (p2>p1) {
+					if (i==p1) out = this._pages[i].slice(slicefrom); //+1 skip the \n
+					else out+= '\n'+this._pages[i].slice(0, sliceto);
+				} else { //same block
+					out= this._pages[i].slice(slicefrom,sliceto);
+				}
+			} else out+='\n'+this._pages[i];//middle
+		}
+		return out.split('\n');
 	}
 	isReady() { // ready to read or write
 		if (!this.name) return true;//ready to write
@@ -64,30 +86,31 @@ export class LineBase {
     setPage(page,header,payload){
     	if (page==0) {
 	        this.header=header;
-	        this.pages=header.starts;
+	        this.pagestarts=header.starts;
     	    this.payload=payload||'nopayload';
     	} else if (page>0) {
-    		let i=0;
-    		while (i<payload.length) {
-    			this._data[i+header.start]=payload[i];
-    			i++;
-    		}
-    		this.loadedPage[page-1]=true;
+    		this._pages[page-1]=payload;
+    		this._lineoffsets[page-1] = lineBreaksOffset(payload);
     	}
     }
 	private newPage(){
-		this.pages.push(this._data.length);
+		this.pagestarts.push(this._data.length);
 		this._accsize=0;
 	}
-	fileRange(name:string):[from,to] {
-		
+	sectionRange(name:string,type=''):[from,to] {
 		const notfound=[0,0];
-		const starts=this.header.filestarts;
-		if (!this.header.filenames || !this.header.filenames.length) return notfound;
-		const at=this.header.filenames.indexOf(name);
-		if (at>-1) {
-			const endoflastfile=at< starts.length-1?starts[at+1]:this.pages[this.pages.length-1];
-			return [starts[at], endoflastfile]
+		const {sectionnames,sectionstarts,sectiontypes}=this.header;
+		if (!sectionnames || !sectionnames.length) return notfound;
+
+		let at=sectionnames.indexOf(name);
+		while (at>-1 ) {
+			if (type!==sectiontypes[at]) {
+				at=this.header.sectionnames.indexOf(name,at+1);
+			} else {
+				const endoflastsection=at< sectionstarts.length-1
+					?sectionstarts[at+1]:this.pagestarts[this.pagestarts.length-1];
+				return [sectionstarts[at], endoflastsection]
+			}
 		}
 		return notfound;
 	}

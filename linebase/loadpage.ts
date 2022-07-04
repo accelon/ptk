@@ -11,8 +11,9 @@ const parsePage=str=>{
     //indexOf is much faster than regex, replace only when needed
     if (payload.indexOf("\\\\")>-1) payload=payload.replace(/\\\\/g,"\\");
     if (payload.indexOf("\\`")>-1)  payload=payload.replace(/\\`/g,"`");
-    if (payload.indexOf("$\\{")>-1) payload=payload.replace(/\$\\\{/g,'${');    
-    return[JSON.parse(str.substring(start,end)), payload.split("\n") ]
+    if (payload.indexOf("$\\{")>-1) payload=payload.replace(/\$\\\{/g,'${');
+
+    return[JSON.parse(str.substring(start,end)), payload ];
 }
 export async function loadNodeJs (page){
     const fn=makePageURI(this.folder,page);
@@ -25,7 +26,7 @@ export async function loadNodeJs (page){
 }
 
 export async function loadNodeJsZip (page) {
-    const fn=name+'/'+pagefilename(page);
+    const fn=this.name+'/'+pagefilename(page);
     const content=await this.zip.readTextFile(fn);
     this.setPage(page, ...parsePage(data));
 }

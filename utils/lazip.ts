@@ -158,7 +158,8 @@ export const makePitakaZip=async(zip:JSZip, writer)=>{
     arr[11]=sizebuf8[1];
     arr[12]=sizebuf8[2];
     arr[13]=sizebuf8[3];
-    await writer(arr);
+    if (writer) await writer(arr);
+    return arr;
 }
 // LaZip.JSZip=JSZip;
 // LaZip.loadAsync=JSZip.loadAsync;
