@@ -92,6 +92,7 @@ const resolveTagWidth=(line:string,tags:OffTag[])=>{
     })
 }
 export const parseOfftextLine=(str:string,idx:number=0)=>{
+    if (str.indexOf('^')==-1) return [str,[]];
     let tags=[];
     let textoffset=0,prevoff=0;
     let text=str.replace(OFFTAG_REGEX_G, (m,rawName,rawA,offset)=>{
@@ -130,7 +131,7 @@ export const extractTag=(buf:string,opts={})=>{
         const [text,tags]=parseOfftextLine(lines[i]);
         const rawtags=tagname?tags.filter(it=>it.name.startsWith(tagname)):tags;
         rawtags.forEach(tag=>{
-            alltags.push({line:line+i, id: tag.id, name:tag.name ,text:text.slice(tag.offset,tag.w) })
+            alltags.push({line:line+i, id: tag.attrs.id, name:tag.name ,text:text.slice(tag.offset,tag.w) })
         })
     }
     return alltags;
