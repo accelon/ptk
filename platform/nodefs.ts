@@ -1,3 +1,5 @@
+import {fromObj,alphabetically} from '../utils/sortedarray.ts';
+
 export const writeChanged=(fn,buf,enc='utf8')=>{ //write to fn only if changed
     const oldbuf=fs.existsSync(fn) && fs.readFileSync(fn,enc);
     if (oldbuf!==buf) {
@@ -6,6 +8,17 @@ export const writeChanged=(fn,buf,enc='utf8')=>{ //write to fn only if changed
     }
     return false;
 }
+
+export const writeIncObj=(obj,outfn)=>{
+    let arr=Array.isArray(obj)?obj:fromObj(obj,true);
+    if (writeChanged(outfn,arr.join('\n'))) {
+        console.log('written',outfn,arr.length)
+    } else {
+        console.log(outfn,'no difference')
+    }
+    return arr;
+}
+
 const nodefs=new Promise(resolve=>{
     if (typeof process!=='undefined' &&  parseInt(process.version.substr(1))>12) {
         import('fs').then(fs=>{

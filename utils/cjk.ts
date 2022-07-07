@@ -88,3 +88,5 @@ export const extractBook=arr=>{
     arr.forEach(str=>str.replace(/[〈《]([\u3400-\u9fff\ud800-\udfff]{2,30})/g,(m,m1)=>out.push(m1)));
     return out;
 }
+export const replaceAuthor=(str,cb)=>str.replace(/(．)([\u3400-\u9fff\ud800-\udfff]{2,10})([〈《])/g,(m,m1,m2,m3)=>cb(m1,m2,m3))
+export const replaceBook=(str,cb)=>str.replace(/([〈《])([\u3400-\u9fff\ud800-\udfff]{2,30})/g,(m,m1,m2,m3)=>cb(m1,m2,''))

@@ -11,7 +11,7 @@ export const bsearchNumber = (arr:number[], obj:number) =>{
   return low;
 }
 
-const bsearch = (arr:string[], obj:string) =>{
+export const bsearch = (arr:string[], obj:string) =>{
   let low = 0, high = arr.length-1, mid;
   while (low < high) {
     mid = (low + high) >> 1;

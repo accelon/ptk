@@ -1,6 +1,7 @@
-import {bsearchNumber} from "./bsearch.ts";
+import {bsearchNumber,bsearch} from "./bsearch.ts";
 import {unique} from './sortedarray.ts';
 type NumberArray = number [];
+
 //arr need to be sorted but allow duplicate items
 export const union=(arr1:NumberArray,arr2:NumberArray,hasdup=false):NumberArray=>{
     if (!arr2||!arr1) return arr1||arr2;
@@ -18,6 +19,18 @@ export const union=(arr1:NumberArray,arr2:NumberArray,hasdup=false):NumberArray=
         if (at1==-1) extra.push(a1[i]);
     }
     return a2.concat(extra).sort();
+}
+//assumng arr2 is sorted
+export const xorStrings=(arr1:string[], arr2:string[], index) =>{
+    const out=[];
+    for (let i=0;i<arr1.length;i++) {
+        const item=typeof index=='number'?arr1[i][index]:arr1[i];
+        const at=bsearch(arr2, item);
+        if (item!==arr2[at]) {
+            out.push(arr1[i]);
+        }
+    }
+    return out;
 }
 export const intersect=(arr1:NumberArray,arr2:NumberArray):NumberArray=>{
     const out:NumberArray=[];

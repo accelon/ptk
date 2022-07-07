@@ -51,7 +51,7 @@ export function append(buffer:(string|string[]), name:string='', type=''){
 			const text = this.onAddLine(lines[i], i , name);
 			if (typeof text==='string') addLine.call(this,text);
 		} else {
-			addLine.call(this,r);
+			addLine.call(this,lines[i]);
 		}
 	}
 }

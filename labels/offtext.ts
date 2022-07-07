@@ -3,7 +3,7 @@ import {validate_id,pushError,validate_z} from "./validator.ts";
 
 export function onTag( tag,typedef){
 	if (typedef.innertext && tag.w==0) {
-		pushError.call(this,tag.name+' missing innerText',tag.offset);
+		pushError.call(this,tag.name+' 缺少包夾文字',tag.offset);
 	}
 	if (typedef.idtype) validate_id.call(this,tag,typedef);
 
@@ -18,7 +18,7 @@ function setupTypedef(typedef){
 function execDirective(newtagname, typedef){
 	const ctx=this;
 	if (!newtagname) {
-		console.log('system directive')
+		console.log('system directive', typedef)
 	} else {
 		ctx.handlers[newtagname] = onTag.bind( ctx);
 		ctx.typedefs[newtagname] = typedef;
