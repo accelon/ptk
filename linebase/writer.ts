@@ -1,7 +1,7 @@
 import {escapeTemplateString,pagejsonpfn} from '../utils/index.ts'
 
 const makePageJsonp=(name,page,start,payload)=>{
-	return 'jsonp(1,{"name":"'+name+'","start":'+start+'},`'+payload+'`)';
+	return 'jsonp('+page+',{"name":"'+name+'","start":'+start+'},`'+payload+'`)';
 }
 const makeHeader=(name,header,pagestarts)=>{
 	const meta=Object.assign( {} , header,{name,starts:pagestarts,buildtime:new Date()})
@@ -12,21 +12,21 @@ export async function writePages(cb) {
 	this.newPage();
 	this.sealed=true;
 	let start=0;
-	const jsonpfn=pagejsonpfn(0,this.name);
+	const jsonpfn=pagejsonpfn(0);
 	await cb(jsonpfn, makeHeader(this.name,this.header||{},this.pagestarts) );
 	for (let i=0;i<this.pagestarts.length;i++) {
 		const lines=this._data.slice(start,this.pagestarts[i]);
-		const towrite=makePageJsonp(this.name,i,start,escapeTemplateString(lines.join('\n')));
-		const done=await cb( pagejsonpfn(i+1,this.name) , towrite);
+		const towrite=makePageJsonp(this.name,i+1,start,escapeTemplateString(lines.join('\n')));
+		const done=await cb( pagejsonpfn(i+1) , towrite);
 		if (done) break;
 		start=this.pagestarts[i]
 	}
 }
 function addLine (line:string){
 	if (this.sealed) throw ('sealed');
+	this._data.push(line);
 	this._accsize+=line.length;
 	if (this._accsize>this.pagesize) this.newPage();
-	this._data.push(line);
 }
 
 function addSection(name:string,type=''){
@@ -41,17 +41,18 @@ function addSection(name:string,type=''){
 	this.header.sectiontypes.push(type);
 }
 export function append(buffer:(string|string[]), name:string='', type=''){
-	if (buffer.length+this._accsize>this.pagesize && this._data.length) {
+	if ((buffer.length+this._accsize>this.pagesize) && this._data.length) {
 		this.newPage(); //start a new page for big buffer.
 	}
 	addSection.call(this, name, type );
 	const lines=Array.isArray(buffer)?buffer:buffer.split(/\r?\n/);
+
 	for (let i=0;i<lines.length;i++) {
 		if (this.onAddLine) {
 			const text = this.onAddLine(lines[i], i , name);
 			if (typeof text==='string') addLine.call(this,text);
 		} else {
-			addLine.call(this,lines[i]);
+			addLine.call(this,lines[i]||'');
 		}
 	}
 }

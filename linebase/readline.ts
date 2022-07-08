@@ -14,11 +14,11 @@ export function notloadedPage(from,to){
     }
     return notloaded;
 }
-export async function loadLines(from,to){
+export async function loadLines(from:number| [number,number] , to){
     const that=this;
     await this.isReady();
     let notloaded;
-    if (!to) return;
+    if (!to ) to=from+1;
     if (Array.isArray(from)) {
         const notincache={};
         for (let i=0;i<from.length;i++) {

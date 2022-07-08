@@ -26,15 +26,16 @@ export class LineBase {
 	    this.onAddLine=null;
 	    if (this.name) {
 	    	this.sealed=true;
+	    	let protocol=typeof chrome!=='undefined'?'chrome-extension:':'';
 	        if (typeof window!=='undefined') {
-	            const protocol=window.location.protocol;
-	            if (protocol==='http:'||protocol==='https:'|| protocol==='chrome-extension:') {
-	                this._loader=loadFetch.bind(this);
-	            } else {
-	                this._loader=loadJSONP.bind(this);
-	            }
+	            protocol=window.location.protocol;
+	        }
+	        if (protocol==='http:'||protocol==='https:'|| protocol==='chrome-extension:') {
+                this._loader=loadFetch.bind(this);
+	        } else if (protocol=='file:') {
+                this._loader=loadJSONP.bind(this);
 	        } else {
-	        	this._loader=(this.zip?loadNodeJsZip:loadNodeJs).bind(this);	
+	        	this._loader=(this.zip?loadNodeJsZip:loadNodeJs).bind(this);
 	        }
 	        this._loader(0);
 	    } else {
@@ -45,6 +46,9 @@ export class LineBase {
 	setName(name) {
 		this.name=name;
 	}
+	async loadAll (){
+		await this.loadLines(0, this.pagestarts[this.pagestarts.length-1]);
+	}
 	getPageLineOffset(page,line){
 		if (page>=this._pages.length) return 0;
 
@@ -53,13 +57,15 @@ export class LineBase {
 		return this._lineoffsets[page][line-1];
 	}
 	slice(nline,to){ //combine array of string from loaded pages
+		if (!to) to=nline+1;
 		const p1=pageOfLine(nline,this.pagestarts);
 		const p2=pageOfLine(to,this.pagestarts);
 		let i=0, out='' ,slicefrom,sliceto;
 		for (let i=p1;i<=p2;i++) {
 			if (!this._pages[i]) return [];//page not loaded yet
 			if (i==p1 || i==p2) { // first or last part
-				const slicefrom=this.getPageLineOffset(i, nline- (p1>0?this.pagestarts[p1-1]:0))+1;
+				let slicefrom=this.getPageLineOffset(i, nline- (p1>0?this.pagestarts[p1-1]:0));
+				if (p1) slicefrom++; //skip the \n for first line
 				const sliceto=  this.getPageLineOffset(i, to- (p2>0?this.pagestarts[p2-1]:0) );
 				if (p2>p1) {
 					if (i==p1) out = this._pages[i].slice(slicefrom); //+1 skip the \n
