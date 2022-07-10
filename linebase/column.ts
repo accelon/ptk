@@ -11,8 +11,11 @@ export class Column {
 		this.keys=[];  //keys
 		this.values=[]; // 
 		for (let name in typedef) {
-			this.addColumn( name,typedef[name]);
-			this.typedef.push(typedef[name])
+			if (name[0]=='_') {
+				const nm=name.slice(1);
+				this.addColumn( nm,typedef[name]);
+				this.typedef.push(typedef[name])	
+			}
 		}
 	}
 	//lexicon :: key(sorted primary key) = payload
@@ -22,8 +25,11 @@ export class Column {
 	}
 	validate(cell, type) {
 		if (type=='number' || type=='unique_number')  {
-			if (parseInt(cell).toString()!==cell) throw "type missmatch "
-			return parseInt(cell)
+			if (parseInt(cell).toString()!==cell) {
+				console.log(cell,'is not',type)
+				throw "type missmatch "
+			}
+			return parseInt(cell);
 		}  else if (type=='keys') {
 			const keys=cell.split(',');
 			return keys.map(it=> {
@@ -32,7 +38,6 @@ export class Column {
 				if (this.keys[at]===it) {
 					return at+1;
 				} else {
-					console.log('it',it)
 					throw "key not found"
 				}
 			}).filter(it=>!!it).sort((a,b)=>a-b)
@@ -42,11 +47,11 @@ export class Column {
 	}
 	addLine(payload:string[], line:number ){
 		for (let i=0;i<payload.length;i++) {
-			const v=this.validate(payload[i],  this.typedef[i]);
+			const v=this.validate( payload[i],  this.typedef[i]);
 			this.fieldvalues[ i ].push( v );
 		}
 	}
-	fromLexicon(buffer:(string|string[])){
+	fromLexicon(buffer:(string|string[])):string[]{
 		const keyvalues=[];
 		const lines=Array.isArray(buffer)?buffer:buffer.split(/\r?\n/);
 		
@@ -78,8 +83,10 @@ export class Column {
 				out.push(pack( this.fieldvalues[i]));
 			} else if (type=='keys') {
 				out.push(pack_delta2d(this.fieldvalues[i]));
+			} else {
+				console.log('unknown type')
 			}
   		}
-		return out.join('\n');
+		return out;
 	}
 }

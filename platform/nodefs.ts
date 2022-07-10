@@ -1,4 +1,5 @@
 import {fromObj,alphabetically} from '../utils/sortedarray.ts';
+import {humanBytes} from '../utils/index.ts';
 import {makePitakaZip} from '../utils/lazip.ts'
 export const writeChanged=(fn,buf,enc='utf8')=>{ //write to fn only if changed
     const oldbuf=fs.existsSync(fn) && fs.readFileSync(fn,enc);
@@ -54,7 +55,7 @@ export const writePitaka=async (lbase,opts={})=>{
         lbase.writePages((pagefn,buf)=>{
             const outfn=folder+'/'+pagefn;
             if (writeChanged(outfn,buf)) {
-                console.log('written',outfn,buf.length,'chars');
+                console.log('written',outfn,...humanBytes(buf.length));
             }
         }); 
     } else {
@@ -71,5 +72,14 @@ export const writePitaka=async (lbase,opts={})=>{
         });
     }
 }
+
+export const deepReadDir = async (dirPath) => await Promise.all(
+  (await fs.promises.readdir(dirPath)).map(async (entity) => {
+    const path = dirPath+'/'+entity
+    const stat=await fs.promises.lstat(path);
+    return stat.isDirectory()|| stat.isSymbolicLink()? await deepReadDir(path) : path
+  })
+);
+
 export  const readTextLines=(fn,enc='utf8')=>readTextContent(fn,enc).split(/\r?\n/);
 export {nodefs};

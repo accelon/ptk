@@ -51,8 +51,7 @@ export async function loadFetch(page){
     }
 }
 const jsonp=function(page,header,_payload){
-    const payload=_payload.split(/\r?\n/);
-    this.loadPage(page,header,payload); //this is binded to rom, not in pool yet for first page
+    this.setPage(page,header,_payload); //this is binded to rom, not in pool yet for first page
 }
 
 export async function loadJSONP(page){
@@ -60,6 +59,10 @@ export async function loadJSONP(page){
         window.jsonp=jsonp.bind(this);
     }
     return loadScript(makePageURI(this.folder,page),()=>{
-        this.loadedPage[page]=true;
+        if (page==0) {
+            return this.pagestarts.length;
+        } else {
+            return this._pages[page-1];           
+        }
     });
 }

@@ -104,19 +104,28 @@ export class LineBase {
 		this.pagestarts.push(this._data.length);
 		this._accsize=0;
 	}
-	sectionRange(name:string,type=''):[from,to] {
+	async loadSection(name,type){
+		const [from,to]=this.sectionRange(name,type);
+		if (to>from) {
+			await this.loadLines(from,to);
+			return this.slice(from,to)
+		}
+		return [];
+	}	
+	sectionRange(sname:string,stype=''):[from,to] {
 		const notfound=[0,0];
 		const {sectionnames,sectionstarts,sectiontypes}=this.header;
 		if (!sectionnames || !sectionnames.length) return notfound;
 
-		let at=sectionnames.indexOf(name);
-		while (at>-1 ) {
-			if (type!==sectiontypes[at]) {
-				at=this.header.sectionnames.indexOf(name,at+1);
-			} else {
-				const endoflastsection=at< sectionstarts.length-1
-					?sectionstarts[at+1]:this.pagestarts[this.pagestarts.length-1];
-				return [sectionstarts[at], endoflastsection]
+		for (let i=0;i<sectionnames.length;i++) {
+			const name=sectionnames[i];
+			const type=sectiontypes[i];
+
+			if ( (sname && name==sname) || (!sname && stype && type==stype) ) {
+				const endoflastsection=i< sectionstarts.length-1
+					?sectionstarts[i+1]:this.pagestarts[this.pagestarts.length-1];
+
+				return [sectionstarts[i], endoflastsection]				
 			}
 		}
 		return notfound;

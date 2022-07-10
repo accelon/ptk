@@ -26,7 +26,7 @@ export const lineBreaksOffset=str=>{
     }
     return out;
 }
-export const JSONParse=(str:string)=>{
+export const JSONParse=(str:string)=>{ //parse a loss json
     const at1=str.indexOf('{')
     const at2=str.lastIndexOf('}')
     if (at1>-1 && at2>at1) {
@@ -34,4 +34,15 @@ export const JSONParse=(str:string)=>{
     }
     str=str.replace(/['"]?([a-zA-Z\d]+)['"]? *\:/g,'"$1":');
     return JSON.parse(str);
+}
+
+export const humanBytes=(n:number):string=>{
+    if (n<1024) {
+        return [n,'b'];
+    }
+    if (n<1024*1024) {
+        return [parseFloat(n/1024).toFixed(2) ,'kb'];
+    } else {
+        return [parseFloat((n/(1024*1024)).toFixed(2)),'mb'];
+    }
 }

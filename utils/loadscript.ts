@@ -12,11 +12,12 @@ export const loadScript=async (src, cb)=>{
                 resolve(true);
             } else if (tried>50) {
                 clearInterval(timer);
-                reject('too many trieds loading '+src);
+                resolve(false)
+                // reject('too many trieds loading '+src);
             }
             tried++;
         },50);    
-    });
+    })
     document.getElementsByTagName("body")[0].appendChild(script);
     return promise;
 }

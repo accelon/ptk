@@ -54,6 +54,31 @@ export const openPtkOption={
       }
   ]
 }
+export const openComOption={
+  id:'comfile',
+  startIn:'desktop',
+  types:[
+      {
+          description: 'Com File',
+          accept: {
+              'application/zip': ['.com'],
+          }
+      }
+  ]
+}
+export const saveComOption={
+  id:'comfile',
+  startIn:'desktop',
+  types:[
+      {
+          description: 'Com File',
+          accept: {
+              'application/zip': ['.com'],
+          }
+      }
+  ]
+}
+
 export const saveSourceOption={
   id:'savesource',
   startIn:'desktop',

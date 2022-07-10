@@ -22,11 +22,11 @@ export async function writePages(cb) {
 		start=this.pagestarts[i]
 	}
 }
-function addLine (line:string){
+function addLine (line:string,  nobreak=false){
 	if (this.sealed) throw ('sealed');
 	this._data.push(line);
 	this._accsize+=line.length;
-	if (this._accsize>this.pagesize) this.newPage();
+	if (this._accsize>this.pagesize && !nobreak) this.newPage();
 }
 
 function addSection(name:string,type=''){
@@ -40,8 +40,13 @@ function addSection(name:string,type=''){
 	this.header.sectionstarts.push(this._data.length)
 	this.header.sectiontypes.push(type);
 }
-export function append(buffer:(string|string[]), name:string='', type=''){
-	if ((buffer.length+this._accsize>this.pagesize) && this._data.length) {
+export function append(buffer:(string|string[]), opts={}){
+	const name=opts.name||'';
+	const type=opts.type||'';
+	const nobreak=opts.nobreak;
+	const newpage=opts.newpage;
+
+	if ((buffer.length+this._accsize>this.pagesize|| newpage) && this._data.length) {
 		this.newPage(); //start a new page for big buffer.
 	}
 	addSection.call(this, name, type );
@@ -50,9 +55,9 @@ export function append(buffer:(string|string[]), name:string='', type=''){
 	for (let i=0;i<lines.length;i++) {
 		if (this.onAddLine) {
 			const text = this.onAddLine(lines[i], i , name);
-			if (typeof text==='string') addLine.call(this,text);
+			if (typeof text==='string') addLine.call(this,text, nobreak);
 		} else {
-			addLine.call(this,lines[i]||'');
+			addLine.call(this,lines[i]||'', nobreak);
 		}
 	}
 }
