@@ -22,11 +22,11 @@ export async function writePages(cb) {
 		start=this.pagestarts[i]
 	}
 }
-function addLine (line:string,  nobreak=false){
+function addLine (line:string, samepage=false){
 	if (this.sealed) throw ('sealed');
 	this._data.push(line);
 	this._accsize+=line.length;
-	if (this._accsize>this.pagesize && !nobreak) this.newPage();
+	if (this._accsize>this.pagesize && !samepage) this.newPage();
 }
 
 function addSection(name:string,type=''){
@@ -43,8 +43,8 @@ function addSection(name:string,type=''){
 export function append(buffer:(string|string[]), opts={}){
 	const name=opts.name||'';
 	const type=opts.type||'';
-	const nobreak=opts.nobreak;
-	const newpage=opts.newpage;
+	const newpage=opts.newpage;    // start a new page
+	const samepage=opts.samepage;  // save in same page , no matter how big it is
 
 	if ((buffer.length+this._accsize>this.pagesize|| newpage) && this._data.length) {
 		this.newPage(); //start a new page for big buffer.
@@ -55,9 +55,9 @@ export function append(buffer:(string|string[]), opts={}){
 	for (let i=0;i<lines.length;i++) {
 		if (this.onAddLine) {
 			const text = this.onAddLine(lines[i], i , name);
-			if (typeof text==='string') addLine.call(this,text, nobreak);
+			if (typeof text==='string') addLine.call(this,text, samepage);
 		} else {
-			addLine.call(this,lines[i]||'', nobreak);
+			addLine.call(this,lines[i]||'', samepage);
 		}
 	}
 }
