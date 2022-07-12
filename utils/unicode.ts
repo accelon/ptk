@@ -42,10 +42,12 @@ export const UnicodeBlock=(n:number|string)=>{
     else if (cp<0x1780) return '其他 Miscellaneous';
     else if (cp<0x1800) return '柬埔寨 Khemar';
     else if (cp<0x18D0) return '蒙 Mongolian';
-    else if (cp<0x2000) return '符号 Symbols';
+    else if (cp<0x2000) return '其他字母 Alphabets';
+    else if (cp<0x2060) return '标点 Puncuations';
     else if (cp<0x2E80) return '其他 Miscellaneous';
     else if (cp<0x2FF0) return '部首 Radical';
     else if (cp<0x3000) return '组字符 IDC';
+    else if (cp<0x3040) return '日式标点 Japanese Puncuation';
     else if (cp<0x3100) return '日文 Japanese';
     else if (cp<0x3140) return '注音 Bopomofo';
     else if (cp<0x31D0) return '韩 Korean';
@@ -57,7 +59,8 @@ export const UnicodeBlock=(n:number|string)=>{
     else if (cp<0xAC00) return '其他 Miscellaneous';
     else if (cp<0xE000) return '韩 Korean';
     else if (cp<0xFAE0) return '造字区 Private Use Area';
-    else if (cp<0x10000) return  '标点 Puncuation';
+    else if (cp<0xFF00) return '其他 Miscellaneous';
+    else if (cp<0x10000) return  '全形 Full Width';
     else if (cp<0x20000) return '其他 Miscellaneous';
     else if (cp<0x2A7D0) return '扩B';
     else if (cp<0x2B7A0) return '扩C';
