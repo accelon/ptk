@@ -134,14 +134,27 @@ export const pack=(arr:NumArray, delta=false)=>{
 	//new TextDecoder is quite fast
 	return new TextDecoder().decode(s.slice(0,idx));
 }
-
+export const pack_boolean=(arr:boolean[])=>{
+	const out=[];
+	let prev=false, count=0;
+	for (let i=0;i<arr.length;i++) {
+		if (prev!= !!arr[i]) {
+			out.push(count);
+			count=1;
+		} else {
+			count++;
+		}
+		prev=!!arr[i];
+	}
+	out.push(count);
+	return pack(out);
+}
 export const pack_delta=(arr:NumArray)=>pack(arr,true);
 
 export const pack_delta2d=(arr2d:NumArray[])=>pack2d(arr2d,true);
 export const arrDelta=(arr:NumArray)=>{
 	if (!arr)return [];
-	if (arr.length===1) return [arr[0]]
-	
+	if (arr.length===1) return [arr[0]];
 	const out=[arr[0]];
 	for (let i=1;i<arr.length;i++) {
 		out.push( arr[i]-arr[i-1]);

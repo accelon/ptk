@@ -122,3 +122,19 @@ export const unpack3_2d=(str:string)=>{
 	if (arr.length==1) return [unpack3(arr[0])];
 	return arr.map(itm=>unpack3(itm));
 }
+
+export const unpack_boolean=(str:string,index=false)=>{
+	const barr=unpack(str);
+	const out=[];
+	let idx=0; // 1-base is natural as payload follow right after packed_boolean ( 1 line)
+	for (let i=0;i<barr.length;i++) {
+		for (j=0;j<barr[i];j++) {
+			if (i%2==0) {
+				out.push(index? 0     : false);
+			} else {
+				out.push(index? ++idx : true );
+			}
+		}
+	}
+	return out;
+}
