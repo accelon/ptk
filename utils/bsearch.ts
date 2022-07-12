@@ -26,17 +26,16 @@ export const bsearch = (arr:string[], obj:string) =>{
 
 export type StringGetter = (idx:number) => string ;
 export const bsearchgetter =  (getter: StringGetter, obj:string) =>{  
-  const len=parseInt(getter(0)); //get the len
-  let low = 1,high = len;  //getter is 1-based
+  const len=parseInt(getter(-1)); //get the len
+  let low = 0,high = len-1;  //getter is 1-based
   while (low < high) {
     let mid = (low + high) >> 1;
     if (getter(mid)===obj) {
       while (mid>-1 &&getter(mid-1)===obj ) mid--; //值重覆的元素，回逆到第一個
-      return mid<len?mid:len-1;
+      return mid;
     }
     getter(mid)<obj ? low=mid+1 : high=mid;
   }
-
-  return low<len?low:len;
+  return low;
 }
 

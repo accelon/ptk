@@ -5,3 +5,5 @@ dist
 *.zip
 *.txt
 *.cjs
+*.off
+*.tsv
