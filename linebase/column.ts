@@ -4,18 +4,18 @@ import {pack_delta2d,pack} from "../utils/packintarray.ts"
 import {packStrings} from "../utils/packstr.ts"
 import {alphabetically0} from "../utils/sortedarray.ts"
 export class Column {
-	constructor(attrs, typedef , primarykeys) {
+	constructor(attrs, opts={}) {
 		this.fieldvalues=[];
 		this.fieldnames=[];
 		this.typedef=[];
 		this.keys=[];  //keys
 		this.values=[]; // 
-		this.primarykeys=primarykeys||{};
-
-		for (let name in typedef) {
-			if (name==0 && !typedef[name]) continue; //primary key
-			this.addColumn(...typedef[name].split(':'));
-			this.typedef.push(typedef[name].replace(/[^:]+:/,''))
+		this.primarykeys=opts.primarykeys||{};
+		this.onError=opts.onError;
+		if (opts.typedef) for (let name in opts.typedef) {
+			if (name==0 && !opts.typedef[name]) continue; //primary key
+			this.addColumn(...opts.typedef[name].split(':'));
+			this.typedef.push(opts.typedef[name].replace(/[^:]+:/,''))
 		}
 	}
 	//lexicon :: key(sorted primary key) = payload
@@ -23,11 +23,10 @@ export class Column {
 		this.fieldnames.push(name)
 		this.fieldvalues.push( []);
 	}
-	validate(fieldname,cell, type) {
+	validate(fieldname,cell, type,line) {
 		if (type=='number' || type=='unique_number')  {
 			if (parseInt(cell).toString()!==cell) {
-				console.log(cell,'is not',type)
-				throw "type missmatch "
+				return this.onError(cell+' is not '+type,line);
 			}
 			return parseInt(cell);
 		}  else if (type=='keys') {
@@ -40,8 +39,7 @@ export class Column {
 				if (keys[at]===it) {
 					return at+1;
 				} else {
-					console.log(fieldname,keys.slice(0,10), it)
-					throw "key not found"
+					return this.onError('key not found '+it, line);
 				}
 			}).filter(it=>!!it).sort((a,b)=>a-b)
 		}
@@ -50,7 +48,7 @@ export class Column {
 	}
 	addRow(fields:string[], line:number ){
 		for (let i=0;i<fields.length;i++) {
-			const v=this.validate(this.fieldnames[i], fields[i],  this.typedef[i]);
+			const v=this.validate(this.fieldnames[i], fields[i],  this.typedef[i], line);
 			this.fieldvalues[ i ].push( v );
 		}
 	}
@@ -67,7 +65,6 @@ export class Column {
 		this.values=allfields.map(it=>it.slice(1));
 
 		if (!this.fieldnames.length)  return; // no type def
-		console.log(this.fieldnames)
 		for (let i=0;i<this.values.length;i++) {
 			const fields=this.values[i];
 			this.addRow(fields, i+1 ) ; //one base
@@ -81,7 +78,7 @@ export class Column {
 			} else if (type=='keys') {
 				out.push(pack_delta2d(this.fieldvalues[i]));
 			} else {
-				console.log('unknown type')
+				this.onError('unknown type');
 			}
   		}
 		return out;

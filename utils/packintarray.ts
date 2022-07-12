@@ -3,19 +3,19 @@ import {maxlen1,maxlen2,maxlen3,CodeStart, SEPARATOR2D,
 	BYTE2_START,BYTE3_START,BYTE4_START,BYTE5_START} from './unpackintarray.ts';
 
 type NumArray = number [] ;
-export const pack1=(arr:NumArray,esc=false)=>{
-	let s="";
+export const pack1=(arr:NumArray)=>{
+	let s=new Uint8Array(arr.length);
+	let idx=0;
 	for (let i=0;i<arr.length;i++) {
 		if (arr[i]>=maxlen1) throw new Error("exit boundary "+arr[i])
 		let int=arr[i];
 		if (isNaN(int)) int=0;
-		s+=String.fromCharCode(int+CodeStart);
+		s[idx++] = int+CodeStart;
 	}
-	if (esc) s=escapePackedStr(s); 
-	return s;
+	return new TextDecoder().decode(s);
 }
-export const pack2=(arr:NumArray,esc=false)=>{
-	let s="";
+export const pack2=(arr:NumArray)=>{
+	let s=Uint8Array(arr.length*2);
 	for (let i=0;i<arr.length;i++) {
 		if (arr[i]>=maxlen2) {
 			throw new Error("exit boundary "+arr[i])
@@ -26,14 +26,13 @@ export const pack2=(arr:NumArray,esc=false)=>{
 		i1=int % maxlen1;
 		int=Math.floor(int/maxlen1);
 		i2=int % maxlen1;
-		s+=String.fromCharCode(i2+CodeStart)+String.fromCharCode(i1+CodeStart);
+		s[idx++]=i2+CodeStart;
+		s[idx++]=i1+CodeStart;
 	}
-
-	if (esc) s=escapePackedStr(s); 
-	return s;
+	return new TextDecoder().decode(s);
 }
-export const pack3=(arr:NumArray,esc=false)=>{
-	let s="";
+export const pack3=(arr:NumArray)=>{
+	let s=Uint8Array(arr.length*3);
 	for (let i=0;i<arr.length;i++) {
 		if (arr[i]>=maxlen3) throw "exit boundary "+arr[i]
 		let int=arr[i];
@@ -43,10 +42,11 @@ export const pack3=(arr:NumArray,esc=false)=>{
 		int=Math.floor(int/maxlen1);
 		i2=int % maxlen1
 		i3=Math.floor(int/maxlen1);
-		s+=String.fromCharCode(i3+CodeStart)+String.fromCharCode(i2+CodeStart)+String.fromCharCode(i1+CodeStart);
+		s[idx++]=i3+CodeStart;
+		s[idx++]=i2+CodeStart;
+		s[idx++]=i1+CodeStart;
 	}
-	if (esc) s=escapePackedStr(s); 
-	return s;
+	return new TextDecoder().decode(s);
 }
 
 
@@ -65,22 +65,23 @@ export const pack3_2d=(arr:NumArray[],esc=false)=>{
 	}
 	return o.join(SEPARATOR2D);
 }
-export const pack=(arr:NumArray,delta=false)=>{
-	let s="", int=arr.length, prev=0;
+export const pack=(arr:NumArray, delta=false)=>{
 	if (arr.length==0) return s;
+	const sz=arr.length*5;  
+	let s=new Uint8Array(sz), int=arr.length, prev=0 , idx=0;
 
 	for (let i=0;i<=arr.length;i++) {
 		if (isNaN(int)) new Error('not an integer at'+i);
 		if (int<0) new Error('negative value at'+i+' value'+int);
 		if (int<BYTE1_MAX) {			
-			s+=String.fromCharCode(int+CodeStart);
+			s[idx++]=int+CodeStart;
 		} else if (int<BYTE2_MAX) {
 			int-=BYTE1_MAX;
 			let i1,i2;
 			i1=int % BYTE_MAX;
 			i2=Math.floor(int/BYTE_MAX);
-			s+=String.fromCharCode(i2+BYTE2_START+CodeStart)
-			 +String.fromCharCode(i1+CodeStart);
+			s[idx++]=i2+BYTE2_START+CodeStart
+			s[idx++]=i1+CodeStart;
 		} else if (int<BYTE3_MAX) {
 			int-=BYTE2_MAX;
 			let i1,i2,i3;
@@ -88,9 +89,9 @@ export const pack=(arr:NumArray,delta=false)=>{
 			int=Math.floor(int/BYTE_MAX);
 			i2=int % BYTE_MAX
 			i3=Math.floor(int/BYTE_MAX);
-			s+=String.fromCharCode(i3+BYTE3_START+CodeStart)
-			+String.fromCharCode(i2+CodeStart)
-			+String.fromCharCode(i1+CodeStart);
+			s[idx++]=i3+BYTE3_START+CodeStart;
+			s[idx++]=i2+CodeStart;
+			s[idx++]=i1+CodeStart;
 		} else if (int<BYTE4_MAX) {
 			int-=BYTE3_MAX;
 			let i1,i2,i3,i4;
@@ -101,10 +102,10 @@ export const pack=(arr:NumArray,delta=false)=>{
 			i3=int % BYTE_MAX
 
 			i4=Math.floor(int/BYTE_MAX);
-			s+=String.fromCharCode(i4+BYTE4_START+CodeStart)
-			+String.fromCharCode(i3+CodeStart)
-			+String.fromCharCode(i2+CodeStart)
-			+String.fromCharCode(i1+CodeStart);
+			s[idx++]=i4+BYTE4_START+CodeStart;
+			s[idx++]=i3+CodeStart;
+			s[idx++]=i2+CodeStart;
+			s[idx++]=i1+CodeStart;
 		} else if (int<BYTE5_MAX) {
 			int-=BYTE4_MAX;
 			let i1,i2,i3,i4,i5;
@@ -117,11 +118,11 @@ export const pack=(arr:NumArray,delta=false)=>{
 			i4=int % BYTE_MAX
 
 			i5=Math.floor(int/BYTE_MAX);
-			s+=String.fromCharCode(i5+BYTE5_START+CodeStart)
-			+String.fromCharCode(i4+CodeStart)
-			+String.fromCharCode(i3+CodeStart)
-			+String.fromCharCode(i2+CodeStart)
-			+String.fromCharCode(i1+CodeStart);
+			s[idx++]=i5+BYTE5_START+CodeStart;
+			s[idx++]=i4+CodeStart;
+			s[idx++]=i3+CodeStart;
+			s[idx++]=i2+CodeStart;
+			s[idx++]=i1+CodeStart;
 		} else {
 			// console.log(arr)
 			// console.log('neighbor of arr',i,delta,arr.slice(i,10),arr.length, prev)
@@ -130,9 +131,12 @@ export const pack=(arr:NumArray,delta=false)=>{
 		int=(delta? arr[i]-prev: arr[i] ) ||0;
 		prev=arr[i]||0;
 	}
-	return s;
+	//new TextDecoder is quite fast
+	return new TextDecoder().decode(s.slice(0,idx));
 }
+
 export const pack_delta=(arr:NumArray)=>pack(arr,true);
+
 export const pack_delta2d=(arr2d:NumArray[])=>pack2d(arr2d,true);
 export const arrDelta=(arr:NumArray)=>{
 	if (!arr)return [];
