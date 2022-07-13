@@ -42,7 +42,7 @@ export class Compiler implements ICompiler {
 		const [srctype,tag]=sourceType(lines[0]); //only first tag on first line
 		if (tag.name=='_') { //system directive
 			if (tag.attrs.ptk) {
-				if (this.ptk) {
+				if (this.ptk && this.ptk!==tag.name) {
 					this.onError('already named '+this.ptk);
 				} else {
 					this.ptk=tag.attrs.ptk;

@@ -53,11 +53,12 @@ await run('zipgen',async ()=>{
 })
 
 await run('write',()=>{
-	if (writeChanged('cbeta.zip' , new Uint8Array(arrbuf),'utf8')){
-		console.log('written','cbeta.zip', arrbuf.byteLength);
-	} else {
-		console.log('zip untouch')
-	}
+	console.log(lbase.pagestarts)
+	// if (writeChanged('cbeta.zip' , new Uint8Array(arrbuf),'utf8')){
+	// 	console.log('written','cbeta.zip', arrbuf.byteLength);
+	// } else {
+	// 	console.log('zip untouch')
+	// }
 
 })
 

@@ -49,7 +49,7 @@ export function append(buffer:(string|string[]), opts={}){
 	if ((buffer.length+this._accsize>this.pagesize|| newpage) && this._data.length) {
 		this.newPage(); //start a new page for big buffer.
 	}
-	addSection.call(this, name, type );
+	if (name) addSection.call(this, name, type );
 	const lines=Array.isArray(buffer)?buffer:buffer.split(/\r?\n/);
 
 	for (let i=0;i<lines.length;i++) {
