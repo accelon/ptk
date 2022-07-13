@@ -1,6 +1,6 @@
 /* store in column oriented */ 
 import {bsearch} from "../utils/bsearch.ts";
-import {pack_delta2d,pack} from "../utils/packintarray.ts"
+import {packIntDelta2d,packInt} from "../utils/packintarray.ts"
 import {packStrings} from "../utils/packstr.ts"
 import {alphabetically0} from "../utils/sortedarray.ts"
 export class Column {
@@ -74,9 +74,9 @@ export class Column {
 		for (let i=0;i<this.fieldnames.length;i++) {
 			const type=this.typedef[i];
 			if (type=='number' || type=='unique_number') {
-				out.push(pack( this.fieldvalues[i]));
+				out.push(packInt( this.fieldvalues[i]));
 			} else if (type=='keys') {
-				out.push(pack_delta2d(this.fieldvalues[i]));
+				out.push(packIntDelta2d(this.fieldvalues[i]));
 			} else {
 				this.onError('unknown type');
 			}

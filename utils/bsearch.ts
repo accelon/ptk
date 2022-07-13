@@ -25,7 +25,7 @@ export const bsearch = (arr:string[], obj:string) =>{
 }
 
 export type StringGetter = (idx:number) => string ;
-export const bsearchgetter =  (getter: StringGetter, obj:string) =>{  
+export const bsearchGetter =  (getter: StringGetter, obj:string) =>{  
   const len=parseInt(getter(-1)); //get the len
   let low = 0,high = len-1;  //getter is 1-based
   while (low < high) {

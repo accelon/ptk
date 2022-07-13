@@ -5,8 +5,7 @@
  * fast random seek by linepos 
  * prebuild might save 30% loading time at the space cost of 1/average_item_size)
  * */
-import {unpack,unpack_delta} from '../utils/unpackintarray.ts';
-import {bsearchgetter,StringGetter} from '../utils/bsearch.ts';
+import {bsearchGetter,StringGetter} from '../utils/bsearch.ts';
 
 export class StringArray {
 	private buf:string='';
@@ -50,7 +49,7 @@ export class StringArray {
 		return s;
 	}
 	get(idx:number):string{ //0 zero base
-		if (idx==-1) return this.linepos.length.toString() ; //for  bsearchgetter
+		if (idx==-1) return this.linepos.length.toString() ; //for  bsearchGetter
 		if (idx==0) {
 			return this.buf.slice(0,this.linepos[0]-1);
 		} else if (idx<=this.linepos.length) {
@@ -62,7 +61,7 @@ export class StringArray {
 	find(pat:string):number {
 		const getter:StringGetter=this.get.bind(this);
 		pat+=this.sep; //key-value separator
-		const at=bsearchgetter( getter, pat ); // this.get(0) return len
+		const at=bsearchGetter( getter, pat ); // this.get(0) return len
 		const found:string=getter(at);
 		return (found.startsWith(pat))?at:0;
 	}

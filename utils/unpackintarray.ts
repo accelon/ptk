@@ -38,7 +38,7 @@ export const unpack2=(str:string)=>{
 		i1=str.charCodeAt(i*2+1) -CodeStart;
 		arr.push(maxlen1*i2+i1 );
 	}
-	return new Int32Array(arr);
+	return arr;
 }
 export const unpack1=(str:string)=>{
 	const arr:NumArray=[];
@@ -50,10 +50,11 @@ export const unpack1=(str:string)=>{
 	}
 	return arr;
 }
-export const unpack=(s:string,delta=false):NumArray=>{
+export const unpackInt=(s:string,delta=false):NumArray=>{
 	let arr:number[]=[];
-	let started=false;
+	//let started=false;
 	if (!s) return [];
+
 	let o,i=0,c=0,prev=0;
 	while (i<s.length) {
 		o=s.charCodeAt(i) - CodeStart;
@@ -87,25 +88,25 @@ export const unpack=(s:string,delta=false):NumArray=>{
 			throw new Error("exit max integer 0x7f,"+ o);
 		}
 		
-		
-		if (started) {
-			arr[c] = o + (delta?prev:0);
-			prev=arr[c];
-			c++;
-		} else {
-			arr=new Array(o) // Int32Array(o); //Uint32Array might convert to double
-			started=true;
-		}
+
+		// if (started) {
+		arr[c] = o + (delta?prev:0);
+		prev=arr[c];
+		c++;
+		// } else {
+		// 	arr=new Array(o) // Int32Array(o); //Uint32Array might convert to double
+		// 	started=true;
+		// }
 		
 		i++;
 	}
-	return arr;
+	return arr; // return normal array , easier for consequence operation (intersect, union)
 }
-export const unpack_delta=(str:string)=>{
+export const unpackIntDelta=(str:string)=>{
 	return unpack(str,true);
 }
 
-export const unpack_delta2d=(str:string)=>{
+export const unpackIntDelta2d=(str:string)=>{
 	if (!str)return [];
 	return unpack2d(str,true);
 }
@@ -113,18 +114,18 @@ export const unpack_delta2d=(str:string)=>{
 export const unpack2d=(str:string,delta=false)=>{
 	if (!str)return [];
 	const arr=str.split(SEPARATOR2D);
-	if (arr.length==1) return [unpack(arr[0])];
-	return arr.map(itm=>unpack(itm,delta));
+	if (arr.length==1) return [unpackInt(arr[0])];
+	return arr.map(it=>unpackInt(it,delta));
 }
 export const unpack3_2d=(str:string)=>{
 	if (!str)return [];
 	const arr=str.split(SEPARATOR2D);
 	if (arr.length==1) return [unpack3(arr[0])];
-	return arr.map(itm=>unpack3(itm));
+	return arr.map(it=>unpack3(it));
 }
 
-export const unpack_boolean=(str:string,index=false)=>{
-	const barr=unpack(str);
+export const unpackBoolean=(str:string,index=false)=>{
+	const barr=unpackInt(str);
 	const out=[];
 	let idx=0; // 1-base is natural as payload follow right after packed_boolean ( 1 line)
 	for (let i=0;i<barr.length;i++) {

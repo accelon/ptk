@@ -1,7 +1,7 @@
 import {maxlen1,maxlen2,maxlen3,CodeStart, SEPARATOR2D,
 	BYTE_MAX,BYTE1_MAX, BYTE2_MAX,BYTE3_MAX, BYTE4_MAX,BYTE5_MAX,
 	BYTE2_START,BYTE3_START,BYTE4_START,BYTE5_START} from './unpackintarray.ts';
-
+//壓縮二維以下的自然數陣列為 ascii string ，只用0x0E 以上。
 type NumArray = number [] ;
 export const pack1=(arr:NumArray)=>{
 	let s=new Uint8Array(arr.length);
@@ -51,10 +51,10 @@ export const pack3=(arr:NumArray)=>{
 
 
 //might be two dimensional,separated by | 
-export const pack2d=(arr:NumArray[],delta=false)=>{
+export const packInt2d=(arr:NumArray[],delta=false)=>{
 	const o=[];
 	for (let i=0;i<arr.length;i++) {
-		o.push(pack(arr[i],delta));
+		o.push(packInt(arr[i],delta));
 	}
 	return o.join(SEPARATOR2D);
 }
@@ -65,12 +65,12 @@ export const pack3_2d=(arr:NumArray[],esc=false)=>{
 	}
 	return o.join(SEPARATOR2D);
 }
-export const pack=(arr:NumArray, delta=false)=>{
-	if (arr.length==0) return s;
+export const packInt=(arr:NumArray, delta=false)=>{
+	if (arr.length==0) return '';
 	const sz=arr.length*5;  
-	let s=new Uint8Array(sz), int=arr.length, prev=0 , idx=0;
+	let s=new Uint8Array(sz), int=arr[0], prev=0 , idx=0;
 
-	for (let i=0;i<=arr.length;i++) {
+	for (let i=1;i<=arr.length;i++) {
 		if (isNaN(int)) new Error('not an integer at'+i);
 		if (int<0) new Error('negative value at'+i+' value'+int);
 		if (int<BYTE1_MAX) {			
@@ -134,7 +134,7 @@ export const pack=(arr:NumArray, delta=false)=>{
 	//new TextDecoder is quite fast
 	return new TextDecoder().decode(s.slice(0,idx));
 }
-export const pack_boolean=(arr:boolean[])=>{
+export const packBoolean=(arr:boolean[])=>{
 	const out=[];
 	let prev=false, count=0;
 	for (let i=0;i<arr.length;i++) {
@@ -147,11 +147,11 @@ export const pack_boolean=(arr:boolean[])=>{
 		prev=!!arr[i];
 	}
 	out.push(count);
-	return pack(out);
+	return packInt(out);
 }
-export const pack_delta=(arr:NumArray)=>pack(arr,true);
+export const packIntDelta=(arr:NumArray)=>packInt(arr,true);
 
-export const pack_delta2d=(arr2d:NumArray[])=>pack2d(arr2d,true);
+export const packIntDelta2d=(arr2d:NumArray[])=>pack2d(arr2d,true);
 export const arrDelta=(arr:NumArray)=>{
 	if (!arr)return [];
 	if (arr.length===1) return [arr[0]];
