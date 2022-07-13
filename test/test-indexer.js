@@ -4,23 +4,19 @@ import {bsearch,alphabetically0,writeChanged,packIntDelta,packBoolean,unpackBool
 	fromObj,splitUTF32Char,nodefs,humanBytes,readTextContent,readTextLines,isPunc} from "ptk/nodebundle.cjs"
 
 const showMemory=stage=>{
-	console.log( stage,'heap',...humanBytes(process.memoryUsage().heapTotal))	
+	console.log( stage,'memory usage, heap (in V8)',...humanBytes(process.memoryUsage().heapTotal), 
+//memory hold by C++ object ( like Int32Array TextDecoder)
+	', external (in C++)',...humanBytes(process.memoryUsage().external))	
 }
 console.time('all');
 console.time('load')
 await nodefs;
 showMemory('init');
 const srcfile='../cb-t-raw.off'; //
-const ttfile=srcfile.replace('.off','.tsv');
 const rawcontent=readTextContent(srcfile);
 const lines=new StringArray(rawcontent,true); //10% faster than split(/\n/), saving alot of fragement string
 
-showMemory('textlines');
-// let tokentable=fs.existsSync(ttfile)?readTextLines(ttfile):null;
-// array of [ token ,tokencount] 
-// 幫助indexer 預先配置固定長度的陣列
-
-// if (tokentable) tokentable=tokentable.map(it=>it.split('\t') );
+showMemory('rawtext');
 
 let tokenpos=0 ;
 let unigram=new Int32Array(65536);
@@ -30,9 +26,8 @@ let ngramcount=0;
 let ngram={}, postingcount=[];
 const buildTokens=()=>{
 	lines.reset();
-	let line;
-	do {
-		line=lines.next();
+	let line=lines.next();
+	while (line || line===''){
 		const tokens=splitUTF32Char(line);
 		for (let j=0;j<tokens.length;j++) {
 			const tk=tokens[j];
@@ -55,12 +50,8 @@ const buildTokens=()=>{
 				tokenlist[tokenpos++] = at + 65536;
 			}  
 		}
-	} while (typeof line!=='undefined');
-	// const arr=fromObj(postingcount, (a,b)=>[a,b]);
-	// for (let i=0x3400;i<unigram.length;i++) {
-	// 	if (unigram[i]) arr.push( [String.fromCodePoint(i) , unigram[i]])
-	// }
-	//arr.sort(alphabetically0);
+		line=lines.next();
+	} 
 }
 console.timeEnd('load');//大約 2~3秒 耗266mb
 // if (!tokentable) {
@@ -68,8 +59,6 @@ console.time('tokenize')
 buildTokens(); 
 
 showMemory('tokenize');
-	// tokentable=buildTokenTable(lines); //11秒左右，不太佔記憶體
-	// writeChanged(ttfile, tokentable.map(it=>it.join('\t')).join('\n'))
 console.timeEnd('tokenize')
 // }
 //BMP 不用bsearch，快十倍以上。
@@ -142,6 +131,3 @@ showMemory('packed');
 console.timeEnd('all'); //  9.2 second
 console.log('packedsize',packedsize,'tokenpos',tokenpos,
 ',average bytes per tokenpos', (packedsize/tokenpos).toFixed(2))
-//console.log(postings.slice(0,2))
-//console.log(chpostings[0x4e00])
-

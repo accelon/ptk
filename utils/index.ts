@@ -41,7 +41,7 @@ export const humanBytes=(n:number):string=>{
         return [n,'b'];
     }
     if (n<1024*1024) {
-        return [parseFloat(n/1024).toFixed(2) ,'kb'];
+        return [parseFloat((n/1024).toFixed(2)) ,'kb'];
     } else {
         return [parseFloat((n/(1024*1024)).toFixed(2)),'mb'];
     }

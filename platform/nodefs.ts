@@ -33,11 +33,18 @@ const nodefs=new Promise(resolve=>{
         resolve(null)
     }
 })
-export const readTextContent=(fn,enc='utf8')=>{
-    let s=fs.readFileSync(fn,enc);
-    if (s.charCodeAt(0)===0xfeff) s=s.substr(1);
-    return s.replace(/\r?\n/g,'\n');
+export const readTextContent=(fn:string):string=>{
+    let s=fs.readFileSync(fn);
+    //3 times faster than readFileSync with encoding
+    //buffer is hold in C++ object instead of node.js heap
+    s= new TextDecoder().decode(s); 
+    if (s.charCodeAt(0)===0xfeff) s=s.slice(1); //BOM is okay, no memory write involved
+    // DOS style crlf get 300% memory consumption penalty 
+    if (s.indexOf('\r')>-1) s=s.replace(/\r?\n/g,'\n');
+    return s;
 }
+export const readTextLines=(fn:string):string[]=>readTextContent(fn).split('\n');
+
 export const writePitaka=async (lbase,opts={})=>{
     const name=opts.name|| lbase.name;
     const compression=opts.compress?'DEFLATE':'STORE';
@@ -81,5 +88,4 @@ export const deepReadDir = async (dirPath) => await Promise.all(
   })
 );
 
-export  const readTextLines=(fn,enc='utf8')=>readTextContent(fn,enc).split(/\r?\n/);
 export {nodefs};
