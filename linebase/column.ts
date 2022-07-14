@@ -8,6 +8,7 @@ export class Column {
 		this.fieldvalues=[];
 		this.fieldnames=[];
 		this.typedef=[];
+		this.pattern=[];   
 		this.keys=[];  //keys
 		this.values=[]; // 
 		this.primarykeys=opts.primarykeys||{};
@@ -15,20 +16,42 @@ export class Column {
 		if (opts.typedef) for (let name in opts.typedef) {
 			if (name==0 && !opts.typedef[name]) continue; //primary key
 			this.addColumn(...opts.typedef[name].split(':'));
-			this.typedef.push(opts.typedef[name].replace(/[^:]+:/,''))
+			this.addTypedef(opts.typedef[name].replace(/[^:]+:/,''))
 		}
 	}
 	//lexicon :: key(sorted primary key) = payload
-	addColumn(name,type:string){
+	addTypedef(typedef:string){
+		const at=typedef.indexOf('/');//see if regex pattern
+		let regex;
+		if (at>0) {
+			let expr=typedef.slice(at+1);
+			typedef=typedef.slice(0,at);
+			const at2=expr.lastIndexOf('/');
+			let reopts='';
+			if (at2>0) {
+				reopts=expr.slice(at2+1);
+				expr=expr.slice(0,at2);
+			}
+			if (at>0) regex= new RegExp(expr,reopts);
+		}
+		this.typedef.push(typedef);
+		this.pattern.push(regex);
+	}
+	addColumn(name:string){
 		this.fieldnames.push(name)
 		this.fieldvalues.push( []);
 	}
-	validate(fieldname,cell, type,line) {
+	validate(fieldname,cell, type,pattern,line) {
 		if (type=='number' || type=='unique_number')  {
 			if (parseInt(cell).toString()!==cell) {
-				return this.onError(cell+' is not '+type,line);
+				this.onError(cell+', is not '+type,line);
+				return 0;
 			}
-			return parseInt(cell);
+			if (pattern && !cell.match(pattern)) {
+				this.onError(cell+', pattern miss match',line);
+				return 0;
+			}
+			return parseInt(cell)||0;
 		}  else if (type=='keys') {
 			const items=cell.split(',');
 			//convert items to key index, try foreign key first, 
@@ -48,8 +71,8 @@ export class Column {
 	}
 	addRow(fields:string[], line:number ){
 		for (let i=0;i<fields.length;i++) {
-			const v=this.validate(this.fieldnames[i], fields[i],  this.typedef[i], line);
-			this.fieldvalues[ i ].push( v );
+			const v=this.validate(this.fieldnames[i], fields[i], this.typedef[i], this.pattern[i],line);
+			this.fieldvalues[i].push( v );
 		}
 	}
 	fromTSV(buffer:(string|string[])):string[]{
@@ -69,16 +92,15 @@ export class Column {
 			const fields=this.values[i];
 			this.addRow(fields, i+1 ) ; //one base
 		}
-		
 		const out=[packStrings(this.keys)];
 		for (let i=0;i<this.fieldnames.length;i++) {
 			const type=this.typedef[i];
-			if (type=='number' || type=='unique_number') {
-				out.push(packInt( this.fieldvalues[i]));
+			if (type.startsWith('number') || type.startsWith('unique_number')) {
+				out.push(packInt( this.fieldvalues[i]||[]));
 			} else if (type=='keys') {
-				out.push(packIntDelta2d(this.fieldvalues[i]));
+				out.push(packIntDelta2d(this.fieldvalues[i]||[]));
 			} else {
-				this.onError('unknown type');
+				this.onError('unknown type '+type);
 			}
   		}
 		return out;

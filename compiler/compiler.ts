@@ -10,7 +10,7 @@ const sourceType=(firstline:string):SourceType=>{
 	if (tags[0].name=='_') { //define a section
 		const attrs=tags[0].attrs;
 		if (attrs?.type?.toLowerCase()=='tsv') {
-			return [SourceType.TSV, attrs];
+			return [SourceType.TSV, tags[0]];
 		}
 	}
 	return [SourceType.Offtext,tags[0]];
@@ -24,7 +24,7 @@ export class CompiledFile implements ICompiledFile {
 
 export class Compiler implements ICompiler {
 	constructor () {
-		this.ptk='';
+		this.ptkname='';
 		this.compilingname='';
 		this.line=0;
 		this.compiledFiles={};
@@ -40,12 +40,13 @@ export class Compiler implements ICompiler {
 		let processed='',samepage=false;
 		const lines= (typeof buffer=='string') ?buffer.split(/\r?\n/):buffer;
 		const [srctype,tag]=sourceType(lines[0]); //only first tag on first line
+
 		if (tag.name=='_') { //system directive
 			if (tag.attrs.ptk) {
-				if (this.ptk && this.ptk!==tag.name) {
-					this.onError('already named '+this.ptk);
+				if (this.ptkname && this.ptkname!==tag.attrs.ptk) {
+					this.onError('ptk already named '+this.ptkname);
 				} else {
-					this.ptk=tag.attrs.ptk;
+					this.ptkname=tag.attrs.ptk;
 				}
 			}
 		}

@@ -1,5 +1,5 @@
 /*
-   No comment, no disk/network io, no compression, no crc checking, 32bits only.
+   No Async, No comment, no disk/network io, no compression, no crc checking, 32bits only.
    No Checking of local file header
    allow lazy loading of file content.
    Silent if not a zip
@@ -7,9 +7,9 @@
 import {ZipConst} from './format.ts'
 export interface IZipFile {
 	name:string,
-	offset:number,  //offset of actual store content, zip file header is skip
-	size:number,    //size of content
-	content:Uint8Array, //decode to utf8 if content is included in zipbuf
+	offset:number,       //offset of actual store content, zip file header is skip
+	size:number,         //size of content
+	content:Uint8Array,  //decode to utf8 if content is included in zipbuf
 }
 interface IZipStore {
 	files:IZipFile[],

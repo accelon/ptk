@@ -1,12 +1,4 @@
 import {ZipStore} from './zipstore.ts';
-function readInt(buf,idx,size) {
-    var result = 0,  i;
-    for (i = idx + size - 1; i >= idx; i--) {
-       result = (result << 8) + buf[i];
-    }
-    return result;
-}
-
 const readBlob = async (file, zipbuf, fileoffset, end, bufferoffset)=>{
     const blob=file.slice(fileoffset,end);
     const buf=await blob.arrayBuffer();
@@ -19,12 +11,10 @@ const fetchBuf= async (url,zipbuf,fileoffset,end, bufferoffset)=>{
     if (url.name &&url.size) { //a user provide file handle
         return await readBlob(url,zipbuf,fileoffset,end, bufferoffset)
     }
-
     const res=await fetch(url,{headers: {
         'content-type': 'multipart/byteranges',
         'range': 'bytes='+fileoffset+'-'+end,
     }});
-
     if (typeof bufferoffset=='undefined') bufferoffset=fileoffset;
     if (res.ok) {
         const lastpart=new Uint8Array( await res.arrayBuffer());
@@ -32,10 +22,6 @@ const fetchBuf= async (url,zipbuf,fileoffset,end, bufferoffset)=>{
         return true;
     }
     return false;
-}
-
-interface IRemoteZipStore {
-	zipstore : ZipStore,
 }
 export class RemoteZipStore {
 	constructor () {
@@ -76,28 +62,26 @@ export class RemoteZipStore {
 			}
 		}
 	}
-	async open(url, opts={}){
+	async open(url, opts={}){  //read central directory
 		this.url=url;
 	    const headbuf=new Uint8Array(16);
+	    const dv=new DataView(headbuf.buffer);
 	    const ok=await fetchBuf(url,headbuf, 0, 15);
-	    const full=opts.full;
+	    const full=opts.full;  //read entire zip at once
 	    if (!ok) return null;
 	    let filesize;
-	    if ((headbuf[0]!==0x50 || headbuf[1]!==0x4B) //normal zip
-	    	&& (headbuf[0]!==0x4D || headbuf[1]!==0x5A)) { //MZ
-	        // console.error('invalid zip file',url);
+	    if ((headbuf[0]!==0x50 || headbuf[1]!==0x4B)       //normal zip
+	    	&& (headbuf[0]!==0x4D || headbuf[1]!==0x5A)) { //MZ redbean
 	        return false;
 	    }
-	    //see writePitakaZip below
 	    if (headbuf[0]==0x50 && headbuf[7]&0x80) { //reserve bit 15 of flags
 	        //use TIME STAMP to store zip file size, normally local file headers are skipped.
 	        //workaround for chrome-extension HEAD not returning content-length
-	        filesize=readInt(headbuf,0xA,4);
+	        filesize=dv.getUint32(0xA,true);
 	    } else { //use HEAD
 	        let res=await fetch(url,{method:'HEAD'});
 	        filesize=parseInt(res.headers.get('Content-Length'));
 	    }
-
 	    if (isNaN(filesize)) return false;
 
 	    let bufsize=full?filesize:1024*1024;  // assuming central fits in

@@ -7,17 +7,18 @@ const makeHeader=(name,header,pagestarts)=>{
 	const meta=Object.assign( {} , header,{name,starts:pagestarts,buildtime:new Date()})
 	return 'jsonp(0,'+JSON.stringify(meta)+',``)';
 }
-export async function writePages(cb) {
+
+export function writePages(cb) {
 	if (this.sealed) throw 'already sealed';
 	this.newPage();
 	this.sealed=true;
 	let start=0;
 	const jsonpfn=pagejsonpfn(0);
-	await cb(jsonpfn, makeHeader(this.name,this.header||{},this.pagestarts) );
+	cb(jsonpfn, makeHeader(this.name,this.header||{},this.pagestarts) );
 	for (let i=0;i<this.pagestarts.length;i++) {
 		const lines=this._data.slice(start,this.pagestarts[i]);
 		const towrite=makePageJsonp(this.name,i+1,start,escapeTemplateString(lines.join('\n')));
-		const done=await cb( pagejsonpfn(i+1) , towrite);
+		const done=cb( pagejsonpfn(i+1) , towrite);
 		if (done) break;
 		start=this.pagestarts[i]
 	}

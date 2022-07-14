@@ -151,7 +151,7 @@ export const packBoolean=(arr:boolean[])=>{
 }
 export const packIntDelta=(arr:NumArray)=>packInt(arr,true);
 
-export const packIntDelta2d=(arr2d:NumArray[])=>pack2d(arr2d,true);
+export const packIntDelta2d=(arr2d:NumArray[])=>packInt2d(arr2d,true);
 export const arrDelta=(arr:NumArray)=>{
 	if (!arr)return [];
 	if (arr.length===1) return [arr[0]];

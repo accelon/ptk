@@ -7,3 +7,6 @@ dist
 *.cjs
 *.off
 *.tsv
+*.com
+*.bak
+*.7z
