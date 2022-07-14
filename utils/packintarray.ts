@@ -65,7 +65,7 @@ export const pack3_2d=(arr:NumArray[],esc=false)=>{
 	}
 	return o.join(SEPARATOR2D);
 }
-export const packInt=(arr:NumArray, delta=false)=>{
+export const packInt=(arr:NumArray, delta=false):Uint8Array=>{
 	if (arr.length==0) return '';
 	const sz=arr.length*5;  
 	let s=new Uint8Array(sz), int=arr[0], prev=0 , idx=0;
@@ -132,7 +132,7 @@ export const packInt=(arr:NumArray, delta=false)=>{
 		prev=arr[i]||0;
 	}
 	//new TextDecoder is quite fast
-	return new TextDecoder().decode(s.slice(0,idx));
+	return new TextDecoder().decode(s.subarray(0,idx)); //slice will make new copy
 }
 export const packBoolean=(arr:boolean[])=>{
 	const out=[];

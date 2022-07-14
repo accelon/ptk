@@ -1,2 +1,2 @@
-export * from './zip.ts'
-export * from './unzip.ts'
+export * from './zipstore.ts'
+export * from './storezip.ts'
