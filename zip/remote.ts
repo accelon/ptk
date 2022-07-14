@@ -27,8 +27,8 @@ export class RemoteZipStore {
 	constructor () {
 		this.zipstore=null;
 		this.url='';
-		this.filenames={};
-		this.files;//from zipstore
+		this.filenames={};  //access via name
+		this.files;         //from zipstore, access via array index
 	}
 	content(name_idx: number|string){
 		let fileinfo=(typeof name_idx=='string')?this.filenames[name_idx]:this.files[name_idx];
@@ -78,20 +78,21 @@ export class RemoteZipStore {
 	        //use TIME STAMP to store zip file size, normally local file headers are skipped.
 	        //workaround for chrome-extension HEAD not returning content-length
 	        filesize=dv.getUint32(0xA,true);
-	    } else { //use HEAD
+	    } else {
 	        let res=await fetch(url,{method:'HEAD'});
 	        filesize=parseInt(res.headers.get('Content-Length'));
 	    }
 	    if (isNaN(filesize)) return false;
 
-	    let bufsize=full?filesize:1024*1024;  // assuming central fits in
-	    if (filesize<bufsize) bufsize=filesize;
+	    let bufsize=full?filesize:1024*1024;    // assuming central fits in 1MB
+	    if (bufsize>filesize) bufsize=filesize; // zip file smaller than 1MB
 	    const zipbuf=new Uint8Array(bufsize);
 
+	    //fetch the central and end part of zip
 	    if (!await fetchBuf(url,zipbuf , filesize-bufsize, filesize-1,0)) {
 	        return;
 	    }
-	    this.zipstore=new ZipStore(zipbuf)
+	    this.zipstore=new ZipStore(zipbuf);
 	    this.files=this.zipstore.files;
 	    for (let i=0;i<this.files.length;i++) {
 	    	this.filenames[ this.files[i].name ] = this.files[i];

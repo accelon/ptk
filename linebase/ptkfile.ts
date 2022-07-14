@@ -1,31 +1,44 @@
 import {storeZip, ZipStore} from '../zip/index.ts';
 import {LineBase} from '../linebase/index.ts';
 
+const move000js=(sources)=>{ //make them close to central directory
+	const out=sources.filter(it=>!it.name.endsWith('/000.js'));
+	const js000=sources.filter(it=>it.name.endsWith('/000.js'));
+	out.push(...js000);
+	return out;
+}
 export const makePtk=(lbase:LineBase,comimage:Uint8Array) :Uint8Array=>{
-	const sources=[] , locals=[];
+	let sources=[] , locals=[];
 	let zip,redbeanbuf;
-	if (comimage) {
-		zip=new ZipStore(comimage);
+
+	lbase.writePages((pagefn,buf)=>{
+		sources.push({name:lbase.name+'/'+pagefn, content:new TextEncoder().encode(buf)});
+	})
+
+	if (comimage) { //copy all files from image, except the new ptk in lbase and config.js
+		zip=new ZipStore(comimage); 
 		redbeanbuf=new Uint8Array(comimage.subarray(0,zip.zipStart||0));
-		sources.push(...zip.files.filter(it=>
-			it.name!=='config.js'&& 
-			!it.name.startsWith(lbase.name+'/') //remove the old version
-		)); //copy all the files in the image, except ptk with same name and config.js
+		for (let i=0;i<zip.files.length;i++) {
+			const item=zip.files[i];
+			if (sources.indexOf(item.name)==-1 && item.name!=='config.js') {
+				sources.push(item);
+			}
+		}
 	}
+
+	//find out all ptk
 	sources.forEach(it=>{
 		if (it.name.endsWith('/000.js')) {
 			const ptkname=it.name.slice(0,it.name.length-7);
 			locals.push(ptkname);
 		}
 	});
-	locals.push(lbase.name);
 
+	//move 000.js close to central directory, better chance to be loaded when open
+	sources=move000js(sources);
 	sources.push({name:'config.js',
 		content:new TextEncoder().encode(`window.accelon22={locals:"`+locals.join(',')+'"}')});
 
-	lbase.writePages((pagefn,buf)=>{
-		sources.push({name:lbase.name+'/'+pagefn, content:new TextEncoder().encode(buf)});
-	})
 	const newzipbuf = storeZip(sources, {reserve:zip?.zipStart||0});
 	if (redbeanbuf) newzipbuf.set(redbeanbuf);
 	else setPtkFileLength(newzipbuf);

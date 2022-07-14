@@ -52,8 +52,10 @@ export class ZipStore {
 			if (i===0) this.zipStart=offset; //before zipstart is RedBean 
 			offset+=ZipConst.fileHeaderLength+namelen; //skip the local file header
 			let content;
-			if (coffset==centralOffset) { //caller supply entire zip 
-				content= this.zipbuf.subarray(offset,offset+size);
+
+			const inbuf=centralOffset-coffset;
+			if (offset - inbuf>=0) {
+				content= this.zipbuf.subarray(offset-inbuf,offset-inbuf+size);
 			} // else host will do lazy loading
 			this.files.push({name,offset,size,content});       //offset and size of actual data in the zip image
 		}
