@@ -17,7 +17,8 @@ interface IZipStore {
 export class ZipStore {
 	//zipbuf should at least include the Central records.
 	constructor (zipbuf:Uint8Array) { 
-		this.zipbuf=zipbuf;
+		//may pass in nodejs readFile result
+		this.zipbuf=(zipbuf.buffer)?new Uint8Array(zipbuf.buffer):zipbuf;
 		this.files=[];
 		this.zipStart=0;  //begining first file including header (PK)
 		const {fileCount,centralSize,centralOffset}=this.loadEndRecord();
@@ -32,17 +33,25 @@ export class ZipStore {
 		let p=0;
 		for (let i=0;i<fileCount;i++) {
 			const signature=centralbuf.getUint32(p);
-			if (signature!==ZipConst.centralHeaderSignature) break;
+			if (signature!==ZipConst.centralHeaderSignature) {
+				//throw "wrong central header signature"
+				break;
+			}
 			const size   =centralbuf.getUint32(p+20,true);
-			const namelen=centralbuf.getUint32(p+28,true);
+			const namelen=centralbuf.getUint16(p+28,true);
+			const extra=centralbuf.getUint16(p+30,true);
+			const commentlen=centralbuf.getUint16(p+32,true);
+			
 			let   offset =centralbuf.getUint32(p+42,true);
 			p+= ZipConst.centralHeaderLength;
 			const encodedName=this.zipbuf.subarray(coffset+p,coffset+p+namelen)
-			const name=new TextDecoder().decode(encodedName );
+			const name=new TextDecoder().decode(encodedName);
 			p+= namelen ;
+			p+= extra + commentlen;
+
 			if (i===0) this.zipStart=offset; //before zipstart is RedBean 
 			offset+=ZipConst.fileHeaderLength+namelen; //skip the local file header
-			let content='';
+			let content;
 			if (coffset==centralOffset) { //caller supply entire zip 
 				content= this.zipbuf.subarray(offset,offset+size);
 			} // else host will do lazy loading
@@ -54,7 +63,10 @@ export class ZipStore {
 		//cannot use subarray here
 		const endbuf=new DataView(this.zipbuf.slice(this.zipbuf.length-ZipConst.endLength).buffer);
 		endRecord.signature=endbuf.getUint32(0);
-		if (endRecord.signature!==ZipConst.endSignature) return endRecord;
+		if (endRecord.signature!==ZipConst.endSignature) {
+			//throw "wrong endRecord signature"
+			return endRecord;
+		}
 		endRecord.fileCount=endbuf.getUint16(8,true);
 		endRecord.centralSize=endbuf.getUint32(12,true);
 		endRecord.centralOffset=endbuf.getUint32(16,true);

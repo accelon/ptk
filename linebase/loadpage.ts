@@ -25,14 +25,15 @@ export async function loadNodeJs (page){
     }
 }
 
-export async function loadNodeJsZip (page) { 
-    const fn=this.name+'/'+pagefilename(page); 
-    const f=this.zip.files[fn];
-    const content=await f.async("string");
-    //console.log(page,content.slice(0,100))
-    // const lines= ;
-    // if (page==1) console.log(content.slice(0,100),lines)
-    this.setPage(page,...parsePage(content));
+export async function loadZip (page) { 
+    let content;
+    const fn=this.name+'/'+pagefilename(page);
+    for (let i=0;i<this.zip.files.length;i++) {
+        if (this.zip.files[i].name==fn) {
+            content=this.zip.files[i].content;
+        }
+    }
+    content&&this.setPage(page,...parsePage(content));
 }
 
 export async function loadFetch(page){

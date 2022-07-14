@@ -1,6 +1,17 @@
 import {fromObj,alphabetically} from '../utils/sortedarray.ts';
 import {humanBytes} from '../utils/index.ts';
-import {makePitakaZip} from '../utils/lazip.ts'
+
+export const makePitakaZip=async(arr:Uint8Array, writer)=>{
+    arr[7] |= 0x80 ; //set the flag , so that we know it is a pitaka zip
+    const sizebuf=new Uint32Array([arr.length]);
+    const sizebuf8=new Uint8Array(sizebuf.buffer);
+    arr[10]=sizebuf8[0];  //Buffer.writeInt32LE(arr.length,0xA);
+    arr[11]=sizebuf8[1];
+    arr[12]=sizebuf8[2];
+    arr[13]=sizebuf8[3];
+    if (writer) await writer(arr);
+    return arr;
+}
 export const writeChanged=(fn,buf,enc='utf8')=>{ //write to fn only if changed
     const oldbuf=fs.existsSync(fn) && fs.readFileSync(fn,enc);
     if (oldbuf!==buf) {

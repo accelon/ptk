@@ -1,0 +1,117 @@
+import {ZipStore} from './zipstore.ts';
+function readInt(buf,idx,size) {
+    var result = 0,  i;
+    for (i = idx + size - 1; i >= idx; i--) {
+       result = (result << 8) + buf[i];
+    }
+    return result;
+}
+
+const readBlob = async (file, zipbuf, fileoffset, end, bufferoffset)=>{
+    const blob=file.slice(fileoffset,end);
+    const buf=await blob.arrayBuffer();
+    const arr=new Uint8Array(buf);
+    if (typeof bufferoffset=='undefined') bufferoffset=fileoffset;
+    zipbuf.set(arr,bufferoffset);
+    return true;
+}
+const fetchBuf= async (url,zipbuf,fileoffset,end, bufferoffset)=>{ 
+    if (url.name &&url.size) { //a user provide file handle
+        return await readBlob(url,zipbuf,fileoffset,end, bufferoffset)
+    }
+
+    const res=await fetch(url,{headers: {
+        'content-type': 'multipart/byteranges',
+        'range': 'bytes='+fileoffset+'-'+end,
+    }});
+
+    if (typeof bufferoffset=='undefined') bufferoffset=fileoffset;
+    if (res.ok) {
+        const lastpart=new Uint8Array( await res.arrayBuffer());
+        zipbuf.set(lastpart , bufferoffset);
+        return true;
+    }
+    return false;
+}
+
+interface IRemoteZipStore {
+	zipstore : ZipStore,
+}
+export class RemoteZipStore {
+	constructor () {
+		this.zipstore=null;
+		this.url='';
+		this.filenames={};
+		this.files;//from zipstore
+	}
+	content(name_idx: number|string){
+		let fileinfo=(typeof name_idx=='string')?this.filenames[name_idx]:this.files[name_idx];
+		if (!fileinfo) return null;
+		return fileinfo.content;
+	}
+	async load(files:string[]|string,binary=false) {
+		if (typeof files=='string') files=[files];
+		const jobs=[];
+		for (let i=0;i<files.length;i++) {
+			jobs.push( this.fetchFile(files[i],binary));
+		}
+		return Promise.all(jobs);
+	}
+	async fetchFile(name_idx: number|string, binary=false) {
+		let fileinfo=(typeof name_idx=='string')?this.filenames[name_idx]:this.files[name_idx];
+		if (!fileinfo) return null;
+
+		if (typeof fileinfo.content!=='undefined') {
+			if (!binary && typeof fileinfo.content!=='string') {
+				fileinfo.content=new TextDecoder().decode(fileinfo.content);
+			}
+			return fileinfo.content;
+		} else {
+			const {offset,size}=fileinfo;
+			const buf=new Uint8Array(size);
+			const ok=await fetchBuf(this.url,buf, offset, offset+size-1, 0);
+			if (ok) {
+				fileinfo.content=binary?buf: new TextDecoder().decode(buf);
+				return fileinfo.content;
+			}
+		}
+	}
+	async open(url, opts={}){
+		this.url=url;
+	    const headbuf=new Uint8Array(16);
+	    const ok=await fetchBuf(url,headbuf, 0, 15);
+	    const full=opts.full;
+	    if (!ok) return null;
+	    let filesize;
+	    if ((headbuf[0]!==0x50 || headbuf[1]!==0x4B) //normal zip
+	    	&& (headbuf[0]!==0x4D || headbuf[1]!==0x5A)) { //MZ
+	        // console.error('invalid zip file',url);
+	        return false;
+	    }
+	    //see writePitakaZip below
+	    if (headbuf[0]==0x50 && headbuf[7]&0x80) { //reserve bit 15 of flags
+	        //use TIME STAMP to store zip file size, normally local file headers are skipped.
+	        //workaround for chrome-extension HEAD not returning content-length
+	        filesize=readInt(headbuf,0xA,4);
+	    } else { //use HEAD
+	        let res=await fetch(url,{method:'HEAD'});
+	        filesize=parseInt(res.headers.get('Content-Length'));
+	    }
+
+	    if (isNaN(filesize)) return false;
+
+	    let bufsize=full?filesize:1024*1024;  // assuming central fits in
+	    if (filesize<bufsize) bufsize=filesize;
+	    const zipbuf=new Uint8Array(bufsize);
+
+	    if (!await fetchBuf(url,zipbuf , filesize-bufsize, filesize-1,0)) {
+	        return;
+	    }
+	    this.zipstore=new ZipStore(zipbuf)
+	    this.files=this.zipstore.files;
+	    for (let i=0;i<this.files.length;i++) {
+	    	this.filenames[ this.files[i].name ] = this.files[i];
+	    }
+	    return true;
+	}
+}

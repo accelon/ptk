@@ -35,7 +35,7 @@ export class LineBase {
 	        } else if (protocol=='file:') {
                 this._loader=loadJSONP.bind(this);
 	        } else {
-	        	this._loader=(this.zip?loadNodeJsZip:loadNodeJs).bind(this);
+	        	this._loader=(this.zip?loadZip:loadNodeJs).bind(this);
 	        }
 	        this._loader(0);
 	    } else {
