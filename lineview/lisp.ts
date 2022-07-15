@@ -1,14 +1,22 @@
+export enum LispToken{
+  Opening=1,
+  Closing=2,
+  Integer=3,
+  Range=4,
+  Symbol=5,
+
+}
 function readToken (token) {
   if (token === '(') {
-    return {type: 'OPENING_PARENS'};
+    return {type:LispToken.Opening, value:null};
   } else if (token === ')') { 
-    return {type: 'CLOSING_PARENS'};
+    return {type:LispToken.Closing, value:null};
   } else if (token.match(/^\d+$/)) {
-    return {type: 'INTEGER',value: parseInt(token) };
+    return {type:LispToken.Integer, value:parseInt(token) };
   } else if (token.match(/^[a-z]*\d+~\d+$/)) {
-    return {type: 'RANGE', value: token };
+    return {type:LispToken.Range,  value: token };
   } else {
-    return {type: 'SYMBOL', value: token };
+    return {type:LispToken.Symbol, value: token };
   }
 }
 
@@ -22,9 +30,9 @@ export function tokenize (expression) {
 
 export function buildAST (tokens) {
   return tokens.reduce((ast, token) => {
-    if (token.type === 'OPENING_PARENS') {
+    if (token.type === LispToken.Opening) {
       ast.push([]);
-    } else if (token.type === 'CLOSING_PARENS') {
+    } else if (token.type === LispToken.Closing) {
       const current_expression = ast.pop();
       ast[ast.length - 1].push(current_expression);
     } else {

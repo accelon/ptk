@@ -7,8 +7,9 @@ export const length_alphabetically=(a:string,b:string)=> a.length==b.length?(a>b
 export const length_alphabetically0=(a:string,b:string)=>a[0].length==b[0].length?(a[0]>b[0]?1: ((a[0]<b[0])?-1:0)):a[0].length-b[0].length;
 export const length_alphabetically1=(a:string,b:string)=>a[1].length==b[1].length?(a[1]>b[1]?1: ((a[1]<b[1])?-1:0)):a[1].length-b[1].length;
 
-export const dedup=(arr:string[],dups:string[]|null)=>{
-    arr.sort(alphabetically);
+export const dedup=(arr:string[],dups:string[]|null,sorted=false)=>{
+    if (!arr||!arr.length)return [];
+    if (!sorted) arr.sort( typeof arr=='string'?alphabetically: (a,b)=>a-b);
     const out=[arr[0]];
     for (let i=1;i<arr.length;i++) {
         if (arr[i]!==arr[i-1]) {
@@ -19,9 +20,11 @@ export const dedup=(arr:string[],dups:string[]|null)=>{
     }
     return out;
 }
-export const unique=(arr:string[],sorted=false)=>{
+export const unique=(arr:[],sorted=false)=>{
     if (!arr||!arr.length)return [];
-    if(!sorted) arr.sort(alphabetically);
+    if(!sorted) {
+        arr.sort( typeof arr[0]=='string'?alphabetically: (a,b)=>a-b);
+    }
     let prev,out=[];
     for (let i=0;i<arr.length;i++) {
         if (arr[i]!==prev) out.push(arr[i]);
@@ -31,7 +34,9 @@ export const unique=(arr:string[],sorted=false)=>{
 }
 export const unique1=(arr:string[],sorted=false)=>{
     if (!arr||!arr.length)return [];
-    if(!sorted) arr.sort(alphabetically1);
+    if(!sorted) {
+        arr.sort( typeof arr[1]=='string'?alphabetically1: (a,b)=>a[1]-b[1]);
+    }
     const out=[arr[0]];
     for (let i=1;i<arr.length;i++) {
         if (arr[i][1]!==arr[i-1][1]) {
@@ -41,8 +46,11 @@ export const unique1=(arr:string[],sorted=false)=>{
     return out;
 }
 export const unique0=(arr:string[],sorted=false)=>{
-    if(!sorted) arr.sort(alphabetically0);
-    const out=[arr[1]];
+    if (!arr||!arr.length)return [];
+    if(!sorted) {
+        arr.sort( typeof arr[0]=='string'?alphabetically0: (a,b)=>a[0]-b[0]);
+    }
+    const out=[arr[0]];
     for (let i=1;i<arr.length;i++) {
         if (arr[i][0]!==arr[i-1][0]) {
             out.push(arr[i])

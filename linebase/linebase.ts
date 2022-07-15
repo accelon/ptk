@@ -1,5 +1,5 @@
 import {loadJSONP,loadNodeJsZip,loadFetch,loadNodeJs} from './loadpage.ts'
-import {bsearchNumber,lineBreaksOffset} from '../utils/index.ts';
+import {bsearchNumber,lineBreaksOffset,unique} from '../utils/index.ts';
 export class LineBase{
 	constructor (opts={}) {
 		this._pages=[];     // read time,   line not split
@@ -20,16 +20,17 @@ export class LineBase{
         } else {
         	this._loader=(this.zip?loadZip:loadNodeJs).bind(this);
         }
+        this.failed=false;
         this._loader(0);
 	}
 	async loadAll (){
 		await this.loadLines(0, this.pagestarts[this.pagestarts.length-1]);
 	}
 	pageOfLine=(line)=>{
-    	if (line>=this.pagestarts[starts.length-1]) return starts.length-1;
+    	if (line>=this.pagestarts[this.pagestarts.length-1]) return this.pagestarts.length-1;
     	return bsearchNumber(this.pagestarts,line,true);
     }
-	notLoadedPage(from,to){
+	pageOfRange([from,to]){
 	    if (from<0) return [];
 	    if (from>to) to+=from;
 	    const cstart=this.pageOfLine(from);
@@ -40,25 +41,29 @@ export class LineBase{
 	    }
 	    return notloaded;
 	}
-	async loadLines(from:number| [number,number] , to){
-	    const that=this;
+	async loadLines(from:number| number[] | [number,number][] , to){
+	    const that=this; //load a range, or a sequence of line or range.
 	    await this.isReady();
-	    let notloaded;
-	    if (!to ) to=from+1;
+	    let toload=[];
+	    if (!to && typeof from=='number') to=from+1;
 	    if (Array.isArray(from)) {
 	        const notincache={};
 	        for (let i=0;i<from.length;i++) {
-	            notincache[this.pageOfLine(from[i])]=true;
+	        	if (Array.isArray(from[i])) {
+	        		toload.push(...this.pageOfRange(from[i]));
+	        	} else {
+	        		notincache[this.pageOfLine(from[i])]=true;
+	        	}
 	        }
-	        notloaded=Object.keys(notincache).map(it=>parseInt(it));
+	        toload.push(...Object.keys(notincache).map(it=>parseInt(it)));
 	    } else {
 	        if (from>to) to+=from;
 	        if (!to) to=from+1;
-	        notloaded=this.notLoadedPage(from,to);    
+	        toload=this.pageOfRange([from,to]);
 	    }
+	    toload=unique(toload.filter(it=> !that._pages[it]));
 	    const jobs=[];
-	    // console.log(from,to,'notloaded',notloaded);
-	    notloaded.forEach(ck=>jobs.push(this._loader(ck+1)));
+	    toload.forEach(ck=>jobs.push(this._loader(ck+1)));
 	    if (jobs.length) await Promise.all(jobs);
 	}	
 	getPageLineOffset(page,line){
@@ -70,8 +75,8 @@ export class LineBase{
 	}
 	slice(nline,to){ //combine array of string from loaded pages
 		if (!to) to=nline+1;
-		const p1=pageOfLine(nline,this.pagestarts);
-		const p2=pageOfLine(to,this.pagestarts);
+		const p1=this.pageOfLine(nline,this.pagestarts);
+		const p2=this.pageOfLine(to,this.pagestarts);
 		let i=0, out='' ,slicefrom,sliceto;
 		for (let i=p1;i<=p2;i++) {
 			if (!this._pages[i]) return [];//page not loaded yet
@@ -93,23 +98,25 @@ export class LineBase{
     	if (page==0) {
 	        this.header=header;
 	        this.pagestarts=header.starts;
-    	    this.payload=payload||'nopayload'; //
+    	    this.payload=payload||'nopayload'; 
+    	    this.opened=true;
     	} else if (page>0) {
     		this._pages[page-1]=payload;
     		this._lineoffsets[page-1] = lineBreaksOffset(payload);
     	}
     }
 	isReady() { // 000.js is loaded
-		if (!this.payload) return true;//ready to write
+		if (this.payload) return true;//ready to write
 		const that=this;
 		let timer=0;
-		return new Promise( (resolve)=>{
+		return new Promise(resolve=>{
 			timer=setInterval(()=>{
-				if (that.payload) {
+				if (that.failed) resolve(false);
+				else if (that.payload) {
 					clearInterval(timer);
 					resolve(true);
 				}
-			},10);
+			},50);
 		})
 	}
 	async loadSection(name,type){

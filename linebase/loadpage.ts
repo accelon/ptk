@@ -45,10 +45,11 @@ export async function loadFetch(page){
     const uri=makePageURI(this.name,page);
     try {
         const res=await fetch(uri);
-        if (!res.ok) throw res.statusText;
+        // if (!res.ok) throw res.statusText;
         this.setPage(page, ...parsePage(await res.text()) );
     } catch(e) {
-        console.error('fetch failed,',uri);
+        this.failed=true;
+       // console.error('fetch failed,',uri);
     }
 }
 const jsonp=function(page,header,_payload){
