@@ -16,7 +16,7 @@ const parsePage=str=>{
     return[JSON.parse(str.substring(start,end)), payload ];
 }
 export async function loadNodeJs (page){
-    const fn=makePageURI(this.folder,page);
+    const fn=makePageURI(this.name,page);
     try{
         const data=await fs.promises.readFile(fn,'utf8');
         this.setPage(page,...parsePage(data));
@@ -42,7 +42,7 @@ export async function loadFetch(page){
         this.setPage(page,...parsePage(data));
         return;
     }
-    const uri=makePageURI(this.folder,page);
+    const uri=makePageURI(this.name,page);
     try {
         const res=await fetch(uri);
         if (!res.ok) throw res.statusText;
@@ -59,7 +59,7 @@ export async function loadJSONP(page){
     if (!typeof window.jsonp!=='function') {
         window.jsonp=jsonp.bind(this);
     }
-    return loadScript(makePageURI(this.folder,page),()=>{
+    return loadScript(makePageURI(this.name,page),()=>{
         if (page==0) {
             return this.pagestarts.length;
         } else {

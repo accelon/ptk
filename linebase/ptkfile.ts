@@ -1,5 +1,5 @@
 import {storeZip, ZipStore} from '../zip/index.ts';
-import {LineBase} from '../linebase/index.ts';
+import {LineBaser} from '../linebase/index.ts';
 
 const move000js=(sources)=>{ //make them close to central directory
 	const out=sources.filter(it=>!it.name.endsWith('/000.js'));
@@ -7,11 +7,11 @@ const move000js=(sources)=>{ //make them close to central directory
 	out.push(...js000);
 	return out;
 }
-export const makePtk=(lbase:LineBase,comimage:Uint8Array) :Uint8Array=>{
+export const makePtk=(lbase:LineBaser,comimage:Uint8Array) :Uint8Array=>{
 	let sources=[] , locals=[];
 	let zip,redbeanbuf;
 
-	lbase.writePages((pagefn,buf)=>{
+	lbase.dump((pagefn,buf)=>{
 		sources.push({name:lbase.name+'/'+pagefn, content:new TextEncoder().encode(buf)});
 	})
 

@@ -34,13 +34,13 @@ export class Compiler implements ICompiler {
 	onError(msg, line, refline=0) {
 		this.errors.push({name:this.compilingname, line:line||this.line, msg, refline});
 	}	
-	compileBuffer(buffer:string,name:string) {
+	compileBuffer(buffer:string,filename:string) {
 		if (!buffer) return this.onError('empty buffer');
-		if (!name) return this.onError('no name');
+		if (!filename) return this.onError('no name');
 		let processed='',samepage=false;
 		const lines= (typeof buffer=='string') ?buffer.split(/\r?\n/):buffer;
 		const [srctype,tag]=sourceType(lines[0]); //only first tag on first line
-
+		let name=filename;//name of this section
 		if (tag.name=='_') { //system directive
 			if (tag.attrs.ptk) {
 				if (this.ptkname && this.ptkname!==tag.attrs.ptk) {
@@ -57,7 +57,7 @@ export class Compiler implements ICompiler {
 			const columns=new Column(attrs, {typedef, primarykeys:this.primarykeys ,onError:this.onError.bind(this) } );
 			const header=lines.shift();
 			const serialized=columns.fromTSV(lines ) ; //build from TSV
-			const name = attrs.name || filename;  //use filename if name is not specified
+			name = attrs.name || filename;  //use filename if name is not specified
 			serialized.unshift(header); //keep the first line
 			//primary key can be refered by other tsv
 			if (attrs.name) this.primarykeys[attrs.name]= columns.keys;
@@ -66,7 +66,7 @@ export class Compiler implements ICompiler {
 		} else {
 			processed=buffer;
 		}
-		this.compiledFiles[name]={name,processed,errors:this.errors,samepage};
-		return this.compiledFiles[name];
+		this.compiledFiles[filename]={name,processed,errors:this.errors,samepage};
+		return this.compiledFiles[filename];
 	}
 }

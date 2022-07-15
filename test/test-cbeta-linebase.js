@@ -1,7 +1,7 @@
 // 3 second to put taisho into zip ( 30more seconds to do zip compression)
 // deflation should be done by 7z (59MB in 7z vs 93MB in zip)
 import {bsearch,alphabetically0,writeChanged,packIntDelta,packBoolean,unpackBoolean,
-	StringArray,LineBase,storeZip,
+	StringArray,LineBaser,storeZip,
 	fromObj,splitUTF32Char,nodefs,humanBytes,readTextContent,readTextLines,isPunc} from "ptk/nodebundle.cjs"
 let prevtiming='';
 const showMemory=(stage)=>{
@@ -25,7 +25,7 @@ const rawcontent=readTextContent(srcfile);
 const lines=new StringArray(rawcontent,true); //10% faster than split(/\n/), saving alot of fragement string
 showMemory('rawtext');
 
-const lbase=new LineBase();
+const lbase=new LineBaser();
 lbase.setName('cbeta');
 console.timeEnd('load')
 let linecount=0;
@@ -41,7 +41,7 @@ await run('lbase', ()=>{
 
 const sources=[];
 await run('writepages',async ()=>{
-	await lbase.writePages((name,content)=>{
+	lbase.dump((name,content)=>{
 		//full taisho takes 500ms  to encode
 		sources.push({name,  content: new TextEncoder().encode(content)});
 	})

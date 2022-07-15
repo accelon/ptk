@@ -1,14 +1,14 @@
 import * as PTK from '../nodebundle.cjs';
 import kluer from './kluer.js'
 const {blue,yellow,red,bgWhite} = kluer;
-const {LineBase,makePtk,parseOfftextLine,Compiler,writeChanged,humanBytes} = PTK;
+const {LineBaser,makePtk,parseOfftextLine,Compiler,writeChanged,humanBytes} = PTK;
 const filelist=files=>files.length>10?['<<(first 10)',files.length,files.slice(0,10).join(',')]:['<<',files.length,files.join(',')];
-export const dobuild=async (name, files, opts={})=>{
+export const dobuild=async (files, opts={})=>{
 	const jsonp=opts.jsonp;
 	const com=opts.com;
 	console.log(...filelist(files))
-	const lbase=new LineBase();
-	const ctx={lbase,primarykeys:{}};
+	const lbaser=new LineBaser();
+	const ctx={lbaser,primarykeys:{}};
 	let success=true;
 	const compiler=new Compiler();
 	for (let i=0;i<files.length;i++) {
@@ -18,9 +18,9 @@ export const dobuild=async (name, files, opts={})=>{
 			continue;
 		}
 		process.stdout.write('\r adding'+files[i]+ '  '+(i+1)+'/'+files.length+'        ');
-		const {errors,processed,samepage}=compiler.compileBuffer(content, files[i]);
+		const {name,errors,processed,samepage}=compiler.compileBuffer(content, files[i]);
 		if (errors.length==0) {
-			lbase.append( processed, {name:files[i],samepage});	
+			lbaser.append( processed, {name,samepage});	
 		} else {
 			console.log('errors',errors.length,errors.slice(0,5))
 			success=false;
@@ -31,12 +31,12 @@ export const dobuild=async (name, files, opts={})=>{
 		console.log(red('missing ptk name'));
 		return ;
 	} else if (success) {
-		lbase.setName(compiler.ptkname);
+		lbaser.setName(compiler.ptkname);
 		let written=0,outfn='';
 		process.stdout.write('\r');
-		const folder='../'+lbase.name+'/';
+		const folder='../'+lbaser.name+'/';
 		if (opts.jsonp) {
-			lbase.writePages((fn,buf)=>{
+			lbaser.dump((fn,buf)=>{
 				if (writeChanged(folder+fn,buf)) {
 					written+=buf.length;
 				}
@@ -46,14 +46,14 @@ export const dobuild=async (name, files, opts={})=>{
 			if (com) {
 				image=fs.readFileSync(opts.comfilename);//along with bin.js
 			}
-			const zipbuf=makePtk(lbase,image);
+			const zipbuf=makePtk(lbaser,image);
 			if (zipbuf) {
-				outfn='../'+lbase.name+(com?'.com':'.ptk');
+				outfn='../'+lbaser.name+(com?'.com':'.ptk');
 				await fs.writeFileSync(outfn,zipbuf);
 				written=zipbuf.length;
 			}
 		}
-		console.log('total page',lbase.pagestarts.length,'          ');
-		console.log(jsonp?blue('../'+name+'/*.js'):blue(outfn),...humanBytes(written));
+		console.log('total page',lbaser.pagestarts.length,'          ');
+		console.log(jsonp?blue('../'+compiler.ptkname+'/*.js'):blue(outfn),...humanBytes(written));
 	}
 }

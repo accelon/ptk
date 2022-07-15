@@ -19,11 +19,11 @@ export const getModulePath=name=>{
 const build=opts=>{
 	const files=fs.readdirSync('.').filter(it=>it.endsWith('.off')||it.endsWith('.tsv'));
 	let name=foldername.match(/([^\\\/]+)$/)[1];
-	if (foldername.endsWith('.offtext')) {
-		name=name.replace('.offtext','');
-		dobuild(name,files,opts);
+
+	if (files.length) {
+		dobuild(files,opts);
 	} else {
-		console.log(red("a ptk source folder name must ends with .offtext"));
+		console.log(red("no source in current working directory"));
 	}
 }
 const jsonp=()=>build({jsonp:true});

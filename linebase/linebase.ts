@@ -1,54 +1,66 @@
 import {loadJSONP,loadNodeJsZip,loadFetch,loadNodeJs} from './loadpage.ts'
-import {loadLines,pageOfLine} from './readline.ts';
-import {writePages,append} from './writer.ts';
-import {lineBreaksOffset} from '../utils/'
-interface ILineBase {
-	protected _data:string[];
-	pagestarts:number[];
-	protected header:Map;
-	private _accsize:number;
-	private pagesize:number;
-	sealed:boolean;
-}
-export class LineBase {
+import {bsearchNumber,lineBreaksOffset} from '../utils/index.ts';
+export class LineBase{
 	constructor (opts={}) {
-		this._data=[];      // write time, line splited
 		this._pages=[];     // read time,   line not split
 		this._lineoffsets=[]; // lineoffsets of each page
-		this._accsize=0;
-		this.pagesize=opts.pagesize||1024*64;
 		this.pagestarts=[];
 		this.header={starts:[],sectionnames:[],sectionstarts:[],sectiontypes:[]};
 		this.name=opts.name||'';
 		this.zip=opts.zip;
-		this.folder=opts.folder || this.name;
-	    this.loadLines=loadLines.bind(this);
-	    this.onAddLine=null;
-	    if (this.name) {
-	    	this.sealed=true;
-	    	let protocol=typeof chrome!=='undefined'?'chrome-extension:':'';
-	        if (typeof window!=='undefined') {
-	            protocol=window.location.protocol;
-	        }
-	        if (protocol==='http:'||protocol==='https:'|| protocol==='chrome-extension:') {
-                this._loader=loadFetch.bind(this);
-	        } else if (protocol=='file:') {
-                this._loader=loadJSONP.bind(this);
-	        } else {
-	        	this._loader=(this.zip?loadZip:loadNodeJs).bind(this);
-	        }
-	        this._loader(0);
-	    } else {
-	    	this.writePages=writePages.bind(this);
-	    	this.append=append.bind(this);
-	    }
-	}
-	setName(name) {
-		this.name=name;
+		this.payload;   //payload in 000.js
+    	let protocol=typeof chrome!=='undefined'?'chrome-extension:':'';
+        if (typeof window!=='undefined') {
+            protocol=window.location.protocol;
+        }
+        if (protocol==='http:'||protocol==='https:'|| protocol==='chrome-extension:') {
+            this._loader=loadFetch.bind(this);
+        } else if (protocol=='file:') {
+            this._loader=loadJSONP.bind(this);
+        } else {
+        	this._loader=(this.zip?loadZip:loadNodeJs).bind(this);
+        }
+        this._loader(0);
 	}
 	async loadAll (){
 		await this.loadLines(0, this.pagestarts[this.pagestarts.length-1]);
 	}
+	pageOfLine=(line)=>{
+    	if (line>=this.pagestarts[starts.length-1]) return starts.length-1;
+    	return bsearchNumber(this.pagestarts,line,true);
+    }
+	notLoadedPage(from,to){
+	    if (from<0) return [];
+	    if (from>to) to+=from;
+	    const cstart=this.pageOfLine(from);
+	    const cend=this.pageOfLine(to);    
+	    const notloaded=[];
+	    for (let i=cstart;i<cend+1;i++) {
+	        if (!this._pages[i]) notloaded.push(i);
+	    }
+	    return notloaded;
+	}
+	async loadLines(from:number| [number,number] , to){
+	    const that=this;
+	    await this.isReady();
+	    let notloaded;
+	    if (!to ) to=from+1;
+	    if (Array.isArray(from)) {
+	        const notincache={};
+	        for (let i=0;i<from.length;i++) {
+	            notincache[this.pageOfLine(from[i])]=true;
+	        }
+	        notloaded=Object.keys(notincache).map(it=>parseInt(it));
+	    } else {
+	        if (from>to) to+=from;
+	        if (!to) to=from+1;
+	        notloaded=this.notLoadedPage(from,to);    
+	    }
+	    const jobs=[];
+	    // console.log(from,to,'notloaded',notloaded);
+	    notloaded.forEach(ck=>jobs.push(this._loader(ck+1)));
+	    if (jobs.length) await Promise.all(jobs);
+	}	
 	getPageLineOffset(page,line){
 		if (page>=this._pages.length) return 0;
 
@@ -77,8 +89,18 @@ export class LineBase {
 		}
 		return out.split('\n');
 	}
-	isReady() { // ready to read or write
-		if (!this.name) return true;//ready to write
+    setPage(page,header,payload){
+    	if (page==0) {
+	        this.header=header;
+	        this.pagestarts=header.starts;
+    	    this.payload=payload||'nopayload'; //
+    	} else if (page>0) {
+    		this._pages[page-1]=payload;
+    		this._lineoffsets[page-1] = lineBreaksOffset(payload);
+    	}
+    }
+	isReady() { // 000.js is loaded
+		if (!this.payload) return true;//ready to write
 		const that=this;
 		let timer=0;
 		return new Promise( (resolve)=>{
@@ -89,20 +111,6 @@ export class LineBase {
 				}
 			},10);
 		})
-	}
-    setPage(page,header,payload){
-    	if (page==0) {
-	        this.header=header;
-	        this.pagestarts=header.starts;
-    	    this.payload=payload||'nopayload';
-    	} else if (page>0) {
-    		this._pages[page-1]=payload;
-    		this._lineoffsets[page-1] = lineBreaksOffset(payload);
-    	}
-    }
-	private newPage(){
-		this.pagestarts.push(this._data.length);
-		this._accsize=0;
 	}
 	async loadSection(name,type){
 		const [from,to]=this.sectionRange(name,type);
@@ -116,11 +124,9 @@ export class LineBase {
 		const notfound=[0,0];
 		const {sectionnames,sectionstarts,sectiontypes}=this.header;
 		if (!sectionnames || !sectionnames.length) return notfound;
-
 		for (let i=0;i<sectionnames.length;i++) {
 			const name=sectionnames[i];
 			const type=sectiontypes[i];
-
 			if ( (sname && name==sname) || (!sname && stype && type==stype) ) {
 				const endoflastsection=i< sectionstarts.length-1
 					?sectionstarts[i+1]:this.pagestarts[this.pagestarts.length-1];
