@@ -1,6 +1,6 @@
 ﻿#!/usr/bin/env node
 import Path from 'path';
-import {blue,yellow,red,bgWhite,green,bold,underline} from './colors.cjs'; // lukeed/kleur
+import {blue,yellow,red,cyan,green,bold,underline} from './colors.cjs'; // lukeed/kleur
 import {dobuild} from './build.js';
 import * as PTK from '../nodebundle.cjs';
 import {onelexicon, text_lexicon, lexicons} from './textutils.js'
@@ -42,18 +42,17 @@ export const union=()=>lexicons('union', PTK.lexiconUnion);
 export const xor=()=>lexicons('xor', PTK.lexiconXor);
 
 const help=()=>{
-    console.log(bold('Pitaka command line interface'));
-    console.log(underline('Usage:'));
-    console.log(yellow('$ ptk build'), 'build a ptk zip')
-    console.log(yellow('$ ptk jsonp'), 'build a folder of jsonp')
-    console.log(yellow('$ ptk com  '), 'build a com executable')
-    console.log(underline('Text File Processing Utils'));
-    console.log(yellow('$ ptk unique   '),green('filename'), 'remove duplicate item');
-    console.log(yellow('$ ptk dedup    '),green('filename'), 'find out duplicate item');
-    console.log(yellow('$ ptk listwords'),green('filename'),green('lexicon'), 'list words found in lexicon');
-    console.log(yellow('$ ptk union    '),green('filename1'),green('filename1'),'combine lexicon')
-    console.log(yellow('$ ptk intersect'),green('filename1'),green('filename1'),'find out common words')
-    console.log(yellow('$ ptk xor      '),green('filename1'),green('filename1'), 'find out exclusive words')
+    console.log(underline('Pitaka File'));
+    console.log('$',yellow('ptk build'), 'build a ptk zip')
+    console.log('$',yellow('ptk jsonp'), 'build a folder of jsonp')
+    console.log('$',yellow('ptk com  '), 'build a com executable')
+    console.log(underline('Text File Processing'));
+    console.log('$',yellow('ptk unique   '),cyan('file'), '                 remove duplicated item');
+    console.log('$',yellow('ptk dedup    '),cyan('file'), '                 find out duplicated item');
+    console.log('$',yellow('ptk listwords'),cyan('file'),cyan('lexicon'), '         list words found in lexicon');
+    console.log('$',yellow('ptk union    '),cyan('lexicon1'),cyan('lexicon2 ...'),'merge all words')
+    console.log('$',yellow('ptk intersect'),cyan('lexicon1'),cyan('lexicon2 ...'),'find out common words')
+    console.log('$',yellow('ptk xor      '),cyan('lexicon1'),cyan('lexicon2 ...'), 'find out exclusive words')
 }
 
 try {

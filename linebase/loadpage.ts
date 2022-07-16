@@ -60,11 +60,16 @@ export async function loadJSONP(page){
     if (!typeof window.jsonp!=='function') {
         window.jsonp=jsonp.bind(this);
     }
-    return loadScript(makePageURI(this.name,page),()=>{
-        if (page==0) {
-            return this.pagestarts.length;
-        } else {
-            return this._pages[page-1];           
-        }
-    });
+    const that=this;
+    try {
+        const status=await loadScript(makePageURI(this.name,page),()=>{
+            if (page==0) {
+                return that.pagestarts.length;
+            } else {
+                return that._pages[page-1];           
+            }
+        });
+    } catch(e) {
+        this.failed=true;
+    }
 }

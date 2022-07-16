@@ -3,22 +3,16 @@ export type Lexicon = string[];
 
 export const lexiconUnion=(lexicons:Lexicon[])=>{
 	if (!lexicons || lexicons.length<2) return lexicons;
-	let out=unique(lexicons[0]);
+	let out=lexicons[0];
 	for (let i=1;i<lexicons.length;i++) {
-		const arr=unique(lexicons[i]);
-		const res=[];
-		for (let j=0;j<arr.length;j++) {
-        	const at=bsearch(out, arr[j]);
-        	if (out[at]!==arr[j]) res.push(arr[j]);
-        }
-        out.push(...res);
-        out.sort(alphabetically);
+        out=out.concat(lexicons[i]);
     }
-	return out;
+	return unique(out);
 }
 
 export const lexiconIntersect=(lexicons:Lexicon[])=>{
 	if (!lexicons || lexicons.length<2) return lexicons;
+	lexicons.sort( (a,b)=>b.length-a.length); //save some looping
 	let out=unique(lexicons[0]);
 	for (let i=1;i<lexicons.length;i++) {
 		const arr=unique(lexicons[i]);
@@ -29,7 +23,7 @@ export const lexiconIntersect=(lexicons:Lexicon[])=>{
         }
         out=res;
     }
-	return out;
+	return out.sort(alphabetically);
 }
 
 export const lexiconXor=(lexicons:Lexicon[])=>{
@@ -48,5 +42,5 @@ export const lexiconXor=(lexicons:Lexicon[])=>{
         }
 		out=out.concat(res);
 	}
-	return out;
+	return out.sort(alphabetically);
 }

@@ -1,7 +1,7 @@
 import {OFFTAG_REGEX_G, OFFTAG_NAME_ATTR,ALWAYS_EMPTY,OFFTAG_ID,
     QUOTEPAT,QUOTEPREFIX,QSTRING_REGEX_G,QSTRING_REGEX_GQUOTEPAT,OFFTAG_LEADBYTE} from './constants.ts';
 import {OffTag} from './interfaces.ts';
-
+import {findCloseBracket} from '../utils/cjk.ts'
 const parseCompactAttr=(str:string)=>{  //              序號和長度和標記名 簡寫情形，未來可能有 @ 
     const out={}, arr=str.split(/([@#])/);
     while (arr.length) {
