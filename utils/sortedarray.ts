@@ -7,16 +7,17 @@ export const length_alphabetically=(a:string,b:string)=> a.length==b.length?(a>b
 export const length_alphabetically0=(a:string,b:string)=>a[0].length==b[0].length?(a[0]>b[0]?1: ((a[0]<b[0])?-1:0)):a[0].length-b[0].length;
 export const length_alphabetically1=(a:string,b:string)=>a[1].length==b[1].length?(a[1]>b[1]?1: ((a[1]<b[1])?-1:0)):a[1].length-b[1].length;
 
-export const dedup=(arr:string[],dups:string[]|null,sorted=false)=>{
+export const dedup=(arr:string[],sorted=false)=>{
     if (!arr||!arr.length)return [];
+    console.log('dup')
     if (!sorted) arr.sort( typeof arr=='string'?alphabetically: (a,b)=>a-b);
-    const out=[arr[0]];
+    const out=[];
+    let prev=arr[0];
     for (let i=1;i<arr.length;i++) {
-        if (arr[i]!==arr[i-1]) {
-            out.push(arr[i])
-        } else if (dups) {
-            dups?.push(arr[i]);
+        if (arr[i]===prev) {
+            out.push([i,arr[i]]);
         }
+        prev=arr[i];
     }
     return out;
 }

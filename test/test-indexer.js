@@ -14,7 +14,7 @@ await nodefs;
 showMemory('init');
 const srcfile='../cb-t-raw.off'; //
 const rawcontent=readTextContent(srcfile);
-const lines=new StringArray(rawcontent,true); //10% faster than split(/\n/), saving alot of fragement string
+const lines=new StringArray(rawcontent,{sequencial:true}); //10% faster than split(/\n/), saving alot of fragement string
 
 showMemory('rawtext');
 

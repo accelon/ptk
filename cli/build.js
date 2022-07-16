@@ -1,6 +1,6 @@
 import * as PTK from '../nodebundle.cjs';
-import kluer from './kluer.js'
-const {blue,yellow,red,bgWhite} = kluer;
+//import kluer from './kluer.js'
+import {blue,yellow,red,bgWhite} from './colors.cjs';
 const {LineBaser,makePtk,parseOfftextLine,Compiler,writeChanged,humanBytes} = PTK;
 const filelist=files=>files.length>10?['<<(first 10)',files.length,files.slice(0,10).join(',')]:['<<',files.length,files.join(',')];
 export const dobuild=async (files, opts={})=>{

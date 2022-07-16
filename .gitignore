@@ -10,3 +10,9 @@ dist
 *.com
 *.bak
 *.7z
+*-union
+*-dedup
+*-unique
+*-intersect
+*.csv
+*-xor

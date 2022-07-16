@@ -1,5 +1,5 @@
 ﻿// @ts-ignore
-import {StringArray} from '../utils/stringarray.ts';
+import {StringArray} from './nodebundle.cjs';
 let test=0,pass=0;
 console.time('load');
 import bigfile from './bigfile.mjs'
@@ -11,7 +11,7 @@ console.log('bigfile length',bigfile.length);
 //console.timeEnd('split');
 
 console.time('stringarray');
-const sa=new StringArray(bigfile,'=');
+const sa=new StringArray(bigfile,{delimiter:'='});
 console.timeEnd('stringarray'); 
 //console.log(sa.len());
 

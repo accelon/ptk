@@ -7,3 +7,4 @@ export * from './compiler/index.ts';
 export * from './lineview/index.ts';
 export * from './zip/index.ts'
 export * from './basket/index.ts'
+export * from './lexicon/index.ts'

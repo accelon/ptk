@@ -1,6 +1,7 @@
 import {fromObj,alphabetically} from '../utils/sortedarray.ts';
 import {humanBytes} from '../utils/index.ts';
 
+
 export const makePitakaZip=async(arr:Uint8Array, writer)=>{
     arr[7] |= 0x80 ; //set the flag , so that we know it is a pitaka zip
     const sizebuf=new Uint32Array([arr.length]);
@@ -44,6 +45,7 @@ const nodefs=new Promise(resolve=>{
         resolve(null)
     }
 })
+
 export const readTextContent=(fn:string):string=>{
     let s=fs.readFileSync(fn);
     //3 times faster than readFileSync with encoding

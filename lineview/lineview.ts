@@ -1,6 +1,11 @@
 import {parseLisp,LispToken} from './lisp.ts';
 import {openPtk,usePtk} from '../basket/index.ts'
-
+export interface ILineViewItem {
+	key   : string,
+	text  : string,
+	depth : number,  //巢深
+	edge  : number, //1 上邊界, 2 下邊界  , 3 單行
+}
 export const parseLVA = (address:string)=>{
 	if (address[0]!=='(') address='('+address+')';
 	const expr=parseLisp(address);
