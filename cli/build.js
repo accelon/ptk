@@ -1,18 +1,22 @@
 import * as PTK from '../nodebundle.cjs';
 //import kluer from './kluer.js'
-import {blue,yellow,red,bgWhite} from './colors.cjs';
+import {cyan,blue,yellow,red,bgWhite} from './colors.cjs';
 const {LineBaser,makePtk,parseOfftextLine,Compiler,writeChanged,humanBytes} = PTK;
-const filelist=files=>files.length>10?['<<(first 10)',files.length,files.slice(0,10).join(',')]:['<<',files.length,files.join(',')];
+const filelist=files=>files.length>10?[files.length,files.slice(0,10)]:[files.length,files];
 export const dobuild=async (files, opts={})=>{
 	const jsonp=opts.jsonp;
 	const com=opts.com;
-	console.log(...filelist(files))
+	const [filecount, list]=filelist(files);
+	console.log('input', filecount,'files', list,((filecount>list.length)?'...':'')  );
+	const outdir=opts.outdir||'';
+	const indir=opts.indir||'';
 	const lbaser=new LineBaser();
 	const ctx={lbaser,primarykeys:{}};
 	let success=true;
 	const compiler=new Compiler();
+	// compiler.ptkname=opts.ptkname; //suggestion only, might overwrite by offtext
 	for (let i=0;i<files.length;i++) {
-		const content=fs.readFileSync( files[i], 'utf8');
+		const content=fs.readFileSync( indir+files[i], 'utf8');
 		if (!content.trim()) {
 			console.log('empty file',files[i]);
 			continue;
@@ -27,6 +31,10 @@ export const dobuild=async (files, opts={})=>{
 			break;
 		}
 	}
+	if (opts.ptkname!==compiler.ptkname) {
+		console.log('\n',red('rename'), 
+			cyan(opts.ptkname), '>>', cyan(compiler.ptkname));
+	}
 	if (!compiler.ptkname) {
 		console.log(red('missing ptk name'));
 		return ;
@@ -34,7 +42,8 @@ export const dobuild=async (files, opts={})=>{
 		lbaser.setName(compiler.ptkname);
 		let written=0,outfn='';
 		process.stdout.write('\r');
-		const folder='../'+lbaser.name+'/';
+		const folder=outdir+lbaser.name+'/';
+		if (!fs.existsSync(folder)) fs.mkdirSync(folder);
 		if (opts.jsonp) {
 			lbaser.dump((fn,buf)=>{
 				if (writeChanged(folder+fn,buf)) {
@@ -48,12 +57,12 @@ export const dobuild=async (files, opts={})=>{
 			}
 			const zipbuf=makePtk(lbaser,image);
 			if (zipbuf) {
-				outfn='../'+lbaser.name+(com?'.com':'.ptk');
+				outfn=outdir+lbaser.name+(com?'.com':'.ptk');
 				await fs.writeFileSync(outfn,zipbuf);
 				written=zipbuf.length;
 			}
 		}
 		console.log('total page',lbaser.pagestarts.length,'          ');
-		console.log(jsonp?blue('../'+compiler.ptkname+'/*.js'):blue(outfn),...humanBytes(written));
+		console.log(jsonp?cyan(outdir+compiler.ptkname+'/*.js'):cyan(outfn),...humanBytes(written));
 	}
 }

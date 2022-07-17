@@ -105,13 +105,13 @@ export class LineBase{
     		this._lineoffsets[page-1] = lineBreaksOffset(payload);
     	}
     }
-	isReady() { // 000.js is loaded
-		if (this.payload) return true;//ready to write
+	isReady() {
+		if (this.payload) return true;
 		const that=this;
 		let timer=0;
 		return new Promise(resolve=>{
 			timer=setInterval(()=>{
-				if (that.failed) resolve(false);
+				if (that.failed) resolve(false); //set by loadScript, loadFetch
 				else if (that.payload) {
 					clearInterval(timer);
 					resolve(true);
