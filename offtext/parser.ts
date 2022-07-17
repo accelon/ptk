@@ -1,7 +1,8 @@
-import {OFFTAG_REGEX_G, OFFTAG_NAME_ATTR,ALWAYS_EMPTY,OFFTAG_ID,
-    QUOTEPAT,QUOTEPREFIX,QSTRING_REGEX_G,QSTRING_REGEX_GQUOTEPAT,OFFTAG_LEADBYTE} from './constants.ts';
-import {OffTag} from './interfaces.ts';
-import {findCloseBracket} from '../utils/cjk.ts'
+import {OFFTAG_REGEX_G, OFFTAG_NAME_ATTR,ALWAYS_EMPTY,OFFTAG_COMPACT_ID,
+    QUOTEPAT,QUOTEPREFIX,QSTRING_REGEX_G,QSTRING_REGEX_GQUOTEPAT,
+    OFFTAG_LEADBYTE} from './constants.ts';
+import {IOfftag} from './interfaces.ts';
+import {closeBracketOf} from '../utils/cjk.ts'
 const parseCompactAttr=(str:string)=>{  //              序號和長度和標記名 簡寫情形，未來可能有 @ 
     const out={}, arr=str.split(/([@#])/);
     while (arr.length) {
@@ -10,7 +11,7 @@ const parseCompactAttr=(str:string)=>{  //              序號和長度和標記
         if (v==='@') out['@']=arr.shift();  // a pointer
         else { 
             if (v==='#') v=arr.shift(); 
-            const m=v.match(OFFTAG_ID); //id with numeric leading may omit #
+            const m=v.match(OFFTAG_COMPACT_ID); //id with numeric leading may omit #
             if (m) out.id=m[1];
         }
     }
@@ -18,7 +19,6 @@ const parseCompactAttr=(str:string)=>{  //              序號和長度和標記
 }
 const parseAttributes=(rawA:string,compactAttr:string)=>{
     let quotes=[];             //字串抽出到quotes，方便以空白為拆分單元,
-    let putback='';            //標記中非屬性的文字，放回正文
     const getqstr=(str,withq)=>str.replace(QUOTEPAT,(m,qc)=>{
         return (withq?'"':'')+quotes[parseInt(qc)]+(withq?'"':'');
     });
@@ -34,9 +34,10 @@ const parseAttributes=(rawA:string,compactAttr:string)=>{
     while (attrarr.length) {
         const it=attrarr.shift();
         let eq=-1,key='';
-        if (it[0]=='~' || it[0]=='#' || it[0]=='@')  {
+        if (it[0]=='~' || it[0]=='#' || it[0]=='@')  { //short form
            key=it[0];
-           eq=0;
+           if (key=='#') key='id';
+           eq=(it[1]=='=')?1:0;
         } else {
            eq=it.indexOf('=');
            if (eq>0) key=it.substr(0,eq);
@@ -45,14 +46,14 @@ const parseAttributes=(rawA:string,compactAttr:string)=>{
             attrs[key] = getqstr(it.substr(eq+1));
             if (attrarr.length && !attrarr[0].trim()) attrarr.shift() ;//drop the following space
         } else {
-            putback+=getqstr(it,true);
+            if (it) attrs[it] = true;
         }
         i++
     }
 
-    return [attrs,putback];
+    return attrs;
 }
-export const parseOffTag=(raw:string,rawA:string)=>{ // 剖析一個offtag,  ('a7[k=1]') 等效於 ('a7','[k=1]')
+export const parseOfftag=(raw:string,rawA:string)=>{ // 剖析一個offtag,  ('a7[k=1]') 等效於 ('a7','[k=1]')
     if (raw[0]==OFFTAG_LEADBYTE) raw=raw.substr(1);
     if (!rawA){
         const at=raw.indexOf('[');
@@ -62,77 +63,89 @@ export const parseOffTag=(raw:string,rawA:string)=>{ // 剖析一個offtag,  ('a
         }
     }
     let [m2, tagName, compactAttr]=raw.match(OFFTAG_NAME_ATTR);
-    let [attrs,putback]=parseAttributes(rawA,compactAttr);
-    return [tagName,attrs,putback];
+    let attrs=parseAttributes(rawA,compactAttr);
+    return [tagName,attrs];
 }
 
-const resolveTagWidth=(line:string,tags:OffTag[])=>{  
+const resolveEnd=(raw, plain:string,tags:IOfftag[])=>{  
 //正文已準備好，可計算標記終點，TWIDTH 不為負值，只允許少數TWIDTH==0的標記(br,fn) ，其餘自動延伸至行尾
-    tags.forEach( (tag: offTag )=>{
-        const w=tag.attrs['~'];
-        if (w) {                    //以文字標定結束位置
-            if (!ALWAYS_EMPTY[tag.name]) {
-                const pos=line.indexOf(w);
-                if (pos>0) tag.w=pos-tag.x+1; 
-                else tag.w=0;
-            } else tag.w=0;
-            delete tag.attrs['~'];
-        } else if ( 0 > tag.w ) {  //負值轉換為正值（從標記起算)
-            // if ( tag.w==-1) {
-            //     tag.w=0; //空標籤自動延至至行尾
-            // } else {
-                tag.w= tag.w +line.length+1; 
-                if (tag.w<0) tag.w=0;    
-            // }
-        }
-        if (tag.name=='t' && !tag.w) { //找到下一個括號結束點
-            const closebracket=findCloseBracket(line,tag.x);
-            if (closebracket) tag.w=closebracket-tag.x;
-        }
-    })
+    for (let i=0;i<tags.length;i++) {
+       const tag=tags[i];
+       if (tag.end>tag.start && !tag.width) { //已知 rawtext 座標，換算回plaintext座標
+            let j=i;
+            while (j<tags.length && tag.end > tags[j].start) j++;
+            if ((j<tags.length && tags[j].start>tag.end) || j==tags.length) j--;
+            const closest = (j<tags.length)?tags[j]:tag; //最接近終點的 tag
+            tag.width=tag.end - closest.start     //從closest 到本tag終點之間的的純文字距離
+            tag.width+= closest.choff - tag.choff //closest 和 tag 純文距離
+       }
+    }
 }
-export const parseOfftextLine=(str:string,idx:number=0)=>{
+export const stripOfftag=(str:string)=>str.replace(OFFTAG_REGEX_G,'');
+
+export const parseOfftext=(str:string,idx:number=0)=>{
     if (str.indexOf('^')==-1) return [str,[]];
     let tags=[];
-    let textoffset=0,prevoff=0;
+    let choff=0,prevoff=0; // choff : offset to plain text
     let text=str.replace(OFFTAG_REGEX_G, (m,rawName,rawA,offset)=>{
-        let [tagName,attrs,putback]=parseOffTag(rawName,rawA);
+        let [tagName,attrs]=parseOfftag(rawName,rawA);
         let width=0;
-        putback=putback.trimRight();     //[xxx ] 只會放回  "xxx"
-        if (tagName=='br' && !putback) { //標記前放一個空白, 接行後不會 一^br二  => 一 二
-            putback=' ';                 // 用 ^r 折行則不會加空白，適合固定版式的中文。
-            offset++
-        }
-        const W=attrs['~'];
-        if (W && !isNaN(parseInt(W))) { //數字型終點
-            width=ALWAYS_EMPTY[tagName]?0:parseInt(W); 
-            delete attrs['~'];
-        }
-        width=putback.length?putback.length:width;
+        let start=offset+m.length, end=start; //文字開始及結束
+        let endch=attrs['~'];
+        if (endch) { //數字型終點
+            if(isNaN(parseInt(endch))) { //終字
+                width=0;
+                let repeat=0;
+                const m=endch.match(/\+(\d+)$/);
+                if (m) {
+                    endch=endch.slice(0,endch.length-m.length);
+                    repeat=parseInt(m[1]);
+                }
 
-        // if (width==0 ) width=-1;
-
-        textoffset+= offset-prevoff;            //目前文字座標，做為標記的起點
-        let offtag : Offtag = {name:tagName, attrs, idx, y:0, x:textoffset, w:width, offset}
+                let at=str.indexOf(endch,start);
+                while (~at && repeat) {
+                    at=str.indexOf(endch,at+1);
+                    repeat--;
+                }
+                if (~at) {
+                    end=at+endch.length;
+                    delete attrs['~']; //resolved, remove it
+                }
+            } else { //往後吃w 字，不含其他標記
+                width=parseInt(endch);
+            }
+            //tag.end resolveEnd 才知道
+        } else { //以括號指定區間
+            const closebracket = closeBracketOf(str.charAt(start));
+            if (closebracket ) { //offtag 屬性不能帶括號
+                const at=str.indexOf(closebracket,start+1);
+                if (~at) end=at+ closebracket.length; //包括括號
+            }
+        }
+        choff+= offset-prevoff;            //目前文字座標，做為標記的起點
+		let offtag : IOfftag = {name:tagName, attrs, idx, line:0, choff, width, start,end}
         tags.push( offtag );
-        textoffset+=putback.length - m.length;  
+        choff -= m.length;  
         prevoff=offset;
-        return putback;
+        return '';
     })
-    resolveTagWidth(text,tags);
+    resolveEnd(str, text,tags);
     return [text,tags];
 }
-export const extractTag=(buf:string,opts={})=>{
-    const alltags=[];
-    const tagname=opts.tagname;
-    const line=opts.line||0;
-    const lines=buf.split(/\r?\n/);
-    for (let i=0;i<lines.length;i++) {
-        const [text,tags]=parseOfftextLine(lines[i]);
-        const rawtags=tagname?tags.filter(it=>it.name.startsWith(tagname)):tags;
-        rawtags.forEach(tag=>{
-            alltags.push({line:line+i, id: tag.attrs.id, name:tag.name ,text:text.slice(tag.offset,tag.w) })
-        })
+export interface IOfftext {raw:string, plain:string , tags:IOfftag[]} ;
+
+export class Offtext {
+    constructor(raw:string) {
+        this.raw=raw;
+        [this.plain, this.tags]=parseOfftext(raw);
     }
-    return alltags;
+    tagText(ntag:number, raw:false):string {
+        if (!this.tags[ntag]) return;
+        if (raw) {
+            return this.raw.slice(this.tags[ntag].start,this.tags[ntag].end);    
+        } else {
+            return this.plain.slice(this.tags[ntag].choff,this.tags[ntag].choff+this.tags[ntag].width);
+        }
+        
+    }
 }

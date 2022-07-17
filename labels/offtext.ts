@@ -1,4 +1,4 @@
-import {parseOfftextLine} from "../offtext/parser.ts"
+import {parseOfftext} from "../offtext/parser.ts"
 import {validate_id,pushError,validate_z} from "./validator.ts";
 
 export function onTag( tag,typedef){
@@ -39,11 +39,11 @@ export class OfftextContext {
 		this.toc=[];
 	}
 }
-export function onAddOfftextLine(linetext:string, line:number, buffername:string){
+export function onAddOfftext(linetext:string, line:number, buffername:string){
 	const ctx=this;
 	ctx.line=line;
 	ctx.buffername=buffername;
-	const [text,tags]=parseOfftextLine(linetext);
+	const [text,tags]=parseOfftext(linetext);
 	ctx.linetext=text;
 	ctx.tagcount+=tags.length;
 	for (let i=0;i<tags.length;i++) {

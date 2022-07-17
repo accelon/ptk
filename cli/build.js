@@ -1,7 +1,7 @@
 import * as PTK from '../nodebundle.cjs';
 //import kluer from './kluer.js'
 import {cyan,blue,yellow,red,bgWhite} from './colors.cjs';
-const {LineBaser,makePtk,parseOfftextLine,Compiler,writeChanged,humanBytes} = PTK;
+const {LineBaser,makePtk,Compiler,writeChanged,humanBytes} = PTK;
 const filelist=files=>files.length>10?[files.length,files.slice(0,10)]:[files.length,files];
 export const dobuild=async (files, opts={})=>{
 	const jsonp=opts.jsonp;

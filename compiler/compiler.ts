@@ -1,12 +1,12 @@
 import {Compiler} from './compiled.ts'
-import {parseOfftextLine}  from '../offtext/parser.ts';
+import {parseOfftext}  from '../offtext/parser.ts';
 import {Column} from '../linebase/column.ts'
 import {SourceType,ICompiledFile,ICompiled} from './interfaces.ts'
 
 const sourceType=(firstline:string):SourceType=>{
 	const at=firstline.indexOf('\n');
 	firstline=at>-1? firstline.slice(0,at):firstline;
-	const [text,tags]=parseOfftextLine(firstline);
+	const [text,tags]=parseOfftext(firstline);
 	if (tags[0].name=='_') { //define a section
 		const attrs=tags[0].attrs;
 		if (attrs?.type?.toLowerCase()=='tsv') {
@@ -51,7 +51,7 @@ export class Compiler implements ICompiler {
 			}
 		}
 		if (srctype===SourceType.TSV) {
-			const [text,tags]=parseOfftextLine(lines[0]);
+			const [text,tags]=parseOfftext(lines[0]);
 			const attrs=tags[0].attrs;
 			const typedef=text.split('\t') ; // typdef of each field , except field 0
 			const columns=new Column(attrs, {typedef, primarykeys:this.primarykeys ,onError:this.onError.bind(this) } );

@@ -1,9 +1,9 @@
-import {parseOfftextLine} from '../offtext/parser.ts'
+import {parseOfftext} from '../offtext/parser.ts'
 import {Column} from '../linebase/column.ts'
 export function processOfftextLines(lines:string[],filename:string){
 	if (!lines.length) return;
 	const {lbase,primarykeys}=this;
-	const [text,tags]=parseOfftextLine(lines[0]);
+	const [text,tags]=parseOfftext(lines[0]);
 	if (tags[0].name=='_') { //define a section
 		const attrs=tags[0].attrs;
 		if (attrs.ptk) {

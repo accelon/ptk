@@ -51,21 +51,14 @@ export const trimPunc=str=>{
     return str.replace(/^[『「！。，：？]+/,'').replace(/[」？』。！：）｝〕；，]+$/,'');
 }
 
-const quotebrackets={
-    '「':'」',
-    '『':'』'
+const openBrackets="「『（︹︵｛︷【︻《〈︽︿﹁﹃﹙﹛﹝‘“〝"; //closeBrackets are codepoint+1
+
+export const closeBracketOf=(ch:string)=>{
+    if (!ch)return;
+    const at=openBrackets.indexOf(ch.slice(0,1));
+    return ~at?String.fromCodePoint(1+openBrackets.codePointAt(at)):'';
 }
-export const findCloseBracket=(str,from)=>{
-    for (let qopen in quotebrackets) {
-        const qclose=quotebrackets[qopen];
-        if (str[from]==qopen || str[from+1]==qopen) {
-            const at=str.indexOf(qclose,from+1);
-            if (at>0) {
-                return at+qclose.length;               
-            }
-        }
-    }
-}
+
 
 export const cjkPhrases=str=>{
     const out=[];
