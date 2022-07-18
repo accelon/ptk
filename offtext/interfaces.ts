@@ -5,11 +5,13 @@ export interface KeyValuePair {
 export interface IOfftag {
 	 name: string;
 	 attrs: KeyValuePair[];
-	 line:nubmer;
-     choff:number;
-     width:number;
-     offset:number;
-     endoffset:number; //ending offset of raw offtextline 
+     offset: number ; //標籤起點
+     aoffset:number;  //屬性起點
+     choff:number;   //正字串座標 (UTF16)
+     width:number;   //正字串包夾文字長度 (UTF16)
+     start:number; //包夾文字起點 (標籤終點)
+     end:number; //包夾文字終點
+     line:nubmer;    //行號
 }
 
 export interface IOfftext {

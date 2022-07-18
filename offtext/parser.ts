@@ -2,28 +2,30 @@ import {OFFTAG_REGEX_G, OFFTAG_NAME_ATTR,ALWAYS_EMPTY,OFFTAG_COMPACT_ID,
     QUOTEPAT,QUOTEPREFIX,QSTRING_REGEX_G,QSTRING_REGEX_GQUOTEPAT,
     OFFTAG_LEADBYTE} from './constants.ts';
 import {IOfftag} from './interfaces.ts';
-import {closeBracketOf} from '../utils/cjk.ts'
+import {closeBracketOf,sliceUTF32} from '../utils/index.ts'
 const parseCompactAttr=(str:string)=>{  //              序號和長度和標記名 簡寫情形，未來可能有 @ 
-    const out={}, arr=str.split(/([@#])/);
+    const out={}, arr=str.split(/([@#~])/);
     while (arr.length) {
         let v=arr.shift();
-        // if      (v==='~') out['~']=arr.shift();  
-        if (v==='@') out['@']=arr.shift();  // a pointer
-        else { 
-            if (v==='#') v=arr.shift(); 
-            const m=v.match(OFFTAG_COMPACT_ID); //id with numeric leading may omit #
-            if (m) out.id=m[1];
+        if      (v==='~') out['~']=arr.shift();  
+        else if (v==='@') out['@']=arr.shift();  // a pointer
+        else if (v==='#') {
+                v=arr.shift();
+                const m=v.match(OFFTAG_COMPACT_ID); //id with numeric leading may omit #
+                if (m) out.id=m[1];
+        } else {
+            out.id=v;
         }
     }
     return out;
 }
-const parseAttributes=(rawA:string,compactAttr:string)=>{
+const parseAttributes=(rawAttrs:string,compactAttr:string)=>{
     let quotes=[];             //字串抽出到quotes，方便以空白為拆分單元,
     const getqstr=(str,withq)=>str.replace(QUOTEPAT,(m,qc)=>{
         return (withq?'"':'')+quotes[parseInt(qc)]+(withq?'"':'');
     });
 
-    let rawattr=rawA?rawA.substr(1,rawA.length-2).replace(QSTRING_REGEX_G,(m,m1)=>{
+    let rawattr=rawAttrs?rawAttrs.substr(1,rawAttrs.length-2).replace(QSTRING_REGEX_G,(m,m1)=>{
         quotes.push(m1);
         return QUOTEPREFIX+(quotes.length-1);
     }):'';
@@ -53,33 +55,56 @@ const parseAttributes=(rawA:string,compactAttr:string)=>{
 
     return attrs;
 }
-export const parseOfftag=(raw:string,rawA:string)=>{ // 剖析一個offtag,  ('a7[k=1]') 等效於 ('a7','[k=1]')
+export const parseOfftag=(raw:string,rawAttrs:string)=>{ // 剖析一個offtag,  ('a7[k=1]') 等效於 ('a7','[k=1]')
     if (raw[0]==OFFTAG_LEADBYTE) raw=raw.substr(1);
-    if (!rawA){
+    if (!rawAttrs){
         const at=raw.indexOf('[');
         if (at>0) {
-            rawA=raw.substr(at);
+            rawAttrs=raw.substr(at);
             raw=raw.substr(0,at);
         }
     }
     let [m2, tagName, compactAttr]=raw.match(OFFTAG_NAME_ATTR);
-    let attrs=parseAttributes(rawA,compactAttr);
+    let attrs=parseAttributes(rawAttrs,compactAttr);
     return [tagName,attrs];
 }
 
 const resolveEnd=(raw, plain:string,tags:IOfftag[])=>{  
-//正文已準備好，可計算標記終點，TWIDTH 不為負值，只允許少數TWIDTH==0的標記(br,fn) ，其餘自動延伸至行尾
+//文字型的範圍
     for (let i=0;i<tags.length;i++) {
        const tag=tags[i];
+       let j=i;
        if (tag.end>tag.start && !tag.width) { //已知 rawtext 座標，換算回plaintext座標
-            let j=i;
-            while (j<tags.length && tag.end > tags[j].start) j++;
-            if ((j<tags.length && tags[j].start>tag.end) || j==tags.length) j--;
-            const closest = (j<tags.length)?tags[j]:tag; //最接近終點的 tag
-            tag.width=tag.end - closest.start     //從closest 到本tag終點之間的的純文字距離
-            tag.width+= closest.choff - tag.choff //closest 和 tag 純文距離
-       }
+           while (j<tags.length && tag.end > tags[j].start) j++;
+           if ((j<tags.length && tags[j].start>tag.end) || j==tags.length) j--;
+           const closest = (j<tags.length)?tags[j]:tag; //最接近終點的 tag
+
+           tag.width=tag.end - closest.start     //從closest 到本tag終點之間的的正字串距離 即 原字串距離
+           tag.width+= closest.choff - tag.choff //closest 和 tag 正字串距離
+       } 
     }
+//數字型的範圍
+    for (let i=0;i<tags.length;i++) {
+        const tag=tags[i];
+        if (tag.width && tag.end==tag.start) {//已知width ，計算end
+            //轉換utf32 個數為 utf16 個數
+            tag.width=sliceUTF32(plain, tag.choff, tag.width).length;
+
+            let j=i+1;
+            while (j<tags.length&&tag.choff+tag.width > tags[j].choff) {
+                j++;
+            }
+            if ((j<tags.length && tags[j].choff>tag.choff+tag.width) || j==tags.length) j--;
+            const closest = (j<tags.length)?tags[j]:tag; //最接近終點的 tag
+
+            if (closest===tag) {
+                tag.end+=tag.width;  //到終點前無其他tag
+            } else {
+                tag.end= tag.start+closest.start - tag.end  ;  //原字串距離
+                tag.end+= tag.width - closest.choff; //原字串差 正字串差 
+            }
+       }
+   }
 }
 export const stripOfftag=(str:string)=>str.replace(OFFTAG_REGEX_G,'');
 
@@ -87,8 +112,8 @@ export const parseOfftext=(str:string,idx:number=0)=>{
     if (str.indexOf('^')==-1) return [str,[]];
     let tags=[];
     let choff=0,prevoff=0; // choff : offset to plain text
-    let text=str.replace(OFFTAG_REGEX_G, (m,rawName,rawA,offset)=>{
-        let [tagName,attrs]=parseOfftag(rawName,rawA);
+    let text=str.replace(OFFTAG_REGEX_G, (m,rawName,rawAttrs,offset)=>{
+        let [tagName,attrs]=parseOfftag(rawName,rawAttrs);
         let width=0;
         let start=offset+m.length, end=start; //文字開始及結束
         let endch=attrs['~'];
@@ -111,8 +136,8 @@ export const parseOfftext=(str:string,idx:number=0)=>{
                     end=at+endch.length;
                     delete attrs['~']; //resolved, remove it
                 }
-            } else { //往後吃w 字，不含其他標記
-                width=parseInt(endch);
+            } else { //往後吃w色字，不含其他標記，一對surrogate 算一字
+                width=parseInt(endch); //這是utf32 的個數
             }
             //tag.end resolveEnd 才知道
         } else { //以括號指定區間
@@ -122,8 +147,9 @@ export const parseOfftext=(str:string,idx:number=0)=>{
                 if (~at) end=at+ closebracket.length; //包括括號
             }
         }
+        const aoffset=offset+rawName.length+1;
         choff+= offset-prevoff;            //目前文字座標，做為標記的起點
-		let offtag : IOfftag = {name:tagName, attrs, idx, line:0, choff, width, start,end}
+		let offtag : IOfftag = {name:tagName,offset,aoffset, attrs, idx, line:0, choff, width, start,end}
         tags.push( offtag );
         choff -= m.length;  
         prevoff=offset;
@@ -139,13 +165,12 @@ export class Offtext {
         this.raw=raw;
         [this.plain, this.tags]=parseOfftext(raw);
     }
-    tagText(ntag:number, raw:false):string {
-        if (!this.tags[ntag]) return;
-        if (raw) {
-            return this.raw.slice(this.tags[ntag].start,this.tags[ntag].end);    
-        } else {
-            return this.plain.slice(this.tags[ntag].choff,this.tags[ntag].choff+this.tags[ntag].width);
-        }
-        
+    tagRawText(tag:number|Offtag):string {
+        return this.tagText(tag,true);
+    }
+    tagText(tag:number|Offtag,raw=false):string {
+        if (typeof tag=='number') tag=this.tags[tag];
+        if (!tag) return;
+        return raw?this.raw.slice(tag.start,tag.end):this.plain.slice(tag.choff,tag.choff+tag.width);
     }
 }

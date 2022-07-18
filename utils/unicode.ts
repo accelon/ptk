@@ -8,6 +8,19 @@ export const forEachUTF32=(str:string,cb:Function) :void=>{
         if (code>0xffff) i++;
     }
 }
+export const sliceUTF32=(str:string,from, to:number):string=>{
+    let n=to-from;
+    if (!str || n<1) return '';
+    let i=from;
+    while (n>0 && i<str.length) {
+        if (str.codePointAt(i)>0xffff) {
+            i++;
+        }
+        n--;
+        i++;
+    }
+    return str.slice(from,i);
+}
 export const splitUTF32=(str:string):number[]=>{
     if (!str) {
         const empty:number[]=[];

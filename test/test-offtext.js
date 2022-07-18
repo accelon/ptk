@@ -1,3 +1,9 @@
+/*
+   offtext   = plaintext + tags
+   plaintext 搜尋引擎觀點的正字串。
+   tags      從正字串抽離的標籤
+             加入新的tag（如互文連結、搜尋結果） ，不改變正字串。
+*/
 import {stripOfftag,Offtext} from '../nodebundle.cjs'
 let test=0,pass=0;
 let plain,tags,str,ot,attrs,a,b,c,d,e;
@@ -46,13 +52,13 @@ pass+= (attrs.checked==='')?1:0 ;test++;
 // 數字開頭id可縮寫，  ^a[id=123n] 等效於，不轉為數字，可直持BigInt及float
 ot=new Offtext('^a123n文');attrs=ot.tags[0].attrs;;
 pass+= (attrs.id==='123n')?1:0 ;test++;
-
+ 
 //縮式id 必須以 a-z 或數字開頭，之後可以有 . _ -
-ot=new Offtext('^a1.1文');attrs=ot.tags[0].attrs;;
+ot=new Offtext('^a1.1文');attrs=ot.tags[0].attrs;
 pass+= (attrs.id==='1.1')?1:0 ;test++;
-ot=new Offtext('^a1-1文');attrs=ot.tags[0].attrs;;
+ot=new Offtext('^a1-1文');attrs=ot.tags[0].attrs;
 pass+= (attrs.id==='1-1')?1:0 ;test++;
-ot=new Offtext('^a1_1文');attrs=ot.tags[0].attrs;;
+ot=new Offtext('^a1_1文');attrs=ot.tags[0].attrs;
 pass+= (attrs.id==='1_1')?1:0 ;test++;
 
 // _ 會視為 tagname 的一部份。
@@ -73,15 +79,39 @@ ot=new Offtext('^a<>x');a=ot.tags[0];
 pass+= (ot.plain=='x' && ot.tags.length==1 && a.name=='a')?1:0 ;test++;
 
 //utils/cjk.ts # openBrackets 定義可接受的中文括號，特徵是 unicode codepoint +1
-//以括號包夾文字
+//所有的全形括號(「『（︹︵｛︷【︻《〈︽︿﹁﹃﹙﹛﹝‘“〝 可包夾文字，半形只可用()
 str='^b「加粗」體字'; //」的codepoint 是「 +1
-ot=new Offtext(str);
-pass+= ( ot.tagText(0)=='「加粗」')   ?1:0 ;test++;
+ot=new Offtext(str); a=ot.tags[0]
+//以 tagText 取得 tag 包夾的文字
+pass+= ( ot.tagText(a)=='「加粗」')   ?1:0 ;test++;
+//或以 tag index
+
+str='^u(斜體)字'; //」的codepoint 是「 +1
+ot=new Offtext(str); a=ot.tags[0]
+pass+= ( ot.tagText(0)=='(斜體)')   ?1:0 ;test++;
+
+//以往後2個正字
+str='^b~2粗體字'; 
+ot=new Offtext(str); a=ot.tags[0]
+pass+= ( ot.tagText(a)=='粗體')   ?1:0 ;test++;
+
+//surrogate 視為一字
+str='^b~2𠀀體字'; 
+ot=new Offtext(str); a=ot.tags[0]
+console.log(ot.tagText(a,true))
+pass+= ( ot.tagText(a)=='𠀀體')   ?1:0 ;test++;
+
+//以往後2個正字，被標記隔開沒關係
+str='^b~2粗^f7體字'; 
+ot=new Offtext(str); a=ot.tags[0]
+
+pass+= ( ot.tagText(a,true)=='粗^f7體')   ?1:0 ;test++;
+pass+= ( ot.tagText(a)=='粗體')   ?1:0 ;test++;
 
 //帶屬性及包夾文字
 str='^a<href=xxx>「連結」文字'; 
 ot=new Offtext(str);a=ot.tags[0];
-pass+= (a.attrs.href='xxx' && ot.tagText(0)=='「連結」')   ?1:0 ;test++;
+pass+= (a.attrs.href='xxx' && ot.tagText(a)=='「連結」')   ?1:0 ;test++;
 
 
 //包夾文字可交疊
@@ -91,33 +121,40 @@ str='qq^a「可^b1<x>『疊」的文^ee123字』xxxxxx';
 //       4       11
 ot=new Offtext(str); 
 [a,b,e]=ot.tags; 
-pass+= ( ot.tagText(0,true)=='「可^b1<x>『疊」' ) ?1:0 ;test++;
-pass+= ( ot.tagText(1,true)=='『疊」的文^ee123字』' ) ?1:0 ;test++;
+//第二參數為true ，取回原始字串(避免使用)
+pass+= ( ot.tagRawText(a)=='「可^b1<x>『疊」' ) ?1:0 ;test++;
+pass+= ( ot.tagRawText(b)=='『疊」的文^ee123字』' ) ?1:0 ;test++;
 //已剖的（不含其他標記) , raw=false 預設行為
-pass+= ( ot.tagText(0)=='「可『疊」' ) ?1:0 ;test++;
-pass+= ( ot.tagText(1)=='『疊」的文字』' ) ?1:0 ;test++;
+pass+= ( ot.tagText(a)=='「可『疊」' ) ?1:0 ;test++;
+pass+= ( ot.tagText(b)=='『疊」的文字』' ) ?1:0 ;test++;
  
+
+
 //用 ~終字表達範圍
 str='qq^a<~止>直到這裡為止。';
-ot=new Offtext(str); 
-pass+= ( ot.tagText(0)=='直到這裡為止' ) ?1:0 ;test++;
+ot=new Offtext(str); a=ot.tags[0];
+pass+= ( ot.tagText(a)=='直到這裡為止' ) ?1:0 ;test++;
 
 //交疊情況
-str='qq^a<~止>到^b<key=value ~！>這裡為止。^c<~。>另一句！';
-ot=new Offtext(str); 
+str='qq^a<~為止>到^b<key=value ~！>這裡為止。^c<~。>另一句！';
+ot=new Offtext(str);
 [a,b,c]=ot.tags;
-pass+= ( ot.tagText(0)=='到這裡為止' ) ?1:0 ;test++;
-pass+= ( ot.tagText(1)=='這裡為止。另一句！' ) ?1:0 ;test++;
+pass+= ( ot.tagText(a)=='到這裡為止' ) ?1:0 ;test++;
+pass+= ( ot.tagText(b)=='這裡為止。另一句！' ) ?1:0 ;test++;
 pass+=(!a.attrs['~'] && a.end>a.start)?1:0;test++  //生效的終字會被刪除
 pass+=(!b.attrs['~'] && b.end>b.start)?1:0;test++  //生效的終字會被刪除
-pass+=(c.attrs['~']=='。' && ot.tags[2].start==ot.tags[2].end)?1:0;test++  //未找到的終字保留
+pass+=(c.attrs['~']=='。' && c.start==c.end)?1:0;test++  //未找到的終字保留
 
 
-str='qq^a<~複+1>重複重複用加位數字表示跳過幾次';
-ot=new Offtext(str); 
-pass+= ( ot.tagText(0)=='重複重複' ) ?1:0 ;test++;
+str='qq^a<~複+2>重複再重複又重複用加位數字表示跳過幾次';
+ot=new Offtext(str); a=ot.tags[0];
+pass+= ( ot.tagText(a)=='重複再重複又重複' ) ?1:0 ;test++; //跳過前兩個「重複」。 +0
 
+str='qq^a<~複+0>重複再重複又重複用加位數字表示跳過幾次'; //+0 跳過0次，就表示一找到就停下來。等效於「~重複」
+ot=new Offtext(str); a=ot.tags[0];
+pass+= ( ot.tagText(a)=='重複' ) ?1:0 ;test++; 
 
+//todo , serializer
 
 
 console.log('pass',pass,'test',test);
