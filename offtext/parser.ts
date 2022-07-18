@@ -2,7 +2,7 @@ import {OFFTAG_REGEX_G, OFFTAG_NAME_ATTR,ALWAYS_EMPTY,OFFTAG_COMPACT_ID,
     QUOTEPAT,QUOTEPREFIX,QSTRING_REGEX_G,QSTRING_REGEX_GQUOTEPAT,
     OFFTAG_LEADBYTE} from './constants.ts';
 import {IOfftag} from './interfaces.ts';
-import {closeBracketOf,sliceUTF32} from '../utils/index.ts'
+import {closeBracketOf,substrUTF32} from '../utils/index.ts'
 const parseCompactAttr=(str:string)=>{  //              序號和長度和標記名 簡寫情形，未來可能有 @ 
     const out={}, arr=str.split(/([@#~])/);
     while (arr.length) {
@@ -70,7 +70,7 @@ export const parseOfftag=(raw:string,rawAttrs:string)=>{ // 剖析一個offtag, 
 }
 
 const resolveEnd=(raw, plain:string,tags:IOfftag[])=>{  
-//文字型的範圍
+//文字型的範圍，已知原字串終點，計算正字串長度(utf16)
     for (let i=0;i<tags.length;i++) {
        const tag=tags[i];
        let j=i;
@@ -83,25 +83,23 @@ const resolveEnd=(raw, plain:string,tags:IOfftag[])=>{
            tag.width+= closest.choff - tag.choff //closest 和 tag 正字串距離
        } 
     }
-//數字型的範圍
+//數字型的範圍，已知正字串長度(offtext 標記提供以 utf32為單位)，計算原字串終點
     for (let i=0;i<tags.length;i++) {
         const tag=tags[i];
         if (tag.width && tag.end==tag.start) {//已知width ，計算end
             //轉換utf32 個數為 utf16 個數
-            tag.width=sliceUTF32(plain, tag.choff, tag.width).length;
-
+            tag.width=substrUTF32(plain, tag.choff, tag.width).length;
             let j=i+1;
-            while (j<tags.length&&tag.choff+tag.width > tags[j].choff) {
-                j++;
-            }
+            while (j<tags.length&&tag.choff+tag.width > tags[j].choff) j++;
             if ((j<tags.length && tags[j].choff>tag.choff+tag.width) || j==tags.length) j--;
-            const closest = (j<tags.length)?tags[j]:tag; //最接近終點的 tag
-
+            const closest = (j<tags.length)?tags[j]:tag;
+             //最接近終點的 tag，再無其他tag ，即正字串原字串定位相同
             if (closest===tag) {
-                tag.end+=tag.width;  //到終點前無其他tag
-            } else {
-                tag.end= tag.start+closest.start - tag.end  ;  //原字串距離
-                tag.end+= tag.width - closest.choff; //原字串差 正字串差 
+                tag.end+=tag.width;  //到終點前無其他tag，直接加上 width 即可
+            } else { //
+                tag.end = closest.start //取 closest 的原字串位置 加上
+                        +(tag.choff+tag.width-closest.choff);  
+                //tag.choff+tag.width 正字串長度 - closest 的正字串座標 即 正字串個數=原字串個數
             }
        }
    }

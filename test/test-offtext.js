@@ -91,22 +91,22 @@ ot=new Offtext(str); a=ot.tags[0]
 pass+= ( ot.tagText(0)=='(斜體)')   ?1:0 ;test++;
 
 //以往後2個正字
-str='^b~2粗體字'; 
+str='qq^b~2粗體字'; 
 ot=new Offtext(str); a=ot.tags[0]
 pass+= ( ot.tagText(a)=='粗體')   ?1:0 ;test++;
 
 //surrogate 視為一字
-str='^b~2𠀀體字'; 
+str='qq^b~2𠀀體字'; 
 ot=new Offtext(str); a=ot.tags[0]
 console.log(ot.tagText(a,true))
 pass+= ( ot.tagText(a)=='𠀀體')   ?1:0 ;test++;
 
 //以往後2個正字，被標記隔開沒關係
-str='^b~2粗^f7體字'; 
-ot=new Offtext(str); a=ot.tags[0]
-
-pass+= ( ot.tagText(a,true)=='粗^f7體')   ?1:0 ;test++;
-pass+= ( ot.tagText(a)=='粗體')   ?1:0 ;test++;
+str='qqqqqqq^b~2粗^i7~1體字字字字字'; 
+ot=new Offtext(str); b=ot.tags[0], c=ot.tags[1];
+pass+= ( ot.tagText(b,true)=='粗^i7~1體')   ?1:0 ;test++;
+pass+= ( ot.tagText(c,true)=='體')   ?1:0 ;test++;
+pass+= ( ot.tagText(b)=='粗體')   ?1:0 ;test++;
 
 //帶屬性及包夾文字
 str='^a<href=xxx>「連結」文字'; 
