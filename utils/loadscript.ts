@@ -8,8 +8,6 @@ export const loadScript=async (src, cb)=>{
         const ele=children[i];
         if (css && ele.tagName=='LINK' && ele.href.endsWith('/'+src)) return true;//loaded
         else if (ele.tagName=='SCRIPT' && ele.src.endsWith('/'+src)) return true;
-
-        //console.log(children[i])
     }
     const promise=new Promise((resolve,reject)=>{
         const script=document.createElement(css?"link":"script");

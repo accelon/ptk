@@ -1,8 +1,10 @@
 import {Compiler} from './compiled.ts'
-import {parseOfftext}  from '../offtext/parser.ts';
+import {parseOfftext,Offtext}  from '../offtext/parser.ts';
 import {Column} from '../linebase/column.ts'
 import {SourceType,ICompiledFile,ICompiled} from './interfaces.ts'
-
+import {validate_z} from './validator.ts'
+import {StringArray} from '../utils/stringarray.ts'
+import {Typedef} from './typedef.ts'
 const sourceType=(firstline:string):SourceType=>{
 	const at=firstline.indexOf('\n');
 	firstline=at>-1? firstline.slice(0,at):firstline;
@@ -21,25 +23,57 @@ export class CompiledFile implements ICompiledFile {
 		this.processed='';
 	}
 }
-
 export class Compiler implements ICompiler {
 	constructor () {
+		this.reset();
+	}
+	reset(){
 		this.ptkname='';
 		this.compilingname='';
 		this.line=0;
 		this.compiledFiles={};
 		this.primarykeys={};
 		this.errors=[];
+		this.typedefs={}; 
 	}
 	onError(msg, line, refline=0) {
 		this.errors.push({name:this.compilingname, line:line||this.line, msg, refline});
-	}	
+	}
+	compileOfftext(str:string){
+		const at=str.indexOf('^');
+		if (at==-1) return str;
+		const ot=new Offtext(str);
+		for (let i=0;i<ot.tags.length;i++) {
+			const tag=ot.tags[i]
+			if (tag.name[0]==':') {
+				const newtagname=tag.name.slice(1);
+				if (this.typedefs[newtagname]) {
+					this.onError('redef type',newtagname)
+				} else {
+					this.typedefs[newtagname]= new Typedef(tag.attrs,newtagname);
+				}
+			} else {
+				if (tag.name[0]=='z') {
+					validate_z.call(this,tag);
+				} else {
+					const typedef=this.typedefs[tag.name];
+					if (!typedef) {
+						this.onError('no typedef',tag.name);
+					} else {
+						typedef.validate(tag);
+					}
+				}
+			}
+		}
+		return str;
+	}
 	compileBuffer(buffer:string,filename:string) {
-		if (!buffer) return this.onError('empty buffer');
+		if (!buffer)   return this.onError('empty buffer');
 		if (!filename) return this.onError('no name');
 		let processed='',samepage=false;
-		const lines= (typeof buffer=='string') ?buffer.split(/\r?\n/):buffer;
-		const [srctype,tag]=sourceType(lines[0]); //only first tag on first line
+		const sa=new StringArray(buffer,{sequencial:true});
+		const firstline=sa.first();
+		const [srctype,tag]=sourceType(firstline); //only first tag on first line
 		let name=filename;//name of this section
 		if (tag.name=='_') { //system directive
 			if (tag.attrs.ptk) {
@@ -51,20 +85,31 @@ export class Compiler implements ICompiler {
 			}
 		}
 		if (srctype===SourceType.TSV) {
-			const [text,tags]=parseOfftext(lines[0]);
+			const [text,tags]=parseOfftext(firstline);
 			const attrs=tags[0].attrs;
 			const typedef=text.split('\t') ; // typdef of each field , except field 0
-			const columns=new Column(attrs, {typedef, primarykeys:this.primarykeys ,onError:this.onError.bind(this) } );
-			const header=lines.shift();
-			const serialized=columns.fromTSV(lines ) ; //build from TSV
-			name = attrs.name || filename;  //use filename if name is not specified
-			serialized.unshift(header); //keep the first line
-			//primary key can be refered by other tsv
-			if (attrs.name) this.primarykeys[attrs.name]= columns.keys;
-			processed=serialized;
-			samepage=true;
+			const columns=new Column(attrs,
+			 {typedef, primarykeys:this.primarykeys ,onError:this.onError.bind(this) } );
+			const serialized=columns.fromStringArray(sa,1) ; //build from TSV, start from line 1
+			if (serialized) {
+				name = attrs.name || filename;  //use filename if name is not specified
+				serialized.unshift(firstline); //keep the first line
+				//primary key can be refered by other tsv
+				if (attrs.name) this.primarykeys[attrs.name]= columns.keys;
+				processed=serialized.join('\n');
+				samepage=true; //store in same page
+			} else {
+				processed='';
+			}
 		} else {
-			processed=buffer;
+			const out=[];
+			let line=sa.next();
+			while (line || line==='') {
+				const o=this.compileOfftext(line);
+				o&&out.push(o);
+				line=sa.next();
+			} while (line || line=='')
+			processed=out.join('\n');
 		}
 		this.compiledFiles[filename]={name,processed,errors:this.errors,samepage};
 		return this.compiledFiles[filename];

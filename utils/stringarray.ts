@@ -6,7 +6,7 @@
  * prebuild might save 30% loading time at the space cost of 1/average_item_size)
  * */
 import {bsearchGetter,StringGetter,bsearchNumber} from '../utils/bsearch.ts';
-
+export const LEMMA_DELIMETER = '\x7f';
 export class StringArray {
 	private buf:string='';
 	private sep:string='';
@@ -48,13 +48,21 @@ export class StringArray {
 		return this.next();
 	}
 	next() {
+		if (this.now==-1) return ;
 		const at=this.buf.indexOf(this.sep,this.now);
-		if (at==-1) return ;
+		if (at==-1) {
+			if (this.now>0) {
+				const lastline=this.buf.slice(this.now);
+				this.now=-1;
+				return lastline;
+			}
+		}
 		const s=this.buf.slice(this.now,at);
 		this.now=at+1;
 		return s;
 	}
 	get(idx:number):string{ //0 zero base
+		if (this.sequencial) return null;
 		if (idx==-1) return this.linepos.length.toString() ; //for  bsearchGetter
 		if (idx==0) {
 			return this.buf.slice(0,this.linepos[0]-1);

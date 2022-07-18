@@ -2,6 +2,8 @@ import {poolAdd,poolGet}  from './pool.ts';
 import {LineBase} from '../linebase/index.ts';
 
 export const openPtk=async (name:string)=>{
+	const ptk=usePtk(name);
+	if (ptk) return ptk;
 	if (!name) return null;
 	const lbase = new LineBase({name});
 	if (await lbase.isReady()) {
