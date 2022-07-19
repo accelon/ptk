@@ -15,21 +15,24 @@ export const getModulePath=name=>{
     if(import.meta.url.substr(0,5)==='file:' && Path.sep==='\\') dir=dir.substr(1);
     return Path.resolve(dir ,"..")+Path.sep+name;
 }
+const isSourceFile=fn=>{
+    return fn.endsWith('.off')||fn.endsWith('.tsv')||fn=='ptk.css'
+}
 const build=opts=>{
     let files;
     let ptkname=process.argv[3];
     
     if (!ptkname) {
-        files=fs.readdirSync('.').filter(it=>it.endsWith('.off')||it.endsWith('.tsv'));
+        files=fs.readdirSync('.').filter(isSourceFile);
         opts.outdir='../';
         opts.ptkname=Path.basename(process.cwd()).replace(/\..+$/,'');
     } else {
         opts.ptkname=ptkname;
         opts.indir=ptkname+'.offtext/'
-        files=fs.readdirSync(opts.indir).filter(it=>it.endsWith('.off')||it.endsWith('.tsv'));
+        files=fs.readdirSync(opts.indir).filter(isSourceFile);
         if (!files.length) {
             opts.indir=ptkname+'.src/'
-            files=fs.readdirSync(opts.indir).filter(it=>it.endsWith('.off')||it.endsWith('.tsv'));
+            files=fs.readdirSync(opts.indir).filter(isSourceFile);
         }
     }
     if (!PTK.validPtkName(opts.ptkname)) {

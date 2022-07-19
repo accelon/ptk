@@ -1,6 +1,7 @@
 import * as PTK from '../nodebundle.cjs';
 //import kluer from './kluer.js'
 import {cyan,blue,yellow,red,bgWhite} from './colors.cjs';
+
 const {LineBaser,makePtk,Compiler,writeChanged,humanBytes} = PTK;
 const filelist=files=>files.length>10?[files.length,files.slice(0,10)]:[files.length,files];
 export const dobuild=async (files, opts={})=>{
@@ -12,17 +13,24 @@ export const dobuild=async (files, opts={})=>{
 	const indir=opts.indir||'';
 	const lbaser=new LineBaser();
 	const ctx={lbaser,primarykeys:{}};
-	let success=true;
+	let success=true , ptkcss='';
 	const compiler=new Compiler();
 	// compiler.ptkname=opts.ptkname; //suggestion only, might overwrite by offtext
 	for (let i=0;i<files.length;i++) {
-		const content=fs.readFileSync( indir+files[i], 'utf8');
+		const filename=files[i];
+		if (filename=='ptk.css') {
+			ptkcss=fs.readFileSync(indir+filename,'utf8');
+			continue;
+		}
+
+		const content=fs.readFileSync( indir+filename, 'utf8');
 		if (!content.trim()) {
-			console.log('empty file',files[i]);
+			console.log('empty file',filename);
 			continue;
 		}
 		process.stdout.write('\r adding'+files[i]+ '  '+(i+1)+'/'+files.length+'        ');
 		const {name,errors,processed,samepage}=compiler.compileBuffer(content, files[i]);
+		ptkcss=ptkcss||PTK.cssSkeleton(compiler.typedefs, compiler.ptkname);
 		if (errors.length==0) {
 			lbaser.append( processed, {name,samepage});	
 		} else {
@@ -49,13 +57,14 @@ export const dobuild=async (files, opts={})=>{
 				if (writeChanged(folder+fn,buf)) {
 					written+=buf.length;
 				}
-			})
+			});
+			writeChanged(folder+'ptk.css',ptkcss);
 		} else {
 			let image;
 			if (com) {
 				image=fs.readFileSync(opts.comfilename);//along with bin.js
 			}
-			const zipbuf=makePtk(lbaser,image);
+			const zipbuf=makePtk(lbaser,image,ptkcss);
 			if (zipbuf) {
 				outfn=outdir+lbaser.name+(com?'.com':'.ptk');
 				await fs.writeFileSync(outfn,zipbuf);
