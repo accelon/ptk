@@ -1,10 +1,11 @@
 import {Compiler} from './compiled.ts'
-import {parseOfftext,Offtext}  from '../offtext/parser.ts';
+import {parseOfftext,Offtext,updateOfftext}  from '../offtext/parser.ts';
 import {Column} from '../linebase/column.ts'
 import {SourceType,ICompiledFile,ICompiled} from './interfaces.ts'
 import {validate_z} from './validator.ts'
 import {StringArray} from '../utils/stringarray.ts'
 import {Typedef} from './typedef.ts'
+import {VError,MAX_VERROR} from './verrors.ts'
 const sourceType=(firstline:string):SourceType=>{
 	const at=firstline.indexOf('\n');
 	firstline=at>-1? firstline.slice(0,at):firstline;
@@ -35,22 +36,25 @@ export class Compiler implements ICompiler {
 		this.primarykeys={};
 		this.errors=[];
 		this.typedefs={}; 
+		this.stopcompile=false;
 	}
-	onError(msg, line, refline=0) {
-		this.errors.push({name:this.compilingname, line:line||this.line, msg, refline});
+	onError(code:VError, msg:string,  refline=-1, line:number) {
+		this.errors.push({name:this.compilingname, line:(line||this.line), code, msg, refline});
+		if (this.errors.length>=MAX_VERROR) this.stopcompile=true;
 	}
 	compileOfftext(str:string){
 		const at=str.indexOf('^');
 		if (at==-1) return str;
 		const ot=new Offtext(str);
+		let tagtouched=false, updated=false;
 		for (let i=0;i<ot.tags.length;i++) {
 			const tag=ot.tags[i]
 			if (tag.name[0]==':') {
 				const newtagname=tag.name.slice(1);
 				if (this.typedefs[newtagname]) {
-					this.onError('redef type',newtagname)
+					this.onError(Verror.TypeRedef, newtagname)
 				} else {
-					this.typedefs[newtagname]= new Typedef(tag.attrs,newtagname);
+					this.typedefs[newtagname]= new Typedef(tag.attrs,newtagname,this.primarykeys);
 				}
 			} else {
 				if (tag.name[0]=='z') {
@@ -58,9 +62,13 @@ export class Compiler implements ICompiler {
 				} else {
 					const typedef=this.typedefs[tag.name];
 					if (!typedef) {
-						this.onError('no typedef',tag.name);
+						this.onError(VError.MissingTypedef, tag.name);
 					} else {
-						typedef.validate(tag);
+						const newtag=typedef.validateAttrs(tag , this.line,this.onError.bind(this));
+						if (newtag) {
+							str=updateOfftext(str,tag,newtag);
+							updated=true;
+						}
 					}
 				}
 			}
@@ -68,17 +76,19 @@ export class Compiler implements ICompiler {
 		return str;
 	}
 	compileBuffer(buffer:string,filename:string) {
-		if (!buffer)   return this.onError('empty buffer');
-		if (!filename) return this.onError('no name');
+		if (!buffer)   return this.onError(VError.Empty);
+		if (!filename) return this.onError(VError.PtkNoName);
 		let processed='',samepage=false;
 		const sa=new StringArray(buffer,{sequencial:true});
 		const firstline=sa.first();
 		const [srctype,tag]=sourceType(firstline); //only first tag on first line
 		let name=filename;//name of this section
+		this.compilingname=filename;
+		this.stopcompile=false;
 		if (tag.name=='_') { //system directive
 			if (tag.attrs.ptk) {
 				if (this.ptkname && this.ptkname!==tag.attrs.ptk) {
-					this.onError('ptk already named '+this.ptkname);
+					this.onError(VError.PtkNamed, this.ptkname);
 				} else {
 					this.ptkname=tag.attrs.ptk;
 				}
@@ -101,14 +111,18 @@ export class Compiler implements ICompiler {
 			} else {
 				processed='';
 			}
+
 		} else {
 			const out=[];
-			let line=sa.next();
-			while (line || line==='') {
-				const o=this.compileOfftext(line);
+			let linetext=sa.next();
+			this.line=1;
+			while (linetext || linetext==='') {
+				const o=this.compileOfftext(linetext);
 				o&&out.push(o);
-				line=sa.next();
-			} while (line || line=='')
+				linetext=sa.next();
+				this.line++;
+				if (this.stopcompile) break;
+			}
 			processed=out.join('\n');
 		}
 		this.compiledFiles[filename]={name,processed,errors:this.errors,samepage};

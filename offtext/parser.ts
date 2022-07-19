@@ -158,6 +158,19 @@ export const parseOfftext=(str:string,idx:number=0)=>{
 }
 export interface IOfftext {raw:string, plain:string , tags:IOfftag[]} ;
 
+export const updateOfftext = (rawtext:string, tag:IOfftag, newtag:IOfftag) =>{
+    for (let n in newtag.attrs) {
+        if (newtag.attrs[n] != tag.attrs[n]) { //parse Number no need to update
+            let newvalue=typeof newtag.attrs[n]!=='string'?JSON.stringify(newtag.attrs[n]):newtag.attrs[n];
+            if (newvalue.indexOf(' ')>0) {
+                newvalue='"'+newvalue+'"';
+            }
+            const regex=new RegExp('\\b'+n+' *= *"?'+tag.attrs[n]+'"?');
+            rawtext=rawtext.replace(regex,n+'='+newvalue);
+        }
+    }
+    return rawtext;
+}
 export class Offtext {
     constructor(raw:string) {
         this.raw=raw;

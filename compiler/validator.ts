@@ -1,21 +1,21 @@
 import {bsearch} from "../utils/bsearch.ts";
-
+import {VError} from "./verrors.ts";
 export function pushError(msg,offset=0,prev=0){
 	this.errors.push({filename:this.buffername,line:this.line,offset,msg,prev});
 }
-
 class Validator implements IValidator {
 	constructor(name:string,def:Map){
-
 		this.foreign='';
 		this.def='';
 		this.name=name;
+		this.unique=null;
 		this.pattern=null;//regex pattern
 		this.optional=true;
 		for (let n in def) this[n]=def[n];
+		if (def.unique) this.unique={};
 	}
-  validate(v){
-	  return [0,v]
+  validate(value){
+	  return [0,value];
   }
 }
 class NumberValidator extends Validator {
@@ -23,14 +23,21 @@ class NumberValidator extends Validator {
 		super(name,def);
 		this.type='number';
 	}
-	validate(value:string) {
-		if (parseInt(value).toString()!==value) {
-			return [value+', is not number' , 0]; //default to 0
+	validate(value:string,line:number) {
+		if (parseInt(value).toString()!==value && value.length) {
+			return [VError.NotANumber , 0]; //default to 0
 		}
 		if (this.pattern && !value.match(this.pattern)) {
-			return [value+', pattern miss match',0];
+			return [VError.Pattern,0];
 		}
-		return [0,parseInt(value)||0];
+		if (this.unique && value) {
+			if (this.unique[value]) { //found in this line, cannot be zero
+				return [VError.NotUnique, value, this.unique[value] ]; //send ref line
+			} else {
+				this.unique[value]=line; //first occurance
+			}
+		}
+		return [0,parseInt(value)];
 	}
 }
 
@@ -39,12 +46,12 @@ class KeysValidator extends Validator {
 		super(name,def);
 		this.type='keys';
 	}
-	validate(value:string){
+	validate(value:string,line:number){
 		//convert items to key index, try foreign key first, 
 		const keys=this.keys;
-		if (!keys) return [false,'missing keys'];
+		if (!keys) return [VError.NoKeys,value];
 		if (!value) { //empty value, validate pass if optional
-			return [this.optional?0:'required field',[]];
+			return [this.optional?0:VError.Mandatory,[]];
 		}
 		const items=value.split(',').map(it=> {
 			if (!it) return 0;
@@ -56,17 +63,17 @@ class KeysValidator extends Validator {
 			}
 		}).filter(it=>!!it).sort((a,b)=>a-b)
 		if (items.filter(it=>it===-1).length) {
-			return ['key not found', [] ]
+			return [VError.NoKey,[]]
 		} else {
 			return [0,items];
 		}
 	}	
 }
-
 export function createValidator(name,def:string,primarykeys,ownkeys) {
 	if (typeof def!=='string') {
 		return new Validator(name,def);
 	}
+	let v;
 	const m=def.match(/([a-z_]+):?([a-z_]*)\/?(.*)/);
 	if (!m) {
 		return;
@@ -83,7 +90,7 @@ export function createValidator(name,def:string,primarykeys,ownkeys) {
 		pattern= new RegExp(pat,regopts);
 	}
 	if (typename=='number') v=new NumberValidator(name,{pattern});
-	else if (typename=='unique_number') v=new NumberValidator(name,{pattern,unique:true});
+	else if (typename=='unique_number') v=new NumberValidator(name,{pattern,unique:true,optional:false});
 	else if (typename=='keys') {
 		const keys=(primarykeys&&primarykeys[foreign]) ||ownkeys;
 		v=new KeysValidator(name,{keys,pattern});
@@ -91,7 +98,6 @@ export function createValidator(name,def:string,primarykeys,ownkeys) {
 	if (!v) v=new Validator(name,def);
 	return v;
 }
-
 export function validate_id(tag,typedef){
 	const type=typedef.type;
 	const id=tag.attrs.id;

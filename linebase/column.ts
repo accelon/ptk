@@ -2,7 +2,7 @@
 import {packIntDelta2d,packInt} from "../utils/packintarray.ts"
 import {LEMMA_DELIMETER,StringArray} from "../utils/stringarray.ts"
 import {alphabetically0} from "../utils/sortedarray.ts"
-import {createValidator} from  "../compiler/validator.ts"
+import {createValidator,VError} from  "../compiler/index.ts"
 export class Column {
 	constructor(attrs, opts={}) {
 		this.fieldvalues=[];
@@ -21,14 +21,14 @@ export class Column {
 	}
 	addRow(fields:string[], line:number ){
 		if (fields.length>this.validators.length && line) {
-			this.onError('excessive field '+fields.length+ ' max '+this.validators.length,line);
+			this.onError(VError.ExcessiveField, fields.length+ ' max '+this.validators.length,line);
 			return;
 		}
 		for (let i=0;i<fields.length;i++) {
 			const V=this.validators[i];
-			const [err,value]=V.validate(fields[i]);
+			const [err,value]=V.validate(fields[i],line);
 			if (err) {
-				this.onError(this.fieldnames[i]+' '+fields[i]+' '+err,line);
+				this.onError(err,this.fieldnames[i]+' '+fields[i],-1,line);
 			}
 			this.fieldvalues[i].push( value);
 		}
@@ -38,7 +38,7 @@ export class Column {
 			if (idx==0 && !typedef[idx]) continue; //primary key
 			const [name,def]=typedef[idx].split('=');
 			this.addColumn(name);
-			const V= createValidator(name,def , this.primarykeys , this.keys);
+			const V= createValidator(name,def||{} , this.primarykeys , this.keys);
 			this.validators.push(V);
 		}
 	}
@@ -70,11 +70,12 @@ export class Column {
 		for (let i=0;i<this.fieldnames.length;i++) {
 			const V=this.validators[i];
 			if (V.type=='number') {
-				out.push(packInt( this.fieldvalues[i]||[]));
+				out.push(packInt( this.fieldvalues[i].map(it=>parseInt(it))||[]));
 			} else if (V.type=='keys') {
-				out.push(packIntDelta2d(this.fieldvalues[i]||[]));
-			} else {
-				this.onError('unknown type '+V.type);
+				const nums=(this.fieldvalues[i])||[];
+				out.push(packIntDelta2d(nums));
+			} else if (V.type){
+				this.onError(VError.UnknownType,V.type);
 			}
   		}
 		return out;
