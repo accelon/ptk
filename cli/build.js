@@ -13,7 +13,7 @@ export const dobuild=async (files, opts={})=>{
 	const indir=opts.indir||'';
 	const lbaser=new LineBaser();
 	const ctx={lbaser,primarykeys:{}};
-	let success=true , ptkcss='';
+	let success=true , ptkcss='', alldefines=[];
 	const compiler=new Compiler();
 	// compiler.ptkname=opts.ptkname; //suggestion only, might overwrite by offtext
 	for (let i=0;i<files.length;i++) {
@@ -22,17 +22,19 @@ export const dobuild=async (files, opts={})=>{
 			ptkcss=fs.readFileSync(indir+filename,'utf8');
 			continue;
 		}
-
 		const content=fs.readFileSync( indir+filename, 'utf8');
 		if (!content.trim()) {
 			console.log('empty file',filename);
 			continue;
 		}
 		process.stdout.write('\r adding'+files[i]+ '  '+(i+1)+'/'+files.length+'        ');
-		const {name,errors,processed,samepage}=compiler.compileBuffer(content, files[i]);
+		const {name,errors,sourcetype,processed,samepage,preload,defines}
+			=compiler.compileBuffer(content, files[i]);
+		alldefines.push(...defines);
 		ptkcss=ptkcss||PTK.cssSkeleton(compiler.typedefs, compiler.ptkname);
+		if (preload) lbaser.header.preload.push(name);
 		if (errors.length==0) {
-			lbaser.append( processed, {name,samepage});	
+			lbaser.append( processed, {name,samepage,type:sourcetype});
 		} else {
 			console.log('errors',errors.length,errors.slice(0,5))
 			success=false;
@@ -47,6 +49,7 @@ export const dobuild=async (files, opts={})=>{
 		console.log(red('missing ptk name'));
 		return ;
 	} else if (success) {
+		lbaser.payload=alldefines.join('\n');
 		lbaser.setName(compiler.ptkname);
 		let written=0,outfn='';
 		process.stdout.write('\r');

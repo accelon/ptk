@@ -1,14 +1,16 @@
 import {poolAdd,poolGet}  from './pool.ts';
-import {LineBase} from '../linebase/index.ts';
+import {Pitaka} from './pitaka.ts';
+
 
 export const openPtk=async (name:string)=>{
-	const ptk=usePtk(name);
+	let ptk=usePtk(name);
 	if (ptk) return ptk;
 	if (!name) return null;
-	const lbase = new LineBase({name});
-	if (await lbase.isReady()) {
-		poolAdd(lbase.name,lbase);
-		return lbase;
+	ptk = new Pitaka({name});
+	if (await ptk.isReady()) {
+		await ptk.init();
+		poolAdd(ptk.name,ptk);
+		return ptk;
 	}
 }
 

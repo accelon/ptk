@@ -55,19 +55,24 @@ export async function loadFetch(page){
 const jsonp=function(page,header,_payload){
     this.setPage(page,header,_payload); //this is binded to rom, not in pool yet for first page
 }
-
+function isLoaded(page:number){
+   return (page==0)?this.pagestarts.length:this._pages[page-1];
+}
 export async function loadJSONP(page){
+    if (isLoaded.call(this,page)) return;
     if (!typeof window.jsonp!=='function') {
         window.jsonp=jsonp.bind(this);
     }
+    let  tried=0,timer ;
     const that=this;
     try {
         const status=await loadScript(makePageURI(this.name,page),()=>{
-            if (page==0) {
-                return that.pagestarts.length;
-            } else {
-                return that._pages[page-1];           
-            }
+            if (isLoaded.call(that,page)) return true;
+            //wait for jsonp() to setPage
+            timer=setInterval(()=>{
+                tried++;
+                if (tried>10 || isLoaded.call(that,page) ) clearInterval(timer);
+            },30);
         });
     } catch(e) {
         this.failed=true;

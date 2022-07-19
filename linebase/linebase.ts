@@ -24,7 +24,7 @@ export class LineBase{
         this._loader(0);
 	}
 	async loadAll (){
-		await this.loadLines(0, this.pagestarts[this.pagestarts.length-1]);
+		await this.loadLines([[0, this.pagestarts[this.pagestarts.length-1]]]);
 	}
 	pageOfLine=(line)=>{
     	if (line>=this.pagestarts[this.pagestarts.length-1]) return this.pagestarts.length-1;
@@ -41,26 +41,23 @@ export class LineBase{
 	    }
 	    return notloaded;
 	}
-	async loadLines(from:number| number[] | [number,number][] , to){
+	async loadLines(range:number[] | [number,number][] , name='',type='txt'){
 	    const that=this; //load a range, or a sequence of line or range.
 	    await this.isReady();
 	    let toload=[];
-	    if (!to && typeof from=='number') to=from+1;
-	    if (Array.isArray(from)) {
-	        const notincache={};
-	        for (let i=0;i<from.length;i++) {
-	        	if (Array.isArray(from[i])) {
-	        		toload.push(...this.pageOfRange(from[i]));
-	        	} else {
-	        		notincache[this.pageOfLine(from[i])]=true;
-	        	}
-	        }
-	        toload.push(...Object.keys(notincache).map(it=>parseInt(it)));
-	    } else {
-	        if (from>to) to+=from;
-	        if (!to) to=from+1;
-	        toload=this.pageOfRange([from,to]);
-	    }
+
+	    const [start]=this.sectionRange(name,type);
+        const notincache={};
+        for (let i=0;i<range.length;i++) {
+        	if (Array.isArray(range[i])) {
+        		const [from,to]=range[i];
+        		toload.push(...this.pageOfRange([from+start,to+start]));
+        	} else {
+        		notincache[this.pageOfLine(range[i]+start)]=true; 
+        	}
+        }
+        toload.push(...Object.keys(notincache).map(it=>parseInt(it)));
+
 	    toload=unique(toload.filter(it=> !that._pages[it]));
 	    const jobs=[];
 	    toload.forEach(ck=>jobs.push(this._loader(ck+1)));
@@ -73,8 +70,12 @@ export class LineBase{
 		if (line>= this._lineoffsets[page].length) return this._pages[page].length;
 		return this._lineoffsets[page][line-1];
 	}
-	slice(nline,to){ //combine array of string from loaded pages
+	slice(nline,to, name='',type='txt'){ //combine array of string from loaded pages
+		const [start]=this.sectionRange(name,type);
+		if (!start && (name||type)) return '';
+		nline+=start;
 		if (!to) to=nline+1;
+
 		const p1=this.pageOfLine(nline,this.pagestarts);
 		const p2=this.pageOfLine(to,this.pagestarts);
 		let i=0, out='' ,slicefrom,sliceto;
@@ -119,13 +120,15 @@ export class LineBase{
 			},50);
 		})
 	}
-	async loadSection(name,type){
+	async preloadSection(name,type){
 		const [from,to]=this.sectionRange(name,type);
 		if (to>from) {
-			await this.loadLines(from,to);
-			return this.slice(from,to)
+			await this.loadLines([[from,to]],'','');
 		}
-		return [];
+	}
+	getSection(name,type){
+		const [from,to]=this.sectionRange(name,type);
+		return this.slice(from+1,to,'','')
 	}	
 	sectionRange(sname:string,stype=''):[from,to] {
 		const notfound=[0,0];

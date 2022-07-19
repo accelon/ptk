@@ -1,5 +1,5 @@
 
-export enum SourceType { Offtext=1, TSV=2 };
+export enum SourceType { Offtext='txt', TSV='tsv'  };
 
 export interface ICompileError {
 	fatality:boonlean;

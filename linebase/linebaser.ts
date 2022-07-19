@@ -2,9 +2,9 @@ import {escapeTemplateString,pagejsonpfn} from '../utils/index.ts'
 const makePageJsonp=(name,page,start,payload)=>{
 	return 'jsonp('+page+',{"name":"'+name+'","start":'+start+'},`'+payload+'`)';
 }
-const makeHeader=(name,header,pagestarts)=>{
+const makeHeader=(name,header,pagestarts,payload)=>{
 	const meta=Object.assign( {} , header,{name,starts:pagestarts,buildtime:new Date()})
-	return 'jsonp(0,'+JSON.stringify(meta)+',``)';
+	return 'jsonp(0,'+JSON.stringify(meta)+',`'+escapeTemplateString(payload)+'`)';
 }
 export class LineBaser {
 	constructor (opts={}) {
@@ -13,7 +13,8 @@ export class LineBaser {
 		this._accsize=0;
 		this.pagesize=opts.pagesize||1024*64;
 		this.pagestarts=[];
-		this.header={starts:[],sectionnames:[],sectionstarts:[],sectiontypes:[]};
+		this.payload=''
+		this.header={starts:[],sectionnames:[],sectionstarts:[],sectiontypes:[],preload:[]};
 		this.name=opts.name||'';
 		this.zip=opts.zip;
 	    this.onAddLine=null;
@@ -28,7 +29,7 @@ export class LineBaser {
 		this.newPage();
 		let start=0;
 		const jsonpfn=pagejsonpfn(0);
-		cb(jsonpfn, makeHeader(this.name,this.header||{},this.pagestarts) );
+		cb(jsonpfn, makeHeader(this.name,this.header||{},this.pagestarts,this.payload) );
 		for (let i=0;i<this.pagestarts.length;i++) {
 			const lines=this._data.slice(start,this.pagestarts[i]);
 			const towrite=makePageJsonp(this.name,i+1,start,escapeTemplateString(lines.join('\n')));

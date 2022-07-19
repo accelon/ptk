@@ -7,6 +7,7 @@
   "main": "./index.ts",
    "scripts": {
     "dev-cjs":"esbuild --platform=node --format=cjs --bundle --watch node.ts --outfile=nodebundle.cjs",
+    "min-cjs":"esbuild --platform=node --minify --format=cjs --bundle node.ts --outfile=nodebundle.min.cjs",
     "dev":"esbuild --format=iife --bundle --watch index.ts --outfile=index.js",
     "build-cjs":"esbuild --platform=node  --format=cjs --bundle node.ts --outfile=nodebundle.cjs",
     "build":"esbuild --format=iife --bundle index.ts --outfile=index.js",

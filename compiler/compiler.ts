@@ -6,22 +6,26 @@ import {validate_z} from './validator.ts'
 import {StringArray} from '../utils/stringarray.ts'
 import {Typedef} from './typedef.ts'
 import {VError,MAX_VERROR} from './verrors.ts'
-const sourceType=(firstline:string):SourceType=>{
+const sourceType=(firstline:string):SourceType=>{	
 	const at=firstline.indexOf('\n');
 	firstline=at>-1? firstline.slice(0,at):firstline;
 	const [text,tags]=parseOfftext(firstline);
+	let preload=false;
 	if (tags[0].name=='_') { //define a section
 		const attrs=tags[0].attrs;
+		preload=!!tags[0].attrs.preload;
 		if (attrs?.type?.toLowerCase()=='tsv') {
-			return [SourceType.TSV, tags[0]];
+			return [SourceType.TSV, tags[0], preload];
 		}
 	}
-	return [SourceType.Offtext,tags[0]];
+	return [SourceType.Offtext,tags[0],preload];
 }
 export class CompiledFile implements ICompiledFile {
 	constructor (){
 		this.errors=[];
+		this.defines=[];
 		this.processed='';
+		this.sourcetype='';
 	}
 }
 export class Compiler implements ICompiler {
@@ -42,11 +46,11 @@ export class Compiler implements ICompiler {
 		this.errors.push({name:this.compilingname, line:(line||this.line), code, msg, refline});
 		if (this.errors.length>=MAX_VERROR) this.stopcompile=true;
 	}
-	compileOfftext(str:string){
+	compileOfftext(str:string, defines:string[]){
 		const at=str.indexOf('^');
 		if (at==-1) return str;
 		const ot=new Offtext(str);
-		let tagtouched=false, updated=false;
+		let tagtouched=false, updated=false ;
 		for (let i=0;i<ot.tags.length;i++) {
 			const tag=ot.tags[i]
 			if (tag.name[0]==':') {
@@ -56,6 +60,8 @@ export class Compiler implements ICompiler {
 				} else {
 					this.typedefs[newtagname]= new Typedef(tag.attrs,newtagname,this.primarykeys);
 				}
+				defines.push(str);
+				str='';
 			} else {
 				if (tag.name[0]=='z') {
 					validate_z.call(this,tag);
@@ -78,10 +84,11 @@ export class Compiler implements ICompiler {
 	compileBuffer(buffer:string,filename:string) {
 		if (!buffer)   return this.onError(VError.Empty);
 		if (!filename) return this.onError(VError.PtkNoName);
-		let processed='',samepage=false;
+		let processed='',samepage=false, defines=[];
 		const sa=new StringArray(buffer,{sequencial:true});
 		const firstline=sa.first();
-		const [srctype,tag]=sourceType(firstline); //only first tag on first line
+		const [sourcetype,tag,preload]=sourceType(firstline); //only first tag on first line
+		if (sourcetype=='txt') defines.push(firstline);
 		let name=filename;//name of this section
 		this.compilingname=filename;
 		this.stopcompile=false;
@@ -94,7 +101,7 @@ export class Compiler implements ICompiler {
 				}
 			}
 		}
-		if (srctype===SourceType.TSV) {
+		if (sourcetype===SourceType.TSV) {
 			const [text,tags]=parseOfftext(firstline);
 			const attrs=tags[0].attrs;
 			const typedef=text.split('\t') ; // typdef of each field , except field 0
@@ -117,7 +124,7 @@ export class Compiler implements ICompiler {
 			let linetext=sa.next();
 			this.line=1;
 			while (linetext || linetext==='') {
-				const o=this.compileOfftext(linetext);
+				const o=this.compileOfftext(linetext, defines);
 				o&&out.push(o);
 				linetext=sa.next();
 				this.line++;
@@ -125,7 +132,7 @@ export class Compiler implements ICompiler {
 			}
 			processed=out.join('\n');
 		}
-		this.compiledFiles[filename]={name,processed,errors:this.errors,samepage};
+		this.compiledFiles[filename]={name,preload,sourcetype,processed,errors:this.errors,samepage,defines};
 		return this.compiledFiles[filename];
 	}
 }
