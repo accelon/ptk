@@ -17,22 +17,33 @@ export class Pitaka extends LineBase {
 		for (let i=0;i<this.header.preload.length;i++) {
 			jobs.push(this.preloadSection(this.header.preload[i]));
 		}
+		for (let n in this.defines) {
+			if (this.defines[n].validators.preload) {
+				jobs.push(this.preloadSection('^'+n));
+			}
+		}
+
 		await Promise.all(jobs);
 
 		for (let i=0;i<this.header.preload.length;i++) {
 			const section=this.getSection(this.header.preload[i]);
 			this.deserialize(section)
 		}
+		for (let n in this.defines) { //see compiler/typedef.ts serialize()
+			if (this.defines[n].validators.preload) {
+				const section=this.getSection('^'+n);
+				this.defines[n].deserialize(section);
+			}
+		}
 
 		for (let n in this.defines) {
 			for (let attr in this.defines[n].validators) {
 				const A=this.defines[n].validators[attr];
 				if (A.type=='keys' && A.foreign && this.primarykeys[A.foreign]) {
-					A.keys=this.primarykeys[A.foreign]
+					A.keys=this.primarykeys[A.foreign];
 				}
 			}
 		}
-
 		//deserialize the tabular section
 		// console.log(this.primarykeys)
 	}

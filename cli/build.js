@@ -49,8 +49,18 @@ export const dobuild=async (files, opts={})=>{
 		console.log(red('missing ptk name'));
 		return ;
 	} else if (success) {
-		lbaser.payload=alldefines.join('\n');
+
+		/* combine compiled files and send to LineBaser*/
 		lbaser.setName(compiler.ptkname);
+		lbaser.payload=alldefines.join('\n');
+
+		for (let tag in compiler.typedefs) {
+			const serialized=compiler.typedefs[tag].serialize();
+			const name='^'+tag; 
+			serialized && lbaser.append( serialized, {name,newpage:true,samepage:true,type:'tag'});
+		}
+
+
 		let written=0,outfn='';
 		process.stdout.write('\r');
 		const folder=outdir+lbaser.name+'/';

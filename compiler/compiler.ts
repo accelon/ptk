@@ -36,6 +36,7 @@ export class Compiler implements ICompiler {
 		this.ptkname='';
 		this.compilingname='';
 		this.line=0;
+		this.compiledLine=0;
 		this.compiledFiles={};
 		this.primarykeys={};
 		this.errors=[];
@@ -70,7 +71,7 @@ export class Compiler implements ICompiler {
 					if (!typedef) {
 						this.onError(VError.MissingTypedef, tag.name);
 					} else {
-						const newtag=typedef.validateAttrs(tag , this.line,this.onError.bind(this));
+						const newtag=typedef.validateAttrs(tag , this.line,this.compiledLine,this.onError.bind(this));
 						if (newtag) {
 							str=updateOfftext(str,tag,newtag);
 							updated=true;
@@ -118,7 +119,6 @@ export class Compiler implements ICompiler {
 			} else {
 				processed='';
 			}
-
 		} else {
 			const out=[];
 			let linetext=sa.next();
@@ -130,9 +130,12 @@ export class Compiler implements ICompiler {
 				this.line++;
 				if (this.stopcompile) break;
 			}
+			this.compiledLine += out.length;
 			processed=out.join('\n');
 		}
-		this.compiledFiles[filename]={name,preload,sourcetype,processed,errors:this.errors,samepage,defines};
+		this.compiledFiles[filename]={name,preload,sourcetype,processed,
+
+			errors:this.errors,samepage,defines};
 		return this.compiledFiles[filename];
 	}
 }

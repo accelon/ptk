@@ -9,9 +9,18 @@ class Validator implements IValidator {
 		this.def='';
 		this.name=name;
 		this.unique=null;
+		this.values=[] ; //store if not foreign
 		this.pattern=null;//regex pattern
 		this.optional=true;
-		for (let n in def) this[n]=def[n];
+		this.caption='';
+		this.keys=[];
+		for (let n in def) {
+				if (!this.hasOwnProperty(n)) {
+					debugger
+					console.log('unknown defining attr',n,'of',name,def)
+				}
+				this[n]=def[n];
+		}
 		if (def.unique) this.unique={};
 	}
   validate(value){
@@ -95,7 +104,7 @@ export function createValidator(name,def:string,primarykeys,ownkeys) {
 		const keys=(primarykeys&&primarykeys[foreign]) ||ownkeys;
 		v=new KeysValidator(name,{keys,pattern,foreign});
 	}
-	if (!v) v=new Validator(name,def);
+	if (!v) v=new Validator(name,{}); //no validation is perform , just to suppress tag nodef warning
 	return v;
 }
 export function validate_id(tag,typedef){

@@ -103,7 +103,7 @@ export const unpackInt=(s:string,delta=false):NumArray=>{
 	return arr; // return normal array , easier for consequence operation (intersect, union)
 }
 export const unpackIntDelta=(str:string)=>{
-	return unpack(str,true);
+	return unpackInt(str,true);
 }
 
 export const unpackIntDelta2d=(str:string)=>{
