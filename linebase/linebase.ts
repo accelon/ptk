@@ -73,8 +73,9 @@ export class LineBase{
 	slice(nline,to, name='',type='txt'){ //combine array of string from loaded pages
 		const [start]=this.sectionRange(name,type);
 		if (!start && (name||type)) return '';
-		nline+=start;
 		if (!to) to=nline+1;
+		nline+=start;
+		to+=start;
 
 		const p1=this.pageOfLine(nline,this.pagestarts);
 		const p2=this.pageOfLine(to,this.pagestarts);
@@ -87,7 +88,8 @@ export class LineBase{
 				const sliceto=  this.getPageLineOffset(i, to- (p2>0?this.pagestarts[p2-1]:0) );
 				if (p2>p1) {
 					if (i==p1) out = this._pages[i].slice(slicefrom); //+1 skip the \n
-					else out+= '\n'+this._pages[i].slice(0, sliceto);
+					else out+= (out?'\n':'')+this._pages[i].slice(0, sliceto); 
+					//do not allow empty line become the first line
 				} else { //same block
 					out= this._pages[i].slice(slicefrom,sliceto);
 				}
@@ -120,15 +122,14 @@ export class LineBase{
 			},50);
 		})
 	}
-	async preloadSection(name,type){
-		const [from,to]=this.sectionRange(name,type);
-		if (to>from) {
-			await this.loadLines([[from,to]],'','');
-		}
+	async preloadSection(name,type,headeronly=false){
+		let [from,to]=this.sectionRange(name,type);
+		if (headeronly) to=from+1;
+		await this.loadLines([[from,to]],'','');
 	}
 	getSection(name,type){
 		const [from,to]=this.sectionRange(name,type);
-		return this.slice(from+1,to,'','')
+		return this.slice(from,to,'','');
 	}	
 	sectionRange(sname:string,stype=''):[from,to] {
 		const notfound=[0,0];

@@ -27,7 +27,7 @@ export class StringArray {
 	private buildLinepos():void{
 		let prev=-1,p=0;
 		while (p<this.buf.length) {
-			const at=this.buf.indexOf(this.sep ,prev);
+			const at=this.buf.indexOf(this.delimiter ,prev);
 			if (at==-1) {
 				this.linepos.push(this.buf.length);
 				break;

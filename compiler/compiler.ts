@@ -6,7 +6,7 @@ import {validate_z} from './validator.ts'
 import {StringArray} from '../utils/stringarray.ts'
 import {Typedef} from './typedef.ts'
 import {VError,MAX_VERROR} from './verrors.ts'
-const sourceType=(firstline:string):SourceType=>{	
+export const sourceType=(firstline:string):SourceType=>{	
 	const at=firstline.indexOf('\n');
 	firstline=at>-1? firstline.slice(0,at):firstline;
 	const [text,tags]=parseOfftext(firstline);

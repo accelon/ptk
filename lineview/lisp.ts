@@ -4,7 +4,6 @@ export enum LispToken{
   Integer=3,
   Range=4,
   Symbol=5,
-
 }
 function readToken (token) {
   if (token === '(') {

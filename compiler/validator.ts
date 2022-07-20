@@ -57,7 +57,7 @@ class KeysValidator extends Validator {
 			if (!it) return 0;
 			const at=bsearch(keys, it);
 			if (keys[at]===it) {
-				return at+1;
+				return at;
 			} else {
 				return -1;
 			}
@@ -93,7 +93,7 @@ export function createValidator(name,def:string,primarykeys,ownkeys) {
 	else if (typename=='unique_number') v=new NumberValidator(name,{pattern,unique:true,optional:false});
 	else if (typename=='keys') {
 		const keys=(primarykeys&&primarykeys[foreign]) ||ownkeys;
-		v=new KeysValidator(name,{keys,pattern});
+		v=new KeysValidator(name,{keys,pattern,foreign});
 	}
 	if (!v) v=new Validator(name,def);
 	return v;
