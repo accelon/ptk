@@ -1,5 +1,6 @@
 import {loadJSONP,loadNodeJsZip,loadFetch,loadNodeJs} from './loadpage.ts'
 import {bsearchNumber,lineBreaksOffset,unique} from '../utils/index.ts';
+import {ILineRange} from './constants.ts'
 export class LineBase{
 	constructor (opts={}) {
 		this._pages=[];     // read time,   line not split
@@ -41,19 +42,18 @@ export class LineBase{
 	    }
 	    return notloaded;
 	}
-	async loadLines(range:number[] | [number,number][] , name='',type='txt'){
+	async loadLines(range:number[] | ILineRange[]){
 	    const that=this; //load a range, or a sequence of line or range.
 	    await this.isReady();
 	    let toload=[];
 
-	    const [start]=this.sectionRange(name,type);
         const notincache={};
         for (let i=0;i<range.length;i++) {
         	if (Array.isArray(range[i])) {
         		const [from,to]=range[i];
-        		toload.push(...this.pageOfRange([from+start,to+start]));
+        		toload.push(...this.pageOfRange([from,to]));
         	} else {
-        		notincache[this.pageOfLine(range[i]+start)]=true; 
+        		notincache[this.pageOfLine(range[i])]=true; 
         	}
         }
         toload.push(...Object.keys(notincache).map(it=>parseInt(it)));
@@ -70,12 +70,8 @@ export class LineBase{
 		if (line>= this._lineoffsets[page].length) return this._pages[page].length;
 		return this._lineoffsets[page][line-1];
 	}
-	slice(nline,to, name='',type='txt'){ //combine array of string from loaded pages
-		const [start]=this.sectionRange(name,type);
-		if (!start && (name||type)) return '';
+	slice(nline,to){ //combine array of string from loaded pages
 		if (!to) to=nline+1;
-		nline+=start;
-		to+=start;
 
 		const p1=this.pageOfLine(nline,this.pagestarts);
 		const p2=this.pageOfLine(to,this.pagestarts);
@@ -131,7 +127,7 @@ export class LineBase{
 		const [from,to]=this.sectionRange(name,type);
 		return this.slice(from,to,'','');
 	}	
-	sectionRange(sname:string,stype=''):[from,to] {
+	sectionRange(sname:string,stype=''):ILineRange {
 		const notfound=[0,0];
 		const {sectionnames,sectionstarts,sectiontypes}=this.header;
 		if (!sectionnames || !sectionnames.length) return notfound;

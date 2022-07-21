@@ -1,13 +1,13 @@
 /* store in column oriented */ 
-import {packIntDelta2d,packInt} from "../utils/packintarray.ts"
-import {LEMMA_DELIMETER,StringArray} from "../utils/stringarray.ts"
-import {alphabetically0} from "../utils/sortedarray.ts"
+import {LEMMA_DELIMETER,StringArray,alphabetically0,packIntDelta2d,unpackIntDelta2d,packInt,unpackIntDelta,unpackInt} from "../utils/index.ts"
 import {createValidator,VError} from  "../compiler/index.ts"
+import {parseOfftext} from '../offtext/index.ts'
 export class Column {
-	constructor(attrs, opts={}) {
+	constructor(opts={}) {
 		this.fieldvalues=[];
 		this.fieldnames=[];
 		this.validators=[];
+		this.name='';
 		this.keys=[];  //keys
 		this.values=[]; // 
 		this.primarykeys=opts.primarykeys||{};
@@ -21,14 +21,14 @@ export class Column {
 	}
 	addRow(fields:string[], line:number ){
 		if (fields.length>this.validators.length && line) {
-			this.onError(VError.ExcessiveField, fields.length+ ' max '+this.validators.length,line);
+			this.onError&&this.onError(VError.ExcessiveField, fields.length+ ' max '+this.validators.length,line);
 			return;
 		}
 		for (let i=0;i<fields.length;i++) {
 			const V=this.validators[i];
 			const [err,value]=V.validate(fields[i],line);
 			if (err) {
-				this.onError(err,this.fieldnames[i]+' '+fields[i],-1,line);
+				this.onError&&this.onError(err,this.fieldnames[i]+' '+fields[i],-1,line);
 			}
 			this.fieldvalues[i].push( value);
 		}
@@ -42,7 +42,30 @@ export class Column {
 			this.validators.push(V);
 		}
 	}
-	fromStringArray(sa:StringArray, from=0):string[]{
+	deserialize(section:string[]){
+		const firstline=section.shift();
+		const [text,tags]=parseOfftext(firstline);
+		const attrs=tags[0].attrs;
+		this.name=attrs.name;
+		const typedef=text.split('\t') ; // typdef of each field , except field 0
+		this.createValidators(typedef);
+		this.keys=new StringArray(section.shift(),{delimiter:LEMMA_DELIMETER});  //local keys
+		let idx=0;
+		for (let fieldname in this.validators) {
+			const field=this.validators[fieldname];
+			const linetext=section.shift();
+			if (field.type==='number') {
+				this.fieldvalues[idx]=unpackInt(linetext);
+			} else if (field.type==='keys') {
+				this.fieldvalues[idx]=unpackIntDelta2d(linetext);
+			}
+			idx++;
+		}
+		if (section.length) {
+			console.log('section not consumed');
+		}
+	}
+	fromStringArray(sa:StringArray, from=1):string[]{
 		const allfields=[];
 		let line=sa.first();
 
@@ -70,18 +93,19 @@ export class Column {
 		for (let i=0;i<this.fieldnames.length;i++) {
 			const V=this.validators[i];
 			if (V.type=='number') {
-				out.push(packInt( this.fieldvalues[i].map(it=>parseInt(it))||[]));
+				const numbers=this.fieldvalues[i].map(it=>parseInt(it)||0)||[];
+				out.push(packInt( numbers));
 			} else if (V.type=='keys') {
 				const nums=(this.fieldvalues[i])||[];
 				out.push(packIntDelta2d(nums));
 			} else if (V.type){
-				this.onError(VError.UnknownType,V.type);
+				this.onError&&this.onError(VError.UnknownType,V.type);
 			}
   		}
 		return out;
 	}
-	fromTSV(buffer:string, from=0):string[]{
-		const sa=StringArray(string,{sequencial:true});
+	fromTSV(buffer:string, from=1):string[]{
+		const sa=new StringArray(buffer,{sequencial:true});
 		return this.fromStringArray(sa,from);
 	}
 }

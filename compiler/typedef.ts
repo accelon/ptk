@@ -3,11 +3,11 @@ import {ITypedef} from './interfaces.ts';
 import {createValidator} from './validator.ts';
 import {VError} from './verrors.ts';
 import {packInt,packIntDelta,unpackIntDelta,unpackInt,LEMMA_DELIMETER} from '../utils/index.ts'
-
+/* types of attributes defined by ^:  */
 export class Typedef implements ITypedef {
 	constructor (attrs:Map, tagname:string, primarykeys:Map) {
-		this.validators={};
-		this.mandatory={};
+		this.validators={}; /* attribute might have validator */
+		this.mandatory={};  
 		this.tagname=tagname;
 		this.linepos=[];
 		this.savelinepos=false;   
@@ -20,11 +20,10 @@ export class Typedef implements ITypedef {
 			if (V && !V.optional) this.mandatory[aname]=true;
 		}
 	}
-	validateAttrs(tag:IOfftag , line:number, compiledLine:number , onError) {
+	validateTag(tag:IOfftag , line:number, compiledLine:number , onError) {
 		let touched=false, newtag;
-
 		if (this.validators.id || this.savelinepos) { //auto save linepos if validating id
-			this.linepos.push(compiledLine+line-1); //line is one base(omit ^_), 
+			this.linepos.push(compiledLine+line);
 		}
 		for (let aname in tag.attrs) {
 			const V=this.validators[aname];
@@ -58,8 +57,9 @@ export class Typedef implements ITypedef {
 		for (let i=0;i<attrs.length;i++) {
 			const aname=attrs[i];
 			const V=this.validators[aname];
-			if (V.type=='number')
-			V.values=unpackInt(section.shift());
+			if (V.type=='number'){
+				V.values=unpackInt(section.shift());	
+			}
 		}
 		if (section.length) {
 			console.log("unconsumed section lines",section.length);

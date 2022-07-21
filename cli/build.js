@@ -15,7 +15,7 @@ export const dobuild=async (files, opts={})=>{
 	const ctx={lbaser,primarykeys:{}};
 	let success=true , ptkcss='', alldefines=[];
 	const compiler=new Compiler();
-	// compiler.ptkname=opts.ptkname; //suggestion only, might overwrite by offtext
+
 	for (let i=0;i<files.length;i++) {
 		const filename=files[i];
 		if (filename=='ptk.css') {

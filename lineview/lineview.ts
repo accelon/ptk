@@ -1,5 +1,6 @@
 import {parseLisp,LispToken} from './lisp.ts';
 import {openPtk,usePtk} from '../basket/index.ts'
+import {ILineRange} from '../linebase/index.ts'
 export interface ILineViewItem {
 	key   : string,
 	text  : string,
@@ -11,7 +12,7 @@ export const parseLVA = (address:string)=>{
 	const expr=parseLisp(address);
 	return expr;
 }
-const parseRange=(item)=>{
+const parseRange=(item,start=0):ILineRange=>{
 	let from,to;
 	if (item.type==LispToken.Integer) {
 		from=item.value; to=from+1;
@@ -20,7 +21,7 @@ const parseRange=(item)=>{
 		from=parseInt(from1);to=parseInt(to1);
 	}
 	if (!to) to=from+1;
-	return [from,to];
+	return [from+start,to+start];
 }
 export const loadLVA = async (address:string) =>{ //載入巢狀行
 	const lisp=parseLVA(address);
@@ -30,11 +31,11 @@ export const loadLVA = async (address:string) =>{ //載入巢狀行
 	eachLVA( lisp, 0 , (item,idx,depth)=>{
 		if (item.type==LispToken.Symbol) {
 			scope_pitaka[depth]=item.value;
-		} else if (item.type==LispToken.Range || item.type==LispToken.Integer) {
+		} else {
 			let  ptkname=scope_pitaka[depth], d=depth;
 			while (d&&!ptkname) ptkname=scope_pitaka[--d];
 			if (!pitaka_ranges[ptkname])pitaka_ranges[ptkname]=[];
-			pitaka_ranges[ptkname].push( parseRange(item));
+			pitaka_ranges[ptkname].push( item);
 		}
 	})
 	const jobs=[]; //先打開所有用到的ptk
@@ -47,20 +48,35 @@ export const loadLVA = async (address:string) =>{ //載入巢狀行
 	for (let ptkname in pitaka_ranges) {
 		const ptk=usePtk(ptkname);
 		if (!ptk) continue;
-		jobs.push(ptk.loadLines(pitaka_ranges[ptkname]));
+		const ranges=pitaka_ranges[ptkname].map(item=>{
+			let range;
+			if (item.type==LispToken.Address) {
+				range=ptk.parseAddress(item.value);
+			} else {
+				range=parseRange(item,ptk.textStart);
+			}
+			return range;
+		})
+		jobs.push(ptk.loadLines(ranges));
 	}
 	await Promise.all(jobs);
-	let prevdepth=0, errorcount=0;
+	let prevdepth=0, errorcount=0 ,seq=0;
 	eachLVA( lisp, 0 , (item,idx,depth)=>{  //將巢狀結構轉為行陣列，標上深度及框線
 		if (item.type==LispToken.Symbol) {
 			scope_pitaka[depth]=item.value;
-		} else if (item.type==LispToken.Range || item.type==LispToken.Integer) {
-			const [from,to]=parseRange(item);
-			let ptkname=scope_pitaka[depth];
+		} else if (item.type==LispToken.Range || item.type==LispToken.Integer || item.type==LispToken.Address) {
+			let from,to;
 			let d=depth;
+			let ptkname=scope_pitaka[depth];
 			while (d&&!ptkname) ptkname=scope_pitaka[--d];
 			const ptk=usePtk(ptkname);
 			if (ptk) {
+				if (item.type==LispToken.Address) {
+					[from,to]=ptk.parseAddress(item.value);
+				} else {
+					[from,to]=parseRange(item,ptk.textStart);
+				}
+
 				const lines=ptk.slice(from,to);
 				const segment=[];
 				for (let i=0;i<lines.length;i++) { //優先顯示更深的層級框線
@@ -72,7 +88,8 @@ export const loadLVA = async (address:string) =>{ //載入巢狀行
 					if(depth>prevdepth && (edge&2===2) && out.length) out[out.length-1].edge=0;
 					//上行的層級更深，除去本行的上框線不顯示
 					if(prevdepth>depth && (edge&1===1)) edge=0;
-					segment.push({key:ptkname+':'+(i+from), text, depth , edge})
+					segment.push({seq,lva:(i==0)?item:null,key:ptkname+':'+(i+from), text, depth , edge })
+					seq++;
 				}
 				out.push(...segment);				
 			} else {
@@ -82,7 +99,7 @@ export const loadLVA = async (address:string) =>{ //載入巢狀行
 		}
 		prevdepth=depth;
 	});
-	return out;
+	return [out,lisp];
 }
 export const eachLVA=(lva:[],depth=0,cb)=>{
 	lva.forEach((item,idx)=>Array.isArray(item)?eachLVA( item,depth+1,cb ) :cb(item,idx,depth));

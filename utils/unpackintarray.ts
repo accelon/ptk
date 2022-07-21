@@ -54,7 +54,6 @@ export const unpackInt=(s:string,delta=false):NumArray=>{
 	let arr:number[]=[];
 	//let started=false;
 	if (!s) return [];
-
 	let o,i=0,c=0,prev=0;
 	while (i<s.length) {
 		o=s.charCodeAt(i) - CodeStart;
@@ -87,17 +86,10 @@ export const unpackInt=(s:string,delta=false):NumArray=>{
 		} else {
 			throw new Error("exit max integer 0x7f,"+ o);
 		}
-		
 
-		// if (started) {
 		arr[c] = o + (delta?prev:0);
 		prev=arr[c];
 		c++;
-		// } else {
-		// 	arr=new Array(o) // Int32Array(o); //Uint32Array might convert to double
-		// 	started=true;
-		// }
-		
 		i++;
 	}
 	return arr; // return normal array , easier for consequence operation (intersect, union)

@@ -62,7 +62,7 @@ export class Compiler implements ICompiler {
 					this.typedefs[newtagname]= new Typedef(tag.attrs,newtagname,this.primarykeys);
 				}
 				defines.push(str);
-				str='';
+				str=null;  //no in source tag
 			} else {
 				if (tag.name[0]=='z') {
 					validate_z.call(this,tag);
@@ -71,7 +71,7 @@ export class Compiler implements ICompiler {
 					if (!typedef) {
 						this.onError(VError.MissingTypedef, tag.name);
 					} else {
-						const newtag=typedef.validateAttrs(tag , this.line,this.compiledLine,this.onError.bind(this));
+						const newtag=typedef.validateTag(tag , this.line,this.compiledLine,this.onError.bind(this));
 						if (newtag) {
 							str=updateOfftext(str,tag,newtag);
 							updated=true;
@@ -106,14 +106,14 @@ export class Compiler implements ICompiler {
 			const [text,tags]=parseOfftext(firstline);
 			const attrs=tags[0].attrs;
 			const typedef=text.split('\t') ; // typdef of each field , except field 0
-			const columns=new Column(attrs,
-			 {typedef, primarykeys:this.primarykeys ,onError:this.onError.bind(this) } );
+			const columns=new Column( {typedef, primarykeys:this.primarykeys ,onError:this.onError.bind(this) } );
 			const serialized=columns.fromStringArray(sa,1) ; //build from TSV, start from line 1
 			if (serialized) {
 				name = attrs.name || filename;  //use filename if name is not specified
 				serialized.unshift(firstline); //keep the first line
 				//primary key can be refered by other tsv
 				if (attrs.name) this.primarykeys[attrs.name]= columns.keys;
+				this.compiledLine += serialized.length;
 				processed=serialized.join('\n');
 				samepage=true; //store in same page
 			} else {
@@ -122,12 +122,14 @@ export class Compiler implements ICompiler {
 		} else {
 			const out=[];
 			let linetext=sa.next();
-			this.line=1;
+			this.line=0;
 			while (linetext || linetext==='') {
 				const o=this.compileOfftext(linetext, defines);
-				o&&out.push(o);
+				if (o || o=='') {
+					out.push(o);
+					this.line++;
+				}
 				linetext=sa.next();
-				this.line++;
 				if (this.stopcompile) break;
 			}
 			this.compiledLine += out.length;

@@ -4,6 +4,7 @@ export enum LispToken{
   Integer=3,
   Range=4,
   Symbol=5,
+  Address=6,
 }
 function readToken (token) {
   if (token === '(') {
@@ -14,6 +15,8 @@ function readToken (token) {
     return {type:LispToken.Integer, value:parseInt(token) };
   } else if (token.match(/^[a-z]*\d+~\d+$/)) {
     return {type:LispToken.Range,  value: token };
+  } else if (token.match(/^@.+/)){
+    return {type:LispToken.Address,  value: token};
   } else {
     return {type:LispToken.Symbol, value: token };
   }
@@ -23,7 +26,7 @@ export function tokenize (expression) {
   return expression
   .replace(/\(/g, ' ( ')
   .replace(/\)/g, ' ) ')
-  .replace(/([a-z]*\d+)~(\d+)/g, ' $1~$2 ')
+  .replace(/(\d+)~(\d+)/g, ' $1~$2 ') 
   .trim().split(/[\+\s]+/).map(readToken);
 }
 

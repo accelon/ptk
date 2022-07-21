@@ -1,12 +1,16 @@
-import {LineBase} from '../linebase/index.ts';
+import {LineBase,Column} from '../linebase/index.ts';
 import {Compiler,sourceType} from '../compiler/index.ts'
 import {parseOfftext} from '../offtext/index.ts'
-import {StringArray,LEMMA_DELIMETER} from '../utils/index.ts';
+import {StringArray,unpackIntDelta,LEMMA_DELIMETER} from '../utils/index.ts';
+import {parseAddress} from './address.ts';
 export class Pitaka extends LineBase {
 	constructor(opts){
 		super(opts);
 		this.defines={};
 		this.primarykeys={};
+		this.columns={};
+		this.textStart=0;
+		this.parseAddress=parseAddress;
 	}
 	async init(){
 		const compiler=new Compiler()
@@ -27,7 +31,7 @@ export class Pitaka extends LineBase {
 
 		for (let i=0;i<this.header.preload.length;i++) {
 			const section=this.getSection(this.header.preload[i]);
-			this.deserialize(section)
+			this.deserialize(section);
 		}
 		for (let n in this.defines) { //see compiler/typedef.ts serialize()
 			if (this.defines[n].validators.preload) {
@@ -44,20 +48,34 @@ export class Pitaka extends LineBase {
 				}
 			}
 		}
-		//deserialize the tabular section
-		// console.log(this.primarykeys)
+
+		this.textStart=this.sectionRange('','txt')[0];
 	}
 	deserialize(section) {
 		if (!section.length) return;
 		const firstline=section[0];
 		const [srctype]=sourceType(firstline);
 		if (srctype=='tsv') {
-			const [text,tags]=parseOfftext(firstline);
-			const attrs=tags[0].attrs;
-			const typedef=text.split('\t') ; // typdef of each field , except field 0
-
-			this.primarykeys[attrs.name]=new StringArray(section[1],{delimiter:LEMMA_DELIMETER});
+			const column=new Column();
+			column.deserialize(section);
+			this.columns[column.name]=column;
+			this.primarykeys[column.name]=column.keys;
 		}
+	}
+	rowOf(rowname:string,idx:string) {
+		const column=this.columns[rowname];
+		const out=[];
+		for (let i=0;i<column.fieldnames.length;i++) {
+			const type=column.validators[i].type;
+			const name=column.fieldnames[i];
+			out.push( { name, type, value:column.fieldvalues[i][idx] } ) ;
+		}
+		return out;
+	}
+	columnField(name:string, field:string, idx:number) {
+		const column=this.columns[name];
+		const at=column.fieldnames.indexOf(field);
+		return column.fieldvalues[at][idx];
 	}
 	typedefOf(tagname:string) {
 		return this.defines[tagname].validators;

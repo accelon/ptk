@@ -15,7 +15,7 @@ export function processOfftextLines(lines:string[],filename:string){
 			}
 		}
 		if (attrs.type=='tsv') {
-			const columns=new Column(attrs, text.split('\t') , primarykeys);
+			const columns=new Column({typedef:text.split('\t') , primarykeys});
 			const header=lines.shift();
 			const serialized=columns.fromTSV(lines);
 			const name = attrs.name || filename;  //use filename if name is not specified

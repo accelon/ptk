@@ -19,3 +19,8 @@ export const OFFTAG_ATTRS="(\\[(?:\\\\.|.)*?\\])?"
 export const OFFTAG_COMPACT_ID=/^([a-z\d]+[_a-z\d\-~\.]*)/;  //縮式 id
 export const QSTRING_REGEX_G= /"((?:\\.|.)*?)"/g                                  //字串標式
 export const OFFTAG_LEADBYTE='^';
+
+export const ADDRESS_ELE_ID = /^@?([a-z]+)#([a-z\d_-]+)$/;
+export const ADDRESS_ELE_ID_TO = /^@?([a-z]+)#([a-z\d_-]+)>(\d+)$/;
+export const ADDRESS_ELE_ID_FROM = /^@?([a-z]+)#([a-z\d_-]+)<(\d+)$/;
+export const ADDRESS_ELE_ID_RANGE = /^@?([a-z]+)#([a-z\d_-]+)<(\d+)>(\d+)$/;

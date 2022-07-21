@@ -68,7 +68,7 @@ export const pack3_2d=(arr:NumArray[],esc=false)=>{
 export const packInt=(arr:NumArray, delta=false):Uint8Array=>{
 	if (arr.length==0) return '';
 	const sz=arr.length*5;  
-	let s=new Uint8Array(sz), int=arr[0], prev=0 , idx=0;
+	let s=new Uint8Array(sz), int=arr[0], prev=arr[0] , idx=0;
 
 	for (let i=1;i<=arr.length;i++) {
 		if (isNaN(int)) new Error('not an integer at'+i);
@@ -128,7 +128,7 @@ export const packInt=(arr:NumArray, delta=false):Uint8Array=>{
 			// console.log('neighbor of arr',i,delta,arr.slice(i,10),arr.length, prev)
 			throw new Error('exist max int boundary '+BYTE5_MAX+ ' i'+i+',val:'+arr[i]+' int'+int);
 		}
-		int=(delta? arr[i]-prev: arr[i] ) ||0;
+		int=(delta? arr[i]-prev: arr[i] ) ;
 		prev=arr[i]||0;
 	}
 	//new TextDecoder is quite fast

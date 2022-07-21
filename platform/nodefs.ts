@@ -1,6 +1,6 @@
 import {fromObj,alphabetically} from '../utils/sortedarray.ts';
 import {humanBytes} from '../utils/index.ts';
-
+import {grey,green} from '../cli/colors.cjs'; // lukeed/kleur
 
 export const makePitakaZip=async(arr:Uint8Array, writer)=>{
     arr[7] |= 0x80 ; //set the flag , so that we know it is a pitaka zip
@@ -13,22 +13,20 @@ export const makePitakaZip=async(arr:Uint8Array, writer)=>{
     if (writer) await writer(arr);
     return arr;
 }
-export const writeChanged=(fn,buf,enc='utf8')=>{ //write to fn only if changed
+export const writeChanged=(fn,buf,verbose=false,enc='utf8')=>{ //write to fn only if changed
     const oldbuf=fs.existsSync(fn) && fs.readFileSync(fn,enc);
     if (oldbuf!==buf) {
         fs.writeFileSync(fn,buf,enc);
+        if (verbose) console.log(green('written'),fn,buf.length);
         return true;
     }
+    if (verbose) console.log(grey('no diff'),fn,buf.length);
     return false;
 }
 
-export const writeIncObj=(obj,outfn)=>{
+export const writeIncObj=(obj,outfn,verbose)=>{
     let arr=Array.isArray(obj)?obj:fromObj(obj,true);
-    if (writeChanged(outfn,arr.join('\n'))) {
-        console.log('written',outfn,arr.length)
-    } else {
-        console.log(outfn,'no difference')
-    }
+    writeChanged(outfn,arr.join('\n'),verbose);
     return arr;
 }
 

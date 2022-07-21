@@ -51,10 +51,13 @@ export class StringArray {
 		if (this.now==-1) return ;
 		const at=this.buf.indexOf(this.sep,this.now);
 		if (at==-1) {
-			if (this.now>0) {
+			if (this.now>=0) {
 				const lastline=this.buf.slice(this.now);
 				this.now=-1;
 				return lastline;
+			} else {
+				this.now=-1;
+				return ;
 			}
 		}
 		const s=this.buf.slice(this.now,at);
