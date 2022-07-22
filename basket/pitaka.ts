@@ -2,7 +2,7 @@ import {LineBase,Column} from '../linebase/index.ts';
 import {Compiler,sourceType} from '../compiler/index.ts'
 import {parseOfftext} from '../offtext/index.ts'
 import {StringArray,unpackIntDelta,LEMMA_DELIMETER} from '../utils/index.ts';
-import {parseAddress} from './address.ts';
+import {rangeOfAddress} from './address.ts';
 export class Pitaka extends LineBase {
 	constructor(opts){
 		super(opts);
@@ -10,24 +10,24 @@ export class Pitaka extends LineBase {
 		this.primarykeys={};
 		this.columns={};
 		this.textStart=0;
-		this.parseAddress=parseAddress;
+		this.rangeOfAddress=rangeOfAddress;
 	}
 	async init(){
 		const compiler=new Compiler()
 		compiler.compileBuffer(this.payload, this.name);
 		this.defines=compiler.typedefs;
 
-		const jobs=[];
+		const jobs=[],ranges=[];
 		for (let i=0;i<this.header.preload.length;i++) {
-			jobs.push(this.preloadSection(this.header.preload[i]));
+			ranges.push(this.sectionRange(this.header.preload[i]));
 		}
 		for (let n in this.defines) {
 			if (this.defines[n].validators.preload) {
-				jobs.push(this.preloadSection('^'+n));
+				ranges.push(this.sectionRange('^'+n));
 			}
 		}
-
-		await Promise.all(jobs);
+		//load together , avoid duplicate jobs
+		await this.loadLines(ranges);
 
 		for (let i=0;i<this.header.preload.length;i++) {
 			const section=this.getSection(this.header.preload[i]);
@@ -61,6 +61,12 @@ export class Pitaka extends LineBase {
 			this.columns[column.name]=column;
 			this.primarykeys[column.name]=column.keys;
 		}
+	}
+	validId(tagname:string,id:any):boolean {
+		const V=this.defines[tagname].validators;
+		if (!V.id) return false;
+		if (V.id.type=='number' && typeof id !=='number') id=parseInt(id)
+		return ~this.defines[tagname].validators.id.values.indexOf(id);
 	}
 	rowOf(rowname:string,idx:string) {
 		const column=this.columns[rowname];

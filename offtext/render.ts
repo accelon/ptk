@@ -34,6 +34,7 @@ export const renderOfftext=(linetext, opts={})=>{
         return new RenderUnit(tk,idx);
     });
 
+
     const classes=[]; //classes at plain position
     let uidx=0;
     //set the classes

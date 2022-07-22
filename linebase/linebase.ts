@@ -44,7 +44,6 @@ export class LineBase{
 	}
 	async loadLines(range:number[] | ILineRange[]){
 	    const that=this; //load a range, or a sequence of line or range.
-	    await this.isReady();
 	    let toload=[];
 
         const notincache={};
@@ -121,11 +120,11 @@ export class LineBase{
 	async preloadSection(name,type,headeronly=false){
 		let [from,to]=this.sectionRange(name,type);
 		if (headeronly) to=from+1;
-		await this.loadLines([[from,to]],'','');
+		await this.loadLines([[from,to]]);
 	}
 	getSection(name,type){
 		const [from,to]=this.sectionRange(name,type);
-		return this.slice(from,to,'','');
+		return this.slice(from,to);
 	}	
 	sectionRange(sname:string,stype=''):ILineRange {
 		const notfound=[0,0];

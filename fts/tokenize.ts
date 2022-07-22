@@ -49,7 +49,7 @@ export const tokenize=(text:string)=>{
                 out.push(Token(s.substring(prev,offset) , prev+i,tkoff,TokenType.UNSEARCHABLE));
             }
             while (s[offset]==' ') offset++;
-            out.push([0,null,m1,i+offset,TokenType.ROMANIZE]);
+            out.push(Token(m1,i+offset,tkoff,TokenType.ROMANIZE));
             tkoff++;
             prev=offset+m.length;
         });
