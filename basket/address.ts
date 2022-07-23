@@ -1,32 +1,28 @@
 import {ILineRange} from '../linebase/index.ts'
-import {AT_ELE_ID,AT_ELE_ID_LEFTRIGHT,AT_ELE_ID_LEFTBOUND,AT_ELE_ID_RIGHTBOUND} from '../offtext/index.ts'
-
-export function parseAddress(address:string):[left,right,eleid]{
-	let m0,ele,id, left=0 ,right=0 ; //left bound and right bound
-	let m=address.match(AT_ELE_ID_LEFTRIGHT);
+import {AT_ELE_ID_BOUND_HOST} from '../offtext/index.ts'
+export interface ILVA {
+	host:string,
+	ele:string,
+	id:string,
+	left:number,
+	right:number,
+}
+export const parseAddress=(address:string):[left,right,eleid]=>{
+	let m0,basket='',ele,id, left=0 ,right=0 ; //left bound and right bound
+	let m=address.match(AT_ELE_ID_BOUND_HOST);
 	if (m) {
-		[m0, ele, id, left ,right] = m;
+		[m0, host, ele, id, left ,right] = m;
 	} else {
-		m=address.match(AT_ELE_ID_LEFTBOUND);
-		if (m) {
-			[m0, ele, id, left] = m;
-		} else {
-			m=address.match(AT_ELE_ID_RIGHTBOUND);
-			if (m) {
-				[m0, ele, id, right] = m;
-			} else {
-				m=address.match(AT_ELE_ID);
-				if (m) {
-					[m0, ele, id] = m;
-				}
-			}
-		}
-	}	
-	if (!m) return[];
+		return null;
+	}
+	right=(right||'').slice(1);
+	left=(left||'').slice(1);
+	host=host||'';
+	host=host.slice(0,host.length-1); //remove :
 
-	const eleid=parseInt(id)?ele+id:ele+'#'+id;
-	left=Math.abs(parseInt(left)); right=Math.abs(parseInt(right));
-	return [left,right,eleid,ele,id];
+	left=Math.abs(parseInt(left))||0; right=Math.abs(parseInt(right))||0;
+
+	return {host, ele,id,left,right};
 }
 export function rangeOfAddress(address:string):ILineRange{
 	const [left,right,eleid,ele,id] = parseAddress(address);

@@ -1,1 +1,2 @@
-export * from './lineview.ts'
+export * from './lvi.ts'
+export * from './parser.ts'

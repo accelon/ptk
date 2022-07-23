@@ -20,7 +20,4 @@ export const OFFTAG_COMPACT_ID=/^([a-z\d]+[_a-z\d\-~\.]*)/;  //縮式 id
 export const QSTRING_REGEX_G= /"((?:\\.|.)*?)"/g                                  //字串標式
 export const OFFTAG_LEADBYTE='^';
 
-export const AT_ELE_ID = /^@?([a-z]+)#?([a-z\d_-]+)$/;
-export const AT_ELE_ID_RIGHTBOUND = /^@?([a-z]+)#?([a-z\d_-]+)>(\d+)$/;
-export const AT_ELE_ID_LEFTBOUND = /^@?([a-z]+)#?([a-z\d_-]+)<(\d+)$/;
-export const AT_ELE_ID_LEFTRIGHT = /^@?([a-z]+)#?([a-z\d_-]+)<(\d+)>(\d+)$/;
+export const AT_ELE_ID_BOUND_HOST = /^([a-z\.\d\-_]+\:)?([a-z]+)#?([a-z\d_-]+)(<\d+)?(>\d+)?$/;
