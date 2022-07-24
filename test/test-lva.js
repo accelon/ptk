@@ -1,4 +1,4 @@
-import {stringifyLVA,parseLVA,splitLVA,joinLVA} from '../nodebundle.cjs'
+import {stringifyLVA,parseLVA,digLVA,undigLVA} from '../nodebundle.cjs'
 import {red,green} from '../cli/colors.cjs'
 let test=0,pass=0, lva;
 
@@ -76,42 +76,42 @@ test++; pass+=lva[2].id=='400' && lva[2].host=='abc'; //setting a new host
 test++; pass+=lva[3].id=='500' && lva[3].host=='abc'; //same level sharnig host
 test++; pass+=lva[4].id=='600' && lva[4].host=='cyd'; //parent scope
 
-//split and join full node
-let beforesplit='cyd:e1';
+//dig and undig full node
+let beforedig='cyd:e1';
 let insertaddress='abc:w2';
-let lva2=splitLVA(beforesplit,insertaddress);
+let lva2=parseLVA(digLVA(beforedig,insertaddress));
 test++; pass+=lva2.length==3;
-test++; pass+=lva2[0].right==1;
+test++; pass+=lva2[0].right==0;
 test++; pass+=lva2[2].left==1;
 test++; pass+=lva2[1].depth==1 ;
 
 const stringified=stringifyLVA(lva2);
 
 test++; pass+=stringified.length==3 && stringified[1]==insertaddress ;
-test++; pass+=stringified[0].startsWith(beforesplit) ;
+test++; pass+=stringified[0].startsWith(beforedig) ;
 
-test++; pass+=stringifyLVA(joinLVA(lva2))==beforesplit;
+test++; pass+=undigLVA(stringfied)==beforedig;
 
 
-test++; pass+=joinLVA(lva)==null
+// test++; pass+=undigLVA(lva)==null
 
-//split and join a range
-beforesplit='cyd:e1<3>6';  // from line 3 to line 4
-lva2=splitLVA(beforesplit,insertaddress);
+//dig and undig a range
+beforedig='cyd:e1<3>6';  // from line 3 to line 4
+lva2=parseLVA(digLVA(beforedig,insertaddress));
 
 test++; pass+=lva2.length==3 ;
-
 test++; pass+=lva2[0].left==3 ;
-test++; pass+=lva2[0].right==4 ;
+test++; pass+=lva2[0].right==3 ;
 test++; pass+=lva2[2].left==4 ;
 test++; pass+=lva2[2].right==6 ;
 
-beforesplit='cyd:e1<1>1';  // spliting a one line just add after it
-lva2=splitLVA(beforesplit,insertaddress);
+beforedig='cyd:e1<1>1';  // diging a one line just add after it
+let afterdig=digLVA(beforedig,insertaddress);
+lva2=parseLVA(afterdig);
 test++; pass+=lva2.length==2 ;
 test++; pass+=lva2[1].depth==lva2[0].depth+1;
 
-test++; pass+=stringifyLVA(joinLVA(lva2))==beforesplit;
+test++; pass+=undigLVA(afterdig)==beforedig;
 
 
 console.log('pass',test==pass?green(pass):pass, (test-pass)?('failed',red(test-pass)):'')

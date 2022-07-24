@@ -1,7 +1,6 @@
 import {poolAdd,poolGet}  from './pool.ts';
 import {Pitaka} from './pitaka.ts';
 
-
 export const openPtk=async (name:string)=>{
 	let ptk=usePtk(name);
 	if (ptk) return ptk;
@@ -9,7 +8,7 @@ export const openPtk=async (name:string)=>{
 	ptk = new Pitaka({name});
 	if (await ptk.isReady()) {
 		await ptk.init();
-		poolAdd(ptk.name,ptk);
+		poolAdd(name,ptk);
 		return ptk;
 	}
 }

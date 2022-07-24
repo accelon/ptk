@@ -87,7 +87,7 @@ export class Pitaka extends LineBase {
 		return column.fieldvalues[at][idx];
 	}
 	typedefOf(tagname:string) {
-		return this.defines[tagname].validators;
+		return this.defines[tagname]?.validators;
 	}
 
 }

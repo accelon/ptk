@@ -1,5 +1,5 @@
 import {ILineRange} from '../linebase/index.ts'
-import {AT_ELE_ID_BOUND_HOST} from '../offtext/index.ts'
+import {AT_HOST_ELE_ID_BOUND, AT_HOST_BOUND} from '../offtext/index.ts'
 export interface ILVA {
 	host:string,
 	ele:string,
@@ -7,13 +7,16 @@ export interface ILVA {
 	left:number,
 	right:number,
 }
-export const parseAddress=(address:string):[left,right,eleid]=>{
-	let m0,basket='',ele,id, left=0 ,right=0 ; //left bound and right bound
-	let m=address.match(AT_ELE_ID_BOUND_HOST);
+export const parseAddress=(address:string)=>{
+	let m0,basket='',ele='',id='', left=0 ,right=0 ; //left bound and right bound
+	let m=address.match(AT_HOST_ELE_ID_BOUND);
 	if (m) {
 		[m0, host, ele, id, left ,right] = m;
 	} else {
-		return null;
+		m=address.match(AT_HOST_BOUND);
+		if (m) {
+			[m0, host, left ,right] = m;
+		} else return null;
 	}
 	right=(right||'').slice(1);
 	left=(left||'').slice(1);
@@ -22,12 +25,11 @@ export const parseAddress=(address:string):[left,right,eleid]=>{
 
 	left=Math.abs(parseInt(left))||0; right=Math.abs(parseInt(right))||0;
 
-	return {host, ele,id,left,right};
+	return {host, ele,id,left,right,start:0,end:0};
 }
 export function rangeOfAddress(address:string):ILineRange{
-	const [left,right,eleid,ele,id] = parseAddress(address);
-	
-	if (eleid) {	
+	const {host,left,right,ele,id} = parseAddress(address);
+	if (ele) {
 		const idtype=this.defines[ele].validators.id;
 		const _id=(idtype.type=='number')?parseInt(id):id;
 		let at=idtype.values.indexOf(_id);
@@ -39,8 +41,9 @@ export function rangeOfAddress(address:string):ILineRange{
 		if (start>last) start=last;
 		if (end>last) end=last;
 		
-		const r=[start , end , eleid ];
+		const r=[start , end  ];
 		return r;
+	} else {
+		return [left,(right?right:left)];
 	}
-	else return [0,0];
 }

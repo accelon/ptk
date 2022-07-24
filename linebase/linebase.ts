@@ -24,7 +24,7 @@ export class LineBase{
         }
         this.failed=false;
         if (opts.inmemory) {
-        	this._loader=null;
+        	this._loader=()=>{};
         } else {
         	this._loader(0);
         }
@@ -67,6 +67,9 @@ export class LineBase{
 	    toload.forEach(ck=>jobs.push(this._loader(ck+1)));
 	    if (jobs.length) await Promise.all(jobs);
 	}	
+	lineCount(){
+		return this.header.starts[this.header.starts.length-1];
+	}
 	getPageLineOffset(page,line){
 		if (page>this._pages.length) return 0;
 
@@ -102,6 +105,7 @@ export class LineBase{
     setPage(page,header,payload){
     	if (page==0) {
 	        this.header=header;
+	        this.name=this.header.name;
 	        this.pagestarts=header.starts;
     	    this.payload=payload||'nopayload'; 
     	    this.opened=true;
