@@ -1,3 +1,14 @@
+export const parseJsonp=str=>{
+    const start=str.indexOf('{');
+    const end=str.indexOf('},`')+1;
+    let payload=str.substring(end+2,str.length-2);
+    //indexOf is much faster than regex, replace only when needed
+    if (payload.indexOf("\\\\")>-1) payload=payload.replace(/\\\\/g,"\\");
+    if (payload.indexOf("\\`")>-1)  payload=payload.replace(/\\`/g,"`");
+    if (payload.indexOf("$\\{")>-1) payload=payload.replace(/\$\\\{/g,'${');
+
+    return[JSON.parse(str.substring(start,end)), payload ];
+}
 export const unloadScript=src=>{
     if (src.slice(0,2)=='./') src=src.slice(2);
     const css=src.endsWith('.css');

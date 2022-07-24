@@ -6,6 +6,7 @@ const makeHeader=(name,header,pagestarts,payload)=>{
 	const meta=Object.assign( {} , header,{name,starts:pagestarts,buildtime:new Date()})
 	return 'jsonp(0,'+JSON.stringify(meta)+',`'+escapeTemplateString(payload)+'`)';
 }
+
 export class LineBaser {
 	constructor (opts={}) {
 		this._data=[];      // write time, line splited
@@ -29,11 +30,11 @@ export class LineBaser {
 		this.newPage();
 		let start=0;
 		const jsonpfn=pagejsonpfn(0);
-		cb(jsonpfn, makeHeader(this.name,this.header||{},this.pagestarts,this.payload) );
+		cb(jsonpfn, makeHeader(this.name,this.header||{},this.pagestarts,this.payload) ,0);
 		for (let i=0;i<this.pagestarts.length;i++) {
 			const lines=this._data.slice(start,this.pagestarts[i]);
 			const towrite=makePageJsonp(this.name,i+1,start,escapeTemplateString(lines.join('\n')));
-			const done=cb( pagejsonpfn(i+1) , towrite);
+			const done=cb( pagejsonpfn(i+1) , towrite, i+1);
 			if (done) break;
 			start=this.pagestarts[i]
 		}

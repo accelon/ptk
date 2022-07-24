@@ -1,1 +1,0 @@
-export type ILineRange = [number,number];

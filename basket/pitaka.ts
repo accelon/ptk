@@ -3,6 +3,9 @@ import {Compiler,sourceType} from '../compiler/index.ts'
 import {parseOfftext} from '../offtext/index.ts'
 import {StringArray,unpackIntDelta,LEMMA_DELIMETER} from '../utils/index.ts';
 import {rangeOfAddress} from './address.ts';
+export const regPtkName =  /^[a-z]{2,16}$/
+export const validPtkName=(name:string):boolean=>!!name.match(regPtkName);
+
 export class Pitaka extends LineBase {
 	constructor(opts){
 		super(opts);

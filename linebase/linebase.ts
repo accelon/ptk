@@ -1,6 +1,6 @@
 import {loadJSONP,loadNodeJsZip,loadFetch,loadNodeJs} from './loadpage.ts'
 import {bsearchNumber,lineBreaksOffset,unique} from '../utils/index.ts';
-import {ILineRange} from './constants.ts'
+import {ILineRange} from './interfaces.ts'
 export class LineBase{
 	constructor (opts={}) {
 		this._pages=[];     // read time,   line not split
@@ -10,6 +10,7 @@ export class LineBase{
 		this.name=opts.name||'';
 		this.zip=opts.zip;
 		this.payload;   //payload in 000.js
+
     	let protocol=typeof chrome!=='undefined'?'chrome-extension:':'';
         if (typeof window!=='undefined') {
             protocol=window.location.protocol;
@@ -22,7 +23,11 @@ export class LineBase{
         	this._loader=(this.zip?loadZip:loadNodeJs).bind(this);
         }
         this.failed=false;
-        this._loader(0);
+        if (opts.inmemory) {
+        	this._loader=null;
+        } else {
+        	this._loader(0);
+        }
 	}
 	async loadAll (){
 		await this.loadLines([[0, this.pagestarts[this.pagestarts.length-1]]]);
@@ -63,10 +68,10 @@ export class LineBase{
 	    if (jobs.length) await Promise.all(jobs);
 	}	
 	getPageLineOffset(page,line){
-		if (page>=this._pages.length) return 0;
+		if (page>this._pages.length) return 0;
 
 		if (line==0) return 0;
-		if (line>= this._lineoffsets[page].length) return this._pages[page].length;
+		if (line>this._lineoffsets[page].length) return this._pages[page].length;
 		return this._lineoffsets[page][line-1];
 	}
 	slice(nline,to){ //combine array of string from loaded pages
@@ -74,12 +79,14 @@ export class LineBase{
 
 		const p1=this.pageOfLine(nline,this.pagestarts);
 		const p2=this.pageOfLine(to,this.pagestarts);
+
+		
 		let i=0, out='' ,slicefrom,sliceto;
 		for (let i=p1;i<=p2;i++) {
 			if (!this._pages[i]) return [];//page not loaded yet
 			if (i==p1 || i==p2) { // first or last part
 				let slicefrom=this.getPageLineOffset(i, nline- (p1>0?this.pagestarts[p1-1]:0));
-				if (p1) slicefrom++; //skip the \n for first line
+				if (nline) slicefrom++; //skip the \n for first line
 				const sliceto=  this.getPageLineOffset(i, to- (p2>0?this.pagestarts[p2-1]:0) );
 				if (p2>p1) {
 					if (i==p1) out = this._pages[i].slice(slicefrom); //+1 skip the \n
