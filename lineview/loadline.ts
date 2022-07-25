@@ -58,7 +58,9 @@ export async function load (lva:LVA) { //載入巢狀行
 				if(depth>prevdepth && (edge&2===2) && out.length) out[out.length-1].edge^=2;
 				//上行的層級更深，除去本行的上框線不顯示
 				if(prevdepth>depth && (edge&1===1)) edge^=1;
-				segment.push({seq,idx:j==0?i:-1,host,key:host+':'+(j+start), text, depth , edge })
+				const firstchild= (i<nodes.length-1 && nodes[i+1].depth == depth+1) ? nodes[i+1]:null;
+				segment.push({seq,idx:j==0?i:-1,host,key:host+':'+(j+start), text, depth , edge,
+				firstchild  })
 				seq++;
 			}
 			out.push(...segment);				

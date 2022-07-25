@@ -1,15 +1,18 @@
 import {ILineRange} from '../linebase/index.ts'
 import {HOST_ELEID_FROMTILL,HOST_FROMTILL,FROMTILL} from '../offtext/index.ts'
-export interface ILVA {
-	host:string,
-	ele:string,
-	id:string,
-	from:number,
-	till:number,
-}
+
 export const parseElementId=(eleid:string)=>{
 	const m=eleid.match(/([a-z_])+#?([a-z\d_-]+)/);
 	return [m[1],m[2]];
+}
+export const sameAddress=(addr1,addr2)=>{
+	if (typeof addr1=='string') addr1=parseAddress(addr1);
+	if (typeof addr2=='string') addr2=parseAddress(addr2);
+	if (!addr1||!addr2) return;
+	return addr1.eleid==addr2.eleid && addr1.host ==addr2.host;
+}
+export const makeAddress=(host='',ele='',id='',from=0,till=0)=>{
+	return (host?host+':':'')+ele+ (isNaN(parseInt(id))?'#'+id:id)+(from?':'+from:'')+(till?'<'+till:'');
 }
 export const parseAddress=(address:string)=>{
 	let m0,basket='',eleid='', from=0 ,till=0 ; //left bound and right bound

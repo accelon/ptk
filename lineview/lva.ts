@@ -1,5 +1,5 @@
 import {parseLisp,LispToken} from './lisp.ts';
-import {parseAddress,parseElementId} from '../basket/index.ts';
+import {parseAddress,parseElementId,sameAddress} from '../basket/index.ts';
 import {ILineViewAddress} from './interfaces.ts'
 import {ILineRange} from '../linebase/index.ts'
 import {load} from './loadline.ts'
@@ -15,11 +15,13 @@ export class LVA {
 		return this._nodes[idx];
 	}
 	remove(idx:number){
+		if (typeof idx!=='number') {
+			idx=this._nodes.indexOf(idx);
+		}
 		if (!this._nodes.length) return;
 		if (this._nodes.length==1) {
 			this._nodes=[];
 		}
-
 		const depth=this._nodes[idx].depth;
 		let next=idx+1;
 		let nextdepth=this._nodes[next].depth;
@@ -69,14 +71,28 @@ export class LVA {
 			prevdepth--;
 			out.push(')')
 		}
-		return out.join('+').replace(/\+?([\(\)])\+?/g,'$1');
+		return out.join('+').replace(/\+?([\(\)])\+?/g,'$1').replace(/\++/g,'+');
 	}
 	dig(insert:string,idx=0,nline=0){ 
 		if (!this._nodes||!this._nodes.length) return;
-		if (this._nodes.length>1 && this._nodes[idx+1].depth==this._nodes[idx].depth+1) { //reuse children
-			const newaddr=parseAddress(insert)
+		let depth=this._nodes[idx].depth;
+		if (this._nodes.length>1 && this._nodes[idx+1].depth==depth+1) { //reuse children
+
+			const newaddr=parseAddress(insert);
 			if (!newaddr) return addresses;
-			newaddr.depth=this._nodes[0].depth+1;
+			let p=idx+1;
+			while (p<this._nodes.length && this._nodes[p].depth>depth) {
+				if (sameAddress(this._nodes[p],newaddr)) {
+					this._nodes.splice(p,1);//remove same
+					if (p==idx+1) {
+						this._combine();
+						return this; //toggle
+					}
+					break;                //bring to top
+				}
+				p++;
+			}
+			newaddr.depth=this._nodes[idx].depth+1;
 			this._nodes.splice(idx+1,0,newaddr);
 			return this;
 		}
