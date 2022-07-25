@@ -1,5 +1,4 @@
-import {inMemory,stringifyLVA,combineLVA,
-	parseLVA,parseAddress,digLVA,undigLVA,loadLVI} from '../nodebundle.cjs'
+import {inMemory,parseAddress,LVA} from '../nodebundle.cjs'
 import {genNumberLines} from './mock-ptk.js'
 import {red,green} from '../cli/colors.cjs'
 let test=0,pass=0, lva;
@@ -10,33 +9,29 @@ const ptk=inMemory(lbaser);
 
 const testLoad=async()=>{
 	let address='mem::3<6';
-	let lines=await loadLVI(address);
-
+	let lva=new LVA(address);
+	let lines=await lva.load();
 	test++;pass+=lines.length==3;
 	
 	//dig into 
-	const newaddress=digLVA(address,'mem::10<11')
-	lines=await loadLVI(newaddress);
-	let lva=parseLVA(lines[1].lva)[0];
-	test++;pass+=lva.from==10&&lva.till==11
-	test++;pass+=!lines[3].lva;
+	const newaddress=lva.dig('mem::10<11');
+	lines=await lva.load();
+
+	const lvanode=lva.getNode(lines[1].idx);
+	test++;pass+=lvanode.from==10&&lvanode.till==11
+	test++;pass+=!lines[3].lvanode;
  	
-	const lvas=lines.filter(it=>it.lva).map(it=>it.lva);
-	//直接操作陣列，combineLVA 合併連續區段
-	lvas.splice(1,1);
- 	const undigged=combineLVA(lvas.join(' '));
- 	test++; pass+=undigged===address;
+ 	const undigged=lva.remove(1).stringify();
+  	test++; pass+=undigged===address;
 
  	// already have adjecent child, add to same level
- 	const newaddress2=digLVA(newaddress,'mem::20<21');
- 	const addr2=parseLVA(newaddress2);
-
+ 	lva.dig('mem::10<11').dig('mem::20<21');
+ 	const addr2=lva.nodes();
+  	
  	test++;pass+=addr2.length==4;
  	test++;pass+=addr2[1].from==20;
  	test++;pass+=addr2[2].from==10;
  	test++;pass+=addr2[1].depth&&addr2[2].depth;
-
- 	test++; pass+=undigged===address;
 }
 
 await testLoad();

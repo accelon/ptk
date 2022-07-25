@@ -1,5 +1,5 @@
 import {ILineRange} from '../linebase/index.ts'
-import {AT_HOST_ELE_ID_BOUND, AT_HOST_BOUND} from '../offtext/index.ts'
+import {HOST_ELEID_FROMTILL,HOST_FROMTILL,FROMTILL} from '../offtext/index.ts'
 export interface ILVA {
 	host:string,
 	ele:string,
@@ -7,26 +7,35 @@ export interface ILVA {
 	from:number,
 	till:number,
 }
+export const parseElementId=(eleid:string)=>{
+	const m=eleid.match(/([a-z_])+#?([a-z\d_-]+)/);
+	return [m[1],m[2]];
+}
 export const parseAddress=(address:string)=>{
-	let m0,basket='',ele='',id='', from=0 ,till=0 ; //left bound and right bound
-	let m=address.match(AT_HOST_ELE_ID_BOUND);
+	let m0,basket='',eleid='', from=0 ,till=0 ; //left bound and right bound
+	let m=address.match(HOST_ELEID_FROMTILL);
 	if (m) {
-		[m0, host, ele, id, from , till] = m;
+		[m0, host, eleid, from , till] = m;
 	} else {
-		m=address.match(AT_HOST_BOUND);
+		m=address.match(HOST_FROMTILL);
 		if (m) {
 			[m0, host, from,till] = m;
-		} else return null;
+		} else {
+			m=address.match(FROMTILL);
+			if (m) [m0,from,till] = m;	
+			else return null;
+		}
 	}
 	from=(from||'').slice(1);
 	till=(till||'').slice(1);
 	host=host||'';
 	host=host.slice(0,host.length-1); //remove :
 
-	return {host, ele,id,from:Math.abs(parseInt(from))||0,till:Math.abs(parseInt(till))||0 };
+	return {host, eleid,from:Math.abs(parseInt(from))||0,till:Math.abs(parseInt(till))||0 };
 }
 export function rangeOfAddress(address:string):ILineRange{
-	const {host,from,till,ele,id} = parseAddress(address);
+	const {host,from,till,eleid} = parseAddress(address);
+	const [ele,id]=parseElementId(eleid);
 	if (ele && this.defines[ele]) {
 		const idtype=this.defines[ele].validators.id;
 		const _id=(idtype.type=='number')?parseInt(id):id;
