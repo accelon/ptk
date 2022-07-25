@@ -7,9 +7,8 @@ export interface ILineViewItem {
 	edge  : number, //1 上框線, 2 下框線  , 3 單行(上下框線)
 }
 
-export const loadLVA = async (address:string) =>{ //載入巢狀行
-	const items=parseLVA(address);
-	console.log(items)
+export const loadLVI = async (addresses:string) =>{ //載入巢狀行
+	const items=parseLVA(addresses);
 	let scope_pitaka=[],  //每層指定的ptkname ，若本層沒指定，就往上層找
 	out=[] , pitaka_ranges={};
 	//找出 lva 含的ptkname 及區段
@@ -38,7 +37,7 @@ export const loadLVA = async (address:string) =>{ //載入巢狀行
 	let errorcount=0 ,seq=0;
 
 	for (let i=0;i<items.length;i++) {//將巢狀結構轉為行陣列，標上深度及框線
-		let {left,right,host,depth}=items[i];
+		let {host,depth}=items[i];
 		const ptk=usePtk(host);
 		const [start,end]=ptk.rangeOfAddress(stringifyLVA(items[i]));
 		const prevdepth=i?items[i-1].depth:0;
