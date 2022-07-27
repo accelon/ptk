@@ -14,7 +14,6 @@ export class Typedef implements ITypedef {
 		for (let aname in attrs) {
 			const def=attrs[aname];
 			const opts=typeof def=='string'?def:{optional:false};
-
 			const V=createValidator(tagname,opts,primarykeys);
 			if (V) this.validators[aname]=V;
 			if (V && !V.optional) this.mandatory[aname]=true;

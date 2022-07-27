@@ -30,7 +30,7 @@ export class Column {
 			if (err) {
 				this.onError&&this.onError(err,this.fieldnames[i]+' '+fields[i],-1,line);
 			}
-			this.fieldvalues[i].push( value);
+			this.fieldvalues[i].push(value);
 		}
 	}
 	createValidators(typedef){
@@ -50,7 +50,7 @@ export class Column {
 		const typedef=text.split('\t') ; // typdef of each field , except field 0
 		this.createValidators(typedef);
 		this.keys=new StringArray(section.shift(),{delimiter:LEMMA_DELIMETER});  //local keys
-		let idx=0;
+		let idx=0 , usesection=false;
 		for (let fieldname in this.validators) {
 			const field=this.validators[fieldname];
 			const linetext=section.shift();
@@ -58,16 +58,25 @@ export class Column {
 				this.fieldvalues[idx]=unpackInt(linetext);
 			} else if (field.type==='keys') {
 				this.fieldvalues[idx]=unpackIntDelta2d(linetext);
+			} else if (field.type==='key') {
+				this.fieldvalues[idx]=unpackInt(linetext);
+			} else if (field.type==='string') {
+				this.fieldvalues[idx]=linetext.split(LEMMA_DELIMETER);
+			} else if (field.type==='text') {
+				section.unshift(linetext);
+				usesection=true;
+				this.fieldvalues[idx]=section;
 			}
 			idx++;
 		}
-		if (section.length) {
+		if (!usesection && section.length) {
 			console.log('section not consumed');
 		}
 	}
 	fromStringArray(sa:StringArray, from=1):string[]{
 		const allfields=[];
 		let line=sa.first();
+		let textstart=0;// starting of indexable text
 
 		while (from>0) {
 			line=sa.next();
@@ -89,7 +98,6 @@ export class Column {
 			this.addRow(fields, i+1 ) ; //one base
 		}
 		const out=[this.keys.join(LEMMA_DELIMETER)]; //use StringTable
-
 		for (let i=0;i<this.fieldnames.length;i++) {
 			const V=this.validators[i];
 			if (V.type=='number') {
@@ -98,11 +106,23 @@ export class Column {
 			} else if (V.type=='keys') {
 				const nums=(this.fieldvalues[i])||[];
 				out.push(packIntDelta2d(nums));
+			} else if (V.type=='key') {
+				const nums=(this.fieldvalues[i])||[];
+				out.push(packInt(nums));
+			} else if (V.type=='string') {
+				out.push(this.fieldvalues[i].join(LEMMA_DELIMETER));
+			} else if (V.type=='text') {
+				if (i!==this.fieldnames.length-1) {
+					throw "text fieldtype must be the last, "+this.fieldnames[i];
+				}
+				textstart=out.length;
+				out.push(...this.fieldvalues[i]);
 			} else if (V.type){
 				this.onError&&this.onError(VError.UnknownType,V.type);
 			}
   		}
-		return out;
+  		if (textstart==0) textstart=out.length;//no indexable text
+		return [out,textstart];
 	}
 	fromTSV(buffer:string, from=1):string[]{
 		const sa=new StringArray(buffer,{sequencial:true});

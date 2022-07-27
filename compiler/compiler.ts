@@ -91,6 +91,7 @@ export class Compiler implements ICompiler {
 		const [sourcetype,tag,preload]=sourceType(firstline); //only first tag on first line
 		if (sourcetype=='txt') defines.push(firstline);
 		let name=filename;//name of this section
+		let textstart=0;//starting line of indexable text
 		this.compilingname=filename;
 		this.stopcompile=false;
 		if (tag.name=='_') { //system directive
@@ -107,7 +108,8 @@ export class Compiler implements ICompiler {
 			const attrs=tags[0].attrs;
 			const typedef=text.split('\t') ; // typdef of each field , except field 0
 			const columns=new Column( {typedef, primarykeys:this.primarykeys ,onError:this.onError.bind(this) } );
-			const serialized=columns.fromStringArray(sa,1) ; //build from TSV, start from line 1
+			const [serialized,_textstart]=columns.fromStringArray(sa,1) ; //build from TSV, start from line 1
+			textstart=_textstart;
 			if (serialized) {
 				name = attrs.name || filename;  //use filename if name is not specified
 				serialized.unshift(firstline); //keep the first line
@@ -135,8 +137,7 @@ export class Compiler implements ICompiler {
 			this.compiledLine += out.length;
 			processed=out.join('\n');
 		}
-		this.compiledFiles[filename]={name,preload,sourcetype,processed,
-
+		this.compiledFiles[filename]={name,preload,sourcetype,processed,textstart,
 			errors:this.errors,samepage,defines};
 		return this.compiledFiles[filename];
 	}

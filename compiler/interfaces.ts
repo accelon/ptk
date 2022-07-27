@@ -12,6 +12,7 @@ export interface ICompileError {
 export interface ICompiled {
 	name:string;
 	processed:string,
+	textstart:number,//starting of indexable line
 	errors:ICompileError[],
 }
 export interface ITypedef {

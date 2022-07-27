@@ -147,7 +147,7 @@ export const parseOfftext=(str:string,idx:number=0)=>{
         }
         const aoffset=offset+rawName.length+1;
         choff+= offset-prevoff;            //目前文字座標，做為標記的起點
-		let offtag : IOfftag = {name:tagName,offset,aoffset, attrs, idx, line:0, choff, width, start,end}
+		let offtag : IOfftag = {name:tagName,offset,aoffset, attrs, idx, line:0, choff, width, start,end, active:false }
         tags.push( offtag );
         choff -= m.length;  
         prevoff=offset;
@@ -178,6 +178,9 @@ export class Offtext {
     }
     tagRawText(tag:number|Offtag):string {
         return this.tagText(tag,true);
+    }
+    getTag(ntag:number){
+    	return this.tags[ntag];
     }
     tagText(tag:number|Offtag,raw=false):string {
         if (typeof tag=='number') tag=this.tags[tag];

@@ -1,16 +1,17 @@
 import {Offtext,Offtag,IRenderUnit} from './interfaces.ts';
 import {AUTO_TILL_END,ALWAYS_EMPTY} from './constants.ts';
 import {tokenize,TokenType,Token} from '../fts/index.ts';
-import {parseOfftext} from './parser.ts';
+import {parseOfftext,Offtext} from './parser.ts';
 import {closeBracketOf} from '../utils/cjk.ts';
 
 export class RenderUnit implements IRenderUnit {
-    constructor (token: Token, ntoken:number) {
+    constructor (token: Token, ntoken:number, offtext:IOfftext) {
         this.token=token;
-        this.seq=token.choff; //for sorting
+        this.choff=token.choff; //for sorting
         this.text=token.text; //perform text transformation here
         this.ntoken=ntoken;   //base on a concrete token
-        this.css='';
+        this.offtext=offtext; //the offtext object
+        this.tags=[];         //tags covering this token
         this.hide=false;
     }
 }  
@@ -26,43 +27,46 @@ const indexOfCharPos=(runits:RenderUnit[], choff:number , from=0)=>{
     }
     return -1
 }
-export const renderOfftext=(linetext, opts={})=>{
+export const gerRenderUnitClasses=(ru:RenderUnit,prepend='',append='')=>{
+    const css=[];
+    css.push(prepend);
+    const ot=ru.offtext;
+    for (let j=0;j<ru.tags.length;j++) {
+        const tag=ot.tags[ru.tags[j]];
+        css.push(tag.name);
+        if (tag.active) css.push(tag.name+'_active');
+    }
+    css.push(append);
+    ru.hide&&css.push('hide');
+    return css.join(' ');
+}
+export const renderOfftext=(linetext:string, opts={})=>{
     const extra=opts.extra||[];
     const ltp=opts.linetokenpos||0;
-    const [plain,tags]=parseOfftext(linetext);
-    const runits=tokenize(plain).map( (tk,idx) => {
-        return new RenderUnit(tk,idx);
+    // const [plain,tags]=parseOfftext(linetext);
+    const ot=new Offtext(linetext);
+    const runits=tokenize(ot.plain).map( (tk,idx) => {
+        return new RenderUnit(tk,idx, ot);
     });
-
-
-    const classes=[]; //classes at plain position
+    const tagsAt=[]; //tags at plain position
     let uidx=0;
-    //set the classes
-    for (let i=0;i<tags.length;i++) {
-        const tag=tags[i];
+
+    for (let i=0;i<ot.tags.length;i++) {
+        const tag=ot.tags[i];
         for (let j=tag.choff;j<tag.choff+tag.width;j++) {
-            if (!classes[j]) classes[j]=[];
-            classes[j].push(tag.name);
-        }
-        let at=indexOfCharPos(runits, tag.choff ,uidx);
-        if (~at) {
-            runits[at].open=tag;
-            uidx=at;
-            at=indexOfCharPos(runits, tag.choff+tag.width-1 , at);
-            if (~at) runits[at].close=tag;
+            if (!tagsAt[j]) tagsAt[j]=[];
+            tagsAt[j].push(i);
         }
     }
 
     for (let i=0;i<runits.length;i++) {
         const ru=runits[i];
-        if (classes[ru.token.choff]) {
-            ru.css+=classes[ru.token.choff]+' ';
-        }        
+        ru.tags=tagsAt[ru.token.choff]||[];
         const bracket=closeBracketOf(ru.text);
-        if (ru.hide|| (ru.open && bracket)) {
-            ru.css+='hide ';
+        if (ru.hide|| (ru.tags.length && bracket)) {
+            ru.hide=true;
             const closeAt=findUnitText(runits, bracket, i+1);
-            if(closeAt && closeAt.close) closeAt.hide=true;
+            if(closeAt) closeAt.hide=true;
         }
     }
 

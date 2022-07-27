@@ -5,6 +5,7 @@
 const consonants= 'b,p,m,f,d,t,n,l,g,k,h,j,q,x,zh,ch,sh,r,z,c,s'.split(',');
 const vowels='a,o,e,e,ai,ei,ao,ou,an,en,ang,eng,er,i,u,v'.split(',');
 
+
 export const toPinyin=(bopomofo:string)=>{
 	let tone='', out='',vowel=false;
 	const tonecp=bopomofo.charCodeAt(bopomofo.length-1);
@@ -44,4 +45,8 @@ export const toPinyin=(bopomofo:string)=>{
 	.replace('yiu','you')
 	+(vowel?'':'i')+tone;
 	return out;
+}
+
+export const replaceZhuyin=(str:string)=>{
+	return str.replace(/([\u3105-\u3129]+[ˇˋˊ]?)/g,(m,m1)=>toPinyin(m1));
 }

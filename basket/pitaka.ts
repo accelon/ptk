@@ -46,7 +46,7 @@ export class Pitaka extends LineBase {
 		for (let n in this.defines) {
 			for (let attr in this.defines[n].validators) {
 				const A=this.defines[n].validators[attr];
-				if (A.type=='keys' && A.foreign && this.primarykeys[A.foreign]) {
+				if (A.foreign && this.primarykeys[A.foreign]) {
 					A.keys=this.primarykeys[A.foreign];
 				}
 			}

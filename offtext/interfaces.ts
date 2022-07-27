@@ -12,6 +12,7 @@ export interface IOfftag {
      start:number; //包夾文字起點 (標籤終點)
      end:number; //包夾文字終點
      line:nubmer;    //行號
+     active:boolean; 
 }
 
 export interface IOfftext {
