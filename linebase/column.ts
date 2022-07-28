@@ -49,7 +49,7 @@ export class Column {
 		this.name=attrs.name;
 		const typedef=text.split('\t') ; // typdef of each field , except field 0
 		this.createValidators(typedef);
-		this.keys=new StringArray(section.shift(),{delimiter:LEMMA_DELIMETER});  //local keys
+		this.keys=new StringArray(section.shift(),{sep:LEMMA_DELIMETER});  //local keys
 		let idx=0 , usesection=false;
 		for (let fieldname in this.validators) {
 			const field=this.validators[fieldname];

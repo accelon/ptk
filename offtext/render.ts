@@ -27,7 +27,7 @@ const indexOfCharPos=(runits:RenderUnit[], choff:number , from=0)=>{
     }
     return -1
 }
-export const gerRenderUnitClasses=(ru:RenderUnit,prepend='',append='')=>{
+export const getRenderUnitClasses=(ru:RenderUnit,prepend='',append='')=>{
     const css=[];
     css.push(prepend);
     const ot=ru.offtext;

@@ -89,5 +89,16 @@ export class Pitaka extends LineBase {
 	typedefOf(tagname:string) {
 		return this.defines[tagname]?.validators;
 	}
+	async inlineNote(tagname:string,noteid:string){
+		const typedef=this.defines[tagname];
+		const cols=this.columns[typedef.validators.type.foreign];
+		if (!cols) return;
+		const at=cols.keys.find(noteid);
+		const textfield=typedef.attrs.text;
+		const at2=cols.fieldnames.indexOf(textfield);
 
+		//can await in the future
+		const values=cols.fieldvalues[at2];
+		return (values&&values[at])||'';
+	}
 }

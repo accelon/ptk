@@ -18,6 +18,7 @@ export class Typedef implements ITypedef {
 			if (V) this.validators[aname]=V;
 			if (V && !V.optional) this.mandatory[aname]=true;
 		}
+		this.attrs=attrs;
 	}
 	validateTag(tag:IOfftag , line:number, compiledLine:number , onError) {
 		let touched=false, newtag;

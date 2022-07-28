@@ -13,9 +13,9 @@ export class StringArray {
 	private linepos:number[]=[];
 	constructor (buf:string,opts={}){
 		this.sequencial=opts.sequencial;
-		this.delimiter=opts.delimiter||'';
+		this.delimiter=opts.delimiter||''; //separate key and value
 		this.buf=buf;
-		this.sep=opts.sep||'\n'; 
+		this.sep=opts.sep||'\n';  //separate item
 		this.now=0;
 		// if (this.sep && this.sep.codePointAt(0) >=0x20) {
 			// console.log('avoid using ascii bigger than space as separator, tab 0x09 is a better choice')
@@ -27,7 +27,7 @@ export class StringArray {
 	private buildLinepos():void{
 		let prev=-1,p=0;
 		while (p<this.buf.length) {
-			const at=this.buf.indexOf(this.delimiter ,prev);
+			const at=this.buf.indexOf(this.sep ,prev);
 			if (at==-1) {
 				this.linepos.push(this.buf.length);
 				break;
@@ -91,9 +91,9 @@ export class StringArray {
 	find(pat:string):number {
 		const getter:StringGetter=this.get.bind(this);
 		if (this.delimiter) pat+=this.delimiter; //key-value delimiter
-		const at=bsearchGetter( getter, pat ); // this.get(0) return len
-		const found:string=getter(at);
-		return (found.startsWith(pat))?at:-1;
+		const at=bsearchGetter( getter, pat )  ; // this.get(-1) return len
+		const found=getter(at);
+		return (found.endsWith(pat))?at:-1;
 	}
 	match(text:string):string[] { // find longest word
 		const getter:StringGetter=this.get.bind(this);
@@ -116,6 +116,6 @@ export class StringArray {
 	/* if sep is missing, value is the text after key */
 	getValue(key:string):string {
 		const at=this.find(key);
-		return at?this.get(at).slice( key.length+this.delimiter.length):'';
+		return ~at?this.get(at).slice( key.length+this.delimiter.length):'';
 	}
 }
