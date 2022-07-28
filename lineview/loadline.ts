@@ -1,5 +1,6 @@
 import {openPtk,usePtk,parseAddress} from '../basket/index.ts'
 import {ILineViewAddress} from './parser.ts'
+import {runCriterion} from '../fts/criteria.ts'
 export interface ILineViewItem {
 	key   : string,
 	text  : string,
@@ -7,29 +8,9 @@ export interface ILineViewItem {
 	edge  : number, //1 上框線, 2 下框線  , 3 單行(上下框線)
 }
 
-export async function load (lva:LVA) { //載入巢狀行
-	if (typeof lva=='undefined') lva=this;
-	else if (typeof lva=='string') lva=new LVA(lva);
+async function loadLines(lva,pitaka_ranges){
+	const out=[];
 	const nodes=lva.nodes();
-	let scope_pitaka=[],  //每層指定的ptkname ，若本層沒指定，就往上層找
-	out=[] , pitaka_ranges={};
-	//找出 lva 含的ptkname 及區段
-				
-	for (let i=0;i<nodes.length;i++) {
-		const {depth} = nodes[i];
-		let  ptkname=nodes[i].host || scope_pitaka[depth], d=depth;
-		if (!pitaka_ranges[ptkname]) pitaka_ranges[ptkname]=[];
-		pitaka_ranges[ptkname].push(nodes[i]);
-	}
-
-
-	const jobs=[]; //先打開所有用到的ptk
-	for (let ptkname in pitaka_ranges) {
-		const ptk=await openPtk(ptkname);
-		if (!ptk) continue;
-	}
-
-	await Promise.all(jobs);
 	for (let ptkname in pitaka_ranges) {
 		const ptk=usePtk(ptkname);
 		if (!ptk) continue;
@@ -40,8 +21,9 @@ export async function load (lva:LVA) { //載入巢狀行
 	let errorcount=0 ,seq=0;
 
 	for (let i=0;i<nodes.length;i++) {//將巢狀結構轉為行陣列，標上深度及框線
-		let {host,depth}=nodes[i];
+		let {criteria,action,host,depth}=nodes[i];
 		const ptk=usePtk(host);
+		if (criteria) continue;
 		const [start,end]=ptk.rangeOfAddress(lva.stringify(nodes[i]));
 		const prevdepth=i?nodes[i-1].depth:0;
 		
@@ -69,5 +51,38 @@ export async function load (lva:LVA) { //載入巢狀行
 			out.push({key:'error'+(errorcount++) , host, text:'cannot load',depth,edge:3})
 		}
 	}
+	return out;
+}
+export async function load (lva:LVA) { //載入巢狀行
+	if (typeof lva=='undefined') lva=this;
+	else if (typeof lva=='string') lva=new LVA(lva);
+	const nodes=lva.nodes();
+	let scope_pitaka=[],  //每層指定的ptkname ，若本層沒指定，就往上層找
+	pitaka_ranges={};
+
+	//找出 lva 含的ptkname 及區段			
+	for (let i=0;i<nodes.length;i++) {
+		const {depth} = nodes[i];
+		let  ptkname=nodes[i].host || scope_pitaka[depth], d=depth;
+		if (!pitaka_ranges[ptkname]) pitaka_ranges[ptkname]=[];
+		pitaka_ranges[ptkname].push(nodes[i]);
+	}
+
+	const jobs=[]; //先打開所有用到的ptk
+	for (let ptkname in pitaka_ranges) {
+		const ptk=await openPtk(ptkname);
+		if (!ptk) continue;
+	}
+	await Promise.all(jobs);
+
+	for (let i=0;i<nodes.length;i++) {
+		const ptk=usePtk(nodes[i].host);
+		if (!nodes[i].criteria) continue;
+		for (let name in nodes[i].criteria) {
+			runCriterion(ptk,name,nodes[i].criteria[name]);
+		}
+	}
+
+	const out=await loadLines(lva,pitaka_ranges);
 	return out;
 }

@@ -22,5 +22,5 @@ export const OFFTAG_LEADBYTE='^';
 
 export const FROMTILL = /^(:\d+)?(<\d+)?$/;
 export const HOST_FROMTILL = /^([a-z\.\d\-_]+\:)(:\d+)?(<\d+)?$/;
-export const HOST_ELEID_FROMTILL = /^([a-z\.\d\-_]+\:)?([a-z_]+#?[a-z\d_-]+)(:\d+)?(<\d+)?$/;
+export const HOST_ACTION_FROMTILL = /^([a-z\.\d\-_]+\:)?([^\d:]+[^:<]*)(:\d+)?(<\d+)?$/;
 

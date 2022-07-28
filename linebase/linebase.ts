@@ -1,8 +1,10 @@
 import {loadJSONP,loadNodeJsZip,loadFetch,loadNodeJs} from './loadpage.ts'
 import {bsearchNumber,lineBreaksOffset,unique} from '../utils/index.ts';
 import {ILineRange} from './interfaces.ts'
+let instancecount=0;
 export class LineBase{
 	constructor (opts={}) {
+		this.stamp=++instancecount;
 		this._pages=[];     // read time,   line not split
 		this._lineoffsets=[]; // lineoffsets of each page
 		this.pagestarts=[];
@@ -10,23 +12,22 @@ export class LineBase{
 		this.name=opts.name||'';
 		this.zip=opts.zip;
 		this.payload;   //payload in 000.js
-
     	let protocol=typeof chrome!=='undefined'?'chrome-extension:':'';
         if (typeof window!=='undefined') {
             protocol=window.location.protocol;
         }
         if (protocol==='http:'||protocol==='https:'|| protocol==='chrome-extension:') {
-            this._loader=loadFetch.bind(this);
+            this._loader=loadFetch;
         } else if (protocol=='file:') {
-            this._loader=loadJSONP.bind(this);
+            this._loader=loadJSONP;
         } else {
-        	this._loader=(this.zip?loadZip:loadNodeJs).bind(this);
+        	this._loader=(this.zip?loadZip:loadNodeJs);
         }
         this.failed=false;
         if (opts.inmemory) {
         	this._loader=()=>{};
         } else {
-        	this._loader(0);
+        	this._loader.call(this,0);
         }
 	}
 	async loadAll (){
@@ -64,8 +65,9 @@ export class LineBase{
 
 	    toload=unique(toload.filter(it=> !that._pages[it]));
 	    const jobs=[];
-	    toload.forEach(ck=>jobs.push(this._loader(ck+1)));
-	    if (jobs.length) await Promise.all(jobs);
+    	for (let i=0;i<toload.length;i++) {
+	     	await this._loader.call(this,toload[i]+1)
+	    }
 	}	
 	lineCount(){
 		return this.header.starts[this.header.starts.length-1];

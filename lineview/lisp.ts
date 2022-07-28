@@ -1,7 +1,7 @@
 export enum LispToken{
   Opening=1,
   Closing=2,
-  Address=6,
+  Action=3,
 }
 function readToken (token) {
   if (token === '(') {
@@ -9,7 +9,7 @@ function readToken (token) {
   } else if (token === ')') { 
     return {type:LispToken.Closing, value:null};
   } else {
-    return {type:LispToken.Address, value: token };
+    return {type:LispToken.Action, value: token };
   }
 }
 

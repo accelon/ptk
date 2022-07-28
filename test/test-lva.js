@@ -4,10 +4,10 @@ let test=0,pass=0, lva;
 
 lva=LVA.parse('cyd:e#3715'); 
 
-test++;pass+=lva.length==1&&lva[0].depth==0&&lva[0].host=='cyd'&&lva[0].eleid=='e#3715'
+test++;pass+=lva.length==1&&lva[0].depth==0&&lva[0].host=='cyd'&&lva[0].action=='e#3715'
 
 lva=LVA.parse('cyd:ee3715'); //# is optional for numeric id
-test++;pass+=lva.length==1&&lva[0].depth==0&&lva[0].host=='cyd'&&lva[0].eleid=='ee3715'
+test++;pass+=lva.length==1&&lva[0].depth==0&&lva[0].host=='cyd'&&lva[0].action=='ee3715'
 
 lva=LVA.parse('(e3715)');
 test++;pass+=lva.length==1&&lva[0].depth==1&&!lva[0].host;
@@ -25,7 +25,7 @@ test++;pass+=lva.length==2;
 // >xxx<       :1<4 只顯示 1,2,3 行
 //  <x>        :2-3 只顯示 2 行
 
-lva=LVA.parse('e1:1');  //
+lva=LVA.parse('e1:1');  
 test++;pass+=lva[0].from==1;
 
 lva=LVA.parse('e1<3');  
@@ -64,10 +64,10 @@ test++; pass+=lva[3].host=='cyd';
 
 lva=LVA.parse('(cyd:e3715(e300 abc:e400 e500 )e600  )'); // 
 test++; pass+=lva.length==5&&lva[0].host=='cyd';
-test++; pass+=lva[1].eleid=='e300' && lva[1].host=='cyd'; //using the host of parent
-test++; pass+=lva[2].eleid=='e400' && lva[2].host=='abc'; //setting a new host
-test++; pass+=lva[3].eleid=='e500' && lva[3].host=='abc'; //same level sharnig host
-test++; pass+=lva[4].eleid=='e600' && lva[4].host=='cyd'; //parent scope
+test++; pass+=lva[1].action=='e300' && lva[1].host=='cyd'; //using the host of parent
+test++; pass+=lva[2].action=='e400' && lva[2].host=='abc'; //setting a new host
+test++; pass+=lva[3].action=='e500' && lva[3].host=='abc'; //same level sharnig host
+test++; pass+=lva[4].action=='e600' && lva[4].host=='cyd'; //parent scope
 
 //dig and undig full node
 lva=new LVA('cyd:e456');
@@ -90,8 +90,8 @@ test++; pass+=afterdig[afterdig.length-1]==')' && afterdig[afterdig.length-2]!==
 test++; pass+=nodes.length==2 ;
 test++; pass+=nodes[1].depth==nodes[0].depth+1;
 
-//hide eleid of right part 
+//hide action of right part 
 lva = new LVA('cyd:e3715<1(e6582<1(e4480):1+e2075):1');
 test++; pass+=lva.nodes().length==6;
 console.log('pass',test==pass?green(pass):pass, (test-pass)?('failed',red(test-pass)):'')
-console.log(lva.stringify());
+// console.log(lva.stringify());

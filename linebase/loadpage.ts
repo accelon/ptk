@@ -1,4 +1,4 @@
-import { loadScript } from "../utils/loadscript.ts";
+import { loadScript,parseJsonp } from "../utils/loadscript.ts";
 const pagefilename=page=>page.toString().padStart(3,'0')+'.js';
 const makePageURI=(folder,page)=>{
     const fn=folder+'/'+pagefilename(page);
@@ -35,11 +35,11 @@ export async function loadFetch(page){
     const uri=makePageURI(this.name,page);
     try {
         const res=await fetch(uri);
-        // if (!res.ok) throw res.statusText;
-        this.setPage(page, ...parseJsonp(await res.text()) );
+        const text=await res.text();
+        const arr=parseJsonp(text)
+        this.setPage(page, ...arr );
     } catch(e) {
         this.failed=true;
-       // console.error('fetch failed,',uri);
     }
 }
 const jsonp=function(page,header,_payload){
@@ -56,13 +56,16 @@ export async function loadJSONP(page){
     let  tried=0,timer ;
     const that=this;
     try {
-        const status=await loadScript(makePageURI(this.name,page),()=>{
+        const status=await loadScript(makePageURI(that.name,page),()=>{
             if (isLoaded.call(that,page)) return true;
             //wait for jsonp() to setPage
             timer=setInterval(()=>{
                 tried++;
-                if (tried>10 || isLoaded.call(that,page) ) clearInterval(timer);
-            },30);
+                if (tried>10 || isLoaded.call(that,page) ) {
+                    if (tried>10) console.error('failed loading page',page);
+                    clearInterval(timer);
+                }
+            },10);
         });
     } catch(e) {
         this.failed=true;

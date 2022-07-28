@@ -1,24 +1,24 @@
 import {ILineRange} from '../linebase/index.ts'
-import {HOST_ELEID_FROMTILL,HOST_FROMTILL,FROMTILL} from '../offtext/index.ts'
+import {HOST_ACTION_FROMTILL,HOST_FROMTILL,FROMTILL} from '../offtext/index.ts'
 
-export const parseElementId=(eleid:string)=>{
-	const m=eleid.match(/([a-z_])+#?([a-z\d_-]+)/);
-	return [m[1],m[2]];
+export const parseElementId=(action:string)=>{
+	const m=action.match(/([a-z_])+#?([a-z\d_-]+)/);
+	return m?[m[1],m[2]]:[];
 }
 export const sameAddress=(addr1,addr2)=>{
 	if (typeof addr1=='string') addr1=parseAddress(addr1);
 	if (typeof addr2=='string') addr2=parseAddress(addr2);
 	if (!addr1||!addr2) return;
-	return addr1.eleid==addr2.eleid && addr1.host ==addr2.host;
+	return addr1.action==addr2.action && addr1.host ==addr2.host;
 }
 export const makeAddress=(host='',ele='',id='',from=0,till=0)=>{
 	return (host?host+':':'')+ele+ (isNaN(parseInt(id))?'#'+id:id)+(from?':'+from:'')+(till?'<'+till:'');
 }
 export const parseAddress=(address:string)=>{
-	let m0,basket='',eleid='', from=0 ,till=0 ; //left bound and right bound
-	let m=address.match(HOST_ELEID_FROMTILL);
+	let m0,basket='',action='', from=0 ,till=0 ; //left bound and right bound
+	let m=address.match(HOST_ACTION_FROMTILL);
 	if (m) {
-		[m0, host, eleid, from , till] = m;
+		[m0, host, action, from , till] = m;
 	} else {
 		m=address.match(HOST_FROMTILL);
 		if (m) {
@@ -34,11 +34,12 @@ export const parseAddress=(address:string)=>{
 	host=host||'';
 	host=host.slice(0,host.length-1); //remove :
 
-	return {host, eleid,from:Math.abs(parseInt(from))||0,till:Math.abs(parseInt(till))||0 };
+	return {host, action,from:Math.abs(parseInt(from))||0,till:Math.abs(parseInt(till))||0 };
 }
 export function rangeOfAddress(address:string):ILineRange{
-	const {host,from,till,eleid} = parseAddress(address);
-	const [ele,id]=parseElementId(eleid);
+	const {host,from,till,action} = parseAddress(address);
+
+	const [ele,id]=parseElementId(action);
 	if (ele && this.defines[ele]) {
 		const idtype=this.defines[ele].validators.id;
 		const _id=(idtype.type=='number')?parseInt(id):id;

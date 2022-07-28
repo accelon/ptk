@@ -1,11 +1,16 @@
-import {LineBase,Column} from '../linebase/index.ts';
+import {ILineBase,LineBase,Column} from '../linebase/index.ts';
 import {Compiler,sourceType} from '../compiler/index.ts'
 import {parseOfftext} from '../offtext/index.ts'
 import {StringArray,unpackIntDelta,LEMMA_DELIMETER} from '../utils/index.ts';
 import {rangeOfAddress} from './address.ts';
 export const regPtkName =  /^[a-z]{2,16}$/
 export const validPtkName=(name:string):boolean=>!!name.match(regPtkName);
-
+export interface IPitaka extends ILineBase{
+	columns:Map<string,any>,
+	typedefOf:Function,
+	inlineNote:Function,
+	columnField:Function,
+}
 export class Pitaka extends LineBase {
 	constructor(opts){
 		super(opts);
@@ -34,7 +39,8 @@ export class Pitaka extends LineBase {
 
 		for (let i=0;i<this.header.preload.length;i++) {
 			const section=this.getSection(this.header.preload[i]);
-			this.deserialize(section);
+			if (section.length)	this.deserialize(section);
+			else console.error('empty section',this.header.preload[i])
 		}
 		for (let n in this.defines) { //see compiler/typedef.ts serialize()
 			if (this.defines[n].validators.preload) {

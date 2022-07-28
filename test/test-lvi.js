@@ -11,6 +11,7 @@ const testLoad=async()=>{
 	let address='mem::3<6';
 	let lva=new LVA(address);
 	let lines=await lva.load();
+	
 	test++;pass+=lines.length==3;
 	
 	//dig into 
@@ -27,11 +28,13 @@ const testLoad=async()=>{
  	// already have adjecent child, add to same level
  	lva.dig('mem::10<11').dig('mem::20<21');
  	const addr2=lva.nodes();
-  	
  	test++;pass+=addr2.length==4;
- 	test++;pass+=addr2[1].from==20;
- 	test++;pass+=addr2[2].from==10;
- 	test++;pass+=addr2[1].depth&&addr2[2].depth;
+ 	test+=3;
+ 	if (addr2.length==4) {
+	 	pass+=addr2[1].from==20;
+	 	pass+=addr2[2].from==10;
+	 	pass+=addr2[1].depth&&addr2[2].depth;
+	}
 }
 
 await testLoad();

@@ -3,9 +3,10 @@ import {parseAddress,parseElementId,sameAddress} from '../basket/index.ts';
 import {ILineViewAddress} from './interfaces.ts'
 import {ILineRange} from '../linebase/index.ts'
 import {load} from './loadline.ts'
+import {parseQuery} from '../fts/criteria.ts'
 export class LVA {
-	constructor (address=''){
-		this._nodes=LVA.parse(address);
+	constructor (addresses=''){
+		this._nodes=LVA.parse(addresses);
 		this.load=load;
 	}
 	nodes(){
@@ -37,24 +38,24 @@ export class LVA {
 		this._combine();
 		return this;
 	}
-	static stringify(lvnode,hideptkname=false, hideeleid=false){
-	 	const {depth,eleid,from,till,host} = lvnode;
-	 	return ( (host&&(!eleid || !hideptkname)) ?host+':':'')
-	 			+(hideeleid?'':eleid)+(from?':'+from:'')+(till?'<'+till:'');
+	static stringify(lvnode,hideptkname=false, hideaction=false){
+	 	const {depth,action,from,till,host} = lvnode;
+	 	return ( (host&&(!action || !hideptkname)) ?host+':':'')
+	 			+(hideaction?'':action)+(from?':'+from:'')+(till?'<'+till:'');
 	}
-	stringify(lvnode:number|Map,hideptkname=false,hideeleid=false) {
+	stringify(lvnode:number|Map,hideptkname=false,hideaction=false) {
 
 		if (typeof lvnode=='number') lvnode=this.nodes(lvnode);
 		if (!lvnode) return this.serialize();
-		return LVA.stringify(lvnode,hideptkname,hideeleid);
+		return LVA.stringify(lvnode,hideptkname,hideaction);
 	}
 	serialize(){
 		if (!this._nodes&&!this._nodes.length) return '';
 		let prevdepth=0,same_level_host='',activehost;
 		const firstdepth=this._nodes[0].depth;
-		const out=[],hosts=[],eleids=[] ;
+		const out=[],hosts=[],actions=[] ;
 		for (let i=0;i<this._nodes.length;i++) {
-			const {depth,from,till,host,eleid} = this._nodes[i];
+			const {depth,from,till,host,action} = this._nodes[i];
 			if (depth>prevdepth) out.push('(');
 			else if (prevdepth>depth) out.push(')')
 			if (host) {
@@ -62,8 +63,8 @@ export class LVA {
 				hosts[depth]=host;
 			}
 			activehost= activehost || hosts[depth] || same_level_host;
-			out.push(LVA.stringify(this._nodes[i] , activehost==same_level_host, eleid==eleids[depth] ))
-			if (eleid) eleids[depth]=eleid;
+			out.push(LVA.stringify(this._nodes[i] , activehost==same_level_host, action==actions[depth] ))
+			if (action) actions[depth]=action;
 			same_level_host=activehost;
 			prevdepth=depth;
 		}
@@ -76,13 +77,13 @@ export class LVA {
 	dig(insert:string,idx=0,nline=0){ 
 		if (!this._nodes||!this._nodes.length) return;
 		let depth=this._nodes[idx].depth;
-		if (this._nodes.length>1 && this._nodes[idx+1].depth==depth+1) { //reuse children
-
+		if (this._nodes.length>1 && idx<this._nodes.length-1  //reuse children
+			&& this._nodes[idx+1].depth==depth+1) {
 			const newaddr=parseAddress(insert);
 			if (!newaddr) return addresses;
 			let p=idx+1;
 			while (p<this._nodes.length && this._nodes[p].depth>depth) {
-				if (sameAddress(this._nodes[p],newaddr)) {
+				if (sameAddress(this._nodes[p],newaddr) && newaddr.action) {
 					this._nodes.splice(p,1);//remove same
 					if (p==idx+1) {
 						this._combine();
@@ -117,10 +118,10 @@ export class LVA {
 		const out=[];
 		let i=0;
 		while (i< this._nodes.length) {
-			const {host,from,till,eleid,depth}=this._nodes[i];
+			const {host,from,till,action,depth}=this._nodes[i];
 			let next=this._nodes[i+1];
 			out.push(this._nodes[i]);
-			while (i<this._nodes.length && next && next.host==host && next.eleid==eleid 
+			while (i<this._nodes.length && next && next.host==host && next.action==action 
 				&& next.depth == depth && next.from == till) {
 				this._nodes[i].till=next.till;
 				i++
@@ -134,22 +135,23 @@ export class LVA {
 	static parse(addresses){
 		if (!addresses) return [];
 		const expr=parseLisp(addresses);
-		let same_level_host='', same_level_eleid='',hosts=[] , eleids=[] ;
+		let same_level_host='', same_level_action='',hosts=[] , actions=[] ;
 		const nodes=expr.map( ([depth,address])=>{  
 			const addr=parseAddress(address);
 			if (!addr) return null;
-			if (addr.eleid) eleids[depth]=addr.eleid;			
-			
+
+			const [ele,id]=parseElementId(addr.action);
+			if (addr.action) actions[depth]=addr.action;
 			if (addr.host)  hosts[depth]=addr.host;
-			
-			addr.eleid= addr.eleid || eleids[depth] || same_level_eleid;
+			addr.action= addr.action || actions[depth] || same_level_action;
 			addr.host= addr.host || hosts[depth] || same_level_host;
 			same_level_host=addr.host;
-			same_level_eleid=addr.eleid;
+			same_level_action=addr.action;
 			if (addr.from && addr.till&& addr.till<addr.from) addr.till=addr.from;
-			return {depth, ...addr }
+			let criteria;
+			if (addr.action.indexOf('=')>0) criteria=parseQuery(addr.action);
+			return {depth, ...addr, criteria}
 		}).filter(it=>!!it);
-
 		return nodes;
 	}
 }
