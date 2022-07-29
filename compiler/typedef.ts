@@ -1,12 +1,12 @@
 import {IOfftag} from '../offtext/index.ts';
 import {ITypedef} from './interfaces.ts';
-import {createValidator} from './validator.ts';
-import {VError} from './verrors.ts';
+import {createField} from './fielder.ts';
+import {VError} from './error.ts';
 import {packInt,packIntDelta,unpackIntDelta,unpackInt,LEMMA_DELIMETER} from '../utils/index.ts'
 /* types of attributes defined by ^:  */
 export class Typedef implements ITypedef {
 	constructor (attrs:Map, tagname:string, primarykeys:Map) {
-		this.validators={}; /* attribute might have validator */
+		this.fields={}; /* attribute might have validator */
 		this.mandatory={};  
 		this.tagname=tagname;
 		this.linepos=[];
@@ -14,19 +14,19 @@ export class Typedef implements ITypedef {
 		for (let aname in attrs) {
 			const def=attrs[aname];
 			const opts=typeof def=='string'?def:{optional:false};
-			const V=createValidator(tagname,opts,primarykeys);
-			if (V) this.validators[aname]=V;
+			const V=createField(tagname,opts,primarykeys);
+			if (V) this.fields[aname]=V;
 			if (V && !V.optional) this.mandatory[aname]=true;
 		}
 		this.attrs=attrs;
 	}
 	validateTag(tag:IOfftag , line:number, compiledLine:number , onError) {
 		let touched=false, newtag;
-		if (this.validators.id || this.savelinepos) { //auto save linepos if validating id
+		if (this.fields.id || this.savelinepos) { //auto save linepos if validating id
 			this.linepos.push(compiledLine+line);
 		}
 		for (let aname in tag.attrs) {
-			const V=this.validators[aname];
+			const V=this.fields[aname];
 			let value=tag.attrs[aname];
 			if (V&&!V.foreign) V.values.push(tag.attrs[aname]);
 			let [err,newvalue,refline]= (V&&V.validate( tag.attrs[aname], line)) ||[0,value,-1];
@@ -56,7 +56,7 @@ export class Typedef implements ITypedef {
 		}
 		for (let i=0;i<attrs.length;i++) {
 			const aname=attrs[i];
-			const V=this.validators[aname];
+			const V=this.fields[aname];
 			if (V.type=='number'){
 				V.values=unpackInt(section.shift());	
 			}
@@ -67,8 +67,8 @@ export class Typedef implements ITypedef {
 	}
 	serialize(){
 		const attrs=[],out=[];
-		for (let aname in this.validators) {
-			const V=this.validators[aname];
+		for (let aname in this.fields) {
+			const V=this.fields[aname];
 			if (!V.foreign) {
 				if (V.type=='number') {
 					attrs.push(aname);

@@ -1,3 +1,3 @@
 export * from './compiler.ts'
-export * from './validator.ts'
-export * from './verrors.ts'
+export * from './fielder.ts'
+export * from './error.ts'

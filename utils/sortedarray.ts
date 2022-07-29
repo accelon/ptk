@@ -131,3 +131,11 @@ export const fillGap=(sorted_int_array:number[])=>{
     }
     return sorted_int_array;
 }
+//
+export const sortNumberArray=(arr:number[])=>{
+    const value_id=arr.map((v,idx)=>[v,idx]);
+    value_id.sort((a,b)=>a[0]-b[0]);
+    const indexes=value_id.map(([v,idx])=>idx);
+    const newarr=value_id.map(([v,idx])=>v);
+    return [newarr, indexes];
+}

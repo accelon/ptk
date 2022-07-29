@@ -1,9 +1,8 @@
 import {parseLisp,LispToken} from './lisp.ts';
-import {parseAddress,parseElementId,sameAddress} from '../basket/index.ts';
-import {ILineViewAddress} from './interfaces.ts'
-import {ILineRange} from '../linebase/index.ts'
-import {load} from './loadline.ts'
-import {parseQuery} from '../fts/criteria.ts'
+import {ILineViewAddress} from './interfaces.ts';
+import {ILineRange} from '../linebase/index.ts';
+import {load} from './loadline.ts';
+import {createAction} from './action.ts';
 export class LVA {
 	constructor (addresses=''){
 		this._nodes=LVA.parse(addresses);
@@ -44,7 +43,6 @@ export class LVA {
 	 			+(hideaction?'':action)+(from?':'+from:'')+(till?'<'+till:'');
 	}
 	stringify(lvnode:number|Map,hideptkname=false,hideaction=false) {
-
 		if (typeof lvnode=='number') lvnode=this.nodes(lvnode);
 		if (!lvnode) return this.serialize();
 		return LVA.stringify(lvnode,hideptkname,hideaction);
@@ -97,7 +95,6 @@ export class LVA {
 			this._nodes.splice(idx+1,0,newaddr);
 			return this;
 		}
-
 		const addr=this._nodes[idx];
 		const splitat=addr.from+nline;
 		let breakleft,breakright;
@@ -135,22 +132,10 @@ export class LVA {
 	static parse(addresses){
 		if (!addresses) return [];
 		const expr=parseLisp(addresses);
-		let same_level_host='', same_level_action='',hosts=[] , actions=[] ;
-		const nodes=expr.map( ([depth,address])=>{  
-			const addr=parseAddress(address);
-			if (!addr) return null;
-
-			const [ele,id]=parseElementId(addr.action);
-			if (addr.action) actions[depth]=addr.action;
-			if (addr.host)  hosts[depth]=addr.host;
-			addr.action= addr.action || actions[depth] || same_level_action;
-			addr.host= addr.host || hosts[depth] || same_level_host;
-			same_level_host=addr.host;
-			same_level_action=addr.action;
-			if (addr.from && addr.till&& addr.till<addr.from) addr.till=addr.from;
-			let criteria;
-			if (addr.action.indexOf('=')>0) criteria=parseQuery(addr.action);
-			return {depth, ...addr, criteria}
+		const ctx={same_level_host:'', same_level_action:'',hosts:[] , actions:[]} ;
+		const nodes=expr.map( ([depth,action])=>{
+			ctx.depth=depth;
+			return createAction(action,ctx);
 		}).filter(it=>!!it);
 		return nodes;
 	}

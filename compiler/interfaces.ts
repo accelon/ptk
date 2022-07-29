@@ -18,8 +18,9 @@ export interface ICompiled {
 export interface ITypedef {
 	
 }
-export interface IValidator {
-	validate:Function
+export interface IField {
+	find:Function,
+	validate:Function,
 }
 export interface ICompiler {
 	ptk:string;   

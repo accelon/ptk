@@ -25,7 +25,7 @@ export const unpack3=(str:string)=>{
 		i3=str.charCodeAt(i*3) -CodeStart;
 		i2=str.charCodeAt(i*3+1) -CodeStart;
 		i1=str.charCodeAt(i*3+2) -CodeStart;
-		arr.push( maxlen1*maxlen1*i3 +maxlen1*i2+i1 );
+		arr.push( maxlen1*maxlen1*i3 +maxlen1*i2+i1-1 );
 	}
 	return arr;
 }
@@ -36,7 +36,7 @@ export const unpack2=(str:string)=>{
 	for (let i=0;i<count;i++) {
 		i2=str.charCodeAt(i*2) -CodeStart;
 		i1=str.charCodeAt(i*2+1) -CodeStart;
-		arr.push(maxlen1*i2+i1 );
+		arr.push(maxlen1*i2+i1-1 );
 	}
 	return arr;
 }
@@ -46,7 +46,7 @@ export const unpack1=(str:string)=>{
 	const count=Math.floor(str.length);
 	for (let i=0;i<count;i++) {
 		i1=str.charCodeAt(i*3) -CodeStart;
-		arr.push( i1 );
+		arr.push( i1-1 );
 	}
 	return arr;
 }
@@ -87,7 +87,7 @@ export const unpackInt=(s:string,delta=false):NumArray=>{
 			throw new Error("exit max integer 0x7f,"+ o);
 		}
 
-		arr[c] = o + (delta?prev:0);
+		arr[c] = o + (delta?prev:0)  - 1;
 		prev=arr[c];
 		c++;
 		i++;

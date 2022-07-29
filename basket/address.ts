@@ -1,6 +1,12 @@
 import {ILineRange} from '../linebase/index.ts'
 import {HOST_ACTION_FROMTILL,HOST_FROMTILL,FROMTILL} from '../offtext/index.ts'
 
+export interface IAddress {
+	host:string,
+	action:string,
+	from:number,
+	till:number,
+}
 export const parseElementId=(action:string)=>{
 	const m=action.match(/([a-z_])+#?([a-z\d_-]+)/);
 	return m?[m[1],m[2]]:[];
@@ -11,10 +17,10 @@ export const sameAddress=(addr1,addr2)=>{
 	if (!addr1||!addr2) return;
 	return addr1.action==addr2.action && addr1.host ==addr2.host;
 }
-export const makeAddress=(host='',ele='',id='',from=0,till=0)=>{
-	return (host?host+':':'')+ele+ (isNaN(parseInt(id))?'#'+id:id)+(from?':'+from:'')+(till?'<'+till:'');
+export const makeAddress=(host='',action='',from=0,till=0)=>{
+	return (host?host+':':'')+action+(from?':'+from:'')+(till?'<'+till:'');
 }
-export const parseAddress=(address:string)=>{
+export const parseAddress=(address:string):IAddress=>{
 	let m0,basket='',action='', from=0 ,till=0 ; //left bound and right bound
 	let m=address.match(HOST_ACTION_FROMTILL);
 	if (m) {

@@ -9,12 +9,11 @@ export const runCriterion=(ptk:IPitaka,name,c:ICriterion)=>{
 	
 }
 export const parseQuery=(cstr:string)=>{
-	const query={};
+	const query=[];
 	const criteria=cstr.split(';');
 	for (let i=0;i<criteria.length;i++) {
 		const [name,tofind]=criteria[i].split('=');
-		console.log(name,tofind)
-		query[name]={tofind, res:null};
+		query.push({name,tofind});
 	}
 	return query;
 }

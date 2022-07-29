@@ -15,6 +15,7 @@ export class Pitaka extends LineBase {
 	constructor(opts){
 		super(opts);
 		this.defines={};
+		this.chunktag='';
 		this.primarykeys={};
 		this.columns={};
 		this.textStart=0;
@@ -24,13 +25,13 @@ export class Pitaka extends LineBase {
 		const compiler=new Compiler()
 		compiler.compileBuffer(this.payload, this.name);
 		this.defines=compiler.typedefs;
-
+		this.chunktag=compiler.chunktag ||'ck';
 		const jobs=[],ranges=[];
 		for (let i=0;i<this.header.preload.length;i++) {
 			ranges.push(this.sectionRange(this.header.preload[i]));
 		}
 		for (let n in this.defines) {
-			if (this.defines[n].validators.preload) {
+			if (this.defines[n].fields.preload) {
 				ranges.push(this.sectionRange('^'+n));
 			}
 		}
@@ -43,21 +44,21 @@ export class Pitaka extends LineBase {
 			else console.error('empty section',this.header.preload[i])
 		}
 		for (let n in this.defines) { //see compiler/typedef.ts serialize()
-			if (this.defines[n].validators.preload) {
+			if (this.defines[n].fields.preload) {
 				const section=this.getSection('^'+n);
 				this.defines[n].deserialize(section);
 			}
 		}
 
 		for (let n in this.defines) {
-			for (let attr in this.defines[n].validators) {
-				const A=this.defines[n].validators[attr];
+			for (let attr in this.defines[n].fields) {
+				const A=this.defines[n].fields[attr];
 				if (A.foreign && this.primarykeys[A.foreign]) {
 					A.keys=this.primarykeys[A.foreign];
 				}
 			}
 		}
-
+		
 		this.textStart=this.sectionRange('','txt')[0];
 	}
 	deserialize(section) {
@@ -72,16 +73,16 @@ export class Pitaka extends LineBase {
 		}
 	}
 	validId(tagname:string,id:any):boolean {
-		const V=this.defines[tagname].validators;
+		const V=this.defines[tagname].fields;
 		if (!V.id) return false;
-		if (V.id.type=='number' && typeof id !=='number') id=parseInt(id)
-		return ~this.defines[tagname].validators.id.values.indexOf(id);
+		if (V.id.type=='number' && typeof id !=='number') id=parseInt(id);
+		return ~V.id.values.indexOf(id);
 	}
 	rowOf(rowname:string,idx:string) {
 		const column=this.columns[rowname];
 		const out=[];
 		for (let i=0;i<column.fieldnames.length;i++) {
-			const type=column.validators[i].type;
+			const type=column.fields[i].type;
 			const name=column.fieldnames[i];
 			out.push( { name, type, value:column.fieldvalues[i][idx] } ) ;
 		}
@@ -93,11 +94,11 @@ export class Pitaka extends LineBase {
 		return column.fieldvalues[at][idx];
 	}
 	typedefOf(tagname:string) {
-		return this.defines[tagname]?.validators;
+		return this.defines[tagname]?.fields;
 	}
 	async inlineNote(tagname:string,noteid:string){
 		const typedef=this.defines[tagname];
-		const cols=this.columns[typedef.validators.type.foreign];
+		const cols=this.columns[typedef.fields.type.foreign];
 		if (!cols) return;
 		const at=cols.keys.find(noteid);
 		const textfield=typedef.attrs.text;

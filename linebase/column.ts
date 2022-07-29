@@ -1,12 +1,12 @@
 /* store in column oriented */ 
 import {LEMMA_DELIMETER,StringArray,alphabetically0,packIntDelta2d,unpackIntDelta2d,packInt,unpackIntDelta,unpackInt} from "../utils/index.ts"
-import {createValidator,VError} from  "../compiler/index.ts"
+import {createField,VError} from  "../compiler/index.ts"
 import {parseOfftext} from '../offtext/index.ts'
 export class Column {
 	constructor(opts={}) {
 		this.fieldvalues=[];
 		this.fieldnames=[];
-		this.validators=[];
+		this.fields=[];
 		this.name='';
 		this.keys=[];  //keys
 		this.values=[]; // 
@@ -20,26 +20,26 @@ export class Column {
 		this.fieldvalues.push([]);
 	}
 	addRow(fields:string[], line:number ){
-		if (fields.length>this.validators.length && line) {
-			this.onError&&this.onError(VError.ExcessiveField, fields.length+ ' max '+this.validators.length,line);
+		if (fields.length>this.fields.length && line) {
+			this.onError&&this.onError(VError.ExcessiveField, fields.length+ ' max '+this.fields.length,line);
 			return;
 		}
 		for (let i=0;i<fields.length;i++) {
-			const V=this.validators[i];
-			const [err,value]=V.validate(fields[i],line);
+			const F=this.fields[i];
+			const [err,value]=F.validate(fields[i],line);
 			if (err) {
 				this.onError&&this.onError(err,this.fieldnames[i]+' '+fields[i],-1,line);
 			}
 			this.fieldvalues[i].push(value);
 		}
 	}
-	createValidators(typedef){
+	createFields(typedef){
 		if (typedef) for (let idx in typedef) {
 			if (idx==0 && !typedef[idx]) continue; //primary key
 			const [name,def]=typedef[idx].split('=');
 			this.addColumn(name);
-			const V= createValidator(name,def||{} , this.primarykeys , this.keys);
-			this.validators.push(V);
+			const field= createField(name,def||{} , this.primarykeys , this.keys);
+			this.fields.push(field);
 		}
 	}
 	deserialize(section:string[]){
@@ -48,11 +48,11 @@ export class Column {
 		const attrs=tags[0].attrs;
 		this.name=attrs.name;
 		const typedef=text.split('\t') ; // typdef of each field , except field 0
-		this.createValidators(typedef);
+		this.createFields(typedef);
 		this.keys=new StringArray(section.shift(),{sep:LEMMA_DELIMETER});  //local keys
 		let idx=0 , usesection=false;
-		for (let fieldname in this.validators) {
-			const field=this.validators[fieldname];
+		for (let fieldname in this.fields) {
+			const field=this.fields[fieldname];
 			const linetext=section.shift();
 			if (field.type==='number') {
 				this.fieldvalues[idx]=unpackInt(linetext);
@@ -90,7 +90,7 @@ export class Column {
 		allfields.sort(alphabetically0)
 		this.keys=allfields.map(it=>it[0]);
 		this.values=allfields.map(it=>it.slice(1));
-		this.createValidators(this.typedef);
+		this.createFields(this.typedef);
 
 		if (!this.fieldnames.length)  return; // no type def
 		for (let i=0;i<this.values.length;i++) {
@@ -99,7 +99,7 @@ export class Column {
 		}
 		const out=[this.keys.join(LEMMA_DELIMETER)]; //use StringTable
 		for (let i=0;i<this.fieldnames.length;i++) {
-			const V=this.validators[i];
+			const V=this.fields[i];
 			if (V.type=='number') {
 				const numbers=this.fieldvalues[i].map(it=>parseInt(it)||0)||[];
 				out.push(packInt( numbers));

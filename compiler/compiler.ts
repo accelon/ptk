@@ -2,10 +2,10 @@ import {Compiler} from './compiled.ts'
 import {parseOfftext,Offtext,updateOfftext}  from '../offtext/parser.ts';
 import {Column} from '../linebase/column.ts'
 import {SourceType,ICompiledFile,ICompiled} from './interfaces.ts'
-import {validate_z} from './validator.ts'
+import {validate_z} from './fielder.ts'
 import {StringArray} from '../utils/stringarray.ts'
 import {Typedef} from './typedef.ts'
-import {VError,MAX_VERROR} from './verrors.ts'
+import {VError,MAX_VERROR} from './error.ts'
 export const sourceType=(firstline:string):SourceType=>{	
 	const at=firstline.indexOf('\n');
 	firstline=at>-1? firstline.slice(0,at):firstline;
@@ -14,11 +14,12 @@ export const sourceType=(firstline:string):SourceType=>{
 	if (tags[0].name=='_') { //define a section
 		const attrs=tags[0].attrs;
 		preload=!!tags[0].attrs.preload;
+		chunktag=tags[0].attrs.chunktag||'ck';
 		if (attrs?.type?.toLowerCase()=='tsv') {
-			return [SourceType.TSV, tags[0], preload];
+			return [SourceType.TSV, tags[0], preload, chunktag];
 		}
 	}
-	return [SourceType.Offtext,tags[0],preload];
+	return [SourceType.Offtext,tags[0],preload, chunktag];
 }
 export class CompiledFile implements ICompiledFile {
 	constructor (){
@@ -34,6 +35,7 @@ export class Compiler implements ICompiler {
 	}
 	reset(){
 		this.ptkname='';
+		this.chunktag='';
 		this.compilingname='';
 		this.line=0;
 		this.compiledLine=0;
@@ -88,18 +90,26 @@ export class Compiler implements ICompiler {
 		let processed='',samepage=false, defines=[];
 		const sa=new StringArray(buffer,{sequencial:true});
 		const firstline=sa.first();
-		const [sourcetype,tag,preload]=sourceType(firstline); //only first tag on first line
+		const [sourcetype,tag,preload,chunktag]=sourceType(firstline); //only first tag on first line
 		if (sourcetype=='txt') defines.push(firstline);
 		let name=filename;//name of this section
 		let textstart=0;//starting line of indexable text
 		this.compilingname=filename;
 		this.stopcompile=false;
-		if (tag.name=='_') { //system directive
+
+		if (tag.name=='_') { //global setting
 			if (tag.attrs.ptk) {
 				if (this.ptkname && this.ptkname!==tag.attrs.ptk) {
 					this.onError(VError.PtkNamed, this.ptkname);
 				} else {
 					this.ptkname=tag.attrs.ptk;
+				}
+			}
+			if (tag.attrs.chunktag) {
+				if (this.chunktag && this.chunktag!==tag.attrs.chunktag) {
+					this.onError(VError.RedefineChunkTag, this.chunktag);
+				} else {
+					this.chunktag=tag.attrs.chunktag;
 				}
 			}
 		}

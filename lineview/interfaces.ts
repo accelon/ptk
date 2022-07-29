@@ -6,3 +6,7 @@ export interface ILineViewAddress {
 	from : number,
 	till : number,
 }
+
+export interface IAction {
+	
+}

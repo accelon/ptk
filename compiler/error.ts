@@ -15,10 +15,11 @@ export enum VError {
 
 	PtkNamed      = 'PTK_NAMED' ,
 	PtkNoName     = 'PTK_NONAME',
+	RedefineChunkTag = 'REDEFINE_CHUNK_CHUNK_TAG' ,
 
 }
 
-const ErrorMessage={
+const VErrorMessage={
 	[VError.NoKeys ]       : 'missing keys $1',
 	[VError.NoKey  ]       : 'missing key $1 for string',
 	[VError.NotANumber]    : 'not a number',
@@ -35,5 +36,5 @@ const ErrorMessage={
 }
 
 export const errorMessage=(code : VError , arg)=>{
-	return (ErrorMessage[code]||'').replace('$1',arg||'') 
+	return (VErrorMessage[code]||'').replace('$1',arg||'') 
 }

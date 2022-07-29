@@ -8,9 +8,9 @@ export const pack1=(arr:NumArray)=>{
 	let idx=0;
 	for (let i=0;i<arr.length;i++) {
 		if (arr[i]>=maxlen1) throw new Error("exit boundary "+arr[i])
-		let int=arr[i];
+		let int=arr[i] +1;
 		if (isNaN(int)) int=0;
-		s[idx++] = int+CodeStart;
+		s[idx++] = int+CodeStart; //allow -1
 	}
 	return new TextDecoder().decode(s);
 }
@@ -20,7 +20,7 @@ export const pack2=(arr:NumArray)=>{
 		if (arr[i]>=maxlen2) {
 			throw new Error("exit boundary "+arr[i])
 		}
-		let int=arr[i];
+		let int=arr[i] +1;
 		if (isNaN(int)) int=0;
 		let i1,i2;
 		i1=int % maxlen1;
@@ -35,7 +35,7 @@ export const pack3=(arr:NumArray)=>{
 	let s=Uint8Array(arr.length*3);
 	for (let i=0;i<arr.length;i++) {
 		if (arr[i]>=maxlen3) throw "exit boundary "+arr[i]
-		let int=arr[i];
+		let int=arr[i] +1;
 		if (isNaN(int)) int=0;
 		let i1,i2,i3;
 		i1=int % maxlen1;
@@ -68,7 +68,7 @@ export const pack3_2d=(arr:NumArray[],esc=false)=>{
 export const packInt=(arr:NumArray, delta=false):Uint8Array=>{
 	if (arr.length==0) return '';
 	const sz=arr.length*5;  
-	let s=new Uint8Array(sz), int=arr[0], prev=arr[0] , idx=0;
+	let s=new Uint8Array(sz), int=arr[0]+1, prev=arr[0] , idx=0;
 
 	for (let i=1;i<=arr.length;i++) {
 		if (isNaN(int)) new Error('not an integer at'+i);
@@ -128,7 +128,7 @@ export const packInt=(arr:NumArray, delta=false):Uint8Array=>{
 			// console.log('neighbor of arr',i,delta,arr.slice(i,10),arr.length, prev)
 			throw new Error('exist max int boundary '+BYTE5_MAX+ ' i'+i+',val:'+arr[i]+' int'+int);
 		}
-		int=(delta? arr[i]-prev: arr[i] ) ;
+		int=(delta? arr[i]-prev: arr[i] ) +1 ;
 		prev=arr[i]||0;
 	}
 	//new TextDecoder is quite fast
