@@ -1,8 +1,8 @@
 import {ILineRange} from '../linebase/index.ts'
-import {HOST_ACTION_FROMTILL,HOST_FROMTILL,FROMTILL} from '../offtext/index.ts'
+import {PTK_ACTION_FROMTILL,PTK_FROMTILL,FROMTILL} from '../offtext/index.ts'
 
 export interface IAddress {
-	host:string,
+	ptkname:string,
 	action:string,
 	from:number,
 	till:number,
@@ -15,20 +15,20 @@ export const sameAddress=(addr1,addr2)=>{
 	if (typeof addr1=='string') addr1=parseAddress(addr1);
 	if (typeof addr2=='string') addr2=parseAddress(addr2);
 	if (!addr1||!addr2) return;
-	return addr1.action==addr2.action && addr1.host ==addr2.host;
+	return addr1.action==addr2.action && addr1.ptkname ==addr2.ptkname;
 }
-export const makeAddress=(host='',action='',from=0,till=0)=>{
-	return (host?host+':':'')+action+(from?':'+from:'')+(till?'<'+till:'');
+export const makeAddress=(ptkname='',action='',from=0,till=0)=>{
+	return (ptkname?ptkname+':':'')+action+(from?':'+from:'')+(till?'<'+till:'');
 }
 export const parseAddress=(address:string):IAddress=>{
 	let m0,basket='',action='', from=0 ,till=0 ; //left bound and right bound
-	let m=address.match(HOST_ACTION_FROMTILL);
+	let m=address.match(PTK_ACTION_FROMTILL);
 	if (m) {
-		[m0, host, action, from , till] = m;
+		[m0, ptkname, action, from , till] = m;
 	} else {
-		m=address.match(HOST_FROMTILL);
+		m=address.match(PTK_FROMTILL);
 		if (m) {
-			[m0, host, from,till] = m;
+			[m0, ptkname, from,till] = m;
 		} else {
 			m=address.match(FROMTILL);
 			if (m) [m0,from,till] = m;	
@@ -37,17 +37,20 @@ export const parseAddress=(address:string):IAddress=>{
 	}
 	from=(from||'').slice(1);
 	till=(till||'').slice(1);
-	host=host||'';
-	host=host.slice(0,host.length-1); //remove :
+	ptkname=ptkname||'';
+	ptkname=ptkname.slice(0,ptkname.length-1); //remove :
 
-	return {host, action,from:Math.abs(parseInt(from))||0,till:Math.abs(parseInt(till))||0 };
+	return {ptkname, action,from:Math.abs(parseInt(from))||0,till:Math.abs(parseInt(till))||0 };
+}
+export function lineOfElementId(eleid:string){
+
 }
 export function rangeOfAddress(address:string):ILineRange{
-	const {host,from,till,action} = parseAddress(address);
+	const {ptkname,from,till,action} = parseAddress(address);
 
 	const [ele,id]=parseElementId(action);
 	if (ele && this.defines[ele]) {
-		const idtype=this.defines[ele].validators.id;
+		const idtype=this.defines[ele].fields.id;
 		const _id=(idtype.type=='number')?parseInt(id):id;
 		let at=idtype.values.indexOf(_id);
 		let first=this.defines[ele].linepos[at] || this.defines[ele].linepos[0] ;
@@ -58,7 +61,7 @@ export function rangeOfAddress(address:string):ILineRange{
 		if (start>last) start=last;
 		if (end>last) end=last;
 		
-		const r=[start , end ];
+		const r=[start , end];
 		return r;
 	} else {
 		return [from,(till?till:from+1)]; //數字型不知道終點，預設取一行

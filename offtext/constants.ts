@@ -21,6 +21,6 @@ export const QSTRING_REGEX_G= /"((?:\\.|.)*?)"/g                                
 export const OFFTAG_LEADBYTE='^';
 
 export const FROMTILL = /^(:\d+)?(<\d+)?$/;
-export const HOST_FROMTILL = /^([a-z\.\d\-_]+\:)(:\d+)?(<\d+)?$/;
-export const HOST_ACTION_FROMTILL = /^([a-z\.\d\-_]+\:)?([^\d:]+[^:<]*)(:\d+)?(<\d+)?$/;
+export const PTK_FROMTILL = /^([a-z\.\d\-_]+\:)(:\d+)?(<\d+)?$/;
+export const PTK_ACTION_FROMTILL = /^([a-z\.\d\-_]+\:)?([^<\d:]+[^:<]*)(:\d+)?(<\d+)?$/;
 

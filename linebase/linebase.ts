@@ -79,20 +79,20 @@ export class LineBase{
 		if (line>this._lineoffsets[page].length) return this._pages[page].length;
 		return this._lineoffsets[page][line-1];
 	}
+	getLineText(nline){
+		return this.slice(nline,nline+1)[0];
+	}
 	slice(nline,to){ //combine array of string from loaded pages
 		if (!to) to=nline+1;
-
 		const p1=this.pageOfLine(nline,this.pagestarts);
 		const p2=this.pageOfLine(to,this.pagestarts);
-
-		
 		let i=0, out='' ,slicefrom,sliceto;
 		for (let i=p1;i<=p2;i++) {
 			if (!this._pages[i]) return [];//page not loaded yet
 			if (i==p1 || i==p2) { // first or last part
 				let slicefrom=this.getPageLineOffset(i, nline- (p1>0?this.pagestarts[p1-1]:0));
 				if (nline) slicefrom++; //skip the \n for first line
-				const sliceto=  this.getPageLineOffset(i, to- (p2>0?this.pagestarts[p2-1]:0) );
+				const sliceto=this.getPageLineOffset(i, to- (p2>0?this.pagestarts[p2-1]:0) );
 				if (p2>p1) {
 					if (i==p1) out = this._pages[i].slice(slicefrom); //+1 skip the \n
 					else out+= (out?'\n':'')+this._pages[i].slice(0, sliceto); 

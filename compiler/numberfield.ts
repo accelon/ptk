@@ -14,7 +14,7 @@ export class NumberField extends Field {
 		if (!this.values.length) return -1;
 		if (!this.sortedIndex) this._sort();
 		const at=bsearch(this.values,value);
-		return ~at?this.sortedIndex[at]:-1;
+		return this.values[at]==value?this.sortedIndex[at]:-1;
 	}
 	validate(value:string,line:number) {
 		const n=parseInt(value);

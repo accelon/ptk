@@ -73,25 +73,25 @@ test++; pass+=lva[4].action=='e600' && lva[4].host=='cyd'; //parent scope
 lva=new LVA('cyd:e456');
 let insertaddress='abc:w234';
 
-let nodes=lva.dig(insertaddress).nodes();
-test++; pass+=nodes.length==3;
-test++; pass+=nodes[0].from==0;
-test++; pass+=nodes[2].till==0;
-test++; pass+=nodes[1].depth==1 ;
+let divisions=lva.dig(insertaddress).divisions();
+test++; pass+=divisions.length==3;
+test++; pass+=divisions[0].from==0;
+test++; pass+=divisions[2].till==0;
+test++; pass+=divisions[1].depth==1 ;
 
-const stringified=nodes.map(it=>LVA.stringify(it));
+const stringified=divisions.map(it=>LVA.stringify(it));
 
 test++; pass+=stringified.length==3 && stringified[1]==insertaddress ;
 
 lva=new LVA('cyd:e1:1<1');  // diging a one line just add after it
-nodes=lva.dig(insertaddress).nodes();
+divisions=lva.dig(insertaddress).divisions();
 const afterdig=lva.stringify();
 test++; pass+=afterdig[afterdig.length-1]==')' && afterdig[afterdig.length-2]!==')'; //
-test++; pass+=nodes.length==2 ;
-test++; pass+=nodes[1].depth==nodes[0].depth+1;
+test++; pass+=divisions.length==2 ;
+test++; pass+=divisions[1].depth==divisions[0].depth+1;
 
 //hide action of right part 
 lva = new LVA('cyd:e3715<1(e6582<1(e4480):1+e2075):1');
-test++; pass+=lva.nodes().length==6;
+test++; pass+=lva.divisions().length==6;
 console.log('pass',test==pass?green(pass):pass, (test-pass)?('failed',red(test-pass)):'')
 // console.log(lva.stringify());

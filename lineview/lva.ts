@@ -1,3 +1,4 @@
+import {parseAddress,sameAddress} from '../basket/index.ts'
 import {parseLisp,LispToken} from './lisp.ts';
 import {ILineViewAddress} from './interfaces.ts';
 import {ILineRange} from '../linebase/index.ts';
@@ -5,65 +6,65 @@ import {load} from './loadline.ts';
 import {createAction} from './action.ts';
 export class LVA {
 	constructor (addresses=''){
-		this._nodes=LVA.parse(addresses);
+		this._divisions=LVA.parse(addresses);
 		this.load=load;
 	}
-	nodes(){
-		return this._nodes;
+	divisions(){
+		return this._divisions;
 	}
 	getNode(idx:number){
-		return this._nodes[idx];
+		return this._divisions[idx];
 	}
 	remove(idx:number){
 		if (typeof idx!=='number') {
-			idx=this._nodes.indexOf(idx);
+			idx=this._divisions.indexOf(idx);
 		}
-		if (!this._nodes.length) return;
-		if (this._nodes.length==1) {
-			this._nodes=[];
+		if (!this._divisions.length) return;
+		if (this._divisions.length==1) {
+			this._divisions=[];
 		}
-		const depth=this._nodes[idx].depth;
+		const depth=this._divisions[idx].depth;
 		let next=idx+1;
-		let nextdepth=this._nodes[next].depth;
-		while (next<this._nodes.length && nextdepth>depth) {
+		let nextdepth=this._divisions[next].depth;
+		while (next<this._divisions.length && nextdepth>depth) {
 			next++;
-			nextdepth=this._nodes[next].depth;
+			nextdepth=this._divisions[next].depth;
 		}
 		if (next-idx>1) { //delete all child
-			this._nodes.splice(idx+1,next-idx);
+			this._divisions.splice(idx+1,next-idx);
 			this._combine();
 		}
-		this._nodes.splice(idx,1);
+		this._divisions.splice(idx,1);
 		this._combine();
 		return this;
 	}
 	static stringify(lvnode,hideptkname=false, hideaction=false){
-	 	const {depth,action,from,till,host} = lvnode;
-	 	return ( (host&&(!action || !hideptkname)) ?host+':':'')
-	 			+(hideaction?'':action)+(from?':'+from:'')+(till?'<'+till:'');
+	 	const {depth,action,from,till,ptkname,end} = lvnode;
+	 	return ( (ptkname&&(!action || !hideptkname)) ?ptkname+':':'')
+	 			+(hideaction?'':action)+(from?':'+from:'')+(till>0&&till&&till<end?'<'+till:'');
 	}
 	stringify(lvnode:number|Map,hideptkname=false,hideaction=false) {
-		if (typeof lvnode=='number') lvnode=this.nodes(lvnode);
+		if (typeof lvnode=='number') lvnode=this.divisions(lvnode);
 		if (!lvnode) return this.serialize();
 		return LVA.stringify(lvnode,hideptkname,hideaction);
 	}
 	serialize(){
-		if (!this._nodes&&!this._nodes.length) return '';
-		let prevdepth=0,same_level_host='',activehost;
-		const firstdepth=this._nodes[0].depth;
-		const out=[],hosts=[],actions=[] ;
-		for (let i=0;i<this._nodes.length;i++) {
-			const {depth,from,till,host,action} = this._nodes[i];
+		if (!this._divisions&&!this._divisions.length) return '';
+		let prevdepth=0,same_level_ptkname='',activeptkname;
+		const firstdepth=this._divisions[0].depth;
+		const out=[],ptknames=[],actions=[] ;
+		for (let i=0;i<this._divisions.length;i++) {
+			const {depth,from,till,ptkname,action} = this._divisions[i];
 			if (depth>prevdepth) out.push('(');
 			else if (prevdepth>depth) out.push(')')
-			if (host) {
-				activehost=host;
-				hosts[depth]=host;
+			if (ptkname) {
+				activeptkname=ptkname;
+				ptknames[depth]=ptkname;
 			}
-			activehost= activehost || hosts[depth] || same_level_host;
-			out.push(LVA.stringify(this._nodes[i] , activehost==same_level_host, action==actions[depth] ))
+			activeptkname= activeptkname || ptknames[depth] || same_level_ptkname;
+			out.push(LVA.stringify(this._divisions[i] , activeptkname==same_level_ptkname, action==actions[depth] ))
 			if (action) actions[depth]=action;
-			same_level_host=activehost;
+			same_level_ptkname=activeptkname;
 			prevdepth=depth;
 		}
 		while (prevdepth>firstdepth) {
@@ -73,16 +74,16 @@ export class LVA {
 		return out.join('+').replace(/\+?([\(\)])\+?/g,'$1').replace(/\++/g,'+');
 	}
 	dig(insert:string,idx=0,nline=0){ 
-		if (!this._nodes||!this._nodes.length) return;
-		let depth=this._nodes[idx].depth;
-		if (this._nodes.length>1 && idx<this._nodes.length-1  //reuse children
-			&& this._nodes[idx+1].depth==depth+1) {
+		if (!this._divisions||!this._divisions.length) return;
+		let depth=this._divisions[idx].depth;
+		if (this._divisions.length>1 && idx<this._divisions.length-1  //reuse children
+			&& this._divisions[idx+1].depth==depth+1) {
 			const newaddr=parseAddress(insert);
 			if (!newaddr) return addresses;
 			let p=idx+1;
-			while (p<this._nodes.length && this._nodes[p].depth>depth) {
-				if (sameAddress(this._nodes[p],newaddr) && newaddr.action) {
-					this._nodes.splice(p,1);//remove same
+			while (p<this._divisions.length && this._divisions[p].depth>depth) {
+				if (sameAddress(this._divisions[p],newaddr) && newaddr.action) {
+					this._divisions.splice(p,1);//remove same
 					if (p==idx+1) {
 						this._combine();
 						return this; //toggle
@@ -91,14 +92,14 @@ export class LVA {
 				}
 				p++;
 			}
-			newaddr.depth=this._nodes[idx].depth+1;
-			this._nodes.splice(idx+1,0,newaddr);
+			newaddr.depth=this._divisions[idx].depth+1;
+			this._divisions.splice(idx+1,0,newaddr);
 			return this;
 		}
-		const addr=this._nodes[idx];
+		const addr=this._divisions[idx];
 		const splitat=addr.from+nline;
 		let breakleft,breakright;
-		if (addr.from && addr.till && addr.till==addr.from) { //one line only, no breakright
+		if ((addr.from && addr.till && addr.till==addr.from) || splitat+1>=addr.end) { //one line only, no breakright
 			breakleft=addr;
 		} else {
 			breakleft=Object.assign({},addr, {till:splitat+1});
@@ -108,35 +109,35 @@ export class LVA {
 		toinsert.depth= breakleft.depth+1;
 		const out=[ breakleft,  toinsert];
 		if (breakright) out.push(breakright);
-		this._nodes.splice(idx,1,...out);
+		this._divisions.splice(idx,1,...out);
 		return this;
 	}
 	_combine(){
 		const out=[];
 		let i=0;
-		while (i< this._nodes.length) {
-			const {host,from,till,action,depth}=this._nodes[i];
-			let next=this._nodes[i+1];
-			out.push(this._nodes[i]);
-			while (i<this._nodes.length && next && next.host==host && next.action==action 
+		while (i< this._divisions.length) {
+			const {ptkname,from,till,action,depth}=this._divisions[i];
+			let next=this._divisions[i+1];
+			out.push(this._divisions[i]);
+			while (i<this._divisions.length && next && next.ptkname==ptkname && next.action==action 
 				&& next.depth == depth && next.from == till) {
-				this._nodes[i].till=next.till;
+				this._divisions[i].till=next.till;
 				i++
-				next=this._nodes[i+1];
+				next=this._divisions[i+1];
 			} 
 			i++;
 		}
-		this._nodes=out;
+		this._divisions=out;
 		return this;
 	}
 	static parse(addresses){
 		if (!addresses) return [];
 		const expr=parseLisp(addresses);
-		const ctx={same_level_host:'', same_level_action:'',hosts:[] , actions:[]} ;
-		const nodes=expr.map( ([depth,action])=>{
+		const ctx={same_level_ptkname:'', same_level_action:'',ptknames:[] , actions:[]} ;
+		const divisions=expr.map( ([depth,action])=>{
 			ctx.depth=depth;
 			return createAction(action,ctx);
 		}).filter(it=>!!it);
-		return nodes;
+		return divisions;
 	}
 }
