@@ -25,7 +25,7 @@ export class LVA {
 		}
 		const depth=this._divisions[idx].depth;
 		let next=idx+1;
-		let nextdepth=this._divisions[next].depth;
+		let nextdepth=this._divisions[next]?.depth;
 		while (next<this._divisions.length && nextdepth>depth) {
 			next++;
 			nextdepth=this._divisions[next].depth;
@@ -51,7 +51,7 @@ export class LVA {
 	serialize(){
 		if (!this._divisions&&!this._divisions.length) return '';
 		let prevdepth=0,same_level_ptkname='',activeptkname;
-		const firstdepth=this._divisions[0].depth;
+		const firstdepth=this._divisions[0]?.depth||0;
 		const out=[],ptknames=[],actions=[] ;
 		for (let i=0;i<this._divisions.length;i++) {
 			const {depth,from,till,ptkname,action} = this._divisions[i];
@@ -74,7 +74,11 @@ export class LVA {
 		return out.join('+').replace(/\+?([\(\)])\+?/g,'$1').replace(/\++/g,'+');
 	}
 	dig(insert:string,idx=0,nline=0){ 
-		if (!this._divisions||!this._divisions.length) return;
+		if (!this._divisions||!this._divisions.length) {
+			const newaddr=parseAddress(insert);
+			this._divisions.push(newaddr);
+			return;
+		}
 		let depth=this._divisions[idx].depth;
 		if (this._divisions.length>1 && idx<this._divisions.length-1  //reuse children
 			&& this._divisions[idx+1].depth==depth+1) {
@@ -99,13 +103,19 @@ export class LVA {
 		const addr=this._divisions[idx];
 		const splitat=addr.from+nline;
 		let breakleft,breakright;
+		const toinsert=parseAddress(insert);
+
 		if ((addr.from && addr.till && addr.till==addr.from) || splitat+1>=addr.end) { //one line only, no breakright
 			breakleft=addr;
+			if (addr.action==toinsert.action) { //delete
+				this._divisions.splice(idx,1);
+				return this;
+				return;
+			}
 		} else {
 			breakleft=Object.assign({},addr, {till:splitat+1});
 			breakright=Object.assign({},addr, {from:splitat+1});
 		}
-		const toinsert=parseAddress(insert);
 		toinsert.depth= breakleft.depth+1;
 		const out=[ breakleft,  toinsert];
 		if (breakright) out.push(breakright);

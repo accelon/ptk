@@ -3,6 +3,8 @@ import {Compiler,sourceType} from '../compiler/index.ts'
 import {parseOfftext} from '../offtext/index.ts'
 import {StringArray,unpackIntDelta,LEMMA_DELIMETER} from '../utils/index.ts';
 import {rangeOfAddress} from './address.ts';
+import {columnField,inlineNote,rowOf,scanPrimaryKeys} from './columns.ts';
+
 export const regPtkName =  /^[a-z]{2,16}$/
 export const validPtkName=(name:string):boolean=>!!name.match(regPtkName);
 export interface IPitaka extends ILineBase{
@@ -15,17 +17,21 @@ export class Pitaka extends LineBase {
 	constructor(opts){
 		super(opts);
 		this.defines={};
-		this.chunktag='';
 		this.primarykeys={};
 		this.columns={};
 		this.textStart=0;
 		this.rangeOfAddress=rangeOfAddress;
+		this.scanPrimaryKeys=scanPrimaryKeys;
+		this.scanCache={};
+		this.columnField=columnField;
+		this.inlineNote=inlineNote;
+		this.rowOf=rowOf;
 	}
 	async init(){
 		const compiler=new Compiler()
 		compiler.compileBuffer(this.payload, this.name);
 		this.defines=compiler.typedefs;
-		this.chunktag=compiler.chunktag ||'ck';
+		this.attributes=compiler.compiledFiles[this.name]?.attributes;
 		const jobs=[],ranges=[];
 		for (let i=0;i<this.header.preload.length;i++) {
 			ranges.push(this.sectionRange(this.header.preload[i]));
@@ -48,9 +54,6 @@ export class Pitaka extends LineBase {
 				const section=this.getSection('^'+n);
 				this.defines[n].deserialize(section);
 			}
-		}
-
-		for (let n in this.defines) {
 			for (let attr in this.defines[n].fields) {
 				const A=this.defines[n].fields[attr];
 				if (A.foreign && this.primarykeys[A.foreign]) {
@@ -58,8 +61,8 @@ export class Pitaka extends LineBase {
 				}
 			}
 		}
-		
 		this.textStart=this.sectionRange('','txt')[0];
+
 	}
 	deserialize(section) {
 		if (!section.length) return;
@@ -73,39 +76,15 @@ export class Pitaka extends LineBase {
 		}
 	}
 	validId(tagname:string,id:any):boolean {
-		const V=this.defines[tagname].fields;
-		if (!V.id) return false;
+		const V=this.defines[tagname]?.fields;
+		if (!V || !V.id) return false;
 		if (V.id.type=='number' && typeof id !=='number') id=parseInt(id);
 		return ~V.id.values.indexOf(id);
-	}
-	rowOf(rowname:string,idx:string) {
-		const column=this.columns[rowname];
-		const out=[];
-		for (let i=0;i<column.fieldnames.length;i++) {
-			const type=column.fields[i].type;
-			const name=column.fieldnames[i];
-			out.push( { name, type, value:column.fieldvalues[i][idx] } ) ;
-		}
-		return out;
-	}
-	columnField(name:string, field:string, idx:number) {
-		const column=this.columns[name];
-		const at=column.fieldnames.indexOf(field);
-		return column.fieldvalues[at][idx];
 	}
 	typedefOf(tagname:string) {
 		return this.defines[tagname]?.fields;
 	}
-	async inlineNote(tagname:string,noteid:string){
-		const typedef=this.defines[tagname];
-		const cols=this.columns[typedef.fields.type.foreign];
-		if (!cols) return;
-		const at=cols.keys.find(noteid);
-		const textfield=typedef.attrs.text;
-		const at2=cols.fieldnames.indexOf(textfield);
-
-		//can await in the future
-		const values=cols.fieldvalues[at2];
-		return (values&&values[at])||'';
+	humanName(lang='zh'){
+		return this.attributes[lang]||this.name;
 	}
 }

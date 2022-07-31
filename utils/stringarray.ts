@@ -91,7 +91,9 @@ export class StringArray {
 			const at=this.at(idx);
 			const lp=at?this.charpos[at-1]:0;
 			const lp2=this.charpos[at];
-			if (idx>lp && idx<lp2) out.push(at);
+			if (idx>lp && idx<lp2-2) {
+				out.push(at);
+			}
 			idx=this.buf.indexOf(infix,lp2+this.sep.length);
 		}
 		return out;
@@ -113,8 +115,9 @@ export class StringArray {
 		if (suffix[suffix.length-1]!==this.sep) suffix=suffix+this.sep;
 		let idx=this.buf.indexOf(suffix);
 		const out=[]; 
-		while (idx>-1) {
-			out.push(idx);
+		while (idx>-1 && this.buf.charAt(idx-1)!==this.sep) {
+			const at=this.at(idx);
+			out.push(at);
 			idx=this.buf.indexOf(suffix,idx+this.sep.length);
 		}
 		return out;

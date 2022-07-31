@@ -87,7 +87,7 @@ export class Compiler implements ICompiler {
 	compileBuffer(buffer:string,filename:string) {
 		if (!buffer)   return this.onError(VError.Empty);
 		if (!filename) return this.onError(VError.PtkNoName);
-		let processed='',samepage=false, defines=[];
+		let processed='',samepage=false, defines=[] , attributes={};
 		const sa=new StringArray(buffer,{sequencial:true});
 		const firstline=sa.first();
 		const [sourcetype,tag,preload,chunktag]=sourceType(firstline); //only first tag on first line
@@ -112,6 +112,7 @@ export class Compiler implements ICompiler {
 					this.chunktag=tag.attrs.chunktag;
 				}
 			}
+			attributes=tag.attrs;
 		}
 		if (sourcetype===SourceType.TSV) {
 			const [text,tags]=parseOfftext(firstline);
@@ -148,7 +149,7 @@ export class Compiler implements ICompiler {
 			processed=out.join('\n');
 		}
 		this.compiledFiles[filename]={name,preload,sourcetype,processed,textstart,
-			errors:this.errors,samepage,defines};
+			errors:this.errors,samepage,defines, attributes};
 		return this.compiledFiles[filename];
 	}
 }

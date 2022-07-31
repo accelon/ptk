@@ -47,6 +47,7 @@ export class Column {
 		const [text,tags]=parseOfftext(firstline);
 		const attrs=tags[0].attrs;
 		this.name=attrs.name;
+		this.caption=attrs.caption;
 		const typedef=text.split('\t') ; // typdef of each field , except field 0
 		this.createFields(typedef);
 		this.keys=new StringArray(section.shift(),{sep:LEMMA_DELIMETER});  //local keys

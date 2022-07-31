@@ -24,13 +24,13 @@ async function loadLines(lva){
 
 	let errorcount=0 ,seq=0;
 	for (let i=0;i<divisions.length;i++) {//將巢狀結構轉為行陣列，標上深度及框線
-		const {action,ptkname,depth,text}=divisions[i];
+		const {action,ptkname,depth,text,ownerdraw}=divisions[i];
 
 		const ptk=usePtk(ptkname);
 		if (!ptk) continue;
 
-		if (text) {
-			out.push({seq,text,depth,ptkname,key: ptkname+':'+action })
+		if (ownerdraw) {
+			out.push({seq,ownerdraw,depth,ptkname,key: ptkname+':'+action })
 			seq++;
 			continue;
 		}

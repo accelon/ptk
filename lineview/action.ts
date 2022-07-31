@@ -24,8 +24,8 @@ export class Action implements IAction{
 	}
 	getLines(){
 		const out=[];
-		let till=-1;
-		if (this.till==-1) till=this.from+PAGESIZE;
+		let till=this.till;
+		if (till==-1) till=this.from+PAGESIZE;
 		till=Math.min(till,this.from+PAGESIZE);
 		for (let i=this.from;i<till;i++) {
 			const line=this.lineOf(i);
@@ -49,21 +49,29 @@ class QueryAction extends Action{
 	run(){
 		const ptk=usePtk(this.ptkname);
 		for (let i=0;i<this.act.length;i++) {
-			const {name,tofind}=this.act[i];
+			let {name,tofind}=this.act[i];
 			const keys=ptk.primarykeys[name];
 			if (!keys) continue;
-			const matches=keys.enumStart(tofind);
-			const chunker=ptk.defines[ptk.chunktag];
+			let matcher=keys.enumMiddle;
+			let enummode=1;
+			if (tofind[0]=='^') {
+				enummode=0;
+				matcher=keys.enumStart;
+				tofind=tofind.slice(1);
+			} else if (tofind[tofind.length-1]=='$') { //regular expression style
+				enummode=2;
+				matcher=keys.enumEnd;
+				tofind=tofind.slice(0,tofind.length-1);
+			}
+			const items=matcher.call(keys,tofind);
+			const tagname=ptk.attributes.chunktag||'ck';
+			const chunker=ptk.defines[tagname];
 			const idfield = chunker.fields.id; //TODO sorted ID
-			
-			// this.res=matches.map(chunkid=>{
-			// 	const at=idfield.find(chunkid);
-			// 	return { chunkid , title:keys.get(chunkid), line:chunker.linepos[at]||-1 } 
-			// });
-			//compose a pseudo line
 			this.end=1;
 			this.till=1;
-			this.text='^e<rel="'+ matches.join(',') +'">「搜尋結果」' ;
+			const caption=ptk.columns[name]?.caption;
+			this.ownerdraw={painter:'queryresult',
+			 data:{name,enummode, caption,ptkname:this.ptkname,tagname,tofind, items, keys}} ;
 		}
 	}
 }

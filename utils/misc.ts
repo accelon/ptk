@@ -34,3 +34,10 @@ export const humanBytes=(n:number):string=>{
         return [parseFloat((n/(1024*1024)).toFixed(2)),'mb'];
     }
 }
+export function debounce(f,ms){
+    let timer;
+    return function(...args){
+        clearTimeout(timer);
+        timer=setTimeout( f.bind(this,...args) , ms)
+    }
+}
