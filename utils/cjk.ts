@@ -51,7 +51,7 @@ export const trimPunc=str=>{
     return str.replace(/^[『「！。，：？]+/,'').replace(/[」？』。！：）｝〕；，]+$/,'');
 }
 
-const openBrackets="(「『（︹︵｛︷【︻《〈︽︿﹁﹃﹙﹛﹝‘“〝"; //closeBrackets are codepoint+1
+const openBrackets="(「『（︹︵︷【︻《〈︽︿﹁﹃﹙﹝‘“〝"; //closeBrackets are codepoint+1
 
 export const closeBracketOf=(ch:string)=>{
     if (!ch)return;

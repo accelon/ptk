@@ -16,7 +16,7 @@ export const getModulePath=name=>{
     return Path.resolve(dir ,"..")+Path.sep+name;
 }
 const isSourceFile=fn=>{
-    return fn.endsWith('.off')||fn.endsWith('.tsv')||fn=='ptk.css'
+    return fn.endsWith('.off')||fn.endsWith('.tsv')||fn=='accelon22.css'
 }
 const build=opts=>{
     let files;

@@ -31,10 +31,15 @@ export const getRenderUnitClasses=(ru:RenderUnit,prepend='',append='')=>{
     const css=[];
     css.push(prepend);
     const ot=ru.offtext;
+    
     for (let j=0;j<ru.tags.length;j++) {
         const tag=ot.tags[ru.tags[j]];
         css.push(tag.name);
         if (tag.active) css.push(tag.name+'_active');
+        
+        const hasbracket=closeBracketOf(ru.offtext.tagRawText(tag))?1:0;
+        if (ru.choff==tag.choff+hasbracket) css.push(tag.name+'_start');
+        if (ru.choff==tag.choff+tag.width-1-hasbracket) css.push(tag.name+'_end');
     }
     css.push(append);
     ru.hide&&css.push('hide');

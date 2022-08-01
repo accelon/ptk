@@ -1,4 +1,5 @@
 import {Field} from './basefield.ts';
+import {VError} from './error.ts';
 import {bsearch} from "../utils/bsearch.ts";
 export class KeyField extends Field {
 	constructor(name:string,def:Map){

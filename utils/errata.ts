@@ -50,7 +50,6 @@ export const patchBuf=(buf:string,errata:Array,fn='')=>{
             console.log(fn,"errata is not cleared!",occur,'left',errata[i]);
         }
     }
-
     return outbuf;
 }
 
