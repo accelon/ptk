@@ -42,9 +42,6 @@ export const parseAddress=(address:string):IAddress=>{
 
 	return {ptkname, action,from:Math.abs(parseInt(from))||0,till:Math.abs(parseInt(till))||0 };
 }
-export function lineOfElementId(eleid:string){
-
-}
 export function rangeOfAddress(address:string):ILineRange{
 	const {ptkname,from,till,action} = parseAddress(address);
 

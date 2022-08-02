@@ -30,7 +30,7 @@ async function loadLines(lva){
 		if (!ptk) continue;
 
 		if (ownerdraw) {
-			out.push({seq,ownerdraw,depth,ptkname,key: ptkname+':'+action })
+			out.push({seq,idx:i,ownerdraw,depth,ptkname,key: ptkname+':'+action,closable:true })
 			seq++;
 			continue;
 		}
@@ -48,9 +48,9 @@ async function loadLines(lva){
 			if(depth>prevdepth && (edge&2===2) && out.length) out[out.length-1].edge^=2;
 			//上行的層級更深，除去本行的上框線不顯示
 			if(prevdepth>depth && (edge&1===1)) edge^=1;
-			const firstchild= (i<divisions.length-1 && divisions[i+1].depth == depth+1) ? divisions[i+1]:null;
-			segment.push({seq,idx:j==0?i:-1,ptkname,key:ptkname+':'+(lines[j]), text, depth , edge,
-			firstchild  })
+			const closable=((edge==1||edge==3) && depth>0 ) || !divisions[i].diggable;
+
+			segment.push({seq,idx:j==0?i:-1,ptkname,key:ptkname+':'+(lines[j]), text, depth , edge,closable  })
 			seq++;
 		}
 		out.push(...segment);				

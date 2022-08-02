@@ -14,6 +14,7 @@ export class Action implements IAction{
 		this.till=addr.till||-1; //-1 to the end
 		this.res=[];
 		this.text='';
+		this.diggable=false;
 		this.ptkname=addr.ptkname;
 	}
 	run(){
@@ -50,20 +51,20 @@ class QueryAction extends Action{
 		const ptk=usePtk(this.ptkname);
 		for (let i=0;i<this.act.length;i++) {
 			let {name,tofind}=this.act[i];
-			const keys=ptk.primarykeys[name];
-			if (!keys) continue;
-			let matcher=keys.enumMiddle;
+			const lexicon=ptk.primarykeys[name];
+			if (!lexicon) continue;
+			let matcher=lexicon.enumMiddle;
 			let enummode=1;
 			if (tofind[0]=='^') {
 				enummode=0;
-				matcher=keys.enumStart;
+				matcher=lexicon.enumStart;
 				tofind=tofind.slice(1);
 			} else if (tofind[tofind.length-1]=='$') { //regular expression style
 				enummode=2;
-				matcher=keys.enumEnd;
+				matcher=lexicon.enumEnd;
 				tofind=tofind.slice(0,tofind.length-1);
 			}
-			const items=matcher.call(keys,tofind);
+			const items=matcher.call(lexicon,tofind);
 			const tagname=ptk.attributes.chunktag||'ck';
 			const chunker=ptk.defines[tagname];
 			const idfield = chunker.fields.id; //TODO sorted ID
@@ -71,7 +72,7 @@ class QueryAction extends Action{
 			this.till=1;
 			const caption=ptk.columns[name]?.caption;
 			this.ownerdraw={painter:'queryresult',
-			 data:{name,enummode, caption,ptkname:this.ptkname,tagname,tofind, items, keys}} ;
+			 data:{name, caption,ptkname:this.ptkname,tagname,tofind, items, lexicon}} ;
 		}
 	}
 }
@@ -80,6 +81,7 @@ class RangeAction extends Action {
 	constructor(addr:IAddress,depth=0){
 		super(addr,depth);
 		this.eleid=this.action;
+		this.diggable=true;
 	}
 	run(){
 		const ptk=usePtk(this.ptkname);
@@ -87,7 +89,14 @@ class RangeAction extends Action {
 	}
 }
 
-export const createAction=(address:string,ctx)=> {
+export const createAction=(addr, depth=0)=>{
+	if (addr.action.indexOf('=')>0) {
+		return new QueryAction(addr, depth);
+	} else {
+		return new RangeAction(addr,depth);
+	}
+}
+export const createNestingAction=(address:string,ctx)=> {
 	const addr=parseAddress(address);
 	if (!addr) return null;
 	//補足文字型可省略的信息
@@ -99,9 +108,5 @@ export const createAction=(address:string,ctx)=> {
 	ctx.same_level_action=addr.action;
 	if (addr.from && addr.till&& addr.till<addr.from) addr.till=addr.from;
 
-	if (addr.action.indexOf('=')>0) {
-		return new QueryAction(addr, ctx.depth);
-	} else {
-		return new RangeAction(addr,ctx.depth);
-	}
+	return createAction(addr, ctx.depth);
 }

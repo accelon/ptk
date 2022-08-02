@@ -3,7 +3,7 @@ import {parseLisp,LispToken} from './lisp.ts';
 import {ILineViewAddress} from './interfaces.ts';
 import {ILineRange} from '../linebase/index.ts';
 import {load} from './loadline.ts';
-import {createAction} from './action.ts';
+import {createAction,createNestingAction} from './action.ts';
 export class LVA {
 	constructor (addresses=''){
 		this._divisions=LVA.parse(addresses);
@@ -22,6 +22,7 @@ export class LVA {
 		if (!this._divisions.length) return;
 		if (this._divisions.length==1) {
 			this._divisions=[];
+			return this;
 		}
 		const depth=this._divisions[idx].depth;
 		let next=idx+1;
@@ -48,6 +49,13 @@ export class LVA {
 		if (!lvnode) return this.serialize();
 		return LVA.stringify(lvnode,hideptkname,hideaction);
 	}
+	firstChild(idx:number){
+		if (idx<this._divisions.length-1) return ;
+		const firstchild=this._divisions[idx+1];
+		if (firstchild && firstchild.depth==this._divisions[idx].depth+1) {
+			return firstchild;
+		}
+	}
 	serialize(){
 		if (!this._divisions&&!this._divisions.length) return '';
 		let prevdepth=0,same_level_ptkname='',activeptkname;
@@ -73,28 +81,41 @@ export class LVA {
 		}
 		return out.join('+').replace(/\+?([\(\)])\+?/g,'$1').replace(/\++/g,'+');
 	}
+	removeSameAction(newaddr,from=0,depth=-1){
+		let p=from;
+		while (p<this._divisions.length && this._divisions[p].depth>depth) {
+			if (sameAddress(this._divisions[p],newaddr) && newaddr.action) {
+				this._divisions.splice(p,1);//remove same
+				return p;
+				break;                //bring to top
+			}
+			p++;
+		}
+		return -1;
+	}
 	dig(insert:string,idx=0,nline=0){ 
-		if (!this._divisions||!this._divisions.length) {
-			const newaddr=parseAddress(insert);
+		const newaddr=parseAddress(insert);
+		if (!newaddr) return this;
+		const newaction=createAction(newaddr,0);
+		if ( !this._divisions||!this._divisions.length) {
 			this._divisions.push(newaddr);
+			return;
+		}
+
+		if (!newaction.diggable) { //
+			const removeat=this.removeSameAction(newaddr);
+			if (removeat==-1 || removeat>idx) { //bring to top
+				this._divisions.splice(idx,0,newaddr);
+			}
 			return;
 		}
 		let depth=this._divisions[idx].depth;
 		if (this._divisions.length>1 && idx<this._divisions.length-1  //reuse children
 			&& this._divisions[idx+1].depth==depth+1) {
-			const newaddr=parseAddress(insert);
-			if (!newaddr) return addresses;
-			let p=idx+1;
-			while (p<this._divisions.length && this._divisions[p].depth>depth) {
-				if (sameAddress(this._divisions[p],newaddr) && newaddr.action) {
-					this._divisions.splice(p,1);//remove same
-					if (p==idx+1) {
-						this._combine();
-						return this; //toggle
-					}
-					break;                //bring to top
-				}
-				p++;
+			const removeat=this.removeSameAction(newaddr,idx+1,depth);
+			if (~removeat&& idx+1==removeat) { //remove the first child
+				this._combine();
+				return this;
 			}
 			newaddr.depth=this._divisions[idx].depth+1;
 			this._divisions.splice(idx+1,0,newaddr);
@@ -146,7 +167,7 @@ export class LVA {
 		const ctx={same_level_ptkname:'', same_level_action:'',ptknames:[] , actions:[]} ;
 		const divisions=expr.map( ([depth,action])=>{
 			ctx.depth=depth;
-			return createAction(action,ctx);
+			return createNestingAction(action,ctx);
 		}).filter(it=>!!it);
 		return divisions;
 	}
