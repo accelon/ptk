@@ -21,7 +21,6 @@ async function loadLines(lva){
 		if (!ptk) continue;
 		await ptk.loadLines(pitaka_lines[ptkname]);
 	}
-
 	let errorcount=0 ,seq=0;
 	for (let i=0;i<divisions.length;i++) {//將巢狀結構轉為行陣列，標上深度及框線
 		const {action,ptkname,depth,text,ownerdraw}=divisions[i];
@@ -38,6 +37,7 @@ async function loadLines(lva){
 		const lines=divisions[i].getLines();
 		const linetexts=lines.map(i=>ptk.getLineText(i));
 		const prevdepth=i?divisions[i-1].depth:0;
+		const remain= (divisions[i].end - divisions[i].start) - linetexts.length;
 		for (let j=0;j<linetexts.length;j++) { //優先顯示更深的層級框線
 			const text=linetexts[j];
 			let edge=0;
@@ -50,7 +50,9 @@ async function loadLines(lva){
 			if(prevdepth>depth && (edge&1===1)) edge^=1;
 			const closable=((edge==1||edge==3) && depth>0 ) || !divisions[i].diggable;
 
-			segment.push({seq,idx:j==0?i:-1,ptkname,key:ptkname+':'+(lines[j]), text, depth , edge,closable  })
+			//show remain button on last line
+			segment.push({seq,idx:j==0?i:-1,ptkname, key:ptkname+':'+(lines[j]), 
+				text, depth, edge,closable, remain: (j==linetexts.length-1)?remain:0})
 			seq++;
 		}
 		out.push(...segment);				

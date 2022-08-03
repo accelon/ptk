@@ -1,4 +1,3 @@
-
 import {VError} from "./error.ts";
 /* validate an attribute of tag or a tsv field*/
 import {Field} from './basefield.ts';

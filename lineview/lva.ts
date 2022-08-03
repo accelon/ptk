@@ -3,7 +3,7 @@ import {parseLisp,LispToken} from './lisp.ts';
 import {ILineViewAddress} from './interfaces.ts';
 import {ILineRange} from '../linebase/index.ts';
 import {load} from './loadline.ts';
-import {createAction,createNestingAction} from './action.ts';
+import {createAction,createNestingAction,ACTIONPAGESIZE} from './action.ts';
 export class LVA {
 	constructor (addresses=''){
 		this._divisions=LVA.parse(addresses);
@@ -92,6 +92,16 @@ export class LVA {
 			p++;
 		}
 		return -1;
+	}
+	more(idx){
+		const division=this._divisions[idx];
+		if (!division) return;
+		const linecount=division.end-division.start;
+		const till=division.till;
+		if (till==-1) division.till=division.from+ACTIONPAGESIZE*2;
+		else division.till+=ACTIONPAGESIZE;
+		if (division.till>linecount) division.till=linecount;
+		return this;
 	}
 	dig(insert:string,idx=0,nline=0){ 
 		const newaddr=parseAddress(insert);

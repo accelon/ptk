@@ -14,13 +14,19 @@ export async function inlineNote(tagname:string,noteid:string){
 	const values=cols.fieldvalues[at2];
 	return (values&&values[at])||'';
 }
-export function rowOf(rowname:string,idx:string) {
+export function rowOf(rowname:string,idx:number,field=-1) {
 	const column=this.columns[rowname];
+	if (typeof field=='string') {
+		field=column.fieldnames.indexOf(field);
+	}
 	const out=[];
-	for (let i=0;i<column.fieldnames.length;i++) {
-		const type=column.fields[i].type;
-		const name=column.fieldnames[i];
-		out.push( { name, type, value:column.fieldvalues[i][idx] } ) ;
+	if (field>0) {
+		out.push( { name,typedef:column.fields[field], value:column.fieldvalues[field][idx] } ) ;
+	} else {
+		for (let i=0;i<column.fieldnames.length;i++) {
+			const name=column.fieldnames[i];
+			out.push( { name,typedef:column.fields[i], value:column.fieldvalues[i][idx] } ) ;
+		}
 	}
 	return out;
 }

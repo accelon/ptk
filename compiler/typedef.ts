@@ -4,6 +4,14 @@ import {createField} from './fielder.ts';
 import {VError} from './error.ts';
 import {packInt,packIntDelta,unpackIntDelta,unpackInt,LEMMA_DELIMETER} from '../utils/index.ts'
 /* types of attributes defined by ^:  */
+const reservedAttributes={ //是指令不是屬性名, 
+	caption:true,
+	preload:true,
+	key:true,
+	field:true,
+	text:true,
+	type:true //data type
+}
 export class Typedef implements ITypedef {
 	constructor (attrs:Map, tagname:string, primarykeys:Map) {
 		this.fields={}; /* attribute might have validator */
@@ -16,7 +24,7 @@ export class Typedef implements ITypedef {
 			const opts=typeof def=='string'?def:{optional:false};
 			const V=createField(tagname,opts,primarykeys);
 			if (V) this.fields[aname]=V;
-			if (V && !V.optional) this.mandatory[aname]=true;
+			if (V && !V.optional && !reservedAttributes[aname]) this.mandatory[aname]=true;
 		}
 		this.attrs=attrs;
 	}

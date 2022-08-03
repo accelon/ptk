@@ -51,14 +51,20 @@ export const trimPunc=str=>{
     return str.replace(/^[『「！。，：？]+/,'').replace(/[」？』。！：）｝〕；，]+$/,'');
 }
 
-const openBrackets="(「『（︹︵︷【︻《〈︽︿﹁﹃﹙﹝‘“〝"; //closeBrackets are codepoint+1
+const openBrackets="(「『〔（︹︵︷【︻《〈︽︿﹁﹃﹙﹝‘“〝"; //closeBrackets are codepoint+1
 
 export const closeBracketOf=(ch:string)=>{
     if (!ch)return;
     const at=openBrackets.indexOf(ch.slice(0,1));
     return ~at?String.fromCodePoint(1+openBrackets.codePointAt(at)):'';
 }
-
+export const removeBracket=(str:string)=>{
+    const closebracket = closeBracketOf(str);
+    if (closebracket && str.slice(str.length-1)==closebracket) {
+        return str.slice(1,str.length-1);
+    }
+    return str;
+}
 
 export const cjkPhrases=str=>{
     const out=[];

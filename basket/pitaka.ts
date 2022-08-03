@@ -82,8 +82,9 @@ export class Pitaka extends LineBase {
 		return ~V.id.values.indexOf(id);
 	}
 	typedefOf(tagname:string) {
-		return this.defines[tagname]?.fields;
+		return this.defines[tagname];//.fields;
 	}
+
 	humanName(lang='zh'){
 		return this.attributes[lang]||this.name;
 	}

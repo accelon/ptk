@@ -2,7 +2,7 @@ import {parseAddress,parseElementId,sameAddress,IAddress,usePtk} from '../basket
 import {parseQuery} from '../fts/criteria.ts';
 import {IAction} from './interfaces.ts';
 const MAXITEM=100;
-const PAGESIZE=10;
+export const ACTIONPAGESIZE=5;
 export class Action implements IAction{
 	constructor (addr:IAddress,depth=0) {
 		this.act=Action.parse(addr.action);
@@ -26,8 +26,7 @@ export class Action implements IAction{
 	getLines(){
 		const out=[];
 		let till=this.till;
-		if (till==-1) till=this.from+PAGESIZE;
-		till=Math.min(till,this.from+PAGESIZE);
+		if (till==-1) till=this.from+ACTIONPAGESIZE; //show partial content if not mention till
 		for (let i=this.from;i<till;i++) {
 			const line=this.lineOf(i);
 			if (line<this.start || line>=this.end) continue;
