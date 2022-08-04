@@ -71,7 +71,7 @@ class QueryAction extends Action{
 			this.till=1;
 			const caption=ptk.columns[name]?.caption;
 			this.ownerdraw={painter:'queryresult',
-			 data:{name, caption,ptkname:this.ptkname,tagname,tofind, items, lexicon}} ;
+			 data:{name, caption,ptk,tagname,tofind, items, lexicon}} ;
 		}
 	}
 }
