@@ -5,6 +5,7 @@ import {KeyField} from './keyfield.ts';
 import {KeysField} from './keysfield.ts';
 import {TextField} from './textfield.ts';
 import {NumberField} from './numberfield.ts';
+import {IOfftext,IOfftag} from './offtext/index.ts'
 export function createField(name,def:string,primarykeys,ownkeys) {
 	if (typeof def!=='string') {
 		return new Field (name,def);
@@ -49,14 +50,15 @@ export function createField(name,def:string,primarykeys,ownkeys) {
 		// this.prevzline=0;
 		// this.prevdepth=0;
 
-export function validate_z(tag){
+export function validate_z(offtext:IOfftext,tag:IOfftag){
   const depth=parseInt(tag.name.slice(1,2),36)-10;
   if (!(depth==this.prevdepth|| depth==this.prevdepth+1 || depth<this.prevdepth)) {
   	const msg='目彔深度错误 '+this.prevdepth+'+1!='+depth;
 	  this.errors.push({msg,offset:tag.offset,prev:this.prevzline});
   }
-  const text=this.linetext.slice(tag.choff,tag.choff+tag.width);
+  const text=offtext.tagText(tag);//.choff,tag.choff+tag.width);
   const line=this.line;
+
   this.toc.push({depth,text,key:this.zcount, line});
   this.zcount++;
   this.prevzline=line;

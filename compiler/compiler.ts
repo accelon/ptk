@@ -44,6 +44,11 @@ export class Compiler implements ICompiler {
 		this.errors=[];
 		this.typedefs={}; 
 		this.stopcompile=false;
+		//for z tag
+		this.toc=[];
+		this.zcount=0;
+		this.prevzline=0;
+		this.prevdepth=0;
 	}
 	onError(code:VError, msg:string,  refline=-1, line:number) {
 		this.errors.push({name:this.compilingname, line:(line||this.line), code, msg, refline});
@@ -59,7 +64,7 @@ export class Compiler implements ICompiler {
 			if (tag.name[0]==':') {
 				const newtagname=tag.name.slice(1);
 				if (this.typedefs[newtagname]) {
-					this.onError(Verror.TypeRedef, newtagname)
+					this.onError(VError.TypeRedef, newtagname)
 				} else {
 					this.typedefs[newtagname]= new Typedef(tag.attrs,newtagname,this.primarykeys);
 				}
@@ -67,7 +72,7 @@ export class Compiler implements ICompiler {
 				str=null;  //no in source tag
 			} else {
 				if (tag.name[0]=='z') {
-					validate_z.call(this,tag);
+					validate_z.call(this,ot,tag);
 				} else {
 					const typedef=this.typedefs[tag.name];
 					if (!typedef) {
@@ -83,6 +88,9 @@ export class Compiler implements ICompiler {
 			}
 		}
 		return str;
+	}
+	clearCompiled(filename:string) {
+		delete this.compiledFiles[filename];
 	}
 	compileBuffer(buffer:string,filename:string) {
 		if (!buffer)   return this.onError(VError.Empty);
@@ -135,7 +143,7 @@ export class Compiler implements ICompiler {
 		} else {
 			const out=[];
 			let linetext=sa.next();
-			this.line=0;
+			this.line=1;
 			while (linetext || linetext==='') {
 				const o=this.compileOfftext(linetext, defines);
 				if (o || o=='') {
@@ -150,6 +158,7 @@ export class Compiler implements ICompiler {
 		}
 		this.compiledFiles[filename]={name,preload,sourcetype,processed,textstart,
 			errors:this.errors,samepage,defines, attributes};
+		this.errors=[];
 		return this.compiledFiles[filename];
 	}
 }

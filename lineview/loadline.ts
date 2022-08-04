@@ -49,7 +49,7 @@ async function loadLines(lva){
 			if(depth>prevdepth && (edge&2===2) && out.length) out[out.length-1].edge^=2;
 			//上行的層級更深，除去本行的上框線不顯示
 			if(prevdepth>depth && (edge&1===1)) edge^=1;
-			const closable=((edge==1||edge==3) && depth>0 ) || !divisions[i].diggable;
+			const closable=((edge==1||edge==3) ) || !divisions[i].diggable;
 
 			//show remain button on last line
 			//todo , do not show on left part of splited division

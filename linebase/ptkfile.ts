@@ -14,8 +14,8 @@ export const makePtk=(lbase:LineBaser,comimage:Uint8Array, ptkcss:string='') :Ui
 	lbase.dump((pagefn,buf)=>{
 		sources.push({name:lbase.name+'/'+pagefn, content:new TextEncoder().encode(buf)});
 	})
-
-	sources.push({name: lbase.name+'/ptk.css',content: new TextEncoder().encode(ptkcss)});
+	
+	sources.push({name: lbase.name+'/accelon22.css',content: new TextEncoder().encode(ptkcss)});
 
 	if (comimage) { //copy all files from image, except the new ptk in lbase and config.js
 		zip=new ZipStore(comimage); 

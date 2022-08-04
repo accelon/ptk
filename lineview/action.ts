@@ -64,9 +64,7 @@ class QueryAction extends Action{
 				tofind=tofind.slice(0,tofind.length-1);
 			}
 			const items=matcher.call(lexicon,tofind);
-			const tagname=ptk.attributes.chunktag||'ck';
-			const chunker=ptk.defines[tagname];
-			const idfield = chunker.fields.id; //TODO sorted ID
+			const tagname=ptk.columns[name]?.attrs?.tagname;
 			this.end=1;
 			this.till=1;
 			const caption=ptk.columns[name]?.caption;

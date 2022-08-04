@@ -7,6 +7,7 @@ export class Column {
 		this.fieldvalues=[];
 		this.fieldnames=[];
 		this.fields=[];
+		this.attrs; //raw attributes in ^_<>
 		this.name='';
 		this.keys=[];  //keys
 		this.values=[]; // 
@@ -45,9 +46,9 @@ export class Column {
 	deserialize(section:string[]){
 		const firstline=section.shift();
 		const [text,tags]=parseOfftext(firstline);
-		const attrs=tags[0].attrs;
-		this.name=attrs.name;
-		this.caption=attrs.caption;
+		this.attrs=tags[0]?.attrs;
+		this.name=this.attrs.name;
+		this.caption=this.attrs.caption;
 		const typedef=text.split('\t') ; // typdef of each field , except field 0
 		this.createFields(typedef);
 		this.keys=new StringArray(section.shift(),{sep:LEMMA_DELIMETER});  //local keys
