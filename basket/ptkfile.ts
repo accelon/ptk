@@ -1,5 +1,7 @@
 import {storeZip, ZipStore} from '../zip/index.ts';
-import {LineBaser} from '../linebase/index.ts';
+import {ILineBaser} from '../linebase/index.ts';
+import {ICompiler} from '../compiler/index.ts';
+import {cssSkeleton} from '../utils/index.ts'
 
 const move000js=(sources)=>{ //make them close to central directory
 	const out=sources.filter(it=>!it.name.endsWith('/000.js'));
@@ -7,15 +9,16 @@ const move000js=(sources)=>{ //make them close to central directory
 	out.push(...js000);
 	return out;
 }
-export const makePtk=(lbase:LineBaser,comimage:Uint8Array, ptkcss:string='') :Uint8Array=>{
+
+export const makeInMemoryPtk=(lbaser:ILineBaser, compiler:ICompiler,css:string,comimage)=> {
+	css=css||cssSkeleton(compiler.typedefs, compiler.ptkname);
 	let sources=[] , locals=[];
 	let zip,redbeanbuf;
 
-	lbase.dump((pagefn,buf)=>{
-		sources.push({name:lbase.name+'/'+pagefn, content:new TextEncoder().encode(buf)});
+	lbaser.dump((pagefn,buf)=>{
+		sources.push({name:lbaser.name+'/'+pagefn, content:new TextEncoder().encode(buf)});
 	})
-	
-	sources.push({name: lbase.name+'/accelon22.css',content: new TextEncoder().encode(ptkcss)});
+	sources.push({name: lbaser.name+'/accelon22.css',content: new TextEncoder().encode(css)});
 
 	if (comimage) { //copy all files from image, except the new ptk in lbase and config.js
 		zip=new ZipStore(comimage); 
@@ -27,7 +30,6 @@ export const makePtk=(lbase:LineBaser,comimage:Uint8Array, ptkcss:string='') :Ui
 			}
 		}
 	}
-
 	//find out all ptk
 	sources.forEach(it=>{
 		if (it.name.endsWith('/000.js')) {
@@ -36,18 +38,17 @@ export const makePtk=(lbase:LineBaser,comimage:Uint8Array, ptkcss:string='') :Ui
 		}
 	});
 
-
 	//move 000.js close to central directory, better chance to be loaded when open
 	sources=move000js(sources);
 	sources.push({name:'config.js',
 		content:new TextEncoder().encode(`window.accelon22={locals:"`+locals.join(',')+'"}')});
-
 
 	const newzipbuf = storeZip(sources, {reserve:zip?.zipStart||0});
 	if (redbeanbuf) newzipbuf.set(redbeanbuf);
 	else setPtkFileLength(newzipbuf);
 	return newzipbuf;
 }
+
 
 //for chrome extension fetch to get the file size
 export const setPtkFileLength=(buf:Uint8Array)=>{

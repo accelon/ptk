@@ -75,8 +75,8 @@ export const dobuild=async (files, opts={})=>{
 			writeChanged(folder+'accelon22.css',css);
 		} else {
 			let image;
-			if (com) {
-				image=fs.readFileSync(opts.comfilename);//along with bin.js
+			if (com) {  //build with redbean
+				image=fs.readFileSync(com);//along with bin.js
 			}
 			const zipbuf=makePtk(lbaser,image,css);
 			if (zipbuf) {

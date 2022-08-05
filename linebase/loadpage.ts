@@ -15,12 +15,16 @@ export async function loadNodeJs (page){
     }
 }
 
-export async function loadZip (page) { 
+export async function loadRemoteZip (page){
+    throw 'not implement yet';
+}
+
+export async function loadInMemoryZipStore (page) { 
     let content;
     const fn=this.name+'/'+pagefilename(page);
-    for (let i=0;i<this.zip.files.length;i++) {
-        if (this.zip.files[i].name==fn) {
-            content=this.zip.files[i].content;
+    for (let i=0;i<this.zipstore.files.length;i++) {
+        if (this.zipstore.files[i].name==fn) {
+            content=new TextDecoder().decode(this.zipstore.files[i].content);
         }
     }
     content&&this.setPage(page,...parseJsonp(content));

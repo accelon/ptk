@@ -84,7 +84,6 @@ export class Pitaka extends LineBase {
 	typedefOf(tagname:string) {
 		return this.defines[tagname];//.fields;
 	}
-
 	humanName(lang='zh'){
 		return this.attributes[lang]||this.name;
 	}

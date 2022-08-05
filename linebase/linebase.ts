@@ -1,4 +1,4 @@
-import {loadJSONP,loadNodeJsZip,loadFetch,loadNodeJs} from './loadpage.ts'
+import {loadJSONP,loadNodeJsZip,loadFetch,loadNodeJs,loadRemoteZip,loadInMemoryZipStore} from './loadpage.ts'
 import {bsearchNumber,lineBreaksOffset,unique} from '../utils/index.ts';
 import {ILineRange} from './interfaces.ts'
 let instancecount=0;
@@ -11,27 +11,32 @@ export class LineBase{
 		this.header={starts:[],sectionnames:[],sectionstarts:[],sectiontypes:[]};
 		this.name=opts.name||'';
 		this.zip=opts.zip;
+		this.zipstore=opts.zipstore;
 		this.payload;   //payload in 000.js
     	let protocol=typeof chrome!=='undefined'?'chrome-extension:':'';
+    	this._loader=()=>{};
         if (typeof window!=='undefined') {
             protocol=window.location.protocol;
         }
-        if (protocol==='http:'||protocol==='https:'|| protocol==='chrome-extension:') {
+        if (this.zipstore) { //local in memory zip
+        	this._loader=loadInMemoryZipStore;
+        } else if (protocol==='http:'||protocol==='https:'|| protocol==='chrome-extension:') {
             this._loader=loadFetch;
         } else if (protocol=='file:') {
             this._loader=loadJSONP;
         } else {
-        	this._loader=(this.zip?loadZip:loadNodeJs);
+        	this._loader=this.zip?loadRemoteZip:loadNodeJs;
         }
         this.failed=false;
-        if (opts.inmemory) {
-        	this._loader=()=>{};
-        } else {
+        if (!opts.inmemory) {
         	this._loader.call(this,0);
         }
 	}
 	async loadAll (){
 		await this.loadLines([[0, this.pagestarts[this.pagestarts.length-1]]]);
+	}
+	inMem(){
+		return this.inmemory||this.zipstore;
 	}
 	pageOfLine=(line)=>{
     	if (line>=this.pagestarts[this.pagestarts.length-1]) return this.pagestarts.length-1;
