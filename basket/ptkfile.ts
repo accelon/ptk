@@ -1,8 +1,7 @@
 import {storeZip, ZipStore} from '../zip/index.ts';
 import {ILineBaser} from '../linebase/index.ts';
-import {ICompiler} from '../compiler/index.ts';
-import {cssSkeleton} from '../utils/index.ts'
-
+import {cssSkeleton} from '../utils/index.ts';
+import {Indexer} from '../fts/index.ts';
 const move000js=(sources)=>{ //make them close to central directory
 	const out=sources.filter(it=>!it.name.endsWith('/000.js'));
 	const js000=sources.filter(it=>it.name.endsWith('/000.js'));
@@ -10,8 +9,7 @@ const move000js=(sources)=>{ //make them close to central directory
 	return out;
 }
 
-export const makeInMemoryPtk=(lbaser:ILineBaser, compiler:ICompiler,css:string,comimage)=> {
-	css=css||cssSkeleton(compiler.typedefs, compiler.ptkname);
+export const makeInMemoryPtk=(lbaser:ILineBaser,css:string,comimage)=> {
 	let sources=[] , locals=[];
 	let zip,redbeanbuf;
 
@@ -19,7 +17,7 @@ export const makeInMemoryPtk=(lbaser:ILineBaser, compiler:ICompiler,css:string,c
 		sources.push({name:lbaser.name+'/'+pagefn, content:new TextEncoder().encode(buf)});
 	})
 	sources.push({name: lbaser.name+'/accelon22.css',content: new TextEncoder().encode(css)});
-
+	
 	if (comimage) { //copy all files from image, except the new ptk in lbase and config.js
 		zip=new ZipStore(comimage); 
 		redbeanbuf=new Uint8Array(comimage.subarray(0,zip.zipStart||0));

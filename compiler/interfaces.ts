@@ -1,4 +1,3 @@
-
 export enum SourceType { Offtext='txt', TSV='tsv'  };
 
 export interface ICompileError {

@@ -15,7 +15,7 @@ export class LineBaser {
 		this.pagesize=opts.pagesize||1024*64;
 		this.pagestarts=[];
 		this.payload=''
-		this.header={starts:[],sectionnames:[],sectionstarts:[],sectiontypes:[],preload:[]};
+		this.header={starts:[],sectionnames:[],sectionstarts:[],preload:[]};
 		this.name=opts.name||'';
 		this.zip=opts.zip;
 	    this.onAddLine=null;
@@ -60,27 +60,25 @@ export class LineBaser {
 		this._accsize+=line.length;
 		if (this._accsize>this.pagesize && !samepage) this.newPage();
 	}
-	addSection(name:string,type=''){
+	addSection(name:string){
 		if (!name) name=(this.header.sectionnames.length+1).toString();
 		if (!this.header.sectionnames) {
 			this.header.sectionnames=[];
 			this.header.sectionstarts=[];
-			this.header.sectiontypes=[];
 		};
 		this.header.sectionnames.push(name);
-		this.header.sectionstarts.push(this._data.length)
-		this.header.sectiontypes.push(type);
+		this.header.sectionstarts.push(this._data.length);
 	}
 	append(buffer:(string|string[]), opts={}){
 		const name=opts.name||'';
-		const type=opts.type||'';
 		const newpage=opts.newpage;    // start a new page
 		const samepage=opts.samepage;  // save in same page , no matter how big it is
+
 
 		if ((buffer.length+this._accsize>this.pagesize|| newpage) && this._data.length) {
 			this.newPage(); //start a new page for big buffer.
 		}
-		if (name) this.addSection(name, type );
+		if (name) this.addSection(name);
 		const lines=Array.isArray(buffer)?buffer:buffer.split(/\r?\n/);
 
 		for (let i=0;i<lines.length;i++) {

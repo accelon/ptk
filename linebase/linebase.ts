@@ -144,14 +144,13 @@ export class LineBase{
 		const [from,to]=this.sectionRange(name,type);
 		return this.slice(from,to);
 	}	
-	sectionRange(sname:string,stype=''):ILineRange {
+	sectionRange(sname:string):ILineRange {
 		const notfound=[0,0];
 		const {sectionnames,sectionstarts,sectiontypes}=this.header;
 		if (!sectionnames || !sectionnames.length) return notfound;
 		for (let i=0;i<sectionnames.length;i++) {
 			const name=sectionnames[i];
-			const type=sectiontypes[i];
-			if ( (sname && name==sname) || (!sname && stype && type==stype) ) {
+			if ( (sname && name==sname) ) {
 				const endoflastsection=i< sectionstarts.length-1
 					?sectionstarts[i+1]:this.pagestarts[this.pagestarts.length-1];
 

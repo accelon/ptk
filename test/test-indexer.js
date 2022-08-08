@@ -12,7 +12,7 @@ console.time('all');
 console.time('load')
 await nodefs;
 showMemory('init');
-const srcfile='../cb-t-raw.off'; //
+const srcfile='../cli/cb-t-raw.off'; //
 const rawcontent=readTextContent(srcfile);
 const lines=new StringArray(rawcontent,{sequencial:true}); //10% faster than split(/\n/), saving alot of fragement string
 

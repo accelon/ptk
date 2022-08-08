@@ -1,9 +1,11 @@
 import {ILineBase,LineBase,Column} from '../linebase/index.ts';
 import {Compiler,sourceType} from '../compiler/index.ts'
 import {parseOfftext} from '../offtext/index.ts'
-import {StringArray,unpackIntDelta,LEMMA_DELIMETER} from '../utils/index.ts';
+import {StringArray,unpackIntDelta,LEMMA_DELIMETER,bsearchNumber} from '../utils/index.ts';
 import {rangeOfAddress} from './address.ts';
 import {columnField,inlineNote,rowOf,scanPrimaryKeys} from './columns.ts';
+import {Inverted} from '../fts/index.ts';
+import {tokenize,TokenType} from '../fts/tokenize.ts';
 
 export const regPtkName =  /^[a-z]{2,16}$/
 export const validPtkName=(name:string):boolean=>!!name.match(regPtkName);
@@ -19,13 +21,13 @@ export class Pitaka extends LineBase {
 		this.defines={};
 		this.primarykeys={};
 		this.columns={};
-		this.textStart=0;
 		this.rangeOfAddress=rangeOfAddress;
 		this.scanPrimaryKeys=scanPrimaryKeys;
 		this.scanCache={};
 		this.columnField=columnField;
 		this.inlineNote=inlineNote;
 		this.rowOf=rowOf;
+		this.inverted=null;
 	}
 	async init(){
 		const compiler=new Compiler()
@@ -61,8 +63,6 @@ export class Pitaka extends LineBase {
 				}
 			}
 		}
-		this.textStart=this.sectionRange('','txt')[0];
-
 	}
 	deserialize(section) {
 		if (!section.length) return;
@@ -73,7 +73,29 @@ export class Pitaka extends LineBase {
 			column.deserialize(section);
 			this.columns[column.name]=column;
 			this.primarykeys[column.name]=column.keys;
+		} else if (srctype=='tokens') {
+			section.shift();
+			const postingstart=this.sectionRange('_postings')[0];
+			this.inverted=new Inverted(section,postingstart);
 		}
+	}
+	async loadPosting(s:string){
+		const nPostings=this.inverted.nPostingOf(s);
+		const jobs=[];
+		const that=this;
+		for (let i=0;i<nPostings.length;i++) {
+			const line=this.inverted.postingStart+nPostings[i];
+			jobs.push( async function(at){
+				await that.loadLines([[line,line+1]]);
+				that.inverted.postings[at]=unpackIntDelta(that.getLineText(line));
+			}(nPostings[i]));
+		}
+		await Promise.all(jobs);
+	}	
+	getPostings(s:string){
+		const nPostings=this.inverted.nPostingOf(s);
+		const postings=this.inverted.postings;
+		return nPostings.map( np=> postings[np] );
 	}
 	validId(tagname:string,id:any):boolean {
 		const V=this.defines[tagname]?.fields;

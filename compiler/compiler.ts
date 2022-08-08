@@ -10,22 +10,23 @@ export const sourceType=(firstline:string):SourceType=>{
 	const at=firstline.indexOf('\n');
 	firstline=at>-1? firstline.slice(0,at):firstline;
 	const [text,tags]=parseOfftext(firstline);
-	let preload=false;
-	if (tags[0].name=='_') { //define a section
+	let preload=false ,sourcetype;
+	if (tags.length && tags[0].name=='_') { //define a section
 		const attrs=tags[0].attrs;
 		preload=!!tags[0].attrs.preload;
 		chunktag=tags[0].attrs.chunktag||'ck';
+		sourcetype=tags[0].attrs.type;
 		if (attrs?.type?.toLowerCase()=='tsv') {
 			return [SourceType.TSV, tags[0], preload, chunktag];
 		}
 	}
-	return [SourceType.Offtext,tags[0],preload, chunktag];
+	return [sourcetype||SourceType.Offtext,tags[0],preload, chunktag];
 }
 export class CompiledFile implements ICompiledFile {
 	constructor (){
 		this.errors=[];
 		this.defines=[];
-		this.processed='';
+		this.processed;
 		this.sourcetype='';
 	}
 }
@@ -95,7 +96,7 @@ export class Compiler implements ICompiler {
 	compileBuffer(buffer:string,filename:string) {
 		if (!buffer)   return this.onError(VError.Empty);
 		if (!filename) return this.onError(VError.PtkNoName);
-		let processed='',samepage=false, defines=[] , attributes={};
+		let processed,samepage=false, defines=[] , attributes={};
 		const sa=new StringArray(buffer,{sequencial:true});
 		const firstline=sa.first();
 		const [sourcetype,tag,preload,chunktag]=sourceType(firstline); //only first tag on first line
@@ -135,10 +136,11 @@ export class Compiler implements ICompiler {
 				//primary key can be refered by other tsv
 				if (attrs.name) this.primarykeys[attrs.name]= columns.keys;
 				this.compiledLine += serialized.length;
-				processed=serialized.join('\n');
+				processed=serialized;
+				textstart++; //add the first line
 				samepage=true; //store in same page
 			} else {
-				processed='';
+				processed=[];
 			}
 		} else {
 			const out=[];
@@ -154,7 +156,7 @@ export class Compiler implements ICompiler {
 				if (this.stopcompile) break;
 			}
 			this.compiledLine += out.length;
-			processed=out.join('\n');
+			processed=out;
 		}
 		this.compiledFiles[filename]={name,preload,sourcetype,processed,textstart,
 			errors:this.errors,samepage,defines, attributes};

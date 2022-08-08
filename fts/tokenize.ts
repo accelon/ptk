@@ -1,7 +1,7 @@
 export enum TokenType { 
     UNSEARCHABLE=0x1,
     SEARCHABLE=0x10,
-    ROMANIZE=20,
+    ROMANIZE=0x20,
     CJK=0x30,
     CJK_BMP=0x31,
     CJK_SURROGATE=0x32
@@ -12,7 +12,7 @@ import {CJKWord_Reg,Word_tailspace_Reg} from './constants.js'
 export type Token = {text:string, choff:number, tkoff:number, type:TokenType};
 
 function Token(text:string='', choff:number=0, tkoff:number, type:TokenType){
-    return {text,choff,tkoff,type}
+return {text,choff,tkoff,type}
 }
 
 export const tokenize=(text:string)=>{
@@ -53,7 +53,7 @@ export const tokenize=(text:string)=>{
             tkoff++;
             prev=offset+m.length;
         });
-        if (prev<s.length) out.push(Token(s.substring(prev)  ,prev+i,tkoff,TokenType.UNSEARCHABLE ));
+        if (prev<s.length) out.push(Token(s.substring(prev)  ,prev+i,tkoff,TokenType.UNSEARCHABLE));
         i=j;
     }
     return out;
