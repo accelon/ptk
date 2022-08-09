@@ -5,9 +5,11 @@ export class Inverted {
 	constructor(section:string[],postingStart:number){
 		this.words = new StringArray(section.shift());
 		this.bmpwithposting=unpackIntDelta(section.shift());
+		this.tokenlinepos=unpackIntDelta(section.shift());
 		this.postings=[];       //holding loaded postings
 		this.postingStart=postingStart;
 		this.bmppostingcount=0; //long token starts from here
+		
 		for (let i=0;i<65536;i++) {
 			if (this.bmpwithposting[i]) this.bmppostingcount++;
 		}
@@ -30,7 +32,4 @@ export class Inverted {
 		}
 		return out;
 	}
-	getPosting(token:string){
-		
-	}	
 }

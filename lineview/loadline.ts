@@ -35,7 +35,7 @@ async function loadLines(lva){
 		}
 		const segment=[];
 		const lines=divisions[i].getLines();
-		const linetexts=lines.map(i=>ptk.getLineText(i));
+		const linetexts=lines.map(i=>ptk.getLine(i));
 		const prevdepth=i?divisions[i-1].depth:0;
 		let remain = (divisions[i].end - divisions[i].start) - linetexts.length;
 

@@ -8,6 +8,7 @@ export class Indexer {
 		this.bmp=new Int32Array(65536);
 		this.tokenlist=[];
 		this.postings;
+		this.tokenlinepos = [];
 		this.bmppostings=new Array(65536);
 		this.bmptokencount= new Int32Array(65536);
 		this.tokencount= null;//new Int32Array(ngramcount);
@@ -33,7 +34,7 @@ export class Indexer {
 				this.tokenlist.push( at + 65536 );
 			}  
 		}
-	
+		this.tokenlist.push(0);//line separator
 	}
     add(lines:IStringArray){
     	if (this.finalized) {
@@ -62,7 +63,9 @@ export class Indexer {
 		//fill posting 
 		for (let i=0;i<this.tokenlist.length;i++){
 			let code=this.tokenlist[i];
-			if (code<0x10000) {
+			if (!code) {
+				this.tokenlinepos.push(i);
+			} else if (code<0x10000) {
 				if (this.bmppostings[code]) {
 					this.bmppostings[code][ this.bmptokencount[code]]=i;
 					this.bmptokencount[code]++;
@@ -73,6 +76,7 @@ export class Indexer {
 				this.tokencount[at]++	
 			}
 		}
+		this.tokenlinepos.push(this.tokenlist.length);//the terminator
 	}
 	serialize() {
 		if (!this.finalized) {
@@ -92,6 +96,8 @@ export class Indexer {
 			if (this.bmppostings[i]) bmpWithPosting.push(i);
 		}
 		tokens.push(packIntDelta(bmpWithPosting));
+
+		tokens.push(packIntDelta(this.tokenlinepos));
 
 		for (let i=0;i<this.bmppostings.length;i++) {
 			if (!this.bmppostings[i]) continue;

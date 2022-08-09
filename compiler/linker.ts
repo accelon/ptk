@@ -19,10 +19,16 @@ export const makeLineBaser=async (sourcebuffers,compiler:ICompiler,contentGetter
 		alldefines.push(...defines);
 		if (preload) lbaser.header.preload.push(name);
 		await lbaser.append(processed,{name:name.replace('*',''),samepage});
+
+		let unindexablelines=textstart;
+		while (unindexablelines>0) {
+			indexer.addLine('');
+			unindexablelines--;
+		}
 		if (textstart<processed.length) {
 			const toindex=(textstart?processed.slice(textstart):processed);
 			for (let j=0;j<toindex.length;j++) {
-				indexer.addLine(toindex[j])
+				indexer.addLine(toindex[j]);
 			}
 		}
 	}

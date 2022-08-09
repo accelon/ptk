@@ -84,7 +84,7 @@ export class LineBase{
 		if (line>this._lineoffsets[page].length) return this._pages[page].length;
 		return this._lineoffsets[page][line-1];
 	}
-	getLineText(nline){
+	getLine(nline){
 		return this.slice(nline,nline+1)[0];
 	}
 	slice(nline,to){ //combine array of string from loaded pages

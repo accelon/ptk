@@ -4,8 +4,7 @@ import {parseOfftext} from '../offtext/index.ts'
 import {StringArray,unpackIntDelta,LEMMA_DELIMETER,bsearchNumber} from '../utils/index.ts';
 import {rangeOfAddress} from './address.ts';
 import {columnField,inlineNote,rowOf,scanPrimaryKeys} from './columns.ts';
-import {Inverted} from '../fts/index.ts';
-import {tokenize,TokenType} from '../fts/tokenize.ts';
+import {Inverted,tokenize,TokenType,plContain} from '../fts/index.ts';
 
 export const regPtkName =  /^[a-z]{2,16}$/
 export const validPtkName=(name:string):boolean=>!!name.match(regPtkName);
@@ -87,7 +86,7 @@ export class Pitaka extends LineBase {
 			const line=this.inverted.postingStart+nPostings[i];
 			jobs.push( async function(at){
 				await that.loadLines([[line,line+1]]);
-				that.inverted.postings[at]=unpackIntDelta(that.getLineText(line));
+				that.inverted.postings[at]=unpackIntDelta(that.getLine(line));
 			}(nPostings[i]));
 		}
 		await Promise.all(jobs);
@@ -96,6 +95,9 @@ export class Pitaka extends LineBase {
 		const nPostings=this.inverted.nPostingOf(s);
 		const postings=this.inverted.postings;
 		return nPostings.map( np=> postings[np] );
+	}
+	postingLine(posting:number[]){
+		return plContain(posting,this.inverted.tokenlinepos);
 	}
 	validId(tagname:string,id:any):boolean {
 		const V=this.defines[tagname]?.fields;
