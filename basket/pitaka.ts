@@ -5,6 +5,7 @@ import {StringArray,unpackIntDelta,LEMMA_DELIMETER,bsearchNumber} from '../utils
 import {rangeOfAddress} from './address.ts';
 import {columnField,inlineNote,rowOf,scanPrimaryKeys} from './columns.ts';
 import {Inverted,tokenize,TokenType,plContain} from '../fts/index.ts';
+import {parseQuery} from '../fts/query.ts';
 
 export const regPtkName =  /^[a-z]{2,16}$/
 export const validPtkName=(name:string):boolean=>!!name.match(regPtkName);
@@ -22,7 +23,9 @@ export class Pitaka extends LineBase {
 		this.columns={};
 		this.rangeOfAddress=rangeOfAddress;
 		this.scanPrimaryKeys=scanPrimaryKeys;
+		this.parseQuery=parseQuery;
 		this.scanCache={};
+		this.queryCache={};
 		this.columnField=columnField;
 		this.inlineNote=inlineNote;
 		this.rowOf=rowOf;
@@ -78,7 +81,7 @@ export class Pitaka extends LineBase {
 			this.inverted=new Inverted(section,postingstart);
 		}
 	}
-	async loadPosting(s:string){
+	async loadPostings(s:string){
 		const nPostings=this.inverted.nPostingOf(s);
 		const jobs=[];
 		const that=this;
@@ -90,6 +93,7 @@ export class Pitaka extends LineBase {
 			}(nPostings[i]));
 		}
 		await Promise.all(jobs);
+		return this.getPostings(s);
 	}	
 	getPostings(s:string){
 		const nPostings=this.inverted.nPostingOf(s);

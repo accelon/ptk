@@ -19,7 +19,7 @@ export const plFind=(arr, v, p=0)=>{
     return p2;
 }
 
-export const plAnd=(pl1,pl2,dist=1)=>{
+export const plAnd=(pl1:number[],pl2:number[],dist=1)=>{
     let p2 = 0 , c=0;
     if (pl1.length==0 ||pl2.length==0) return [];
     const sz=Math.min(pl1.length,pl2.length);
@@ -32,7 +32,7 @@ export const plAnd=(pl1,pl2,dist=1)=>{
             out[c++]=v1-dist;
         }
     }
-    return nout.slice(0,c);
+    return out.slice(0,c);
 }
 export const plCount=(pl:number[],plgroup:number)=>{
     let p=0,start=0,end=0;
@@ -64,14 +64,13 @@ export const plRanges=(posting:number[],ranges:number[])=>{ // filter out postin
     }
     return out;
 }
-export const plContain=(posting:number[], ltp:number[])=>{ // return line containing with posting
-    // console.log(posting.slice(0,20),ltp.slice(0,10),ltp.length)
+export const plContain=(posting:number[], ltp:number[])=>{ // return line containing posting
     let p,i=0,j=0;
     const out=[];
     while (i<posting.length ) {
         let p=posting[i];
-        let at=bsearchNumber(ltp, p,true);
-        if (at>0 && at<ltp.length) {
+        let at=bsearchNumber(ltp, p);
+        if (at>=0 && at<ltp.length) {
             if (out[out.length-1]!==at) {
                 out.push(at);
             }
