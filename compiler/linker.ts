@@ -15,7 +15,7 @@ export const makeLineBaser=async (sourcebuffers,compiler:ICompiler,contentGetter
 		const ext=buf.name.match(/(.[a-z]+)/)[1]||'';
 		if (buf.name.endsWith('.css')) continue; // todo , should check sourcetype
 		compiler.compileBuffer(text,buf.name);
-		const {name,errors,sourcetype,processed,samepage,preload,defines,textstart}=compiler.compiledFiles[buf.name];
+		const {name,caption,errors,sourcetype,processed,samepage,preload,defines,textstart}=compiler.compiledFiles[buf.name];
 		alldefines.push(...defines);
 		if (preload) lbaser.header.preload.push(name);
 		await lbaser.append(processed,{name:name.replace('*',''),samepage});
@@ -26,6 +26,8 @@ export const makeLineBaser=async (sourcebuffers,compiler:ICompiler,contentGetter
 			unindexablelines--;
 		}
 		if (textstart<processed.length) {
+			lbaser.header.fulltext.push(name);
+			lbaser.header.fulltextcaption.push(caption||name);
 			const toindex=(textstart?processed.slice(textstart):processed);
 			for (let j=0;j<toindex.length;j++) {
 				indexer.addLine(toindex[j]);

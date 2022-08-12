@@ -34,7 +34,7 @@ export const plAnd=(pl1:number[],pl2:number[],dist=1)=>{
     }
     return out.slice(0,c);
 }
-export const plCount=(pl:number[],plgroup:number)=>{
+export const plCount=(pl:number[],plgroup:number[])=>{
     let p=0,start=0,end=0;
     const out=[];
     for (let i=0;i<plgroup.length;i++) {
@@ -44,12 +44,13 @@ export const plCount=(pl:number[],plgroup:number)=>{
         end=start;
         while (pl[end]<to && end<pl.length) end++; 
         if (end>start) {
-            out.push([i,end-start]) ;
+            out[i]=end-start;
         }
         p=end;
     }
     return out;
 }
+
 export const plRanges=(posting:number[],ranges:number[])=>{ // filter out postings by ranges
     if (!ranges||!ranges.length)return posting;
     const out=[];

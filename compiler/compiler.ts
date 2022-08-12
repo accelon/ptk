@@ -10,17 +10,19 @@ export const sourceType=(firstline:string):SourceType=>{
 	const at=firstline.indexOf('\n');
 	firstline=at>-1? firstline.slice(0,at):firstline;
 	const [text,tags]=parseOfftext(firstline);
-	let preload=false ,sourcetype;
+	let preload=false ,sourcetype, sectionname,caption;
 	if (tags.length && tags[0].name=='_') { //define a section
 		const attrs=tags[0].attrs;
 		preload=!!tags[0].attrs.preload;
 		chunktag=tags[0].attrs.chunktag||'ck';
 		sourcetype=tags[0].attrs.type;
+		sectionname=tags[0].attrs.name;
+		caption=tags[0].attrs.caption;
 		if (attrs?.type?.toLowerCase()=='tsv') {
-			return [SourceType.TSV, tags[0], preload, chunktag];
+			return [SourceType.TSV, tags[0], preload, chunktag ,sectionname,caption];
 		}
 	}
-	return [sourcetype||SourceType.Offtext,tags[0],preload, chunktag];
+	return [sourcetype||SourceType.Offtext,tags[0],preload, chunktag,sectionname,caption];
 }
 export class CompiledFile implements ICompiledFile {
 	constructor (){
@@ -99,9 +101,9 @@ export class Compiler implements ICompiler {
 		let processed,samepage=false, defines=[] , attributes={};
 		const sa=new StringArray(buffer,{sequencial:true});
 		const firstline=sa.first();
-		const [sourcetype,tag,preload,chunktag]=sourceType(firstline); //only first tag on first line
+		const [sourcetype,tag,preload,chunktag,sectionname,caption]=sourceType(firstline); //only first tag on first line
 		if (sourcetype=='txt') defines.push(firstline);
-		let name=filename;//name of this section
+		let name=sectionname||filename;//name of this section
 		let textstart=0;//starting line of indexable text
 		this.compilingname=filename;
 		this.stopcompile=false;
@@ -145,7 +147,7 @@ export class Compiler implements ICompiler {
 		} else {
 			const out=[];
 			let linetext=sa.next();
-			this.line=1;
+			this.line=0;
 			while (linetext || linetext==='') {
 				const o=this.compileOfftext(linetext, defines);
 				if (o || o=='') {
@@ -158,7 +160,7 @@ export class Compiler implements ICompiler {
 			this.compiledLine += out.length;
 			processed=out;
 		}
-		this.compiledFiles[filename]={name,preload,sourcetype,processed,textstart,
+		this.compiledFiles[filename]={name,caption,preload,sourcetype,processed,textstart,
 			errors:this.errors,samepage,defines, attributes};
 		this.errors=[];
 		return this.compiledFiles[filename];

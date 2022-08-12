@@ -1,4 +1,4 @@
-import {plAnd,getCounter, getSpeed,plRanges} from './posting.js';
+import {plAnd,getCounter, getSpeed,plRanges,plCount} from './posting.js';
 import {fromSim} from 'lossless-simplified-chinese'
 import {bsearchNumber} from '../utils/bsearch.js'
 
@@ -115,7 +115,21 @@ export async function parseQuery(tofind:string,opts){
     }
     return [outphrases,postings];
 }
+export async function scanSections(tofind:string,opts) {
+    const ptk=this;
+    const [phrases,postings]=await ptk.parseQuery(tofind,opts);
+    const sections=ptk.header.fulltext;
+    const ranges=[];
+    for (let i=0;i<sections.length;i++) {
+        const tokenrange=ptk.sectionRange(sections[i]).map(it=>ptk.inverted.tokenlinepos[it]);
+        ranges.push(tokenrange);
+    }
+    return plCount(postings[0], ranges).map((count,idx)=>{
+        return {count, caption: ptk.header.fulltextcaption[idx], name:ptk.header.fulltext[idx]}
+    });
+    
+}
 export const validateTofind=str=>{
     return (str||'').replace(/[\[\]&%$#@\/\^]/g,'').trim();
 }
-export default {phraseQuery,validateTofind,scoreLine,TOFIND_MAXLEN};
+export default {phraseQuery,scanSections,validateTofind,scoreLine,TOFIND_MAXLEN};

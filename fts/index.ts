@@ -4,4 +4,3 @@ export * from './criteria.ts';
 export * from './indexer.ts';
 export * from './inverted.ts';
 export * from './posting.ts';
-

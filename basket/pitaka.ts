@@ -5,7 +5,7 @@ import {StringArray,unpackIntDelta,LEMMA_DELIMETER,bsearchNumber} from '../utils
 import {rangeOfAddress} from './address.ts';
 import {columnField,inlineNote,rowOf,scanPrimaryKeys} from './columns.ts';
 import {Inverted,tokenize,TokenType,plContain} from '../fts/index.ts';
-import {parseQuery} from '../fts/query.ts';
+import {parseQuery,scanSections} from '../fts/query.ts';
 
 export const regPtkName =  /^[a-z]{2,16}$/
 export const validPtkName=(name:string):boolean=>!!name.match(regPtkName);
@@ -23,6 +23,7 @@ export class Pitaka extends LineBase {
 		this.columns={};
 		this.rangeOfAddress=rangeOfAddress;
 		this.scanPrimaryKeys=scanPrimaryKeys;
+		this.scanSections=scanSections;
 		this.parseQuery=parseQuery;
 		this.scanCache={};
 		this.queryCache={};

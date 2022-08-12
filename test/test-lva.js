@@ -1,7 +1,7 @@
-import {LVA} from '../nodebundle.cjs'
+import {LVA,nodefs,usePtk} from '../nodebundle.cjs'
 import {red,green} from '../cli/colors.cjs'
 let test=0,pass=0, lva;
-
+await nodefs;
 lva=LVA.parse('cyd:e#3715'); 
 
 test++;pass+=lva.length==1&&lva[0].depth==0&&lva[0].host=='cyd'&&lva[0].action=='e#3715'
@@ -74,9 +74,9 @@ lva=new LVA('cyd:e456');
 let insertaddress='abc:w234';
 
 let divisions=lva.dig(insertaddress).divisions();
-test++; pass+=divisions.length==3;
+test++; pass+=divisions.length==2;
 test++; pass+=divisions[0].from==0;
-test++; pass+=divisions[2].till==0;
+//test++; pass+=divisions[2].till==0;
 test++; pass+=divisions[1].depth==1 ;
 
 const stringified=divisions.map(it=>LVA.stringify(it));
@@ -93,5 +93,14 @@ test++; pass+=divisions[1].depth==divisions[0].depth+1;
 //hide action of right part 
 lva = new LVA('cyd:e3715<1(e6582<1(e4480):1+e2075):1');
 test++; pass+=lva.divisions().length==6;
-console.log('pass',test==pass?green(pass):pass, (test-pass)?('failed',red(test-pass)):'')
 // console.log(lva.stringify());
+
+lva = new LVA('cyd:e109') 
+const res=await lva.load();
+test++; pass+= res[0].text.startsWith('^e');
+console.log(res[0]);
+
+let ptk=await usePtk('cyd');
+
+
+console.log('pass',test==pass?green(pass):pass, (test-pass)?('failed',red(test-pass)):'')

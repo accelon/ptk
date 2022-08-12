@@ -15,7 +15,8 @@ export class LineBaser {
 		this.pagesize=opts.pagesize||1024*64;
 		this.pagestarts=[];
 		this.payload=''
-		this.header={starts:[],sectionnames:[],sectionstarts:[],preload:[]};
+		this.header={starts:[],sectionnames:[],sectionstarts:[],preload:[]
+			,fulltext:[],fulltextcaption:[]};
 		this.name=opts.name||'';
 		this.zip=opts.zip;
 	    this.onAddLine=null;

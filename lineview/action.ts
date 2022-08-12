@@ -38,6 +38,11 @@ export class Action implements IAction{
 		return parseQuery(action)
 	}
 }
+class FullTextAction extends Action{
+	constructor(addr:IAddress,depth=0){
+		super(addr,depth);
+	}
+}
 class QueryAction extends Action{
 	constructor(addr:IAddress,depth=0){
 		super(addr,depth);
@@ -65,11 +70,12 @@ class QueryAction extends Action{
 			}
 			const items=matcher.call(lexicon,tofind);
 			const tagname=ptk.columns[name]?.attrs?.tagname;
+			const foreign=ptk.columns[name]?.attrs?.foreign || ptk.columns[name]?.fieldnames[0];
 			this.end=1;
 			this.till=1;
 			const caption=ptk.columns[name]?.caption;
 			this.ownerdraw={painter:'queryresult',
-			 data:{name, caption,ptk,tagname,tofind, items, lexicon}} ;
+			 data:{name, caption,ptk,tagname,foreign,tofind, items, lexicon}} ;
 		}
 	}
 }
@@ -87,8 +93,13 @@ class RangeAction extends Action {
 }
 
 export const createAction=(addr, depth=0)=>{
-	if (addr.action.indexOf('=')>0) {
-		return new QueryAction(addr, depth);
+	const at=addr.action.indexOf('=');
+	if (at>0) {
+		if (addr.action.slice(0,at)=='*') {
+			return new FullTextAction(addr, depth);
+		} else {
+			return new QueryAction(addr, depth);
+		}
 	} else {
 		return new RangeAction(addr,depth);
 	}
