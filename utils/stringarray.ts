@@ -11,6 +11,8 @@ export class StringArray {
 	private buf:string='';
 	private sep:string='';
 	private charpos:number[]=[];
+	private middleCache={};
+	private endCache={};
 	constructor (buf:string,opts={}){
 		this.sequencial=opts.sequencial;
 		this.delimiter=opts.delimiter||''; //separate key and value
@@ -85,6 +87,9 @@ export class StringArray {
 		return (found.endsWith(pat))?at:-1;
 	}
 	enumMiddle(infix:string):number[]{
+		if (this.middleCache.hasOwnProperty(infix)) {
+			return this.middleCache[infix];
+		}
 		let idx=this.buf.indexOf(infix);
 		const out=[]; 
 		while (idx>-1) {
@@ -96,6 +101,7 @@ export class StringArray {
 			}
 			idx=this.buf.indexOf(infix,lp2+this.sep.length);
 		}
+		this.middleCache[infix]=out;
 		return out;
 	}
 	enumStart(prefix:string):number[]{
@@ -112,6 +118,10 @@ export class StringArray {
 		return out;
 	}
 	enumEnd(suffix:string):number[] {
+		if (this.endCache.hasOwnProperty(suffix)) {
+			console.log('cache')
+			return this.endCache[suffix];
+		}			
 		if (suffix[suffix.length-1]!==this.sep) suffix=suffix+this.sep;
 		let idx=this.buf.indexOf(suffix);
 		const out=[]; 
@@ -120,6 +130,7 @@ export class StringArray {
 			out.push(at);
 			idx=this.buf.indexOf(suffix,idx+this.sep.length);
 		}
+		this.endCache[suffix]=out;
 		return out;
 	}	
 	match(text:string):string[] { // find longest word

@@ -50,7 +50,11 @@ export const plCount=(pl:number[],plgroup:number[])=>{
     }
     return out;
 }
-
+export const plTrim=(pl:number[],from:number,to:number)=>{
+    const at1=bsearchNumber(pl,from);
+    const at2=bsearchNumber(pl,to);
+    return pl.slice(at1,at2);
+}
 export const plRanges=(posting:number[],ranges:number[])=>{ // filter out postings by ranges
     if (!ranges||!ranges.length)return posting;
     const out=[];

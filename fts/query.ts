@@ -104,20 +104,21 @@ export async function parseQuery(tofind:string,opts){
     for (let i=0;i<phrases.length;i++) {
         if (!phrases[i].trim()) continue;
         let posting=await phraseQuery.call(this,phrases[i]);
-        if (!posting.length && opts.tosim) {
+        if ((!posting || !posting.length) && opts.tosim) {
             posting=await phraseQuery.call(this,fromSim(phrases[i]));
         }
         if (opts.ranges && opts.ranges.length) {//only search in ranges
             posting=plRanges(posting,opts.ranges);
         }
         outphrases.push(phrases[i]);
-        postings.push(posting)
+        postings.push(posting||[]);
     }
     return [outphrases,postings];
 }
 export async function scanSections(tofind:string,opts) {
     const ptk=this;
     const [phrases,postings]=await ptk.parseQuery(tofind,opts);
+    if (!postings.length) return [];
     const sections=ptk.header.fulltext;
     const ranges=[];
     for (let i=0;i<sections.length;i++) {
@@ -127,7 +128,6 @@ export async function scanSections(tofind:string,opts) {
     return plCount(postings[0], ranges).map((count,idx)=>{
         return {count, caption: ptk.header.fulltextcaption[idx], name:ptk.header.fulltext[idx]}
     });
-    
 }
 export const validateTofind=str=>{
     return (str||'').replace(/[\[\]&%$#@\/\^]/g,'').trim();

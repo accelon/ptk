@@ -8,7 +8,7 @@ export const runCriterion=(ptk:IPitaka,name,c:ICriterion)=>{
 	console.log('run',name)
 	
 }
-export const parseQuery=(cstr:string)=>{
+export const parseCriteria=(cstr:string)=>{
 	const query=[];
 	const criteria=cstr.split(';');
 	for (let i=0;i<criteria.length;i++) {

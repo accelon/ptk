@@ -1,6 +1,8 @@
 import {parseAddress,parseElementId,sameAddress,IAddress,usePtk} from '../basket/index.ts';
-import {parseQuery} from '../fts/criteria.ts';
+import {parseCriteria} from '../fts/criteria.ts';
+import {plTrim,plContain} from '../fts/posting.ts';
 import {IAction} from './interfaces.ts';
+import {unique} from '../utils/index.ts';
 const MAXITEM=100;
 export const ACTIONPAGESIZE=5;
 export class Action implements IAction{
@@ -17,7 +19,7 @@ export class Action implements IAction{
 		this.diggable=false;
 		this.ptkname=addr.ptkname;
 	}
-	run(){
+	async run(){
 
 	}
 	lineOf(idx:number){
@@ -35,13 +37,33 @@ export class Action implements IAction{
 		return out;
 	}
 	static parse(action:string){
-		return parseQuery(action)
+		return parseCriteria(action);
 	}
 }
 class FullTextAction extends Action{
 	constructor(addr:IAddress,depth=0){
 		super(addr,depth);
 	}
+	async run(){
+		const ptk=usePtk(this.ptkname);
+		let {name,tofind}=this.act[0];
+		const at=ptk.header.fulltext.indexOf(name.slice(1));
+		const caption=ptk.header.fulltextcaption[at];
+		const [phrases,postings]=await ptk.parseQuery(tofind);
+		const sections=ptk.header.fulltext;
+		const [from,to]=ptk.sectionRange(sections[at]).map(it=>ptk.inverted.tokenlinepos[it]);
+		//no ranking yet
+
+		let lines=[],hits=[];
+		for (let i=0;i<postings.length;i++) {
+			const pl=plTrim(postings[i], from,to);
+			hits.push(pl);
+			lines.push(...plContain(pl,ptk.inverted.tokenlinepos));
+		}
+		lines=unique(lines);
+		
+		this.ownerdraw={painter:'excerpt', data:{name, caption,ptk,tofind , lines,hits}} ;
+	}	
 }
 class QueryAction extends Action{
 	constructor(addr:IAddress,depth=0){
@@ -51,7 +73,7 @@ class QueryAction extends Action{
 		if (idx>=this.res.length) return -1;
 		return this.res[idx].line;
 	}
-	run(){
+	async run(){
 		const ptk=usePtk(this.ptkname);
 		for (let i=0;i<this.act.length;i++) {
 			let {name,tofind}=this.act[i];
@@ -86,7 +108,7 @@ class RangeAction extends Action {
 		this.eleid=this.action;
 		this.diggable=true;
 	}
-	run(){
+	async run(){
 		const ptk=usePtk(this.ptkname);
 		[this.start,this.end]=ptk.rangeOfAddress(this.eleid);
 	}
@@ -95,7 +117,7 @@ class RangeAction extends Action {
 export const createAction=(addr, depth=0)=>{
 	const at=addr.action.indexOf('=');
 	if (at>0) {
-		if (addr.action.slice(0,at)=='*') {
+		if (addr.action.slice(0,1)=='*') {
 			return new FullTextAction(addr, depth);
 		} else {
 			return new QueryAction(addr, depth);
