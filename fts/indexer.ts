@@ -61,11 +61,16 @@ export class Indexer {
 		}
 
 		//fill posting 
+		let lasti=0;
 		for (let i=0;i<this.tokenlist.length;i++){
 			let code=this.tokenlist[i];
 			if (!code) {
+				// lasti=i;
 				this.tokenlinepos.push(i);
 			} else if (code<0x10000) {
+				// if (code==0x61b2 && i-lasti==5) {
+				// 	console.log(i-lasti, this.tokenlist.slice(lasti+1,i+5).map(it=>String.fromCharCode(it)).join('') )
+				// }
 				if (this.bmppostings[code]) {
 					this.bmppostings[code][ this.bmptokencount[code]]=i;
 					this.bmptokencount[code]++;
@@ -73,7 +78,7 @@ export class Indexer {
 			} else if (!isNaN(code)) {
 				const at = code-65536;
 				this.postings[at][ this.tokencount[at] ]=i;	
-				this.tokencount[at]++	
+				this.tokencount[at]++	;
 			}
 		}
 		this.tokenlinepos.push(this.tokenlist.length);//the terminator

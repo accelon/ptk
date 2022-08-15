@@ -1,6 +1,7 @@
 import {LineBaser} from '../linebase/index.ts';
 import {ICompiler} from './compiler.ts';
 import {Indexer} from '../fts/index.ts';
+import {parseOfftext} from '../offtext/index.ts';
 
 export const makeLineBaser=async (sourcebuffers,compiler:ICompiler,contentGetter)=>{
 	lbaser=new LineBaser();
@@ -30,7 +31,8 @@ export const makeLineBaser=async (sourcebuffers,compiler:ICompiler,contentGetter
 			lbaser.header.fulltextcaption.push(caption||name);
 			const toindex=(textstart?processed.slice(textstart):processed);
 			for (let j=0;j<toindex.length;j++) {
-				indexer.addLine(toindex[j]);
+				const [text]=parseOfftext(toindex[j]);
+				indexer.addLine(text);
 			}
 		}
 	}

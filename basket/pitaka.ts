@@ -102,7 +102,7 @@ export class Pitaka extends LineBase {
 		return nPostings.map( np=> postings[np] );
 	}
 	postingLine(posting:number[]){
-		return plContain(posting,this.inverted.tokenlinepos);
+		return plContain(posting,this.inverted.tokenlinepos)[0];
 	}
 	validId(tagname:string,id:any):boolean {
 		const V=this.defines[tagname]?.fields;

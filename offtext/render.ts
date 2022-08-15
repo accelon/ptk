@@ -5,14 +5,16 @@ import {parseOfftext,Offtext} from './parser.ts';
 import {closeBracketOf} from '../utils/cjk.ts';
 
 export class RenderUnit implements IRenderUnit {
-    constructor (token: Token, ntoken:number, offtext:IOfftext) {
+    constructor (token: Token, ntoken:number, offtext:IOfftext, postingoffset:number) {
         this.token=token;
+        this.postingoffset=postingoffset; //relative offset of posting (indexable token)
         this.choff=token.choff; //for sorting
         this.text=token.text; //perform text transformation here
         this.ntoken=ntoken;   //base on a concrete token
         this.offtext=offtext; //the offtext object
         this.tags=[];         //tags covering this token
         this.hide=false;
+        this.highlight=false;
     }
 }  
 
@@ -40,22 +42,28 @@ export const getRenderUnitClasses=(ru:RenderUnit,prepend='',append='')=>{
         const hasbracket=closeBracketOf(ru.offtext.tagRawText(tag))?1:0;
         if (ru.choff==tag.choff+hasbracket) css.push(tag.name+'_start');
         if (ru.choff==tag.choff+tag.width-1-hasbracket) css.push(tag.name+'_end');
+        
     }
+    if (ru.highlight) css.push('highlight');
     css.push(append);
     ru.hide&&css.push('hide');
     return css.join(' ');
 }
 export const renderOfftext=(linetext:string, opts={})=>{
     const extra=opts.extra||[];
+    const hits=opts.hits||[];
+    const phraselength=opts.phraselength||[];
     const ltp=opts.linetokenpos||0;
     // const [plain,tags]=parseOfftext(linetext);
     const ot=new Offtext(linetext);
+    let postingoffset=0;
     const runits=tokenize(ot.plain).map( (tk,idx) => {
-        return new RenderUnit(tk,idx, ot);
+        const ru= new RenderUnit(tk,idx, ot, ++postingoffset);
+        return ru;
     });
     const tagsAt=[]; //tags at plain position
-    let uidx=0;
-
+    let uidx=0 , phit=0;
+    
     for (let i=0;i<ot.tags.length;i++) {
         const tag=ot.tags[i];
         for (let j=tag.choff;j<tag.choff+tag.width;j++) {
@@ -67,6 +75,16 @@ export const renderOfftext=(linetext:string, opts={})=>{
     for (let i=0;i<runits.length;i++) {
         const ru=runits[i];
         ru.tags=tagsAt[ru.token.choff]||[];
+
+        if (hits.length && phit<hits.length) {
+            if (ru.postingoffset==hits[phit]) {
+                ru.highlight=true;
+            }
+            if (hits[phit]<ru.postingoffset) {
+                phit++;
+            }
+        }
+
         const bracket=closeBracketOf(ru.text);
         if (ru.hide|| (ru.tags.length && bracket)) {
             ru.hide=true;

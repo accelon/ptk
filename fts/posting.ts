@@ -69,21 +69,25 @@ export const plRanges=(posting:number[],ranges:number[])=>{ // filter out postin
     }
     return out;
 }
-export const plContain=(posting:number[], ltp:number[])=>{ // return line containing posting
+export const plContain=(posting:number[], ltp:number[], withHits=false)=>{ // return line containing posting
     let p,i=0,j=0;
-    const out=[];
+    const lines=[], hits=[];
     while (i<posting.length ) {
         let p=posting[i];
         let at=bsearchNumber(ltp, p);
         if (at>=0 && at<ltp.length) {
-            if (out[out.length-1]!==at) {
-                out.push(at);
+            if (lines[lines.length-1]!==at) {
+                lines.push(at);
+            }
+            if (withHits) {
+                if (!hits[lines.length-1]) hits[lines.length-1]=[];
+                hits[lines.length-1].push(p-ltp[at-1]);
             }
             p=posting[i];
-        } 
+        }
         i++;
     }
-    return out;
+    return [lines, hits];
 }
 export const getCounter=()=>counter;
 export const getSpeed=()=>maxspeed;
