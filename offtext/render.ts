@@ -1,5 +1,5 @@
 import {Offtext,Offtag,IRenderUnit} from './interfaces.ts';
-import {AUTO_TILL_END,ALWAYS_EMPTY} from './constants.ts';
+import {AUTO_TILL_END,ALWAYS_EMPTY,MIN_ABRIDGE} from './constants.ts';
 import {tokenize,TokenType,Token} from '../fts/index.ts';
 import {parseOfftext,Offtext} from './parser.ts';
 import {closeBracketOf} from '../utils/cjk.ts';
@@ -14,7 +14,22 @@ export class RenderUnit implements IRenderUnit {
         this.offtext=offtext; //the offtext object
         this.tags=[];         //tags covering this token
         this.hide=false;
+        this.luminate=0;      //highlight luminates surrounding token, for abridge
         this.highlight=false;
+    }
+    tags(closing=false){
+        const out=[];
+        if (!this.tags || !this.tags.length) return '';
+        for (let i=0;i<this.tags.length;i++) {
+            const tag=this.offtext.getTag(this.tags[i]);
+            if (this.choff == tag.choff + (closing?tag.width-1:0)) {
+                out.push(this.tags[i]);
+            }
+        }
+        return out;
+    }
+    closestTag(){
+        return this.offtext.getTag(this.tags[this.tags.length-1]);
     }
 }  
 
@@ -58,7 +73,8 @@ export const renderOfftext=(linetext:string, opts={})=>{
     const ot=new Offtext(linetext);
     let postingoffset=0;
     const runits=tokenize(ot.plain).map( (tk,idx) => {
-        const ru= new RenderUnit(tk,idx, ot, ++postingoffset);
+        if (tk.type>=TokenType.SEARCHABLE) postingoffset++;
+        const ru= new RenderUnit(tk,idx, ot, postingoffset);
         return ru;
     });
     const tagsAt=[]; //tags at plain position
@@ -77,11 +93,24 @@ export const renderOfftext=(linetext:string, opts={})=>{
         ru.tags=tagsAt[ru.token.choff]||[];
 
         if (hits.length && phit<hits.length) {
-            if (ru.postingoffset==hits[phit]) {
+            if (ru.postingoffset==hits[phit] && ru.token.type>=TokenType.SEARCHABLE) {
                 ru.highlight=true;
             }
-            if (hits[phit]<ru.postingoffset) {
-                phit++;
+
+            if (hits[phit]<ru.postingoffset) phit++;
+
+            if (ru.highlight) {
+                ru.luminate++;
+                let j=i+1;
+                while (j<runits.length) {
+                    if (runits[j].token.type>=TokenType.SEARCHABLE|| j-i<MIN_ABRIDGE) j++;else break;
+                    runits[j].luminate++;
+                }
+                j=i-1;
+                while (j>0) {
+                    if (runits[j].token.type>=TokenType.SEARCHABLE|| i-j<MIN_ABRIDGE) j--;else break;
+                    runits[j].luminate++;
+                }
             }
         }
 
@@ -94,4 +123,30 @@ export const renderOfftext=(linetext:string, opts={})=>{
     }
 
     return runits;
+}
+
+export const abridgeRenderUnits=(runits:RenderUnit[])=>{
+    const out=[];
+    let abridged=[];
+    const addAbridge=(final=false)=>{
+        if (abridged.length>MIN_ABRIDGE) {
+            out.push([abridged.length, abridged[0],final] );
+        } else {
+            for (let j=0;j<abridged.length;j++) {
+                out.push(runits[abridged[j]])
+            }
+        }
+        abridged=[];
+    }
+    for (let i=0;i<runits.length;i++) {
+        const ru=runits[i];
+        if (ru.luminate)  {
+            addAbridge();
+            out.push(ru);
+        } else {
+            abridged.push(i);
+        }
+    }
+    addAbridge(true);
+    return out;
 }

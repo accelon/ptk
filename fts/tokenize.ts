@@ -28,7 +28,7 @@ export const tokenize=(text:string)=>{
             continue;
         } else if (code>=0x2000&&code<=0xffff) {
             const tt=(code>=2e80&&code<=0x2fff) //radical
-                ||(code>=0x3041&&code<=0x9fff) //0xpunc
+                ||(code>=0x3041&&code<=0x9fff) //0xbmp
                 || (code>=0xd400&&code<0xdfff)  //surrogates
                 || (code>=0xe000&&code<0xfadf)? TokenType.CJK_BMP:TokenType.UNSEARCHABLE;
 

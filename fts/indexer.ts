@@ -1,4 +1,4 @@
-import {splitUTF32Char,IStringArray,isPunc,packIntDelta,fromObj,alphabetically0,LEMMA_DELIMETER} from '../utils/index.ts';
+import {splitUTF32Char,IStringArray,packIntDelta,fromObj,alphabetically0,LEMMA_DELIMETER} from '../utils/index.ts';
 import {tokenize,TokenType} from './tokenize.ts';
 
 export class Indexer {
@@ -19,7 +19,7 @@ export class Indexer {
 		for (let j=0;j<tokens.length;j++) {
 			const {text,choff,tkoff,type} = tokens[j];
 			const cp=text.codePointAt(0);
-			if (cp<0x10000) {
+			if (type==TokenType.CJK_BMP) {
 				this.bmp[cp]++;
 				this.tokenlist.push(cp);
 			} else if (type>=TokenType.SEARCHABLE){
@@ -65,12 +65,8 @@ export class Indexer {
 		for (let i=0;i<this.tokenlist.length;i++){
 			let code=this.tokenlist[i];
 			if (!code) {
-				// lasti=i;
 				this.tokenlinepos.push(i);
 			} else if (code<0x10000) {
-				// if (code==0x61b2 && i-lasti==5) {
-				// 	console.log(i-lasti, this.tokenlist.slice(lasti+1,i+5).map(it=>String.fromCharCode(it)).join('') )
-				// }
 				if (this.bmppostings[code]) {
 					this.bmppostings[code][ this.bmptokencount[code]]=i;
 					this.bmptokencount[code]++;
