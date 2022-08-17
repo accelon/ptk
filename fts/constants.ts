@@ -5,3 +5,4 @@ export const CJKWordBegin_Reg=/(^[\u2e80-\u2fd5\u3400-\u9fff\ud400-\udfff\ue000\
 export const Word_tailspace_Reg=/([\dA-Za-z\u1000-\u1049\u0900-\u0963\u96f\u00c0-\u02af\u1e00-\u1faf]+ ?)/g;
 
 export const MAXPHRASELEN = 16;
+export const EXCERPT_PAGESIZE = 5;

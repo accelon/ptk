@@ -104,12 +104,12 @@ export const renderOfftext=(linetext:string, opts={})=>{
                 let j=i+1;
                 while (j<runits.length) {
                     if (runits[j].token.type>=TokenType.SEARCHABLE|| j-i<MIN_ABRIDGE) j++;else break;
-                    runits[j].luminate++;
+                    if (j<runits.length) runits[j].luminate++;
                 }
                 j=i-1;
                 while (j>0) {
                     if (runits[j].token.type>=TokenType.SEARCHABLE|| i-j<MIN_ABRIDGE) j--;else break;
-                    runits[j].luminate++;
+                    if (j>=0) runits[j].luminate++;
                 }
             }
         }
@@ -125,7 +125,7 @@ export const renderOfftext=(linetext:string, opts={})=>{
     return runits;
 }
 
-export const abridgeRenderUnits=(runits:RenderUnit[])=>{
+export const abridgeRenderUnits=(runits:RenderUnit[], minwidth=20)=>{
     const out=[];
     let abridged=[];
     const addAbridge=(final=false)=>{
@@ -138,6 +138,7 @@ export const abridgeRenderUnits=(runits:RenderUnit[])=>{
         }
         abridged=[];
     }
+    if (runits.length<minwidth) return runits;
     for (let i=0;i<runits.length;i++) {
         const ru=runits[i];
         if (ru.luminate)  {

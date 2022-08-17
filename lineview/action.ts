@@ -17,6 +17,7 @@ export class Action implements IAction{
 		this.till=addr.till||-1; //-1 to the end
 		this.res=[];
 		this.text='';
+		this.lines=[];//for search result, non continous line
 		this.diggable=false;
 		this.ptkname=addr.ptkname;
 	}
@@ -45,6 +46,9 @@ class FullTextAction extends Action{
 	constructor(addr:IAddress,depth=0){
 		super(addr,depth);
 	}
+	lineOf(idx:number){
+		return this.lines[idx];
+	}	
 	async run(){
 		const ptk=usePtk(this.ptkname);
 		let {name,tofind}=this.act[0];
@@ -52,12 +56,11 @@ class FullTextAction extends Action{
 		const caption=ptk.header.fulltextcaption[at];
 		const [phrases,postings]=await ptk.parseQuery(tofind);
 		const sections=ptk.header.fulltext;
-		const [from,to]=ptk.sectionRange(sections[at]).map(it=>ptk.inverted.tokenlinepos[it]);
+		const [sectionfrom,sectionto]=ptk.sectionRange(sections[at]).map(it=>ptk.inverted.tokenlinepos[it]);
 		//no ranking yet
-
 		let lineobj={};
 		for (let i=0;i<postings.length;i++) {
-			const pl=plTrim(postings[i], from,to);
+			const pl=plTrim(postings[i], sectionfrom,sectionto);
 			const [pllines,lineshits]=plContain(pl,ptk.inverted.tokenlinepos,true);
 			const phraselen=phrases[i].length;
 			for (let j=0;j<pllines.length;j++) {
@@ -66,12 +69,22 @@ class FullTextAction extends Action{
 				lineobj[line].push( ...lineshits[j].map(it=>it*MAXPHRASELEN + phraselen)  );
 			}
 		}
-		const arr=fromObj(lineobj,(a,b)=>[a , b.sort() ]).sort((a,b)=>a[0]-b[0]);
+		let till=this.till;
+		let from=this.from;
+		if (till==-1) till=this.from+ACTIONPAGESIZE;
+
+		let  arr=fromObj(lineobj,(a,b)=>[a , b.sort() ]).sort((a,b)=>a[0]-b[0]);
+		this.start=0;
+		this.end=arr.length;
+		if (till>=arr.length) till=arr.length;
+		arr=arr.slice(from,till);
 
 		const lines=arr.map(it=>parseInt(it[0]));
 		const hits =arr.map(it=> it[1].map(n=>Math.floor(n/MAXPHRASELEN)) );
+
 		const phraselength =arr.map(it=> it[1].map(n=>n%MAXPHRASELEN));
-		this.ownerdraw={painter:'excerpt', data:{name, caption,ptk,tofind , lines,hits,phraselength}} ;
+		this.ownerdraw={painter:'excerpt', data:{ end:this.end,
+			from:this.from, name, caption,ptk,tofind , lines,hits,phraselength}} ;
 	}	
 }
 class QueryAction extends Action{

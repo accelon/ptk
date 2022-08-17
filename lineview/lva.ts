@@ -103,6 +103,16 @@ export class LVA {
 		if (division.till>linecount) division.till=linecount;
 		return this;
 	}
+	setFrom(idx,from){
+		const division=this._divisions[idx];
+		if (!division) return;
+		
+		division.from=from;
+		if (division.till!==-1) division.till=division.from+ACTIONPAGESIZE;
+		if (division.till>division.end) division.till=division.end;
+
+		return this;
+	}
 	dig(insert:string,idx=0,nline=0){ 
 		const newaddr=parseAddress(insert);
 		if (!newaddr) return this;
