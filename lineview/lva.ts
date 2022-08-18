@@ -129,11 +129,14 @@ export class LVA {
 	dig(digaddr:string,idx=0,nline=0){ 
 		const newaddr=parseAddress(digaddr);
 		if (!newaddr) return this;
+		newaddr.ptkname=newaddr.ptkname||this._divisions[idx].ptkname;
 		const newaction=createAction(newaddr,0);
 		if ( !this._divisions||!this._divisions.length) {
 			this._divisions.push(newaddr);
-			return;
+			return this;
 		}
+
+		if (sameAddress(this._divisions[idx],newaddr)) return this; //prevent recursive dig
 
 		if (!newaction.diggable) { //
 			const removeat=this.removeSameAction(newaddr);
