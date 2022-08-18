@@ -113,8 +113,21 @@ export class LVA {
 
 		return this;
 	}
-	dig(insert:string,idx=0,nline=0){ 
-		const newaddr=parseAddress(insert);
+	insert(addr:string,idx=0) {
+		const newaddr=parseAddress(addr);
+		if (!newaddr) return this;
+		//to pass the same address check
+		newaddr.ptkname=newaddr.ptkname||this._divisions[idx].ptkname;
+		const removeat=this.removeSameAction(newaddr);
+		if (removeat>-1) { // move to top
+			if (removeat!==idx) this._divisions.splice(idx,0,newaddr);
+		} else { //new addr , just append at the end
+			this._divisions.splice(idx,0,newaddr);
+		}
+		return this;
+	}
+	dig(digaddr:string,idx=0,nline=0){ 
+		const newaddr=parseAddress(digaddr);
 		if (!newaddr) return this;
 		const newaction=createAction(newaddr,0);
 		if ( !this._divisions||!this._divisions.length) {
@@ -144,7 +157,7 @@ export class LVA {
 		const addr=this._divisions[idx];
 		const splitat=addr.from+nline;
 		let breakleft,breakright;
-		const toinsert=parseAddress(insert);
+		const toinsert=parseAddress(digaddr);
 
 		if ((addr.from && addr.till && addr.till==addr.from) || splitat+1>=addr.end) { //one line only, no breakright
 			breakleft=addr;

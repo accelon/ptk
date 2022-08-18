@@ -84,6 +84,21 @@ export class LineBase{
 		if (line>this._lineoffsets[page].length) return this._pages[page].length;
 		return this._lineoffsets[page][line-1];
 	}
+	getLines(nlines){
+		if (!nlines.length) return  [];
+		let out=[];
+		let pline=nlines[0];
+		let start=pline;
+		for (let i=1;i<nlines.length;i++) {
+			if (pline+1!==nlines[i]) {
+				out=out.concat(this.slice(start,i));
+				start=nlines[i];
+			}
+			pline=nlines[i];
+		}
+		out=out.concat(this.slice(start,pline+1));
+		return out;
+	}
 	getLine(nline){
 		return this.slice(nline,nline+1)[0];
 	}

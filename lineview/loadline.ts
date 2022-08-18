@@ -35,8 +35,9 @@ async function loadLines(lva){
 		}
 		const segment=[];
 		const lines=divisions[i].getLines();
-		console.log('todo use slice for continuous line');
-		const linetexts=lines.map(i=>ptk.getLine(i));
+		
+		const linetexts=ptk.getLines(lines);
+
 		const prevdepth=i?divisions[i-1].depth:0;
 		let remain = (divisions[i].end - divisions[i].start) - linetexts.length;
 

@@ -52,7 +52,7 @@ export class Pitaka extends LineBase {
 		for (let i=0;i<this.header.preload.length;i++) {
 			const section=this.getSection(this.header.preload[i]);
 			if (section.length)	this.deserialize(section);
-			else console.error('empty section',this.header.preload[i])
+			else console.error('empty section',this.header.preload[i]);
 		}
 		for (let n in this.defines) { //see compiler/typedef.ts serialize()
 			if (this.defines[n].fields.preload) {
@@ -64,6 +64,13 @@ export class Pitaka extends LineBase {
 				if (A.foreign && this.primarykeys[A.foreign]) {
 					A.keys=this.primarykeys[A.foreign];
 				}
+			}
+		}
+		//link column and define
+		for (let n in this.columns) {
+			const tagname=(this.columns[n].attrs?.tagname)
+			if (tagname){
+				this.defines[tagname].column=n;
 			}
 		}
 	}
@@ -95,7 +102,15 @@ export class Pitaka extends LineBase {
 		}
 		await Promise.all(jobs);
 		return this.getPostings(s);
-	}	
+	}
+	getHeading(line:number) {
+		const tagname=this.attributes.chunktag||'ck';
+		const typedef=this.typedefOf(tagname);
+		const at=bsearchNumber(typedef.linepos, line)-1;
+		const lineoff=line-typedef.linepos[at];
+		const id=typedef.fields.id.values[at];
+		return {id, tagname, caption:this.columns[typedef.column].keys.get(id),lineoff};
+	}
 	getPostings(s:string){
 		const nPostings=this.inverted.nPostingOf(s);
 		const postings=this.inverted.postings;

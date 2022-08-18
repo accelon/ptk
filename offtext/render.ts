@@ -17,7 +17,7 @@ export class RenderUnit implements IRenderUnit {
         this.luminate=0;      //highlight luminates surrounding token, for abridge
         this.highlight=false;
     }
-    tags(closing=false){
+    tagsOf(closing=false){
         const out=[];
         if (!this.tags || !this.tags.length) return '';
         for (let i=0;i<this.tags.length;i++) {

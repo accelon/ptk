@@ -27,6 +27,7 @@ export class Typedef implements ITypedef {
 			if (V && !V.optional && !reservedAttributes[aname]) this.mandatory[aname]=true;
 		}
 		this.attrs=attrs;
+		this.column='';  //backing column of this tag , see basket/pitaka.ts::init()
 	}
 	validateTag(tag:IOfftag , line:number, compiledLine:number , onError) {
 		let touched=false, newtag;

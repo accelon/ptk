@@ -3,6 +3,7 @@ export function columnField(name:string, field:string, idx:number) {
 	const at=column.fieldnames.indexOf(field);
 	return column.fieldvalues[at][idx];
 }
+
 export async function inlineNote(tagname:string,noteid:string){
 	const typedef=this.defines[tagname];
 	const cols=this.columns[typedef.fields.type.foreign];

@@ -81,9 +81,8 @@ class FullTextAction extends Action{
 
 		const lines=arr.map(it=>parseInt(it[0]));
 		const hits =arr.map(it=> it[1].map(n=>Math.floor(n/MAXPHRASELEN)) );
-
 		const phraselength =arr.map(it=> it[1].map(n=>n%MAXPHRASELEN));
-		this.ownerdraw={painter:'excerpt', data:{ end:this.end,
+		this.ownerdraw={painter:'excerpt', data:{ end:this.end, 
 			from:this.from, name, caption,ptk,tofind , lines,hits,phraselength}} ;
 	}	
 }
