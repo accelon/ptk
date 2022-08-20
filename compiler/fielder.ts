@@ -27,19 +27,21 @@ export function createField(name,def:string,primarykeys,ownkeys) {
 		pattern= new RegExp(pat,regopts);
 	}
 
-	if (typename=='number') v=new NumberField (name,{pattern});
-	else if (typename=='unique_number') v=new NumberField (name,{pattern,unique:true,optional:false});
-	else if (typename=='string') 	v=new Field (name,{pattern});
-	else if (typename=='text') 	v=new TextField (name,{pattern});
-	else if (typename=='key') {
+	if (typename==='number') v=new NumberField (name,{pattern});
+	else if (typename==='unique_number') v=new NumberField (name,{pattern,unique:true,optional:false});
+	else if (typename==='string') 	v=new Field (name,{pattern});
+	else if (typename==='text') 	v=new TextField (name,{pattern});
+	else if (typename==='key') {
 		const keys=(primarykeys&&primarykeys[foreign]) ||ownkeys;
 		v=new KeyField (name,{keys,pattern,foreign,optional:false});
-	}	else if (typename=='keys') {
+	}	else if (typename==='keys') {
 		const keys=(primarykeys&&primarykeys[foreign]) ||ownkeys;
 		v=new KeysField (name,{keys,pattern,foreign});
-	}	else if (typename=='note') {
+	}	else if (typename==='note') {
 		const keys=(primarykeys&&primarykeys[foreign]) ||ownkeys;
 		v=new Field (name,{type:typename,keys,pattern,foreign});
+	} else if (typename==='confer') {
+		v=new Field (name,{type:typename});
 	}
 	if (!v) v=new Field (name,{}); //no validation is perform , just to suppress tag nodef warning
 	return v;

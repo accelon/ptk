@@ -10,7 +10,7 @@ const reservedAttributes={ //是指令不是屬性名,
 	key:true,
 	field:true,
 	text:true,
-	type:true //data type
+	type:true //name of painter
 }
 export class Typedef implements ITypedef {
 	constructor (attrs:Map, tagname:string, primarykeys:Map) {

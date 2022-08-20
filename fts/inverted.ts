@@ -10,7 +10,7 @@ export class Inverted {
 		this.postingStart=postingStart;
 		this.bmppostingcount=0; //long token starts from here
 		
-		for (let i=0;i<65536;i++) {
+		for (let i=1;i<65536;i++) { //ascii 0 is not used
 			if (this.bmpwithposting[i]) this.bmppostingcount++;
 		}
 	}

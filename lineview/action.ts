@@ -78,7 +78,6 @@ class FullTextAction extends Action{
 		this.end=arr.length;
 		if (till>=arr.length) till=arr.length;
 		arr=arr.slice(from,till);
-
 		const lines=arr.map(it=>parseInt(it[0]));
 		const hits =arr.map(it=> it[1].map(n=>Math.floor(n/MAXPHRASELEN)) );
 		const phraselength =arr.map(it=> it[1].map(n=>n%MAXPHRASELEN));

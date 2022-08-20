@@ -59,7 +59,7 @@ async function loadLines(lva){
 				text, depth, edge,closable, remain: (j==linetexts.length-1)?remain:0})
 			seq++;
 		}
-		out.push(...segment);				
+		out.push(...segment);
 	}
 	return out;
 }

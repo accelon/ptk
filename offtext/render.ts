@@ -73,10 +73,11 @@ export const renderOfftext=(linetext:string, opts={})=>{
     const ot=new Offtext(linetext);
     let postingoffset=0;
     const runits=tokenize(ot.plain).map( (tk,idx) => {
-        if (tk.type>=TokenType.SEARCHABLE) postingoffset++;
+        postingoffset++; //unsearchable token also increase posting offset
         const ru= new RenderUnit(tk,idx, ot, postingoffset);
         return ru;
     });
+
     const tagsAt=[]; //tags at plain position
     let uidx=0 , phit=0;
     
@@ -93,7 +94,8 @@ export const renderOfftext=(linetext:string, opts={})=>{
         ru.tags=tagsAt[ru.token.choff]||[];
 
         if (hits.length && phit<hits.length) {
-            if (ru.postingoffset==hits[phit] && ru.token.type>=TokenType.SEARCHABLE) {
+            if (ru.postingoffset>=hits[phit] &&  ru.postingoffset<hits[phit]+phraselength[phit]
+                && ru.token.type>=TokenType.SEARCHABLE) {
                 ru.highlight=true;
             }
 

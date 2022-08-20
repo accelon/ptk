@@ -117,7 +117,7 @@ export class LVA {
 		const newaddr=parseAddress(addr);
 		if (!newaddr) return this;
 		//to pass the same address check
-		newaddr.ptkname=newaddr.ptkname||this._divisions[idx].ptkname;
+		newaddr.ptkname=newaddr.ptkname||this._divisions[idx]?.ptkname||this._divisions[idx-1]?.ptkname;
 		const removeat=this.removeSameAction(newaddr);
 		if (removeat>-1) { // move to top
 			if (removeat!==idx) this._divisions.splice(idx,0,newaddr);

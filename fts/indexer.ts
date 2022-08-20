@@ -32,7 +32,9 @@ export class Indexer {
 				}
 				this.postingcount[at]++;
 				this.tokenlist.push( at + 65536 );
-			}  
+			} else {
+				this.tokenlist.push(-1); //unsearchable token
+			}
 		}
 		this.tokenlist.push(0);//line separator
 	}
@@ -62,9 +64,11 @@ export class Indexer {
 
 		//fill posting 
 		let lasti=0;
+		// console.log('tokenlist',this.tokenlist.length)
 		for (let i=0;i<this.tokenlist.length;i++){
 			let code=this.tokenlist[i];
-			if (!code) {
+			if (code==-1) continue;
+			if (code==0) { //line break
 				this.tokenlinepos.push(i);
 			} else if (code<0x10000) {
 				if (this.bmppostings[code]) {
@@ -74,7 +78,7 @@ export class Indexer {
 			} else if (!isNaN(code)) {
 				const at = code-65536;
 				this.postings[at][ this.tokencount[at] ]=i;	
-				this.tokencount[at]++	;
+				this.tokencount[at]++;
 			}
 		}
 		this.tokenlinepos.push(this.tokenlist.length);//the terminator
