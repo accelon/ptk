@@ -40,9 +40,10 @@ export class LVA {
 		return this;
 	}
 	static stringify(lvnode,hideptkname=false, hideaction=false){
-	 	const {depth,action,from,till,ptkname,end} = lvnode;
+	 	const {depth,action,from,till,activeline,ptkname,end} = lvnode;
 	 	return ( (ptkname&&(!action || !hideptkname)) ?ptkname+':':'')
-	 			+(hideaction?'':action)+(from?':'+from:'')+(till>0&&till&&till<end?'<'+till:'');
+	 			+(hideaction?'':action)+(from?':'+from:'')+(till>0&&till&&till<end?'<'+till:'')
+	 			+(activeline>-1?'>'+activeline:'');
 	}
 	stringify(lvnode:number|Map,hideptkname=false,hideaction=false) {
 		if (typeof lvnode=='number') lvnode=this.divisions(lvnode);

@@ -17,30 +17,31 @@ export const sameAddress=(addr1,addr2)=>{
 	if (!addr1||!addr2) return;
 	return addr1.action==addr2.action && addr1.ptkname ==addr2.ptkname;
 }
-export const makeAddress=(ptkname='',action='',from=0,till=0)=>{
-	return (ptkname?ptkname+':':'')+action+(from?':'+from:'')+(till?'<'+till:'');
+export const makeAddress=(ptkname='',action='',from=0,till=0,lineoff=-1)=>{
+	//lineoff >0 , highlight activeline
+	return (ptkname?ptkname+':':'')+action+(from?':'+from:'')+(till?'<'+till:'')+(lineoff>0?'>'+lineoff:'');
 }
 export const parseAddress=(address:string):IAddress=>{
-	let m0,basket='',action='', from=0 ,till=0 ; //left bound and right bound
+	let m0,basket='',action='', from=0 ,till=0, activeline=-1 ; //left bound and right bound
 	let m=address.match(PTK_ACTION_FROMTILL);
 	if (m) {
-		[m0, ptkname, action, from , till] = m;
+		[m0, ptkname, action, from , till, activeline ] = m;
 	} else {
 		m=address.match(PTK_FROMTILL);
 		if (m) {
-			[m0, ptkname, from,till] = m;
+			[m0, ptkname, from,till ,activeline] = m;
 		} else {
 			m=address.match(FROMTILL);
-			if (m) [m0,from,till] = m;	
+			if (m) [m0,from,till, activeline] = m;	
 			else return null;
 		}
 	}
 	from=(from||'').slice(1);
 	till=(till||'').slice(1);
+	activeline=(activeline||'').slice(1);
 	ptkname=ptkname||'';
 	ptkname=ptkname.slice(0,ptkname.length-1); //remove :
-
-	return {ptkname, action,from:Math.abs(parseInt(from))||0,till:Math.abs(parseInt(till))||0 };
+	return {ptkname, action,from:Math.abs(parseInt(from))||0,till:Math.abs(parseInt(till))||0 , activeline:Math.abs(parseInt(activeline))||-1};
 }
 export function rangeOfAddress(address:string):ILineRange{
 	const {ptkname,from,till,action} = parseAddress(address);

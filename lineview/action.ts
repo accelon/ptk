@@ -13,7 +13,8 @@ export class Action implements IAction{
 		this.depth=depth;
 		this.start=0;
 		this.end=0;
-		this.from=addr.from;    
+		this.activeline=addr.activeline||-1; //highlight active line
+		this.from=addr.from;
 		this.till=addr.till||-1; //-1 to the end
 		this.res=[];
 		this.text='';
