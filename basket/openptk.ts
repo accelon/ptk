@@ -7,10 +7,12 @@ export const openPtk=async (name:string)=>{
 	if (ptk) return ptk;
 	if (!name) return null;
 	ptk = new Pitaka({name});
+	poolAdd(name,ptk); //add to pool for jsonp to work.
 	if (await ptk.isReady()) {
 		await ptk.init();
-		poolAdd(name,ptk);
 		return ptk;
+	} else {
+		poolDel(name);
 	}
 }
 export const openInMemoryPtk=async(name:string, ptkimage:UInt8Array)=>{

@@ -1,4 +1,5 @@
 import { loadScript,parseJsonp } from "../utils/loadscript.ts";
+import {poolGet} from '../basket/pool.ts';
 const pagefilename=page=>page.toString().padStart(3,'0')+'.js';
 const makePageURI=(folder,page)=>{
     const fn=folder+'/'+pagefilename(page);
@@ -46,8 +47,9 @@ export async function loadFetch(page){
         this.failed=true;
     }
 }
-const jsonp=function(page,header,_payload){
-    this.setPage(page,header,_payload); //this is binded to rom, not in pool yet for first page
+const jsonp=(page,header,_payload)=>{
+    const ptk=poolGet(header.name);
+    ptk.setPage(page,header,_payload);
 }
 function isLoaded(page:number){
    return (page==0)?this.pagestarts.length:this._pages[page-1];
@@ -55,7 +57,7 @@ function isLoaded(page:number){
 export async function loadJSONP(page){
     if (isLoaded.call(this,page)) return;
     if (!typeof window.jsonp!=='function') {
-        window.jsonp=jsonp.bind(this);
+        window.jsonp=jsonp;
     }
     let  tried=0,timer ;
     const that=this;
@@ -66,7 +68,7 @@ export async function loadJSONP(page){
             timer=setInterval(()=>{
                 tried++;
                 if (tried>10 || isLoaded.call(that,page) ) {
-                    if (tried>10) console.error('failed loading page',page);
+                    if (tried>10) console.error('failed loading page',page,that.name);
                     clearInterval(timer);
                 }
             },10);

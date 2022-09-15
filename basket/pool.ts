@@ -3,6 +3,7 @@ let _pool={};
 export const poolHas=name=>!!_pool[name];
 export const poolGet=name=>_pool[name];
 export const poolAdd=(name,inst)=>_pool[name]=inst;
+export const pollDel=name=>delete _pool[name];
 export const poolGetAll=()=>{
     const out=[];
     for (let name in _pool) {
