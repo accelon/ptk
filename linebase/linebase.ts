@@ -71,8 +71,9 @@ export class LineBase{
 	    toload=unique(toload.filter(it=> !that._pages[it]));
 	    const jobs=[];
     	for (let i=0;i<toload.length;i++) {
-	     	await this._loader.call(this,toload[i]+1)
+	     	jobs.push(this._loader.call(this,toload[i]+1));
 	    }
+	    await Promise.all(jobs);
 	}	
 	lineCount(){
 		return this.header.starts[this.header.starts.length-1];

@@ -17,10 +17,10 @@ export const writeChanged=(fn,buf,verbose=false,enc='utf8')=>{ //write to fn onl
     const oldbuf=fs.existsSync(fn) && fs.readFileSync(fn,enc);
     if (oldbuf!==buf) {
         fs.writeFileSync(fn,buf,enc);
-        if (verbose) console.log(green('written'),fn,buf.length);
+        if (verbose) console.log(green('written'),fn,...humanBytes(buf.length));
         return true;
     }
-    if (verbose) console.log(grey('no diff'),fn,buf.length);
+    if (verbose) console.log(grey('no diff'),fn,...humanBytes(buf.length));
     return false;
 }
 
@@ -72,9 +72,7 @@ export const writePitaka=async (lbase,opts={})=>{
         }
         lbase.writePages((pagefn,buf)=>{
             const outfn=folder+'/'+pagefn;
-            if (writeChanged(outfn,buf)) {
-                console.log('written',outfn,...humanBytes(buf.length));
-            }
+            writeChanged(outfn,buf,true);
         }); 
     } else {
         const zip=new opts.JSZip();
@@ -98,5 +96,29 @@ export const deepReadDir = async (dirPath) => await Promise.all(
     return stat.isDirectory()|| stat.isSymbolicLink()? await deepReadDir(path) : path
   })
 );
+export const glob=(files,filepat)=>{
+    if (typeof files=='string') {
+        files=fs.readdirSync(files);
+    }
+    let start,end;
+    if (!filepat) return files;
+    const m=filepat.match(/\{(\d+)\-(\d+)\}/);
+    if (m) {
+        start=parseInt(m[1]);
+        end=parseInt(m[2]);
+        filepat=filepat.replace(/\{\d+\-\d+\}/,'(\\d+)');
+    }
+    const pat=filepat.replace(/\*/g,'[^\\.]+').replace(/\./g,'\\.').replace(/\?/g,'.');
 
+    const reg=new RegExp(pat);
+
+    if (start && end) {
+        return files.filter(f=>{
+            const m= f.match(reg);
+            return m&& (parseInt(m[1])>=start && parseInt(m[1])<=end) ;
+        })
+    } else {
+        return files.filter(f=>f.match(reg));
+    }
+}
 export {nodefs};
