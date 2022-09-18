@@ -36,30 +36,34 @@ export const dobuild=async (files, opts={})=>{
 	}
 	lbaser=await PTK.makeLineBaser(sources,compiler,getFileContent);
 
-	css=css||cssSkeleton(compiler.typedefs, compiler.ptkname);
+	css=css||PTK.cssSkeleton(compiler.typedefs, compiler.ptkname);
 
 	let written=0,outfn='';
 	process.stdout.write('\r');
 	const folder=outdir+lbaser.name+'/';
 	if (!fs.existsSync(folder)) fs.mkdirSync(folder);
-
-	if (opts.jsonp) {
-		lbaser.dump((fn,buf)=>{
-			if (writeChanged(folder+fn,buf)) {
-				written+=buf.length;
-			}
-		});
-		writeChanged(folder+'accelon22.css',css);
+	if (typeof lbaser=='string') { //fatal
+		console.log(red(lbaser))
 	} else {
-		let image;
-		if (com) {  //build with redbean
-			image=fs.readFileSync(com);//along with bin.js
+		if (opts.jsonp) {
+			lbaser.dump((fn,buf)=>{
+				if (writeChanged(folder+fn,buf)) {
+					written+=buf.length;
+				}
+			});
+			writeChanged(folder+'accelon22.css',css);
+		} else {
+			let image;
+			if (com) {  //build with redbean
+				image=fs.readFileSync(com);//along with bin.js
+			}
+			const ptkimage=makeInMemoryPtk(lbaser,css,image);
+			outfn=outdir+lbaser.name+(com?'.com':'.ptk');
+			await fs.writeFileSync(outfn,ptkimage);
+			written=ptkimage.length;
 		}
-		const ptkimage=makeInMemoryPtk(lbaser,css,image);
-		outfn=outdir+lbaser.name+(com?'.com':'.ptk');
-		await fs.writeFileSync(outfn,ptkimage);
-		written=ptkimage.length;
+
+		console.log('total page',lbaser.pagestarts.length,'          ');
+		console.log(jsonp?cyan(outdir+compiler.ptkname+'/*.js'):cyan(outfn),...humanBytes(written));
 	}
-	console.log('total page',lbaser.pagestarts.length,'          ');
-	console.log(jsonp?cyan(outdir+compiler.ptkname+'/*.js'):cyan(outfn),...humanBytes(written));
 }

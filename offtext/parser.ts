@@ -20,7 +20,7 @@ const parseCompactAttr=(str:string)=>{  //              序號和長度和標記
     }
     return out;
 }
-const parseAttributes=(rawAttrs:string,compactAttr:string)=>{
+export const parseAttributes=(rawAttrs:string,compactAttr:string)=>{
     let quotes=[];             //字串抽出到quotes，方便以空白為拆分單元,
     const getqstr=(str,withq)=>str.replace(QUOTEPAT,(m,qc)=>{
         return (withq?'"':'')+quotes[parseInt(qc)]+(withq?'"':'');
@@ -188,4 +188,19 @@ export class Offtext {
         if (!tag) return;
         return raw?this.raw.slice(tag.start,tag.end):this.plain.slice(tag.choff,tag.choff+tag.width);
     }
+}
+export const packOfftagAttrs=(attrs,opts={})=>{
+    let out='';
+    const omit=(opts||{}).omit;
+    const allowEmpty=opts.allowEmpty||false;
+    for (let key in attrs) {
+        if (omit && omit[key]) continue;
+        let v=attrs[key];
+        if (v.indexOf(" ")>-1|| (!v&&allowEmpty)  ) {
+            v='"'+v.replace(/\"/g,'\\"')+'"'; 
+        }
+        if (out) out+=' ';
+        if (attrs[key] && !allowEmpty) out+=key+'='+v;
+    }
+    return out.trim();
 }

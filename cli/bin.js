@@ -6,6 +6,8 @@ import * as PTK from '../nodebundle.cjs';
 import {onelexicon, text_lexicon, lexicons} from './textutils.js'
 await PTK.nodefs;
 
+const listfilename='files.txt';  //readdir if listfile is missing
+
 const cmd=process.argv[2] || '-h';
 const arg=process.argv[3];
 const arg2=process.argv[4];
@@ -20,21 +22,23 @@ const isSourceFile=fn=>{
 }
 const build=opts=>{
     let files;
-    let ptkname=process.argv[3];
+    let ptkname=arg;
     
-    if (!ptkname) {
-        files=fs.readdirSync('.').filter(isSourceFile);
+    if (!ptkname) { //pack all files in cwd
+        files=fs.existsSync(listfilename)?PTK.readTextLines(listfilename):fs.readdirSync('.').filter(isSourceFile);
+
         opts.outdir='../';
         opts.ptkname=Path.basename(process.cwd()).replace(/\..+$/,'');
-    } else {
+    } else { //pack 
         opts.ptkname=ptkname;
         opts.indir=ptkname+'.offtext/'
-        files=fs.readdirSync(opts.indir).filter(isSourceFile);
+        files=fs.existsSync(opts.indir+listfilename)?PTK.readTextLines(opts.indir+listfilename):fs.readdirSync(opts.indir).filter(isSourceFile);
         if (!files.length) {
             opts.indir=ptkname+'.src/'
             files=fs.readdirSync(opts.indir).filter(isSourceFile);
         }
     }
+
     if (!PTK.validPtkName(opts.ptkname)) {
         console.log(cyan(opts.ptkname),'does not match',PTK.regPtkName);
         return;
@@ -74,9 +78,9 @@ const help=()=>{
     console.log('if ptkname is missing, get source files from cwd and output to parent directory');
     console.log('缺少ptkname 则从当前目彔获取源文件');
     console.log(underline('Making Pitaka 制作'));
-    console.log('$',yellow('ptk ptk'),magenta('ptkname'), 'pack into a zip file   打包成zip文件',cyan('ptkname.ptk'))
+    console.log('$',yellow('ptk ptk '),magenta('ptkname'), 'pack into a zip file   打包成zip文件',cyan('ptkname.ptk'))
     console.log('$',yellow('ptk js '),magenta('ptkname'), '*.js files output to   输出js文件到 ',cyan('ptkname'))
-    console.log('$',yellow('ptk com'),magenta('ptkname'),  'stand-alone executable 制造自足程序 ',cyan('ptkname.com'))
+    //console.log('$',yellow('ptk com [lstfile]'),magenta('ptkname'),  'stand-alone executable 制造自足程序 ',cyan('ptkname.com'))
     console.log(underline('Text Processing 文本处理'));
     console.log('$',yellow('ptk unique   '),cyan('file'), 'remove duplicated item 去重复词');
     console.log('$',yellow('ptk dedup    '),cyan('file'), 'find out duplicated item 找出重复词');

@@ -75,7 +75,6 @@ export class LineBaser {
 		const newpage=opts.newpage;    // start a new page
 		const samepage=opts.samepage;  // save in same page , no matter how big it is
 
-
 		if ((buffer.length+this._accsize>this.pagesize|| newpage) && this._data.length) {
 			this.newPage(); //start a new page for big buffer.
 		}

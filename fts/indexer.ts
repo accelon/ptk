@@ -95,7 +95,7 @@ export class Indexer {
 
 		const words=tokentable.map(([word,nposting])=>word);
 
-		tokens.push(words.join(LEMMA_DELIMETER));
+		tokens.push(words.join(LEMMA_DELIMETER)); //stringarray cannot use packStrings
 		const bmpWithPosting=[];
 		for (let i=0;i<this.bmppostings.length;i++) {
 			if (this.bmppostings[i]) bmpWithPosting.push(i);

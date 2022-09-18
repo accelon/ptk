@@ -59,7 +59,8 @@ export class Typedef implements ITypedef {
 		return newtag;
 	}
 	deserialize(section){
-		const attrs=section.shift().split(LEMMA_DELIMETER);
+		const attrline=section.shift();
+		const attrs=attrline?attrline.split(LEMMA_DELIMETER):[];
 		if (section.length > attrs.length) {
 			this.linepos=unpackIntDelta(section.shift());
 		}
@@ -89,9 +90,7 @@ export class Typedef implements ITypedef {
 		if (this.linepos.length) {
 			out.unshift(packIntDelta(this.linepos));
 		}
-		if (attrs.length) {
-			out.unshift(attrs.join(LEMMA_DELIMETER));
-		}
+		out.unshift(attrs.join(LEMMA_DELIMETER));
 
 		return out.length?out.join('\n'):null;
 	}

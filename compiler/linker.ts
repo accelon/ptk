@@ -12,7 +12,9 @@ export const makeLineBaser=async (sourcebuffers,compiler:ICompiler,contentGetter
 
 	for (let i=0;i<sourcebuffers.length;i++) {
 		const buf=sourcebuffers[i];
+
 		const {text}=await contentGetter(i);
+
 		const ext=buf.name.match(/(.[a-z]+)/)[1]||'';
 		if (buf.name.endsWith('.css')) continue; // todo , should check sourcetype
 		compiler.compileBuffer(text,buf.name);
@@ -20,7 +22,7 @@ export const makeLineBaser=async (sourcebuffers,compiler:ICompiler,contentGetter
 		alldefines.push(...defines);
 		if (preload) lbaser.header.preload.push(name);
 		await lbaser.append(processed,{name:name.replace('*',''),samepage});
-
+		if (errors.length) console.log(errors)
 		let unindexablelines=textstart;
 		while (unindexablelines>0) {
 			indexer.addLine('');
@@ -50,7 +52,7 @@ export const makeLineBaser=async (sourcebuffers,compiler:ICompiler,contentGetter
 
 	for (let tag in compiler.typedefs) {
 		const serialized=compiler.typedefs[tag].serialize();
-		const name='^'+tag; 
+		const name='^'+tag;
 		serialized && lbaser.append( serialized, {name,newpage:true,samepage:true,type:'tag'});
 	}
 

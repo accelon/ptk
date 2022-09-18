@@ -10,7 +10,8 @@ export const sourceType=(firstline:string):SourceType=>{
 	const at=firstline.indexOf('\n');
 	firstline=at>-1? firstline.slice(0,at):firstline;
 	const [text,tags]=parseOfftext(firstline);
-	let preload=false ,sourcetype, sectionname,caption;
+	let preload=false ,sourcetype, sectionname,caption, chunktag;
+	let consumed=false;
 	if (tags.length && tags[0].name=='_') { //define a section
 		const attrs=tags[0].attrs;
 		preload=!!tags[0].attrs.preload;
@@ -21,8 +22,9 @@ export const sourceType=(firstline:string):SourceType=>{
 		if (attrs?.type?.toLowerCase()=='tsv') {
 			return [SourceType.TSV, tags[0], preload, chunktag ,sectionname,caption];
 		}
+		consumed=true;  //combined all consumed ^_ lines and put to 000.js payaload
 	}
-	return [sourcetype||SourceType.Offtext,tags[0],preload, chunktag,sectionname,caption];
+	return [sourcetype||SourceType.Offtext,tags[0],preload, chunktag,sectionname,caption,consumed];
 }
 export class CompiledFile implements ICompiledFile {
 	constructor (){
@@ -101,8 +103,8 @@ export class Compiler implements ICompiler {
 		let processed,samepage=false, defines=[] , attributes={};
 		const sa=new StringArray(buffer,{sequencial:true});
 		const firstline=sa.first();
-		const [sourcetype,tag,preload,chunktag,sectionname,caption]=sourceType(firstline); //only first tag on first line
-		if (sourcetype=='txt') defines.push(firstline);
+		const [sourcetype,tag,preload,chunktag,sectionname,caption,consumed]=sourceType(firstline); //only first tag on first line
+		if (sourcetype=='txt' && consumed) defines.push(firstline);
 		let name=sectionname||filename;//name of this section
 		let textstart=0;//starting line of indexable text
 		this.compilingname=filename;
@@ -146,7 +148,8 @@ export class Compiler implements ICompiler {
 			}
 		} else {
 			const out=[];
-			let linetext=sa.next();
+			let linetext=sa.first();
+			if (consumed) linetext=sa.next();
 			this.line=0;
 			while (linetext || linetext==='') {
 				const o=this.compileOfftext(linetext, defines);
@@ -162,7 +165,6 @@ export class Compiler implements ICompiler {
 		}
 		this.compiledFiles[filename]={name,caption,preload,sourcetype,processed,textstart,
 			errors:this.errors,samepage,defines, attributes};
-		this.errors=[];
 		return this.compiledFiles[filename];
 	}
 }
