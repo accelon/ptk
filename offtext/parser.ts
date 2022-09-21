@@ -177,9 +177,6 @@ export class Offtext {
         this.raw=raw;
         [this.plain, this.tags]=parseOfftext(raw);
     }
-    tagRawText(tag:number|Offtag):string {
-        return this.tagText(tag,true);
-    }
     getTag(ntag:number){
     	return this.tags[ntag];
     }
@@ -187,6 +184,9 @@ export class Offtext {
         if (typeof tag=='number') tag=this.tags[tag];
         if (!tag) return;
         return raw?this.raw.slice(tag.start,tag.end):this.plain.slice(tag.choff,tag.choff+tag.width);
+    }
+    tagRawText(tag:number|Offtag):string {
+        return this.tagText(tag,true);
     }
 }
 export const packOfftagAttrs=(attrs,opts={})=>{

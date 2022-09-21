@@ -2,6 +2,7 @@ import {LineBaser} from '../linebase/index.ts';
 import {ICompiler} from './compiler.ts';
 import {Indexer} from '../fts/index.ts';
 import {parseOfftext} from '../offtext/index.ts';
+import {serializeToc} from './toc.ts';
 
 export const makeLineBaser=async (sourcebuffers,compiler:ICompiler,contentGetter)=>{
 	lbaser=new LineBaser();
@@ -21,8 +22,8 @@ export const makeLineBaser=async (sourcebuffers,compiler:ICompiler,contentGetter
 		const {name,caption,errors,sourcetype,processed,samepage,preload,defines,textstart}=compiler.compiledFiles[buf.name];
 		alldefines.push(...defines);
 		if (preload) lbaser.header.preload.push(name);
-		await lbaser.append(processed,{name:name.replace('*',''),samepage});
-		if (errors.length) console.log(errors)
+		lbaser.append(processed,{name:name.replace('*',''),samepage});
+		if (errors.length) console.log(errors);
 		let unindexablelines=textstart;
 		while (unindexablelines>0) {
 			indexer.addLine('');
@@ -40,10 +41,12 @@ export const makeLineBaser=async (sourcebuffers,compiler:ICompiler,contentGetter
 	}
 	indexer.finalize();
 	const [tokens,postings]=indexer.serialize();
-	lbaser.header.preload.push('_tokens');
+	lbaser.header.eot = lbaser._data.length;
+	lbaser.header.preload.push('_tokens','_toc');
 	tokens.unshift('^_<type="tokens">');
 	lbaser.append(tokens,{newpage:true,name:'_tokens'});
 	lbaser.append(postings,{newpage:true,name:'_postings'});
+	if (compiler.toc.length) lbaser.append(serializeToc(compiler.toc), {newpage:true,name:'_toc'});
 
 	lbaser.payload=alldefines.join('\n');
 	if (!compiler.ptkname) {

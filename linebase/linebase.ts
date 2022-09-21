@@ -46,7 +46,7 @@ export class LineBase{
 	    if (from<0) return [];
 	    if (from>to) to+=from;
 	    const cstart=this.pageOfLine(from);
-	    const cend=this.pageOfLine(to);    
+	    const cend=this.pageOfLine(to);  
 	    const notloaded=[];
 	    for (let i=cstart;i<cend+1;i++) {
 	        if (!this._pages[i]) notloaded.push(i);

@@ -5,7 +5,8 @@ import {KeyField} from './keyfield.ts';
 import {KeysField} from './keysfield.ts';
 import {TextField} from './textfield.ts';
 import {NumberField} from './numberfield.ts';
-import {IOfftext,IOfftag} from './offtext/index.ts'
+import {IOfftext,IOfftag} from './offtext/index.ts';
+import {closeBracketOf} from '../utils/index.ts';
 export function createField(name,def:string,primarykeys,ownkeys) {
 	if (typeof def!=='string') {
 		return new Field (name,def);
@@ -29,6 +30,7 @@ export function createField(name,def:string,primarykeys,ownkeys) {
 
 	if (typename==='number') v=new NumberField (name,{pattern});
 	else if (typename==='unique_number') v=new NumberField (name,{pattern,unique:true,optional:false});
+	else if (typename==='unique') v=new TextField(name,{pattern,unique:true,optional:false});
 	else if (typename==='string') 	v=new Field (name,{pattern});
 	else if (typename==='text') 	v=new TextField (name,{pattern});
 	else if (typename==='key') {
@@ -58,9 +60,12 @@ export function validate_z(offtext:IOfftext,tag:IOfftag){
   	const msg='目彔深度错误 '+this.prevdepth+'+1!='+depth;
 	  this.errors.push({msg,offset:tag.offset,prev:this.prevzline});
   }
-  const text=offtext.tagText(tag);//.choff,tag.choff+tag.width);
-  const line=this.line;
 
+  let  text=offtext.tagText(tag);
+  const bracket=closeBracketOf(text);
+  if (text.slice(text.length-1)==bracket) text=text.slice(1,text.length-1);
+
+  const line=this.compiledLine+this.line;
   this.toc.push({depth,text,key:this.zcount, line});
   this.zcount++;
   this.prevzline=line;

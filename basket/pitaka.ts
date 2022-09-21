@@ -5,9 +5,10 @@ import {StringArray,unpackIntDelta,LEMMA_DELIMETER,bsearchNumber} from '../utils
 import {rangeOfAddress} from './address.ts';
 import {columnField,inlineNote,rowOf,scanPrimaryKeys} from './columns.ts';
 import {Inverted,tokenize,TokenType,plContain} from '../fts/index.ts';
+import {TableOfContent} from '../compiler/toc.ts';
 import {parseQuery,scanSections} from '../fts/query.ts';
 
-export const regPtkName =  /^[a-z]{2,16}$/
+export const regPtkName =  /^[a-z\-]{2,16}$/
 export const validPtkName=(name:string):boolean=>!!name.match(regPtkName);
 export interface IPitaka extends ILineBase{
 	columns:Map<string,any>,
@@ -21,6 +22,7 @@ export class Pitaka extends LineBase {
 		this.defines={};
 		this.primarykeys={};
 		this.columns={};
+		this.tocs={};
 		this.rangeOfAddress=rangeOfAddress;
 		this.scanPrimaryKeys=scanPrimaryKeys;
 		this.scanSections=scanSections;
@@ -46,6 +48,7 @@ export class Pitaka extends LineBase {
 				ranges.push(this.sectionRange('^'+n));
 			}
 		}
+
 		//load together , avoid duplicate jobs
 		await this.loadLines(ranges);
 
@@ -74,19 +77,22 @@ export class Pitaka extends LineBase {
 			}
 		}
 	}
-	deserialize(section) {
+	deserialize(section) {	
 		if (!section.length) return;
 		const firstline=section[0];
-		const [srctype]=sourceType(firstline);
-		if (srctype=='tsv') {
+		const {sourcetype,name}=sourceType(firstline);
+		if (sourcetype==='tsv') {
 			const column=new Column();
 			column.deserialize(section);
 			this.columns[column.name]=column;
 			this.primarykeys[column.name]=column.keys;
-		} else if (srctype=='tokens') {
+		} else if (sourcetype==='tokens') {
 			section.shift();
 			const postingstart=this.sectionRange('_postings')[0];
 			this.inverted=new Inverted(section,postingstart);
+		} else if (sourcetype==='toc') {
+			section.shift();
+			this.tocs[ name|| '*'] = new TableOfContent(section,name);
 		}
 	}
 	async loadPostings(s:string){

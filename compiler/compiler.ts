@@ -10,21 +10,21 @@ export const sourceType=(firstline:string):SourceType=>{
 	const at=firstline.indexOf('\n');
 	firstline=at>-1? firstline.slice(0,at):firstline;
 	const [text,tags]=parseOfftext(firstline);
-	let preload=false ,sourcetype, sectionname,caption, chunktag;
+	let preload=false ,sourcetype, name,caption, chunktag;
 	let consumed=false;
 	if (tags.length && tags[0].name=='_') { //define a section
 		const attrs=tags[0].attrs;
 		preload=!!tags[0].attrs.preload;
 		chunktag=tags[0].attrs.chunktag||'ck';
 		sourcetype=tags[0].attrs.type;
-		sectionname=tags[0].attrs.name;
+		name=tags[0].attrs.name;
 		caption=tags[0].attrs.caption;
 		if (attrs?.type?.toLowerCase()=='tsv') {
-			return [SourceType.TSV, tags[0], preload, chunktag ,sectionname,caption];
+			return {sourcetype:SourceType.TSV, tag:tags[0], preload, chunktag ,name,caption,consumed:false};
 		}
 		consumed=true;  //combined all consumed ^_ lines and put to 000.js payaload
 	}
-	return [sourcetype||SourceType.Offtext,tags[0],preload, chunktag,sectionname,caption,consumed];
+	return {sourcetype:sourcetype||SourceType.Offtext,tag:tags[0],preload, chunktag,name,caption,consumed};
 }
 export class CompiledFile implements ICompiledFile {
 	constructor (){
@@ -103,9 +103,9 @@ export class Compiler implements ICompiler {
 		let processed,samepage=false, defines=[] , attributes={};
 		const sa=new StringArray(buffer,{sequencial:true});
 		const firstline=sa.first();
-		const [sourcetype,tag,preload,chunktag,sectionname,caption,consumed]=sourceType(firstline); //only first tag on first line
+		const {sourcetype,tag,preload,chunktag,name,caption,consumed}=sourceType(firstline); //only first tag on first line
 		if (sourcetype=='txt' && consumed) defines.push(firstline);
-		let name=sectionname||filename;//name of this section
+		let compiledname = name || filename;//name of this section
 		let textstart=0;//starting line of indexable text
 		this.compilingname=filename;
 		this.stopcompile=false;
@@ -135,7 +135,7 @@ export class Compiler implements ICompiler {
 			const [serialized,_textstart]=columns.fromStringArray(sa,1) ; //build from TSV, start from line 1
 			textstart=_textstart;
 			if (serialized) {
-				name = attrs.name || filename;  //use filename if name is not specified
+				compiledname = attrs.name || filename;  //use filename if name is not specified
 				serialized.unshift(firstline); //keep the first line
 				//primary key can be refered by other tsv
 				if (attrs.name) this.primarykeys[attrs.name]= columns.keys;
@@ -163,7 +163,7 @@ export class Compiler implements ICompiler {
 			this.compiledLine += out.length;
 			processed=out;
 		}
-		this.compiledFiles[filename]={name,caption,preload,sourcetype,processed,textstart,
+		this.compiledFiles[filename]={name:compiledname,caption,preload,sourcetype,processed,textstart,
 			errors:this.errors,samepage,defines, attributes};
 		return this.compiledFiles[filename];
 	}

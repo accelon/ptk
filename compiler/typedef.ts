@@ -67,8 +67,10 @@ export class Typedef implements ITypedef {
 		for (let i=0;i<attrs.length;i++) {
 			const aname=attrs[i];
 			const V=this.fields[aname];
-			if (V.type=='number'){
+			if (V?.type==='number'){
 				V.values=unpackInt(section.shift());	
+			} else if (V?.type==='text') {
+				V.values=section.shift().split('\t');
 			}
 		}
 		if (section.length) {
@@ -77,21 +79,21 @@ export class Typedef implements ITypedef {
 	}
 	serialize(){
 		const attrs=[],out=[];
+		if (this.linepos.length) {
+			out.push(packIntDelta(this.linepos));
+		}
 		for (let aname in this.fields) {
 			const V=this.fields[aname];
-			if (!V.foreign) {
-				if (V.type=='number') {
-					attrs.push(aname);
-					out.push(packInt(V.values.map(it=>parseInt(it))));
-				}
+			if (V.foreign) continue;
+			if (V.type=='number') {
+				attrs.push(aname);
+				out.push(packInt(V.values.map(it=>parseInt(it))));
+			} else if (V.type=='text') {
+				attrs.push(aname);
+				out.push( V.values.join('\t'));
 			}
 		}
-		
-		if (this.linepos.length) {
-			out.unshift(packIntDelta(this.linepos));
-		}
 		out.unshift(attrs.join(LEMMA_DELIMETER));
-
 		return out.length?out.join('\n'):null;
 	}
 }

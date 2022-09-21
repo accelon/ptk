@@ -1,4 +1,4 @@
-import {parseAddress,parseElementId,sameAddress,IAddress,usePtk} from '../basket/index.ts';
+import {parseAddress,sameAddress,IAddress,usePtk} from '../basket/index.ts';
 import {parseCriteria} from '../fts/criteria.ts';
 import {plTrim,plContain} from '../fts/posting.ts';
 import {MAXPHRASELEN} from '../fts/constants.ts';
@@ -127,11 +127,12 @@ class RangeAction extends Action {
 	constructor(addr:IAddress,depth=0){
 		super(addr,depth);
 		this.eleid=this.action;
+		this.address =addr;
 		this.diggable=true;
 	}
 	async run(){
 		const ptk=usePtk(this.ptkname);
-		[this.start,this.end]=ptk.rangeOfAddress(this.eleid);
+		[this.start,this.end]=ptk.rangeOfAddress(this.address);
 	}
 }
 
