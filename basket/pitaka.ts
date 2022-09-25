@@ -114,8 +114,9 @@ export class Pitaka extends LineBase {
 		const typedef=this.typedefOf(tagname);
 		const at=bsearchNumber(typedef.linepos, line)-1;
 		const lineoff=line-typedef.linepos[at];
-		const id=typedef.fields.id.values[at];
-		return {id, tagname, caption:this.columns[typedef.column].keys.get(id),lineoff};
+		const id=typedef.fields?.id?.values[at];
+		const caption=this.columns[typedef.column]?.keys?.get(id);
+		return {id, tagname, caption,lineoff};
 	}
 	getPostings(s:string){
 		const nPostings=this.inverted.nPostingOf(s);

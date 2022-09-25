@@ -48,6 +48,9 @@ export const plCount=(pl:number[],plgroup:number[])=>{
         }
         p=end;
     }
+    for (let i=0;i<out.length;i++) {
+    	if (typeof out[i]!=='number') out[i]=0;
+    }
     return out;
 }
 export const plTrim=(pl:number[],from:number,to:number)=>{

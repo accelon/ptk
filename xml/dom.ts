@@ -61,19 +61,19 @@ export const xpath=(root,p)=>{
 }
 export const walkDOM=(el,ctx,onOpen={},onClose={},onText=null)=>{
     onText=onText||ctx.onText;
-    if (typeof el==='string') return onText?onText(el,ctx):el;
-    let out='';
+    if (typeof el==='string') ctx.out+=onText?onText(el,ctx):el;
     const openhandler= onOpen[el.name] || onOpen["*"];
     if (openhandler) {
-        const out2 = openhandler(el,ctx);
-        if (typeof out2=='string') out=out2;
+        const out2 = openhandler(el,ctx)||'';
+        if (typeof out2=='string') ctx.out+=out2;
     }
     if (el.children && el.children.length) {
-        out+=el.children.map(e=>walkDOM(e,ctx,onOpen,onClose,onText)).join('');
+        for (let i=0;i<el.children.length;i++) {
+            walkDOM(el.children[i],ctx,onOpen,onClose,onText);
+        }
     }
     const closehandler= onClose[el.name] || onClose["*"];
-    if (closehandler) out+=closehandler(el,ctx)||'';    
-    return out;
+    if (closehandler) ctx.out+= closehandler(el,ctx)||'';
 }
 export const onOfftext=(el:IElement,ctx:DOMContext,onText)=>{
     onText=onText||ctx.onText;
@@ -96,5 +96,6 @@ export const onOfftext=(el:IElement,ctx:DOMContext,onText)=>{
 }
 export const walkDOMOfftext = (el:IElement,ctx:DOMContext,onOpen={},onClose={}) =>{
     /* helper for emiting offtext format*/
-    return walkDOM(el,ctx,onOpen,onClose, onOfftext );
+    walkDOM(el,ctx,onOpen,onClose, onOfftext );
+    return ctx.out;
 }
