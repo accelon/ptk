@@ -125,6 +125,7 @@ export async function scanSections(tofind:string,opts) {
         const tokenrange=ptk.sectionRange(sections[i]).map(it=>ptk.inverted.tokenlinepos[it]);
         ranges.push(tokenrange);
     }
+    console.log(ptk.header.fulltextcaption)
     return plCount(postings[0], ranges).map((count,idx)=>{
         return {count, caption: ptk.header.fulltextcaption[idx], name:ptk.header.fulltext[idx]}
     });

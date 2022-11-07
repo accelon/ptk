@@ -56,6 +56,7 @@ export function createField(name,def:string,primarykeys,ownkeys) {
 
 export function validate_z(offtext:IOfftext,tag:IOfftag){
   const depth=parseInt(tag.name.slice(1,2),36)-10;
+  if (isNaN(depth)) return; //invalid z
   if (!(depth==this.prevdepth|| depth==this.prevdepth+1 || depth<this.prevdepth)) {
   	const msg='目彔深度错误 '+this.prevdepth+'+1!='+depth;
 	  this.errors.push({msg,offset:tag.offset,prev:this.prevzline});

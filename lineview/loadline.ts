@@ -35,11 +35,9 @@ async function loadLines(lva){
 		}
 		const segment=[];
 		const lines=divisions[i].getLines();
-		
 		const linetexts=ptk.getLines(lines);
 
 		const prevdepth=i?divisions[i-1].depth:0;
-		let remain = (divisions[i].end - divisions[i].start) - linetexts.length;
 
 		for (let j=0;j<linetexts.length;j++) { //優先顯示更深的層級框線
 			const text=linetexts[j];
@@ -55,9 +53,11 @@ async function loadLines(lva){
 
 			//show remain button on last line
 			//todo , do not show on left part of splited division
+			const active= activeline-divisions[i].from == j   ; //relative to begining of chunk
+
 			segment.push({seq,idx:j==0?i:-1,ptkname, key:ptkname+':'+(lines[j]), 
-				active: activeline==j,
-				text, depth, edge,closable, remain: (j==linetexts.length-1)?remain:0})
+				line:lines[j],active,text, depth, edge,closable});
+			//, remain: (j==linetexts.length-1)?remain:0})
 			seq++;
 		}
 		out.push(...segment);

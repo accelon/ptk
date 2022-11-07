@@ -6,6 +6,7 @@ import {validate_z} from './fielder.ts'
 import {StringArray} from '../utils/stringarray.ts'
 import {Typedef} from './typedef.ts'
 import {VError,MAX_VERROR} from './error.ts'
+import {removeBracket} from '../utils/cjk.ts';
 export const sourceType=(firstline:string):SourceType=>{	
 	const at=firstline.indexOf('\n');
 	firstline=at>-1? firstline.slice(0,at):firstline;
@@ -65,7 +66,7 @@ export class Compiler implements ICompiler {
 		const ot=new Offtext(str);
 		let tagtouched=false, updated=false ;
 		for (let i=0;i<ot.tags.length;i++) {
-			const tag=ot.tags[i]
+			const tag=ot.tags[i];
 			if (tag.name[0]==':') {
 				const newtagname=tag.name.slice(1);
 				if (this.typedefs[newtagname]) {
@@ -83,7 +84,7 @@ export class Compiler implements ICompiler {
 					if (!typedef) {
 						this.onError(VError.MissingTypedef, tag.name);
 					} else {
-						const newtag=typedef.validateTag(tag , this.line,this.compiledLine,this.onError.bind(this));
+						const newtag=typedef.validateTag(ot,tag , this.line,this.compiledLine,this.onError.bind(this));
 						if (newtag) {
 							str=updateOfftext(str,tag,newtag);
 							updated=true;
@@ -152,6 +153,7 @@ export class Compiler implements ICompiler {
 			if (consumed) linetext=sa.next();
 			this.line=0;
 			while (linetext || linetext==='') {
+
 				const o=this.compileOfftext(linetext, defines);
 				if (o || o=='') {
 					out.push(o);

@@ -52,6 +52,8 @@ export class Pitaka extends LineBase {
 		//load together , avoid duplicate jobs
 		await this.loadLines(ranges);
 
+		//todo , need to preload ck tag
+
 		for (let i=0;i<this.header.preload.length;i++) {
 			const section=this.getSection(this.header.preload[i]);
 			if (section.length)	this.deserialize(section);
@@ -114,8 +116,11 @@ export class Pitaka extends LineBase {
 		const typedef=this.typedefOf(tagname);
 		const at=bsearchNumber(typedef.linepos, line)-1;
 		const lineoff=line-typedef.linepos[at];
+		let caption=typedef.innertext.get(at);
 		const id=typedef.fields?.id?.values[at];
-		const caption=this.columns[typedef.column]?.keys?.get(id);
+		if (!caption) {
+			caption=this.columns[typedef.column]?.keys?.get(id);			
+		}
 		return {id, tagname, caption,lineoff};
 	}
 	getPostings(s:string){

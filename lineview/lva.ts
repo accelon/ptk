@@ -40,9 +40,9 @@ export class LVA {
 		return this;
 	}
 	static stringify(lvnode,hideptkname=false, hideaction=false){
-	 	const {depth,action,from,till,activeline,ptkname,end} = lvnode;
+	 	const {depth,action,from,till,activeline,ptkname} = lvnode;
 	 	return ( (ptkname&&(!action || !hideptkname)) ?ptkname+':':'')
-	 			+(hideaction?'':action)+(from?':'+from:'')+(till>0&&till&&till<end?'<'+till:'')
+	 			+(hideaction?'':action)+(from?':'+from:'')+(till>0?'<'+till:'')
 	 			+(activeline>-1?'>'+activeline:'');
 	}
 	stringify(lvnode:number|Map,hideptkname=false,hideaction=false) {
@@ -94,14 +94,52 @@ export class LVA {
 		}
 		return -1;
 	}
+	canless(idx){
+		const division=this._divisions[idx];
+		if (!division) return;
+		return division.till-division.from>ACTIONPAGESIZE;
+	}
+	less(idx){
+		const division=this._divisions[idx];
+		if (!division) return;
+
+		division.till-=ACTIONPAGESIZE;
+		if (division.till-ACTIONPAGESIZE<division.from) division.till=division.from+ACTIONPAGESIZE;
+		return this;
+	}
 	more(idx){
 		const division=this._divisions[idx];
 		if (!division) return;
-		const linecount=division.end-division.start;
+		const linecount=division.last-division.first;
 		const till=division.till;
-		if (till==-1) division.till=division.from+ACTIONPAGESIZE*2;
+		if (till==-1) division.till=division.from+ACTIONPAGESIZE;
 		else division.till+=ACTIONPAGESIZE;
 		if (division.till>linecount) division.till=linecount;
+		return this;
+	}
+	next(idx){
+		const division=this._divisions[idx];
+		if (!division) return;
+		const linecount=division.last-division.first;
+		
+		const pagesize=division.till-division.from;
+
+		division.from=division.till-1;
+		if (division.from<0)division.from=0;
+		division.till=division.from+pagesize;
+		
+		if (division.from+1>linecount) division.from=linecount-1;
+		if (division.till>linecount) division.till=linecount;
+		return this;
+	}
+	prev(idx){
+		const division=this._divisions[idx];
+		if (!division) return;
+		const pagesize=division.till-division.from;
+
+		division.from-=pagesize-1;
+		if (division.from<0) division.from=0;
+		division.till= division.from+pagesize;
 		return this;
 	}
 	setFrom(idx,from){
@@ -110,7 +148,7 @@ export class LVA {
 		
 		division.from=from;
 		if (division.till!==-1) division.till=division.from+ACTIONPAGESIZE;
-		if (division.till>division.end) division.till=division.end;
+		if (division.till>division.last-division.first) division.till=division.last-division.first;
 
 		return this;
 	}
@@ -163,7 +201,7 @@ export class LVA {
 		let breakleft,breakright;
 		const toinsert=parseAddress(digaddr);
 
-		if ((addr.from && addr.till && addr.till==addr.from) || splitat+1>=addr.end) { //one line only, no breakright
+		if ((addr.from && addr.till && addr.till==addr.from) || splitat+1>=(addr.last-addr.first)) { //one line only, no breakright
 			breakleft=addr;
 			if (addr.action==toinsert.action) { //delete
 				this._divisions.splice(idx,1);

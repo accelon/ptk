@@ -11,8 +11,12 @@ export class Action implements IAction{
 		this.act=Action.parse(addr.action);
 		this.action=addr.action;
 		this.depth=depth;
-		this.start=0;
-		this.end=0;
+
+		this.start=0; //display starting line
+		this.end=0;   //display ending line
+		this.first=0; //first line of the chunk
+		this.last=0;  //last line of the chunk
+
 		this.activeline=addr.activeline||-1; //highlight active line
 		this.from=addr.from;
 		this.till=addr.till||-1; //-1 to the end
@@ -26,7 +30,7 @@ export class Action implements IAction{
 
 	}
 	lineOf(idx:number){
-		return this.start+idx;
+		return this.first+idx;
 	}
 	getLines(){
 		const out=[];
@@ -34,7 +38,7 @@ export class Action implements IAction{
 		if (till==-1) till=this.from+ACTIONPAGESIZE; //show partial content if not mention till
 		for (let i=this.from;i<till;i++) {
 			const line=this.lineOf(i);
-			if (line<this.start || line>=this.end) continue;
+			if (line<this.first || line>=this.last) continue;
 			out.push(line);
 		}
 		return out;
@@ -72,7 +76,7 @@ class FullTextAction extends Action{
 		}
 		let till=this.till;
 		let from=this.from;
-		if (till==-1) till=this.from+ACTIONPAGESIZE;
+		if (till==-1) till=this.from+this.pagesize;
 
 		let  arr=fromObj(lineobj,(a,b)=>[a , b.sort() ]).sort((a,b)=>a[0]-b[0]);
 		this.start=0;
@@ -132,7 +136,7 @@ class RangeAction extends Action {
 	}
 	async run(){
 		const ptk=usePtk(this.ptkname);
-		[this.start,this.end]=ptk.rangeOfAddress(this.address);
+		[this.first, this.last]=ptk.rangeOfAddress(this.address);
 	}
 }
 

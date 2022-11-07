@@ -1,6 +1,7 @@
 import {Field} from './basefield.ts';
 import {VError} from './error.ts';
 import {bsearch} from "../utils/bsearch.ts";
+/* link to foriegn key */
 export class KeyField extends Field {
 	constructor(name:string,def:Map){
 		super(name,def);

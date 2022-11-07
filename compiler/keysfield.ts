@@ -1,6 +1,7 @@
 import {Field} from './basefield.ts';
 import {VError} from './error.ts';
 import {bsearch} from "../utils/bsearch.ts";
+/* multiple key separated by comma */
 export class KeysField extends Field {
 	constructor(name:string,def:Map){
 		super(name,def);

@@ -82,12 +82,9 @@ export function rangeOfAddress(address:string|IAddress):ILineRange{
 	const ranges=rangeOfElementId.call(this,eleid);
 	if (ranges.length) {
 		const [first,last]=ranges[ranges.length-1] ; 
-		let start=first+ (from||0 ) ;
-		let end=till?first+till : last;
-		if (start>last) start=last;
-		if (end>last) end=last;
-		return [start,end];
+		return [first,last];
 	} else {
-		return [from,(till?till:from+1)]; //數字型不知道終點，預設取一行
+		const end=(till?till:from+1);
+		return [0,end ]; //數字型不知道終點，預設取一行
 	}
 }

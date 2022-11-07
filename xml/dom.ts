@@ -33,6 +33,22 @@ export const DOMFromString=(str,debug)=>{
     sax.write(str);
     return tree;
 }
+export const walkDOM=(el,ctx,onOpen={},onClose={},onText=null)=>{
+    onText=onText||ctx.onText;
+    if (typeof el==='string') ctx.out+=onText?onText(el,ctx):el;
+    const openhandler= onOpen[el.name] || onOpen["*"];
+    if (openhandler) {
+        const out2 = openhandler(el,ctx)||'';
+        if (typeof out2==='string') ctx.out+=out2;
+    }
+    if (el.children && el.children.length) {
+        for (let i=0;i<el.children.length;i++) {
+            walkDOM(el.children[i],ctx,onOpen,onClose,onText);
+        }
+    }
+    const closehandler= onClose[el.name] || onClose["*"];
+    if (closehandler) ctx.out+= closehandler(el,ctx)||'';
+}
 export function JSONify(el) {
     if (typeof el !== "object") return el;
     return {
@@ -59,22 +75,7 @@ export const xpath=(root,p)=>{
     }
     return el;
 }
-export const walkDOM=(el,ctx,onOpen={},onClose={},onText=null)=>{
-    onText=onText||ctx.onText;
-    if (typeof el==='string') ctx.out+=onText?onText(el,ctx):el;
-    const openhandler= onOpen[el.name] || onOpen["*"];
-    if (openhandler) {
-        const out2 = openhandler(el,ctx)||'';
-        if (typeof out2=='string') ctx.out+=out2;
-    }
-    if (el.children && el.children.length) {
-        for (let i=0;i<el.children.length;i++) {
-            walkDOM(el.children[i],ctx,onOpen,onClose,onText);
-        }
-    }
-    const closehandler= onClose[el.name] || onClose["*"];
-    if (closehandler) ctx.out+= closehandler(el,ctx)||'';
-}
+
 export const onOfftext=(el:IElement,ctx:DOMContext,onText)=>{
     onText=onText||ctx.onText;
     let s=el;
@@ -94,6 +95,7 @@ export const onOfftext=(el:IElement,ctx:DOMContext,onText)=>{
         return ctx.started?s:'';
     }
 }
+
 export const walkDOMOfftext = (el:IElement,ctx:DOMContext,onOpen={},onClose={}) =>{
     /* helper for emiting offtext format*/
     walkDOM(el,ctx,onOpen,onClose, onOfftext );

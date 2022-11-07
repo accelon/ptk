@@ -2,7 +2,9 @@ import {IOfftag} from '../offtext/index.ts';
 import {ITypedef} from './interfaces.ts';
 import {createField} from './fielder.ts';
 import {VError} from './error.ts';
-import {packInt,packIntDelta,unpackIntDelta,unpackInt,LEMMA_DELIMETER} from '../utils/index.ts'
+import {StringArray} from '../utils/stringarray.ts'
+
+import {packInt,packIntDelta,unpackIntDelta,unpackInt,LEMMA_DELIMETER,removeBracket} from '../utils/index.ts'
 /* types of attributes defined by ^:  */
 const reservedAttributes={ //是指令不是屬性名, 
 	caption:true,
@@ -18,6 +20,7 @@ export class Typedef implements ITypedef {
 		this.mandatory={};  
 		this.tagname=tagname;
 		this.linepos=[];
+		this.innertext=[];
 		this.savelinepos=false;   
 		for (let aname in attrs) {
 			const def=attrs[aname];
@@ -29,15 +32,22 @@ export class Typedef implements ITypedef {
 		this.attrs=attrs;
 		this.column='';  //backing column of this tag , see basket/pitaka.ts::init()
 	}
-	validateTag(tag:IOfftag , line:number, compiledLine:number , onError) {
+	validateTag(offtext:IOfftext, tag:IOfftag , line:number, compiledLine:number , onError) {
 		let touched=false, newtag;
 		if (this.fields.id || this.savelinepos) { //auto save linepos if validating id
 			this.linepos.push(compiledLine+line);
 		}
+		if (this.fields.bracket) { // false to keep the bracket
+			let tagtext=offtext.tagText(tag);
+			if (this.fields.bracket!=='true') tagtext=removeBracket(tagtext);
+			this.innertext.push(tagtext);
+		}
+
 		for (let aname in tag.attrs) {
 			const V=this.fields[aname];
 			let value=tag.attrs[aname];
 			if (V&&!V.foreign) V.values.push(tag.attrs[aname]);
+
 			let [err,newvalue,refline]= (V&&V.validate( tag.attrs[aname], line)) ||[0,value,-1];
 			if (err) {
 				onError(err, newvalue , refline);
@@ -64,11 +74,14 @@ export class Typedef implements ITypedef {
 		if (section.length > attrs.length) {
 			this.linepos=unpackIntDelta(section.shift());
 		}
+		if (this.fields.bracket) {
+			this.innertext=new StringArray(section.shift(),{sep:LEMMA_DELIMETER});
+		}
 		for (let i=0;i<attrs.length;i++) {
 			const aname=attrs[i];
 			const V=this.fields[aname];
 			if (V?.type==='number'){
-				V.values=unpackInt(section.shift());	
+				V.values=unpackInt(section.shift());
 			} else if (V?.type==='text') {
 				V.values=section.shift().split('\t');
 			}
@@ -81,6 +94,9 @@ export class Typedef implements ITypedef {
 		const attrs=[],out=[];
 		if (this.linepos.length) {
 			out.push(packIntDelta(this.linepos));
+		}
+		if (this.fields.bracket) {
+			out.push(this.innertext.join(LEMMA_DELIMETER));
 		}
 		for (let aname in this.fields) {
 			const V=this.fields[aname];

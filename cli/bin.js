@@ -85,6 +85,8 @@ const help=()=>{
     console.log('$',yellow('ptk unique   '),cyan('file'), 'remove duplicated item 去重复词');
     console.log('$',yellow('ptk dedup    '),cyan('file'), 'find out duplicated item 找出重复词');
     console.log('$',yellow('ptk listwords'),cyan('file'),magenta('lexicon'), 'list words found in lexicon 列出文本中出现的词');
+    console.log('$',yellow('ptk ngram'),cyan('file'),magenta('gram=2'), 'build ngram 找常見詞');
+
     console.log(underline('Lexicon Processing 词典处理'));
     console.log('$',yellow('ptk union    '),cyan('lexicon1'),cyan('lexicon2'),magenta('...'),'merge all words in lexicons 词典的联集')
     console.log('$',yellow('ptk intersect'),cyan('lexicon1'),cyan('lexicon2'),magenta('...'),'find out common words 词典的交集')
