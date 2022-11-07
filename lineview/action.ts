@@ -12,8 +12,6 @@ export class Action implements IAction{
 		this.action=addr.action;
 		this.depth=depth;
 
-		this.start=0; //display starting line
-		this.end=0;   //display ending line
 		this.first=0; //first line of the chunk
 		this.last=0;  //last line of the chunk
 
@@ -76,17 +74,18 @@ class FullTextAction extends Action{
 		}
 		let till=this.till;
 		let from=this.from;
-		if (till==-1) till=this.from+this.pagesize;
+		if (till==-1) till=this.from+ACTIONPAGESIZE;
 
 		let  arr=fromObj(lineobj,(a,b)=>[a , b.sort() ]).sort((a,b)=>a[0]-b[0]);
-		this.start=0;
-		this.end=arr.length;
+		this.first=0;
+		this.last=arr.length;
 		if (till>=arr.length) till=arr.length;
 		arr=arr.slice(from,till);
+
 		const lines=arr.map(it=>parseInt(it[0]));
 		const hits =arr.map(it=> it[1].map(n=>Math.floor(n/MAXPHRASELEN)) );
 		const phraselength =arr.map(it=> it[1].map(n=>n%MAXPHRASELEN));
-		this.ownerdraw={painter:'excerpt', data:{ end:this.end, 
+		this.ownerdraw={painter:'excerpt', data:{ last:this.last, 
 			from:this.from, name, caption,ptk,tofind , lines,hits,phraselength}} ;
 	}	
 }
@@ -118,7 +117,7 @@ class QueryAction extends Action{
 			const items=matcher.call(lexicon,tofind);
 			const tagname=ptk.columns[name]?.attrs?.tagname;
 			const foreign=ptk.columns[name]?.attrs?.foreign || ptk.columns[name]?.fieldnames[0];
-			this.end=1;
+			this.last=1;
 			this.till=1;
 			const caption=ptk.columns[name]?.caption;
 			this.ownerdraw={painter:'queryresult',

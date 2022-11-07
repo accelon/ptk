@@ -4,6 +4,7 @@ import {ILineViewAddress} from './interfaces.ts';
 import {ILineRange} from '../linebase/index.ts';
 import {load} from './loadline.ts';
 import {createAction,createNestingAction,ACTIONPAGESIZE} from './action.ts';
+
 export class LVA {
 	constructor (addresses=''){
 		this._divisions=LVA.parse(addresses);
@@ -140,6 +141,14 @@ export class LVA {
 		division.from-=pagesize-1;
 		if (division.from<0) division.from=0;
 		division.till= division.from+pagesize;
+		return this;
+	}
+	top(idx){
+		const division=this._divisions[idx];
+		if (!division) return;
+		const pagesize=division.till-division.from;
+		division.from=0;
+		division.till=pagesize;
 		return this;
 	}
 	setFrom(idx,from){
