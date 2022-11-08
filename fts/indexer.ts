@@ -1,24 +1,36 @@
-import {splitUTF32Char,IStringArray,packIntDelta,fromObj,alphabetically0,LEMMA_DELIMETER} from '../utils/index.ts';
-import {tokenize,TokenType} from './tokenize.ts';
+import {tokenize,TokenType} from './tokenize.ts' ;
+import {IStringArray,packIntDelta,fromObj,alphabetically0,LEMMA_DELIMETER} from '../utils/index.ts';
 
 export class Indexer {
-	constructor(content){
+	wordscount:number
+	words:Object
+	postingcount:Array<number>
+	bmp :Int32Array
+	tokenlist:Array<number>
+	postings:Array< Int32Array>
+	tokenlinepos:Array<number>
+	bmppostings:Array<Int32Array>
+	bmptokencount:Int32Array
+	tokencount:Int32Array
+	finalized:boolean
+	constructor(){
 		this.wordscount=0;
-		this.words={}, this.postingcount=[];
+		this.words=new Object();
+		this.postingcount=[];
 		this.bmp=new Int32Array(65536);
-		this.tokenlist=[];
-		this.postings;
+		this.tokenlist = [];
+		this.postings = [];
 		this.tokenlinepos = [];
 		this.bmppostings=new Array(65536);
 		this.bmptokencount= new Int32Array(65536);
-		this.tokencount= null;//new Int32Array(ngramcount);
+		this.tokencount=new Int32Array(0);//later
 		this.finalized=false;
 	}
 	addLine(line:string) {
 		const tokens=tokenize(line);
 		for (let j=0;j<tokens.length;j++) {
-			const {text,choff,tkoff,type} = tokens[j];
-			const cp=text.codePointAt(0);
+			const {text,type} = tokens[j];
+			const cp=text.codePointAt(0)||0;
 			if (type==TokenType.CJK_BMP) {
 				this.bmp[cp]++;
 				this.tokenlist.push(cp);
@@ -87,13 +99,13 @@ export class Indexer {
 		if (!this.finalized) {
 			throw "not finalized";
 		}
-		const tokens=[] , postings=[];
+		const tokens=[] , postings=[] ;
 		let packedsize=0;
 
-		const tokentable=fromObj(this.words, (word,nposting)=>[word,nposting]);
+		const tokentable=fromObj(this.words, (word:string,nposting:number)=>[word,nposting]);
 		tokentable.sort(alphabetically0);
 
-		const words=tokentable.map(([word,nposting])=>word);
+		const words=tokentable.map(([word])=>word);
 
 		tokens.push(words.join(LEMMA_DELIMETER)); //stringarray cannot use packStrings
 		const bmpWithPosting=[];

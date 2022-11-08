@@ -1,14 +1,13 @@
 import {ILineBase,LineBase,Column} from '../linebase/index.ts';
 import {Compiler,sourceType} from '../compiler/index.ts'
-import {parseOfftext} from '../offtext/index.ts'
-import {StringArray,unpackIntDelta,LEMMA_DELIMETER,bsearchNumber} from '../utils/index.ts';
+import {unpackIntDelta,bsearchNumber} from '../utils/index.ts';
 import {rangeOfAddress} from './address.ts';
 import {columnField,inlineNote,rowOf,scanPrimaryKeys} from './columns.ts';
-import {Inverted,tokenize,TokenType,plContain} from '../fts/index.ts';
+import {Inverted,plContain} from '../fts/index.ts';
 import {TableOfContent} from '../compiler/toc.ts';
 import {parseQuery,scanSections} from '../fts/query.ts';
 
-export const regPtkName =  /^[a-z\-]{2,16}$/
+export const regPtkName =  /^[a-z\-_]{2,16}$/
 export const validPtkName=(name:string):boolean=>!!name.match(regPtkName);
 export interface IPitaka extends ILineBase{
 	columns:Map<string,any>,

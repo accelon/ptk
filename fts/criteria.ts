@@ -3,7 +3,7 @@ export interface ICriterion {
 	tofind:string,
 	res:[]
 }
-export const runCriterion=(ptk:IPitaka,name,c:ICriterion)=>{
+export const runCriterion=(ptk,name,c:ICriterion)=>{
 	const typedef=ptk.columns[name]
 	console.log('run',name)
 	

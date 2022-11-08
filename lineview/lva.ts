@@ -41,10 +41,10 @@ export class LVA {
 		return this;
 	}
 	static stringify(lvnode,hideptkname=false, hideaction=false){
-	 	const {depth,action,from,till,activeline,ptkname} = lvnode;
+	 	const {depth,action,from,till,highlightline,ptkname} = lvnode;
 	 	return ( (ptkname&&(!action || !hideptkname)) ?ptkname+':':'')
 	 			+(hideaction?'':action)+(from?':'+from:'')+(till>0?'<'+till:'')
-	 			+(activeline>-1?'>'+activeline:'');
+	 			+(highlightline>-1?'>'+highlightline:'');
 	}
 	stringify(lvnode:number|Map,hideptkname=false,hideaction=false) {
 		if (typeof lvnode=='number') lvnode=this.divisions(lvnode);
@@ -118,17 +118,25 @@ export class LVA {
 		if (division.till>linecount) division.till=linecount;
 		return this;
 	}
+	getViewPageSize(division){ //return the 
+		let pagesize=division.till-division.from;
+		const linecount=division.last-division.first;
+		if (pagesize<ACTIONPAGESIZE) {
+			pagesize=ACTIONPAGESIZE;
+			if (pagesize > linecount) {
+				pagesize=division.last-division.first;
+			}
+		}
+		return pagesize;
+	}
 	next(idx){
 		const division=this._divisions[idx];
 		if (!division) return;
 		const linecount=division.last-division.first;
-		
-		const pagesize=division.till-division.from;
-
+		const pagesize=this.getViewPageSize(division);
 		division.from=division.till-1;
 		if (division.from<0)division.from=0;
 		division.till=division.from+pagesize;
-		
 		if (division.from+1>linecount) division.from=linecount-1;
 		if (division.till>linecount) division.till=linecount;
 		return this;
@@ -136,8 +144,7 @@ export class LVA {
 	prev(idx){
 		const division=this._divisions[idx];
 		if (!division) return;
-		const pagesize=division.till-division.from;
-
+		const pagesize=this.getViewPageSize(division);
 		division.from-=pagesize-1;
 		if (division.from<0) division.from=0;
 		division.till= division.from+pagesize;

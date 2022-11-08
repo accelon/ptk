@@ -23,7 +23,7 @@ async function loadLines(lva){
 	}
 	let errorcount=0 ,seq=0;
 	for (let i=0;i<divisions.length;i++) {//將巢狀結構轉為行陣列，標上深度及框線
-		const {action,ptkname,depth,text,ownerdraw,activeline}=divisions[i];
+		const {action,ptkname,depth,text,ownerdraw,highlightline}=divisions[i];
 
 		const ptk=usePtk(ptkname);
 		if (!ptk) continue;
@@ -53,10 +53,10 @@ async function loadLines(lva){
 
 			//show remain button on last line
 			//todo , do not show on left part of splited division
-			const active= activeline-divisions[i].from == j   ; //relative to begining of chunk
+			const highlight= highlightline-divisions[i].from == j   ; //relative to begining of chunk
 
 			segment.push({seq,idx:j==0?i:-1,ptkname, key:ptkname+':'+(lines[j]), 
-				line:lines[j],active,text, depth, edge,closable});
+				line:lines[j],highlight,text, depth, edge,closable});
 			//, remain: (j==linetexts.length-1)?remain:0})
 			seq++;
 		}

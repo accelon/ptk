@@ -15,7 +15,7 @@ export class Action implements IAction{
 		this.first=0; //first line of the chunk
 		this.last=0;  //last line of the chunk
 
-		this.activeline=addr.activeline||-1; //highlight active line
+		this.highlightline=addr.highlightline||-1; //line with search keyword
 		this.from=addr.from;
 		this.till=addr.till||-1; //-1 to the end
 		this.res=[];

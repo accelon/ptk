@@ -5,21 +5,21 @@ export enum TokenType {
     CJK=0x30,
     CJK_BMP=0x31,
     CJK_SURROGATE=0x32
-};
-
-import {CJKWord_Reg,Word_tailspace_Reg} from './constants.js'
-
-export type Token = {text:string, choff:number, tkoff:number, type:TokenType};
-
-function Token(text:string='', choff:number=0, tkoff:number, type:TokenType){
-return {text,choff,tkoff,type}
 }
 
+import {Word_tailspace_Reg} from './constants'
+
+
+function Token(text:string, choff:number, tkoff:number, type:TokenType){
+    return {text,choff,tkoff,type}
+}
+export type IToken = {text:string, choff:number, tkoff:number, type:TokenType};
+
 export const tokenize=(text:string)=>{
-    const out:Token[]=[];
+    const out:IToken[]=[];
     let i=0, tkoff=0;
     while (i<text.length) {
-        let code=text.codePointAt(i);
+        let code=text.codePointAt(i)||0;
         if (code>0xffff) {
             const sur=String.fromCodePoint(code); 
             out.push(Token(sur,i,tkoff,TokenType.CJK_SURROGATE));
@@ -40,9 +40,9 @@ export const tokenize=(text:string)=>{
         //space or alpha number
         let s='',prev=0;
         let j=i;
-        while (code<0x2000) {
+        while (j<text.length && code<0x2000) {
             s+=text[j];
-            code=text.codePointAt(++j)
+            code=text.codePointAt(++j)||0;
         }
         s.replace(Word_tailspace_Reg,(m,m1,offset)=>{
             if (offset>prev) {
@@ -52,6 +52,7 @@ export const tokenize=(text:string)=>{
             out.push(Token(m1,i+offset,tkoff,TokenType.ROMANIZE));
             tkoff++;
             prev=offset+m.length;
+            return '';
         });
         if (prev<s.length) out.push(Token(s.substring(prev)  ,prev+i,tkoff,TokenType.UNSEARCHABLE));
         i=j;

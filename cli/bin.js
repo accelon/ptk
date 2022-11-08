@@ -26,7 +26,6 @@ const build=opts=>{
     
     if (!ptkname) { //pack all files in cwd
         files=fs.existsSync(listfilename)?PTK.readTextLines(listfilename):fs.readdirSync('.').filter(isSourceFile);
-
         opts.outdir='../';
         opts.ptkname=Path.basename(process.cwd()).replace(/\..+$/,'');
     } else { //pack 
