@@ -1,4 +1,4 @@
-export const isSurrogate=s=>s.codePointAt(0)>0xffff;
+export const isSurrogate=(s:string)=>(s.codePointAt(0)||0)>0xffff;
 
 export const CJKRanges={
     'BMP': [0x4e00,0x9fa5],
@@ -12,16 +12,16 @@ export const CJKRanges={
 }
 export const enumCJKRangeNames=()=>Object.keys(CJKRanges);
 
-export const getCJKRange=name=>CJKRanges[name]||[0,0];
+export const getCJKRange=(name:string)=>CJKRanges[name]||[0,0];
 
-export const CJKRangeName=s=>{//return cjk range name by a char or unicode number value or a base 16 string
-    let cp=s;
+export const CJKRangeName=(s:string|number)=>{//return cjk range name by a char or unicode number value or a base 16 string
+    let cp=0;
     if (typeof s==='string') {
         const code=parseInt(s,16);
         if (!isNaN(code)) {
             cp=code;
         } else {
-            cp=s.codePointAt(0);
+            cp=s.codePointAt(0)||0;
         }
     }
     for (let rangename in CJKRanges) {
@@ -29,9 +29,9 @@ export const CJKRangeName=s=>{//return cjk range name by a char or unicode numbe
         if (cp>=from && cp<=to) return rangename;
     }
 }
-export const string2codePoint=(str, snap)=>{
+export const string2codePoint=(str:string, snap:boolean)=>{
     if (!str) return 0;
-    const cp=str.codePointAt(0);
+    const cp=str.codePointAt(0)||0;
     let n;
     if (cp>=0x3400 && cp<0x2ffff) {
         n=cp; 
@@ -41,13 +41,13 @@ export const string2codePoint=(str, snap)=>{
     return snap? n&0x3ff80 : n;
 }
 
-export const isPunc=(str,full)=>{
+export const isPunc=(str:string)=>{
     if (!str) return false;
     const cp=str.charCodeAt(0);
     // console.log(cp,str,full)
     return ((cp>=0x3001&&cp<=0x301f) || cp>0xff00)
 }
-export const trimPunc=str=>{
+export const trimPunc=(str:string)=>{
     return str.replace(/^[『「！。，：？]+/,'').replace(/[」？』。！：）｝〕；，]+$/,'');
 }
 
@@ -56,7 +56,7 @@ const openBrackets="(「『〔（︹︵︷【︻《〈︽︿﹁﹃﹙﹝‘“�
 export const closeBracketOf=(ch:string)=>{
     if (!ch)return;
     const at=openBrackets.indexOf(ch.slice(0,1));
-    return ~at?String.fromCodePoint(1+openBrackets.codePointAt(at)):'';
+    return ~at?String.fromCodePoint(1+openBrackets.codePointAt(at)||0):'';
 }
 export const removeBracket=(str:string)=>{
     const closebracket = closeBracketOf(str);
@@ -66,7 +66,7 @@ export const removeBracket=(str:string)=>{
     return str;
 }
 
-export const cjkPhrases=str=>{
+export const cjkPhrases=(str:string)=>{
     const out=[];
     str.replace(/([\u2e80-\u2fd5\u3400-\u9fff\ud800-\udfff\ue000-\ufad9]+)/g,(m,m1)=>{
         out.push(m1);
@@ -75,17 +75,17 @@ export const cjkPhrases=str=>{
 }
 
 
-export const extractAuthor=arr=>{
+export const extractAuthor=(arr:Array<string>|string)=>{
     const out=[]
     if (typeof arr=='string')arr=[arr];
     arr.forEach(str=>str.replace(/．([\u3400-\u9fff\ud800-\udfff]{2,10})[〈《]/g,(m,m1)=>out.push(m1)));
     return out;
 }
-export const extractBook=arr=>{
+export const extractBook=(arr:Array<string>|string)=>{
     const out=[]
     if (typeof arr=='string')arr=[arr]
     arr.forEach(str=>str.replace(/[〈《]([\u3400-\u9fff\ud800-\udfff]{2,30})/g,(m,m1)=>out.push(m1)));
     return out;
 }
-export const replaceAuthor=(str,cb)=>str.replace(/(．)([\u3400-\u9fff\ud800-\udfff]{2,10})([〈《])/g,(m,m1,m2,m3)=>cb(m1,m2,m3))
-export const replaceBook=(str,cb)=>str.replace(/([〈《])([\u3400-\u9fff\ud800-\udfff]{2,30})/g,(m,m1,m2,m3)=>cb(m1,m2,''))
+export const replaceAuthor=(str:string,cb:Function)=>str.replace(/(．)([\u3400-\u9fff\ud800-\udfff]{2,10})([〈《])/g,(m,m1,m2,m3)=>cb(m1,m2,m3))
+export const replaceBook=(str:string,cb:Function)=>str.replace(/([〈《])([\u3400-\u9fff\ud800-\udfff]{2,30})/g,(m,m1,m2,m3)=>cb(m1,m2,''))

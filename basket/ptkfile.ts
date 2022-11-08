@@ -1,6 +1,5 @@
 import {storeZip, ZipStore} from '../zip/index.ts';
 import {ILineBaser} from '../linebase/index.ts';
-import {cssSkeleton} from '../utils/index.ts';
 
 const move000js=(sources)=>{ //make them close to central directory
 	const out=sources.filter(it=>!it.name.endsWith('/000.js'));

@@ -28,3 +28,9 @@ export const openInMemoryPtk=async(name:string, ptkimage:UInt8Array)=>{
 export const usePtk=(name:string)=>{
 	return poolGet(name);
 }
+
+export const getParallels=(address:string)=>{
+	//scan all ptk and list parallels, first item is master
+	console.log('pp')
+	return 'pp'
+}

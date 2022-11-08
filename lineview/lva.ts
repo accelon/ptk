@@ -1,14 +1,14 @@
 import {parseAddress,sameAddress} from '../basket/index.ts'
-import {parseLisp,LispToken} from './lisp.ts';
-import {ILineViewAddress} from './interfaces.ts';
-import {ILineRange} from '../linebase/index.ts';
+import {parseLisp} from './lisp.ts';
 import {load} from './loadline.ts';
 import {createAction,createNestingAction,ACTIONPAGESIZE} from './action.ts';
 
 export class LVA {
+	loadedItems:Array
 	constructor (addresses=''){
 		this._divisions=LVA.parse(addresses);
 		this.load=load;
+		this.loadedItems=[]; // cache the loaded items
 	}
 	divisions(){
 		return this._divisions;

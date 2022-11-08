@@ -4,9 +4,8 @@ export interface ICriterion {
 	res:[]
 }
 export const runCriterion=(ptk,name,c:ICriterion)=>{
-	const typedef=ptk.columns[name]
+	// const typedef=ptk.columns[name]
 	console.log('run',name)
-	
 }
 export const parseCriteria=(cstr:string)=>{
 	const query=[];

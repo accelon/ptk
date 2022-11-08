@@ -62,8 +62,6 @@ export const dobuild=async (files, opts={})=>{
 			await fs.writeFileSync(outfn,ptkimage);
 			written=ptkimage.length;
 		}
-		console.log(compiler.ptkname)
-
 		console.log('total page',lbaser.pagestarts.length,'          ');
 		console.log(jsonp?cyan(outdir+compiler.ptkname+'/*.js'):cyan(outfn),...humanBytes(written));
 	}

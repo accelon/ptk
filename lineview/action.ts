@@ -23,6 +23,7 @@ export class Action implements IAction{
 		this.lines=[];//for search result, non continous line
 		this.diggable=false;
 		this.ptkname=addr.ptkname;
+		this.opts={} ;//display options
 	}
 	async run(){
 
