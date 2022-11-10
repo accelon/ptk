@@ -1,7 +1,7 @@
 import {poolAdd,poolGet}  from './pool.ts';
 import {Pitaka} from './pitaka.ts';
 import {ZipStore} from '../zip/index.ts';
-
+import {parseAddress} from '../basket/address.ts'
 export const openPtk=async (name:string)=>{
 	let ptk=usePtk(name);
 	if (ptk) return ptk;
@@ -29,8 +29,9 @@ export const usePtk=(name:string)=>{
 	return poolGet(name);
 }
 
-export const getParallels=(address:string)=>{
+export const getParallelAddresses=(address:string)=>{
 	//scan all ptk and list parallels, first item is master
-	console.log('pp')
-	return 'pp'
+	const addr=parseAddress(address);
+	console.log(addr)
+	
 }

@@ -1,9 +1,10 @@
-import {parseAddress,sameAddress,IAddress,usePtk} from '../basket/index.ts';
+import {parseAddress,IAddress,usePtk} from '../basket/index.ts';
+import {poolParallelPitakas} from '../basket/pool.ts';
 import {parseCriteria} from '../fts/criteria.ts';
 import {plTrim,plContain} from '../fts/posting.ts';
 import {MAXPHRASELEN} from '../fts/constants.ts';
 import {IAction} from './interfaces.ts';
-import {unique,fromObj} from '../utils/index.ts';
+import {fromObj} from '../utils/index.ts';
 const MAXITEM=100;
 export const ACTIONPAGESIZE=5;
 export class Action implements IAction{
@@ -41,6 +42,26 @@ export class Action implements IAction{
 			out.push(line);
 		}
 		return out;
+	}
+	getParallelWithDiff(){
+		const out=[];
+		const ptk=usePtk(this.ptkname);
+		const parallelPitakas=poolParallelPitakas(ptk);
+		for (let i=0;i<parallelPitakas.length;i++) {
+			const pptk=usePtk(parallelPitakas[i]);
+			const line=this.lineOf(this.from);
+			const [hasparallel, linediff]=pptk.getParallelLine( ptk, line );
+			if (hasparallel) out.push([pptk, linediff]);
+		}
+		return out;
+	}
+	async loadParallel(ptkname:string) { //load a specific ptkname
+		let parallels=this.getParallelWithDiff().filter( ([p])=>p.name==ptkname);
+		if (!parallels.length)return;
+		const ptk=usePtk(this.ptkname);
+		const pptk=parallels[0][0];
+		const [hasparallel, linediff]=pptk.getParallelLine( ptk, this.first );
+		if (hasparallel) await pptk.loadLines( [ [this.first+this.from+linediff, this.first+this.till+linediff] ],true);
 	}
 	static parse(action:string){
 		return parseCriteria(action);

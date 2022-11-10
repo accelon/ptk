@@ -7,19 +7,36 @@ export interface ILineViewItem {
 	edge  : number, //1 上框線, 2 下框線  , 3 單行(上下框線)
 }
 
-async function loadLines(lva){
-	const out=[];
+async function loadLines(lva, noparallel=false){
+	const jobs=[], out=[];
 	const divisions=lva.divisions();
 	const pitaka_lines={};
 	for (let i=0;i<divisions.length;i++) {
 		if(!pitaka_lines[divisions[i].ptkname]) pitaka_lines[divisions[i].ptkname]=[];
 		pitaka_lines[divisions[i].ptkname].push(...divisions[i].getLines());
+		//load all parallel
+		const parallels=divisions[i].getParallelWithDiff();
+		const ptk=usePtk(divisions[i].ptkname);
+	
+		if (!noparallel) {
+			for ( let j=0;j< parallels.length;j++) {
+				const [pptk,linediff]=parallels[j];
+				if (!ptk.parallels[pptk.name]) continue;
+	
+				let lines=divisions[i].getLines();
+				if (linediff!==0) lines=lines.map(i=>i+linediff);
+				if(!pitaka_lines[pptk.name]) pitaka_lines[pptk.name]=[];
+				pitaka_lines[pptk.name].push( ...lines );
+			}	
+		}
 	}
-	for (let ptkname in pitaka_lines) {
+	for (const ptkname in pitaka_lines) {
 		const ptk=usePtk(ptkname);
 		if (!ptk) continue;
-		await ptk.loadLines(pitaka_lines[ptkname]);
+		jobs.push(ptk.loadLines(pitaka_lines[ptkname]));
 	}
+
+	await Promise.all(jobs);
 	let seq=0;
 	for (let i=0;i<divisions.length;i++) {//將巢狀結構轉為行陣列，標上深度及框線
 		const {action,ptkname,depth,ownerdraw,highlightline}=divisions[i];

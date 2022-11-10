@@ -33,13 +33,14 @@ export class Pitaka extends LineBase {
 		this.inlineNote=inlineNote;
 		this.rowOf=rowOf;
 		this.inverted=null;
+		this.parallels={}; //parallels showing flag, ptkname:string, onoff:boolean
 	}
 	async init(){
 		const compiler=new Compiler()
 		compiler.compileBuffer(this.payload, this.name);
 		this.defines=compiler.typedefs;
 		this.attributes=compiler.compiledFiles[this.name]?.attributes;
-		const jobs=[],ranges=[];
+		const ranges=[];
 		for (let i=0;i<this.header.preload.length;i++) {
 			ranges.push(this.sectionRange(this.header.preload[i]));
 		}
@@ -142,5 +143,8 @@ export class Pitaka extends LineBase {
 	}
 	humanName(lang='zh'){
 		return this.attributes[lang]||this.name;
+	}
+	getParallelLine(masterptk,line){
+		return [true,0];
 	}
 }

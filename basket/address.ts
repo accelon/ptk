@@ -7,6 +7,7 @@ export interface IAddress {
 	action:string,
 	from:number,
 	till:number,
+	highlightline:number,
 }
 export const parseAction=(action:string)=>{
 	const branches=action.split(BRANCH_SEP);
@@ -30,7 +31,7 @@ export const makeAddress=(ptkname='',action='',from=0,till=0,lineoff=-1)=>{
 	return (ptkname?ptkname+':':'')+action+(from?':'+from:'')+(till?'<'+till:'')+(lineoff>0?'>'+lineoff:'');
 }
 export const parseAddress=(address:string):IAddress=>{
-	let m0,basket='',action='', from=0 ,till=0, highlightline=-1 ; //left bound and right bound
+	let m0,ptkname='',action='', from='' ,till='', highlightline='' ; //left bound and right bound
 	let m=address.match(PTK_ACTION_FROMTILL);
 	if (m) {
 		[m0, ptkname, action, from , till, highlightline ] = m;
@@ -49,7 +50,8 @@ export const parseAddress=(address:string):IAddress=>{
 	highlightline=(highlightline||'').slice(1);
 	ptkname=ptkname||'';
 	ptkname=ptkname.slice(0,ptkname.length-1); //remove :
-	return {ptkname, action,from:Math.abs(parseInt(from))||0,till:Math.abs(parseInt(till))||0 , highlightline:Math.abs(parseInt(highlightline))||-1};
+	return {ptkname, action,from:Math.abs(parseInt(from))||0,till:Math.abs(parseInt(till))||0
+		 , highlightline:Math.abs(parseInt(highlightline))||-1};
 }
 
 export function rangeOfElementId(eleid){
@@ -61,9 +63,9 @@ export function rangeOfElementId(eleid){
 			const idtype=this.defines[ele].fields?.id;
 			const _id=(idtype?.type=='number')?parseInt(id):id;
 			const startfrom=bsearchNumber(this.defines[ele].linepos, from);
-			let at=idtype.values.indexOf(_id,startfrom);
-			let first=this.defines[ele].linepos[at] || this.defines[ele].linepos[0] ;
-			let last=this.defines[ele].linepos[at+1] || this.header.eot ;
+			const at=idtype.values.indexOf(_id,startfrom);
+			const first=this.defines[ele].linepos[at] || this.defines[ele].linepos[0] ;
+			const last=this.defines[ele].linepos[at+1] || this.header.eot ;
 			from=first;
 			out.push([first,last]);
 		} else {
