@@ -64,13 +64,13 @@ export const getRenderUnitClasses=(ru:RenderUnit,prepend='',append='')=>{
     ru.hide&&css.push('hide');
     return css.join(' ');
 }
-export const renderOfftext=(linetext:string, opts={})=>{
+export const renderOfftext=(linetext='', opts={})=>{
     const extra=opts.extra||[];
     const hits=opts.hits||[];
     const phraselength=opts.phraselength||[];
     const ltp=opts.linetokenpos||0;
     // const [plain,tags]=parseOfftext(linetext);
-    const ot=new Offtext(linetext);
+    const ot=new Offtext(linetext,opts.line||0);
     let postingoffset=0;
     const runits=tokenize(ot.plain).map( (tk,idx) => {
         postingoffset++; //unsearchable token also increase posting offset
@@ -79,11 +79,11 @@ export const renderOfftext=(linetext:string, opts={})=>{
     });
 
     const tagsAt=[]; //tags at plain position
-    let uidx=0 , phit=0;
-    
+    let  phit=0;
+
     for (let i=0;i<ot.tags.length;i++) {
         const tag=ot.tags[i];
-        for (let j=tag.choff;j<tag.choff+tag.width;j++) {
+        for (let j=tag.choff;j<=tag.choff+tag.width;j++) {
             if (!tagsAt[j]) tagsAt[j]=[];
             tagsAt[j].push(i);
         }
@@ -123,8 +123,7 @@ export const renderOfftext=(linetext:string, opts={})=>{
             if(closeAt) closeAt.hide=true;
         }
     }
-
-    return runits;
+    return [ot,runits];
 }
 
 export const abridgeRenderUnits=(runits:RenderUnit[], minwidth=20)=>{

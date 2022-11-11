@@ -18,6 +18,7 @@ export type IToken = {text:string, choff:number, tkoff:number, type:TokenType};
 export const tokenize=(text:string)=>{
     const out:IToken[]=[];
     let i=0, tkoff=0;
+    if (typeof text!=='string') return [];
     while (i<text.length) {
         let code=text.codePointAt(i)||0;
         if (code>0xffff) {

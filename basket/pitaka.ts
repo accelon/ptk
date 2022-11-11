@@ -6,7 +6,7 @@ import {columnField,inlineNote,rowOf,scanPrimaryKeys} from './columns.ts';
 import {Inverted,plContain} from '../fts/index.ts';
 import {TableOfContent} from '../compiler/toc.ts';
 import {parseQuery,scanSections} from '../fts/query.ts';
-import {getParallels} from './parallel.ts';
+import {footNote} from './footnote.ts';
 
 export const regPtkName =  /^[a-z\-_]{2,16}$/
 export const validPtkName=(name:string):boolean=>!!name.match(regPtkName);
@@ -31,6 +31,8 @@ export class Pitaka extends LineBase {
 		this.queryCache={};
 		this.columnField=columnField;
 		this.inlineNote=inlineNote;
+		this.footNote=footNote;
+
 		this.rowOf=rowOf;
 		this.inverted=null;
 		this.parallels={}; //parallels showing flag, ptkname:string, onoff:boolean
@@ -49,7 +51,6 @@ export class Pitaka extends LineBase {
 				ranges.push(this.sectionRange('^'+n));
 			}
 		}
-
 		//load together , avoid duplicate jobs
 		await this.loadLines(ranges);
 
@@ -128,6 +129,30 @@ export class Pitaka extends LineBase {
 		const nPostings=this.inverted.nPostingOf(s);
 		const postings=this.inverted.postings;
 		return nPostings.map( np=> postings[np] );
+	}
+	getNearestTag(line,tag){
+		const linepos=this.defines[tag]?.linepos;
+		if (!linepos) return null;
+		return bsearchNumber(linepos,line) ||-1;
+	}
+	getNearestChunk( line) {
+		const chunktag=this.attributes.chunktag;
+		const booktag=this.attributes.booktag||'bk';
+		const def=this.defines[chunktag];
+		const bkdef=this.defines[booktag];
+		const at=this.getNearestTag(line,chunktag)-1;
+		if (at<0) return null;
+		const bkat=this.getNearestTag(line,booktag)-1;
+
+		return {bkid:bkdef.fields.id.values[bkat] ,
+			at, id:def.fields.id.values[at], innertext: def.innertext.get(at)}
+	}
+	findClosestTag(typedef, key, value, from=0){
+		let at=typedef.fields[key].values.indexOf(value);
+		while (at>=0 && typedef.linepos[at]<from) {
+			at=typedef.fields[key].values.indexOf(value, at+1);
+		}
+		return at;
 	}
 	postingLine(posting:number[]){
 		return plContain(posting,this.inverted.tokenlinepos)[0];

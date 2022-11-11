@@ -107,7 +107,7 @@ const resolveEnd=(raw, plain:string,tags:IOfftag[])=>{
 }
 export const stripOfftag=(str:string)=>str.replace(OFFTAG_REGEX_G,'');
 
-export const parseOfftext=(str:string,idx:number=0)=>{
+export const parseOfftext=(str:string,line:number=0)=>{
     if (str.indexOf('^')==-1) return [str,[]];
     let tags=[];
     let choff=0,prevoff=0; // choff : offset to plain text
@@ -148,7 +148,8 @@ export const parseOfftext=(str:string,idx:number=0)=>{
         }
         const aoffset=offset+rawName.length+1;
         choff+= offset-prevoff;            //目前文字座標，做為標記的起點
-		let offtag : IOfftag = {name:tagName,offset,aoffset, attrs, idx, line:0, choff, width, start,end, active:false }
+		let offtag : IOfftag = {name:tagName,offset,aoffset, attrs, 
+            line, choff, width, start,end, active:false }
         tags.push( offtag );
         choff -= m.length;  
         prevoff=offset;
@@ -173,9 +174,9 @@ export const updateOfftext = (rawtext:string, tag:IOfftag, newtag:IOfftag) =>{
     return rawtext;
 }
 export class Offtext {
-    constructor(raw:string) {
+    constructor(raw:string,line:number=0) {
         this.raw=raw;
-        [this.plain, this.tags]=parseOfftext(raw);
+        [this.plain, this.tags]=parseOfftext(raw,line);
     }
     getTag(ntag:number){
     	return this.tags[ntag];

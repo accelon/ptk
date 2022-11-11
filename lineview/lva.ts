@@ -114,6 +114,7 @@ export class LVA {
 		const linecount=division.last-division.first;
 		const till=division.till;
 		if (till==-1) division.till=division.from+ACTIONPAGESIZE;
+		
 		else division.till+=ACTIONPAGESIZE;
 		if (division.till>linecount) division.till=linecount;
 		return this;
@@ -134,6 +135,7 @@ export class LVA {
 		if (!division) return;
 		const linecount=division.last-division.first;
 		const pagesize=this.getViewPageSize(division);
+		if (division.till==-1) division.till=division.from+ACTIONPAGESIZE;
 		division.from=division.till-1;
 		if (division.from<0)division.from=0;
 		division.till=division.from+pagesize;
