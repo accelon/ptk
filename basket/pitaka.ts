@@ -6,7 +6,7 @@ import {columnField,inlineNote,rowOf,scanPrimaryKeys} from './columns.ts';
 import {Inverted,plContain} from '../fts/index.ts';
 import {TableOfContent} from '../compiler/toc.ts';
 import {parseQuery,scanSections} from '../fts/query.ts';
-import {footNote} from './footnote.ts';
+import {footNote,footNoteAddress} from './footnote.ts';
 
 export const regPtkName =  /^[a-z\-_]{2,16}$/
 export const validPtkName=(name:string):boolean=>!!name.match(regPtkName);
@@ -32,6 +32,7 @@ export class Pitaka extends LineBase {
 		this.columnField=columnField;
 		this.inlineNote=inlineNote;
 		this.footNote=footNote;
+		this.footNoteAddress=footNoteAddress;
 
 		this.rowOf=rowOf;
 		this.inverted=null;

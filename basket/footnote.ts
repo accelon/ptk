@@ -2,16 +2,16 @@ export async function footNote(tagname,id,line){
     //convert line number to chunk, assuming chunk reset foonote 
     const ptk=this;
     const ck=ptk.getNearestChunk(line);
-    const chunktag=this.defines[this.attributes.chunktag];
-    const bktag=this.defines[this.attributes.booktag||'bk'];
+    const chunktag=ptk.defines[ptk.attributes.chunktag];
+    const bktag=ptk.defines[ptk.attributes.booktag||'bk'];
     const footbk=ck.bkid+'-fn';
-    const footnotetag=this.defines[this.attributes.footnote||'fn'];
+    const footnotetag=ptk.defines[ptk.attributes.footnote||'fn'];
     const at=bktag.fields.id.values.indexOf(footbk);
     const booknotebkline=bktag.linepos[at];
 
-    const closestchunk=this.findClosestTag( chunktag, 'id',ck.id, booknotebkline);
+    const closestchunk=ptk.findClosestTag( chunktag, 'id',ck.id, booknotebkline);
     const chunklinepos=chunktag.linepos[closestchunk];
-    const closestfootnote=this.findClosestTag(footnotetag, 'id',parseInt(id), chunklinepos );
+    const closestfootnote=ptk.findClosestTag(footnotetag, 'id',parseInt(id), chunklinepos );
     
     // const footnotebkstart=bktag.linepos[]
     const footnoteline=footnotetag.linepos[closestfootnote];
@@ -22,4 +22,17 @@ export async function footNote(tagname,id,line){
     const lines=ptk.slice(footnoteline,nextfootnoteline);
     
     return lines;
+}
+export function footNoteAddress(id:string,line:number){
+    const ptk=this;
+    const ck=ptk.getNearestChunk(line);
+    const footnotetag=ptk.attributes.footnote||'fn';
+    const chunktag=ptk.defines[ptk.attributes.chunktag];
+    const bktag=ptk.defines[ptk.attributes.booktag||'bk'];
+    const footbk=ck.bkid+'-fn';
+    const at=bktag.fields.id.values.indexOf(footbk);
+    const booknotebkline=bktag.linepos[at];
+    const closestchunk=ptk.findClosestTag( chunktag, 'id',ck.id, booknotebkline);
+    const chunk=chunktag.fields.id.values[closestchunk];    
+    return ptk.name+':'+footbk+ '.'+ptk.attributes.chunktag+chunk+'.'+footnotetag+id;
 }

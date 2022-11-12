@@ -13,9 +13,12 @@ export const parseAction=(action:string)=>{
 	const branches=action.split(BRANCH_SEP);
 	const out=[];
 	for (let i=0;i<branches.length;i++) {
-		const m=branches[i].match(/([a-z_]+)#?([a-z\d_-]+)/);
-		if (m) {
-			out.push([m[1],m[2]]);
+		const m1=branches[i].match(/([a-z_\-]+)#([a-z\d_-]+)/); // with # id
+		const m2=branches[i].match(/([a-z_\-]+)(\d*)/);  // with number id
+		if (m1) {
+			out.push([m1[1],m1[2]]);
+		} else if (m2) {
+			out.push([m2[1],m2[2]]);
 		}
 	}
 	return out;
@@ -54,7 +57,7 @@ export const parseAddress=(address:string):IAddress=>{
 		 , highlightline:Math.abs(parseInt(highlightline))||-1};
 }
 
-export function rangeOfElementId(eleid){
+export function rangeOfElementId(eleid:string){
 	const out=[];
 	let from=0;
 	for (let i=0;i<eleid.length;i++) {
@@ -69,7 +72,17 @@ export function rangeOfElementId(eleid){
 			from=first;
 			out.push([first,last]);
 		} else {
-			out.push([0,0]);
+			const bktag=this.attributes.booktag||'bk'
+			const at=this.defines[bktag]?.fields.id.values.indexOf(ele);
+			if (i==0 && ~at) {
+				const first=this.defines[bktag].linepos[at];
+				let last=this.defines[bktag].linepos[at+1];
+				if (!last) last=this.header.eot;
+				out.push([first,last]);
+				from=first;
+			} else {
+				out.push([0,0]);
+			}
 		}
 	}
 	return out;
