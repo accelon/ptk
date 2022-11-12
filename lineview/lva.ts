@@ -5,6 +5,7 @@ import {createAction,createNestingAction,ACTIONPAGESIZE} from './action.ts';
 
 export class LVA {
 	loadedItems:Array
+	_divisions: Array
 	constructor (addresses=''){
 		this._divisions=LVA.parse(addresses);
 		this.load=load;
@@ -43,8 +44,8 @@ export class LVA {
 	static stringify(lvnode,hideptkname=false, hideaction=false){
 	 	const {depth,action,from,till,highlightline,ptkname} = lvnode;
 	 	return ( (ptkname&&(!action || !hideptkname)) ?ptkname+':':'')
-	 			+(hideaction?'':action)+(from?':'+from:'')+(till>0?'<'+till:'')
-	 			+(highlightline>-1?'>'+highlightline:'');
+	 			+(hideaction?'':action)+(from?'>'+from:'')+(till>0?'<'+till:'')
+	 			+(highlightline>-1?':'+highlightline:'');
 	}
 	stringify(lvnode:number|Map,hideptkname=false,hideaction=false) {
 		if (typeof lvnode=='number') lvnode=this.divisions(lvnode);
@@ -100,6 +101,12 @@ export class LVA {
 		if (!division) return;
 		return division.till-division.from>ACTIONPAGESIZE;
 	}
+	canmore(idx){
+		const division=this._divisions[idx];
+		if (!division) return;
+		const pagesize=this.getViewPageSize(division);
+		return division.till+pagesize<division.last-division.first;
+	}
 	less(idx){
 		const division=this._divisions[idx];
 		if (!division) return;
@@ -130,11 +137,26 @@ export class LVA {
 		}
 		return pagesize;
 	}
-	next(idx){
+	removeChildren(idx:number){
+		const depth=this._divisions[idx]?.depth;
+		const action=this._divisions[idx]?.action;
+		const ptkname=this._divisions[idx]?.ptkname;
+		for (let i=idx+1;i<this._divisions.length;i++) {
+			if (this._divisions[i].depth>depth) {
+				this._divisions[i]=null;
+			} else if (this._divisions[i].action!==action 
+				    || this._divisions[i].ptkname!==ptkname) break;
+		}
+		this._divisions=this._divisions.filter(it=>!!it);
+		this._combine();
+	}
+	next(idx:number){
 		const division=this._divisions[idx];
 		if (!division) return;
+		this.removeChildren(idx);
 		const linecount=division.last-division.first;
 		const pagesize=this.getViewPageSize(division);
+		if (linecount<=pagesize || linecount<=ACTIONPAGESIZE) return this;
 		if (division.till==-1) division.till=division.from+ACTIONPAGESIZE;
 		division.from=division.till-1;
 		if (division.from<0)division.from=0;

@@ -1,9 +1,9 @@
-import {StringArray,unpackIntDelta,bmpwithposting,bsearchNumber} from '../utils/index.ts';
+import {StringArray,unpackIntDelta,LEMMA_DELIMITER,bsearchNumber} from '../utils/index.ts';
 import {tokenize,TokenType} from './tokenize.ts';
 
 export class Inverted {
 	constructor(section:string[],postingStart:number){
-		this.words = new StringArray(section.shift());
+		this.words = new StringArray(section.shift(),{sep:LEMMA_DELIMITER});
 		this.bmpwithposting=unpackIntDelta(section.shift());
 		this.tokenlinepos=unpackIntDelta(section.shift());
 		this.postings=[];       //holding loaded postings
@@ -26,7 +26,10 @@ export class Inverted {
 				if (this.bmpwithposting[at]!==cp) continue;
 			} else if (type>=TokenType.SEARCHABLE) {
 				if (~at) at+=this.bmppostingcount;
-				else continue;
+				else {
+					let at2=this.words.find(s);
+					if (~at2) at=at2+this.bmppostingcount;
+				};
 			}
 			out.push(at);
 		}

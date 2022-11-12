@@ -4,7 +4,7 @@ import {createField} from './fielder.ts';
 import {VError} from './error.ts';
 import {StringArray} from '../utils/stringarray.ts'
 
-import {packInt,packIntDelta,unpackIntDelta,unpackInt,LEMMA_DELIMETER,removeBracket} from '../utils/index.ts'
+import {packInt,packIntDelta,unpackIntDelta,unpackInt,LEMMA_DELIMITER,removeBracket} from '../utils/index.ts'
 /* types of attributes defined by ^:  */
 const reservedAttributes={ //是指令不是屬性名, 
 	caption:true,
@@ -70,12 +70,12 @@ export class Typedef implements ITypedef {
 	}
 	deserialize(section){
 		const attrline=section.shift();
-		const attrs=attrline?attrline.split(LEMMA_DELIMETER):[];
+		const attrs=attrline?attrline.split(LEMMA_DELIMITER):[];
 		if (section.length > attrs.length) {
 			this.linepos=unpackIntDelta(section.shift());
 		}
 		if (this.fields.bracket) {
-			this.innertext=new StringArray(section.shift(),{sep:LEMMA_DELIMETER});
+			this.innertext=new StringArray(section.shift(),{sep:LEMMA_DELIMITER});
 		}
 		for (let i=0;i<attrs.length;i++) {
 			const aname=attrs[i];
@@ -96,7 +96,7 @@ export class Typedef implements ITypedef {
 			out.push(packIntDelta(this.linepos));
 		}
 		if (this.fields.bracket) {
-			out.push(this.innertext.join(LEMMA_DELIMETER));
+			out.push(this.innertext.join(LEMMA_DELIMITER));
 		}
 		for (let aname in this.fields) {
 			const V=this.fields[aname];
@@ -109,7 +109,7 @@ export class Typedef implements ITypedef {
 				out.push( V.values.join('\t'));
 			}
 		}
-		out.unshift(attrs.join(LEMMA_DELIMETER));
+		out.unshift(attrs.join(LEMMA_DELIMITER));
 		return out.length?out.join('\n'):null;
 	}
 }

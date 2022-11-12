@@ -1,5 +1,5 @@
 import {tokenize,TokenType} from './tokenize.ts' ;
-import {IStringArray,packIntDelta,fromObj,alphabetically0,LEMMA_DELIMETER} from '../utils/index.ts';
+import {IStringArray,packIntDelta,fromObj,alphabetically0,LEMMA_DELIMITER} from '../utils/index.ts';
 
 export class Indexer {
 	wordscount:number
@@ -107,7 +107,7 @@ export class Indexer {
 
 		const words=tokentable.map(([word])=>word);
 
-		tokens.push(words.join(LEMMA_DELIMETER)); //stringarray cannot use packStrings
+		tokens.push(words.join(LEMMA_DELIMITER)); //stringarray cannot use packStrings
 		const bmpWithPosting=[];
 		for (let i=0;i<this.bmppostings.length;i++) {
 			if (this.bmppostings[i]) bmpWithPosting.push(i);

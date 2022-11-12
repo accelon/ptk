@@ -1,5 +1,5 @@
 /* store in column oriented */ 
-import {LEMMA_DELIMETER,StringArray,alphabetically0,packIntDelta2d,unpackIntDelta2d,packInt,unpackIntDelta,unpackInt} from "../utils/index.ts"
+import {LEMMA_DELIMITER,StringArray,alphabetically0,packIntDelta2d,unpackIntDelta2d,packInt,unpackIntDelta,unpackInt} from "../utils/index.ts"
 import {createField,VError} from  "../compiler/index.ts"
 import {parseOfftext} from '../offtext/index.ts'
 export class Column {
@@ -51,7 +51,7 @@ export class Column {
 		this.caption=this.attrs.caption;
 		const typedef=text.split('\t') ; // typdef of each field , except field 0
 		this.createFields(typedef);
-		this.keys=new StringArray(section.shift(),{sep:LEMMA_DELIMETER});  //local keys
+		this.keys=new StringArray(section.shift(),{sep:LEMMA_DELIMITER});  //local keys
 		let idx=0 , usesection=false;
 		for (let fieldname in this.fields) {
 			const field=this.fields[fieldname];
@@ -63,7 +63,7 @@ export class Column {
 			} else if (field.type==='key') {
 				this.fieldvalues[idx]=unpackInt(linetext);
 			} else if (field.type==='string') {
-				this.fieldvalues[idx]=linetext.split(LEMMA_DELIMETER);
+				this.fieldvalues[idx]=linetext.split(LEMMA_DELIMITER);
 			} else if (field.type==='text') {
 				section.unshift(linetext);
 				usesection=true;
@@ -99,7 +99,7 @@ export class Column {
 			const fields=this.values[i];
 			this.addRow(fields, i+1 ) ; //one base
 		}
-		const out=[this.keys.join(LEMMA_DELIMETER)]; //use StringTable
+		const out=[this.keys.join(LEMMA_DELIMITER)]; //use StringTable
 		for (let i=0;i<this.fieldnames.length;i++) {
 			const V=this.fields[i];
 			if (V.type=='number') {
@@ -112,7 +112,7 @@ export class Column {
 				const nums=(this.fieldvalues[i])||[];
 				out.push(packInt(nums));
 			} else if (V.type=='string') {
-				out.push(this.fieldvalues[i].join(LEMMA_DELIMETER));
+				out.push(this.fieldvalues[i].join(LEMMA_DELIMITER));
 			} else if (V.type=='text') {
 				if (i!==this.fieldnames.length-1) {
 					throw "text fieldtype must be the last, "+this.fieldnames[i];

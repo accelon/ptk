@@ -31,7 +31,7 @@ export const sameAddress=(addr1,addr2)=>{
 }
 export const makeAddress=(ptkname='',action='',from=0,till=0,lineoff=-1)=>{
 	//lineoff >0 , highlight highlightline
-	return (ptkname?ptkname+':':'')+action+(from?':'+from:'')+(till?'<'+till:'')+(lineoff>0?'>'+lineoff:'');
+	return (ptkname?ptkname+':':'')+action+(from?'>'+from:'')+(till?'<'+till:'')+(lineoff>0?':'+lineoff:'');
 }
 export const parseAddress=(address:string):IAddress=>{
 	let m0,ptkname='',action='', from='' ,till='', highlightline='' ; //left bound and right bound

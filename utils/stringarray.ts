@@ -6,7 +6,7 @@
  * fast random seek by charpos at the space cost of 1/average_item_size)
  * */
 import {bsearchGetter,StringGetter,bsearchNumber} from '../utils/bsearch.ts';
-export const LEMMA_DELIMETER = '\x7f';
+export const LEMMA_DELIMITER = '\x7f';
 export class StringArray {
 	private buf:string='';
 	private sep:string='';
@@ -79,7 +79,7 @@ export class StringArray {
 	at(offset:number){
 		return bsearchNumber(this.charpos,offset);
 	}
-	find(pat:string):number { /* return the closest match */
+	find(pat:string):number { // return the closest match 
 		const getter:StringGetter=this.get.bind(this);
 		if (this.delimiter) pat+=this.delimiter; 
 		const at=bsearchGetter( getter, pat )  ; // this.get(-1) return len

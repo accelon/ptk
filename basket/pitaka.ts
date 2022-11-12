@@ -6,7 +6,7 @@ import {columnField,inlineNote,rowOf,scanPrimaryKeys} from './columns.ts';
 import {Inverted,plContain} from '../fts/index.ts';
 import {TableOfContent} from '../compiler/toc.ts';
 import {parseQuery,scanSections} from '../fts/query.ts';
-import {footNote,footNoteAddress} from './footnote.ts';
+import {footNoteAddress} from './footnote.ts';
 
 export const regPtkName =  /^[a-z\-_]{2,16}$/
 export const validPtkName=(name:string):boolean=>!!name.match(regPtkName);
@@ -31,7 +31,6 @@ export class Pitaka extends LineBase {
 		this.queryCache={};
 		this.columnField=columnField;
 		this.inlineNote=inlineNote;
-		this.footNote=footNote;
 		this.footNoteAddress=footNoteAddress;
 
 		this.rowOf=rowOf;
@@ -84,6 +83,7 @@ export class Pitaka extends LineBase {
 	}
 	deserialize(section) {	
 		if (!section.length) return;
+		if (!section[0]) section.shift();
 		const firstline=section[0];
 		const {sourcetype,name}=sourceType(firstline);
 		if (sourcetype==='tsv') {
