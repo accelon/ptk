@@ -1,5 +1,6 @@
 import {ILineRange} from '../linebase/index.ts';
 import {bsearchNumber} from '../utils/index.ts';
+import {ACTIONPAGESIZE} from "../lineview/interfaces.ts";
 import {PTK_ACTION_FROMTILL,PTK_FROMTILL,FROMTILL} from '../offtext/index.ts'
 export const BRANCH_SEP = '.';
 export interface IAddress {
@@ -51,6 +52,14 @@ export const parseAddress=(address:string):IAddress=>{
 	from=(from||'').slice(1);
 	till=(till||'').slice(1);
 	highlightline=(highlightline||'').slice(1);
+	
+	if (!from && !till && highlightline) {
+		if (highlightline>ACTIONPAGESIZE) {
+			from=highlightline- Math.floor(ACTIONPAGESIZE/2);
+			till=from+ACTIONPAGESIZE;			
+		}
+	} 
+	
 	ptkname=ptkname||'';
 	ptkname=ptkname.slice(0,ptkname.length-1); //remove :
 	return {ptkname, action,from:Math.abs(parseInt(from))||0,till:Math.abs(parseInt(till))||0

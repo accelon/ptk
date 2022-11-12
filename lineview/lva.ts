@@ -1,7 +1,8 @@
 import {parseAddress,sameAddress} from '../basket/index.ts'
 import {parseLisp} from './lisp.ts';
 import {load} from './loadline.ts';
-import {createAction,createNestingAction,ACTIONPAGESIZE} from './action.ts';
+import {createAction,createNestingAction} from './action.ts';
+import {ACTIONPAGESIZE} from "./interfaces.ts";
 
 export class LVA {
 	loadedItems:Array
@@ -31,7 +32,8 @@ export class LVA {
 		let nextdepth=this._divisions[next]?.depth;
 		while (next<this._divisions.length && nextdepth>depth) {
 			next++;
-			nextdepth=this._divisions[next].depth;
+			// if (!this._divisions[next]) break;
+			nextdepth=this._divisions[next]?.depth;
 		}
 		if (next-idx>1) { //delete all child
 			this._divisions.splice(idx+1,next-idx);
