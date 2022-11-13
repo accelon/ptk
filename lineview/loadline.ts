@@ -40,15 +40,15 @@ async function loadLines(lva, noparallel=false){
 	let seq=0;
 	for (let i=0;i<divisions.length;i++) {//將巢狀結構轉為行陣列，標上深度及框線
 		const {action,ptkname,depth,ownerdraw,highlightline}=divisions[i];
-
 		const ptk=usePtk(ptkname);
-		if (!ptk) continue;
-
 		if (ownerdraw) {
 			out.push({seq,idx:i,ownerdraw,depth,ptkname,key: ptkname+':'+action,closable:true })
 			seq++;
 			continue;
 		}
+
+		if (!ptk) continue;
+
 		const segment=[];
 		const lines=divisions[i].getLines();
 		const linetexts=ptk.getLines(lines);
@@ -104,6 +104,5 @@ export async function load (lva:ILineViewAddress) { //載入巢狀行
 		await divisions[i].run();
 	}
 	const out=await loadLines(lva);
-
 	return out;
 }

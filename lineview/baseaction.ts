@@ -42,6 +42,7 @@ export class Action implements IAction{
 	getParallelWithDiff(){
 		const out=[];
 		const ptk=usePtk(this.ptkname);
+		if (!ptk) return out;
 		const parallelPitakas=poolParallelPitakas(ptk);
 		for (let i=0;i<parallelPitakas.length;i++) {
 			const pptk=usePtk(parallelPitakas[i]);

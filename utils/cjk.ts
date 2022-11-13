@@ -56,7 +56,7 @@ const openBrackets="(「『〔（︹︵︷【︻《〈︽︿﹁﹃﹙﹝‘“�
 export const closeBracketOf=(ch:string)=>{
     if (!ch)return;
     const at=openBrackets.indexOf(ch.slice(0,1));
-    return ~at?String.fromCodePoint(1+openBrackets.codePointAt(at)||0):'';
+    return ~at?String.fromCodePoint(1+(openBrackets.codePointAt(at)||0)):'';
 }
 export const removeBracket=(str:string)=>{
     const closebracket = closeBracketOf(str);

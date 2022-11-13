@@ -98,6 +98,12 @@ export class LVA {
 		}
 		return -1;
 	}
+	findAction(action){
+		for (let i=0;i<this._divisions.length;i++) {
+			if (this._divisions[i].action==action) return i;
+		}
+		return -1;
+	}
 	canless(idx){
 		const division=typeof idx=='number'?this._divisions[idx]:idx;
 		if (!division) return;

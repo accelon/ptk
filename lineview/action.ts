@@ -1,6 +1,8 @@
 import {parseAddress} from '../basket/index.ts';
 
 import {RangeAction} from "./rangeaction.ts";
+
+import {CustomAction} from "./customaction.ts";
 import {ExcerptAction} from "./excerptaction.ts";
 import {TitleCountAction} from "./titlecountaction.ts";
 import {QueryAction} from "./queryaction.ts";
@@ -10,8 +12,8 @@ export const makeExcerptAddress=(section:string,tofind:string,chunk='')=>{
 }
 export const createAction=(addr, depth=0)=>{
 	const at=addr.action.indexOf('=');
+	const atype=addr.action.slice(0,1);
 	if (at>0) {
-		const atype=addr.action.slice(0,1);
 		if (atype=='*') {
 			return new ExcerptAction(addr, depth);
 		} else if (atype=='~') {
@@ -20,7 +22,11 @@ export const createAction=(addr, depth=0)=>{
 			return new QueryAction(addr, depth);
 		}
 	} else {
-		return new RangeAction(addr,depth);
+		if (atype=='@') { //ownerdraw
+			return new CustomAction(addr, depth);
+		} else {
+			return new RangeAction(addr,depth);
+		}
 	}
 }
 export const createNestingAction=(address:string,ctx)=> {
