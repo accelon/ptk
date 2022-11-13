@@ -2,7 +2,7 @@ import {parseAddress,sameAddress} from '../basket/index.ts'
 import {parseLisp} from './lisp.ts';
 import {load} from './loadline.ts';
 import {createAction,createNestingAction} from './action.ts';
-import {ACTIONPAGESIZE} from "./interfaces.ts";
+import {ACTIONPAGESIZE,MAXDIVISIONLINE} from "./interfaces.ts";
 
 export class LVA {
 	loadedItems:Array
@@ -84,7 +84,7 @@ export class LVA {
 			prevdepth--;
 			out.push(')')
 		}
-		return out.join('+').replace(/\+?([\(\)])\+?/g,'$1').replace(/\++/g,'+');
+		return out.join('^').replace(/\^?([\(\)])\^?/g,'$1').replace(/\++/g,'^');
 	}
 	removeSameAction(newaddr,from=0,depth=-1){
 		let p=from;
@@ -99,18 +99,29 @@ export class LVA {
 		return -1;
 	}
 	canless(idx){
-		const division=this._divisions[idx];
+		const division=typeof idx=='number'?this._divisions[idx]:idx;
 		if (!division) return;
-		return division.till-division.from>ACTIONPAGESIZE;
+		return division.till-division.from>ACTIONPAGESIZE ;
 	}
 	canmore(idx){
-		const division=this._divisions[idx];
+		const division=typeof idx=='number'?this._divisions[idx]:idx;
 		if (!division) return;
 		const pagesize=this.getViewPageSize(division);
-		return division.till+pagesize<division.last-division.first;
+		return (division.till>0?division.till:0)+pagesize<division.last-division.first;
 	}
-	less(idx){
-		const division=this._divisions[idx];
+	cannext(idx){
+		const division=typeof idx=='number'?this._divisions[idx]:idx;
+		if (!division) return;
+		const pagesize=this.getViewPageSize(division);
+		return division.last - division.first > pagesize;
+	}
+	canprev(idx){
+		const division=typeof idx=='number'?this._divisions[idx]:idx;
+		if (!division) return;
+		return (division.from>0);
+	}
+	less(idx:number){
+		const division=typeof idx=='number'?this._divisions[idx]:idx;
 		if (!division) return;
 
 		division.till-=ACTIONPAGESIZE;
@@ -118,14 +129,15 @@ export class LVA {
 		return this;
 	}
 	more(idx){
-		const division=this._divisions[idx];
+		const division=typeof idx=='number'?this._divisions[idx]:idx;
 		if (!division) return;
-		const linecount=division.last-division.first;
+		let linecount=division.last-division.first;
 		const till=division.till;
 		if (till==-1) division.till=division.from+ACTIONPAGESIZE;
-		
 		else division.till+=ACTIONPAGESIZE;
+		
 		if (division.till>linecount) division.till=linecount;
+
 		return this;
 	}
 	getViewPageSize(division){ //return the 
@@ -152,8 +164,8 @@ export class LVA {
 		this._divisions=this._divisions.filter(it=>!!it);
 		this._combine();
 	}
-	next(idx:number){
-		const division=this._divisions[idx];
+	next(idx){
+		const division=typeof idx=='number'?this._divisions[idx]:idx;
 		if (!division) return;
 		this.removeChildren(idx);
 		const linecount=division.last-division.first;
@@ -168,7 +180,7 @@ export class LVA {
 		return this;
 	}
 	prev(idx){
-		const division=this._divisions[idx];
+		const division=typeof idx=='number'?this._divisions[idx]:idx;
 		if (!division) return;
 		const pagesize=this.getViewPageSize(division);
 		division.from-=pagesize-1;

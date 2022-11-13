@@ -67,30 +67,38 @@ export const parseAddress=(address:string):IAddress=>{
 }
 
 export function rangeOfElementId(eleid:string){
-	const out=[];
+	const out=[], ptk=this;
 	let from=0;
 	for (let i=0;i<eleid.length;i++) {
 		const [ele,id]=eleid[i];
-		if (this.defines[ele]) {
-			const idtype=this.defines[ele].fields?.id;
+		if (ptk.defines[ele]) {
+			const idtype=ptk.defines[ele].fields?.id;
 			const _id=(idtype?.type=='number')?parseInt(id):id;
-			const startfrom=bsearchNumber(this.defines[ele].linepos, from);
+			const startfrom=bsearchNumber(ptk.defines[ele].linepos, from);
 			const at=idtype.values.indexOf(_id,startfrom);
-			const first=this.defines[ele].linepos[at] || this.defines[ele].linepos[0] ;
-			const last=this.defines[ele].linepos[at+1] || this.header.eot ;
+			const first=ptk.defines[ele].linepos[at] || ptk.defines[ele].linepos[0] ;
+			const last=ptk.defines[ele].linepos[at+1] || ptk.header.eot ;
 			from=first;
 			out.push([first,last]);
 		} else {
-			const bktag=this.attributes.booktag||'bk'
-			const at=this.defines[bktag]?.fields.id.values.indexOf(ele);
+			const bktag=ptk.attributes.booktag||'bk'
+			const at=ptk.defines[bktag]?.fields.id.values.indexOf(ele);
 			if (i==0 && ~at) {
-				const first=this.defines[bktag].linepos[at];
-				let last=this.defines[bktag].linepos[at+1];
-				if (!last) last=this.header.eot;
+				const first=ptk.defines[bktag].linepos[at];
+				let last=ptk.defines[bktag].linepos[at+1];
+				if (!last) last=ptk.header.eot;
 				out.push([first,last]);
 				from=first;
-			} else {
-				out.push([0,0]);
+			} else { //try full text section, to be replace by 
+				const sections=ptk.header.fulltext;
+				const at=ptk.header.fulltext.indexOf(ele+id);
+				if (~at) {
+					const [first,last]=ptk.sectionRange(sections[at]);
+					out.push([first,last]);
+					from=first;
+				} else {
+					out.push([0,0]);
+				}
 			}
 		}
 	}

@@ -10,3 +10,4 @@ export interface ILineViewAddress {
 export interface IAction {
 }	
 export const ACTIONPAGESIZE=5;
+export const MAXDIVISIONLINE=30;

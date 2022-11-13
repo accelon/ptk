@@ -17,7 +17,7 @@ export function tokenize (expression) {
   return expression
   .replace(/\(/g, ' ( ')
   .replace(/\)/g, ' ) ')
-  .trim().split(/[\+\s]+/).map(readToken);
+  .trim().split(/\^/).map(readToken);
 }
 
 export function buildAST (tokens) {

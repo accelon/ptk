@@ -122,6 +122,12 @@ export class Pitaka extends LineBase {
 		const lineoff=line-typedef.linepos[at];
 		let caption=typedef.innertext.get(at);
 		const id=typedef.fields?.id?.values[at];
+/* TODO
+if caption has leading - , trace back to fetch ancestor node,
+this is suitable for tree structure with less branches,
+not suitable for dictionary wordheads
+*/
+
 		if (!caption) {
 			caption=this.columns[typedef.column]?.keys?.get(id);			
 		}
