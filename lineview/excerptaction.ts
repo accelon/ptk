@@ -15,9 +15,9 @@ export class ExcerptAction extends Action{
 	async run(){
 		const ptk=usePtk(this.ptkname);
 		let {name,tofind}=this.act[0];
-		const address=name.slice(1);
-		const [first,last]=ptk.rangeOfAddress(address);
-		const caption=address;//ptk.header.fulltextcaption[at];
+		const [first,last]=ptk.rangeOfAddress(name.slice(1));
+		const at=ptk.header.fulltext.indexOf(name.slice(1));
+		const caption=ptk.header.fulltextcaption[at];
 		const sectionfrom=ptk.inverted.tokenlinepos[first];
 		const sectionto=ptk.inverted.tokenlinepos[last];
 		const [phrases,postings]=await ptk.parseQuery(tofind);
@@ -54,7 +54,7 @@ export class ExcerptAction extends Action{
 		const cobj=fromObj(chunkobj,(a,b)=>a);
 		const samechunkline=cobj.length==1?cobj[0]:-1;
 
-		this.ownerdraw={painter:'excerpt', data:{ last:this.last, samechunkline , 
+		this.ownerdraw={painter:'excerpt', data:{ last:this.last, samechunkline ,
 			from:this.from, name, hitcount, caption,ptk,tofind , lines,hits,phraselength}} ;
 	}	
 }

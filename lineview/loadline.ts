@@ -1,5 +1,5 @@
 import {openPtk,usePtk} from '../basket/index.ts'
-import {ILineViewAddress} from './parser.ts'
+import {ILineViewAddress} from './interfaces.ts'
 export interface ILineViewItem {
 	key   : string,
 	text  : string,

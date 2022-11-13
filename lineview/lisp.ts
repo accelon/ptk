@@ -15,8 +15,8 @@ function readToken (token) {
 
 export function tokenize (expression) {
   return expression
-  .replace(/\(/g, ' ( ')
-  .replace(/\)/g, ' ) ')
+  .replace(/\(/g, '^(^')
+  .replace(/\)/g, '^)^')
   .trim().split(/\^/).map(readToken);
 }
 

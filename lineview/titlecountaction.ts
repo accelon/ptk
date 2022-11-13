@@ -5,7 +5,9 @@ import {plTrim, plContain} from '../fts/posting.ts';
 import {bsearchNumber} from "../utils/index.ts";
 import {fromObj} from '../utils/index.ts';
 
+const listChunk=(from:number,to:number)=>{
 
+}
 export class TitleCountAction extends Action{
 	constructor(addr:IAddress,depth=0){
 		super(addr,depth);
@@ -18,13 +20,37 @@ export class TitleCountAction extends Action{
 		let {name,tofind}=this.act[0];
 		const at=ptk.header.fulltext.indexOf(name.slice(1));
 		const caption=ptk.header.fulltextcaption[at];
-		const [phrases,postings]=await ptk.parseQuery(tofind);
+
 		const sections=ptk.header.fulltext;
-		const [sectionfrom,sectionto]=ptk.sectionRange(sections[at]).map(it=>ptk.inverted.tokenlinepos[it]);
-		//no ranking yet
-		let chunkcountobj={},hitcount=0;
+		const sectionrange=ptk.sectionRange(sections[at]);
+		const [sectionfrom,sectionto]=sectionrange.map(it=>ptk.inverted.tokenlinepos[it]);
+		let chunkcountobj={},hitcount=0 , items=[];
         const ck=ptk.attributes.chunktag||'ck';
         const chunktag=ptk.defines[ck];
+
+		if (!tofind) { //list all chunk in this section
+			const at1=bsearchNumber(chunktag.linepos, sectionrange[0]);
+			const at2=bsearchNumber(chunktag.linepos, sectionrange[1]);
+			let pagesize=this.till-this.from;
+			if (pagesize<ACTIONPAGESIZE) pagesize=ACTIONPAGESIZE;
+			for (let j=at1+this.from;j<at2;j++) {
+				const id=chunktag.fields.id.values[j];
+				const title=chunktag.innertext.get(j);
+				const address=ck+id;
+				if (items.length>=pagesize) break;
+				items.push({id, title, count:-1, address});
+			}
+			this.ownerdraw={painter:'titlecount', data:{ last:at2-at1,
+				from:this.from, name, hitcount, caption,ptk,tofind , items}} ;
+			
+			return;
+		}
+
+		const [phrases,postings]=await ptk.parseQuery(tofind);
+
+		//no ranking yet
+		
+
 
         for (let i=0;i<postings.length;i++) {
 			const pl=plTrim(postings[i], sectionfrom,sectionto);
@@ -41,19 +67,20 @@ export class TitleCountAction extends Action{
 		if (till==-1) till=this.from+ACTIONPAGESIZE;
 
 		let arr=fromObj(chunkcountobj,(a,b)=>[ parseInt(a) , b]).sort((a,b)=>b[1]-a[1]);
-		this.first=0;
-		this.last=arr.length;
+
 		if (till>=arr.length) till=arr.length;
 		arr=arr.slice(from,till);
-		const items=arr.map(it=>{
+		items=arr.map(it=>{
             const count=it[1];
             const id=chunktag.fields.id.values[it[0]];
             const address=ck+id;
             const title=chunktag.innertext.get(it[0]);
             return { id,title, count,address }
-        });
-        
-		this.ownerdraw={painter:'titlecount', data:{ last:this.last, 
+        })
+		this.first=0;
+		this.last=arr.length;
+
+		this.ownerdraw={painter:'titlecount', data:{ last:this.last,
 			from:this.from, name, hitcount, caption,ptk,tofind , items}} ;
 	}	
 }
