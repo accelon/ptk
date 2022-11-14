@@ -37,12 +37,14 @@ export class Pitaka extends LineBase {
 		this.rowOf=rowOf;
 		this.inverted=null;
 		this.parallels={}; //parallels showing flag, ptkname:string, onoff:boolean
+		this.lang='';
 	}
 	async init(){
-		const compiler=new Compiler()
+		const compiler=new Compiler();
 		compiler.compileBuffer(this.payload, this.name);
 		this.defines=compiler.typedefs;
 		this.attributes=compiler.compiledFiles[this.name]?.attributes;
+		this.lang=this.attributes.lang||'zh';
 		const ranges=[];
 		for (let i=0;i<this.header.preload.length;i++) {
 			ranges.push(this.sectionRange(this.header.preload[i]));

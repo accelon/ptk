@@ -104,5 +104,6 @@ export async function load (lva:ILineViewAddress) { //載入巢狀行
 		await divisions[i].run();
 	}
 	const out=await loadLines(lva);
+
 	return out;
 }

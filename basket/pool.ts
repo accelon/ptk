@@ -14,7 +14,7 @@ export const poolGetAll=()=>{
 export const hasLang=(lang:string)=>{
     for (const name in _pool) {
         const ptk=_pool[name];
-        if (ptk.header.lang===lang)return true;
+        if (ptk.lang===lang)return true;
     }
 }
 export const poolParallelPitakas=(ptk)=>{

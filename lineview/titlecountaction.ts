@@ -36,7 +36,7 @@ export class TitleCountAction extends Action{
 			for (let j=at1+this.from;j<at2;j++) {
 				const id=chunktag.fields.id.values[j];
 				const title=chunktag.innertext.get(j);
-				const address=ck+id;
+				const address=ck+(parseInt(id)?id:'#'+id);
 				if (items.length>=pagesize) break;
 				items.push({id, title, count:-1, address});
 			}
