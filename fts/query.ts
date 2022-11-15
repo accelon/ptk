@@ -1,4 +1,4 @@
-import {plAnd,getCounter, getSpeed,plRanges,plCount} from './posting.js';
+import {plAnd,getCounter, getSpeed,plRanges,plCount} from './posting.ts';
 import {fromSim} from 'lossless-simplified-chinese'
 import {bsearchNumber} from '../utils/bsearch.js'
 
@@ -115,21 +115,29 @@ export async function parseQuery(tofind:string,opts){
     }
     return [outphrases,postings];
 }
-export async function scanSections(tofind:string,opts) {
+export async function scanText(tofind:string,opts) {
     const ptk=this;
     const [phrases,postings]=await ptk.parseQuery(tofind,opts);
     if (!postings.length) return [];
-    const sections=ptk.header.fulltext;
-    const ranges=[];
-    for (let i=0;i<sections.length;i++) {
-        const tokenrange=ptk.sectionRange(sections[i]).map(it=>ptk.inverted.tokenlinepos[it]);
-        ranges.push(tokenrange);
+    const tagname=opts?.groupby||'ak'
+    const groupby=ptk.defines[tagname];
+    const tlp=[], TLP = ptk.inverted.tokenlinepos;
+    if (groupby) { //no group, as a whole
+        for (let i=0;i<groupby.linepos.length;i++) {
+            const nextstart=TLP[ groupby.linepos[i+1] ]||TLP[TLP.length-1] ;
+            tlp.push([ TLP[ groupby.linepos[i]] , nextstart ]);
+        }
+        const res= plCount(postings[0], tlp).map((count,idx)=>{
+            const id=groupby.fields.id.values[idx];
+            return {count, caption: groupby.innertext.get(idx), 
+                scope:tagname+ (parseInt(id)?id:'#'+id) };
+        });
+        return res;
+    } else {
+        return [{count:postings.length,caption:'-', name:'-'}];
     }
-    return plCount(postings[0], ranges).map((count,idx)=>{
-        return {count, caption: ptk.header.fulltextcaption[idx], name:ptk.header.fulltext[idx]}
-    });
 }
-export const validateTofind=str=>{
+export const validateTofind=(str:string)=>{
     return (str||'').replace(/[\[\]&%$#@\/\^]/g,'').trim();
 }
-export default {phraseQuery,scanSections,validateTofind,scoreLine,TOFIND_MAXLEN};
+export default {phraseQuery,scanText,validateTofind,scoreLine,TOFIND_MAXLEN};

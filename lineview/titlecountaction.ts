@@ -18,15 +18,12 @@ export class TitleCountAction extends Action{
 	async run(){
 		const ptk=usePtk(this.ptkname);
 		let {name,tofind}=this.act[0];
-		const at=ptk.header.fulltext.indexOf(name.slice(1));
-		const caption=ptk.header.fulltextcaption[at];
 
-		const sections=ptk.header.fulltext;
-		const sectionrange=ptk.sectionRange(sections[at]);
+		const sectionrange=ptk.rangeOfAddress(name.slice(1));
+		const caption=ptk.captionOfAddress(name.slice(1));
 		const [sectionfrom,sectionto]=sectionrange.map(it=>ptk.inverted.tokenlinepos[it]);
 		let chunkcountobj={},hitcount=0 , items=[];
-        const ck=ptk.attributes.chunktag||'ck';
-        const chunktag=ptk.defines[ck];
+        const chunktag=ptk.defines.ck;
 
 		if (!tofind) { //list all chunk in this section
 			const at1=bsearchNumber(chunktag.linepos, sectionrange[0]);
@@ -36,7 +33,7 @@ export class TitleCountAction extends Action{
 			for (let j=at1+this.from;j<at2;j++) {
 				const id=chunktag.fields.id.values[j];
 				const title=chunktag.innertext.get(j);
-				const address=ck+(parseInt(id)?id:'#'+id);
+				const address='ck'+(parseInt(id)?id:'#'+id);
 				if (items.length>=pagesize) break;
 				items.push({id, title, count:-1, address});
 			}
@@ -49,8 +46,6 @@ export class TitleCountAction extends Action{
 		const [phrases,postings]=await ptk.parseQuery(tofind);
 
 		//no ranking yet
-		
-
 
         for (let i=0;i<postings.length;i++) {
 			const pl=plTrim(postings[i], sectionfrom,sectionto);
@@ -73,13 +68,13 @@ export class TitleCountAction extends Action{
 		items=arr.map(it=>{
             const count=it[1];
             const id=chunktag.fields.id.values[it[0]];
-            const address=ck+id;
+            const address='ck'+(parseInt(id)?id:'#'+id);
             const title=chunktag.innertext.get(it[0]);
             return { id,title, count,address }
         })
+		
 		this.first=0;
 		this.last=arr.length;
-
 		this.ownerdraw={painter:'titlecount', data:{ last:this.last,
 			from:this.from, name, hitcount, caption,ptk,tofind , items}} ;
 	}	

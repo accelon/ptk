@@ -81,24 +81,16 @@ export function rangeOfElementId(eleid:string){
 			from=first;
 			out.push([first,last]);
 		} else {
-			const bktag=ptk.attributes.booktag||'bk'
-			const at=ptk.defines[bktag]?.fields.id.values.indexOf(ele);
-			if (i==0 && ~at) {
-				const first=ptk.defines[bktag].linepos[at];
-				let last=ptk.defines[bktag].linepos[at+1];
+			//try book id first, then artbulk id
+			const at=ptk.defines.bk?.fields.id.values.indexOf(ele);
+			const at2=at==-1?ptk.defines.ak?.fields.id.values.indexOf(ele):-1;
+
+			if (i==0 && (~at||~at2) ) {
+				const first=ptk.defines.bk.linepos[at]||ptk.defines.ak.linepos[at2];
+				let last=ptk.defines.bk.linepos[at+1]||ptk.defines.ak.linepos[at2+1];
 				if (!last) last=ptk.header.eot;
 				out.push([first,last]);
 				from=first;
-			} else { //try full text section, to be replace by 
-				const sections=ptk.header.fulltext;
-				const at=ptk.header.fulltext.indexOf(ele+id);
-				if (~at) {
-					const [first,last]=ptk.sectionRange(sections[at]);
-					out.push([first,last]);
-					from=first;
-				} else {
-					out.push([0,0]);
-				}
 			}
 		}
 	}
@@ -119,4 +111,22 @@ export function rangeOfAddress(address:string|IAddress):ILineRange{
 		const end=(till?till:from+1);
 		return [0,end ]; //數字型不知道終點，預設取一行
 	}
+}
+//only display the first level
+export function captionOfAddress(address:string):string{
+	let addr=address;
+	if (typeof address=='string') {
+		addr=parseAddress(address);
+	}
+	const {action} = addr;
+	const defines=this.defines;
+	const eleidarr=parseAction(action);
+	const out=[];
+	for (let i=0;i<eleidarr.length;i++) {
+		const [ele,id]=eleidarr[i];
+		if (!defines[ele]) return '';
+		const at=defines[ele].fields.id.values.indexOf(id);
+		out.push(defines[ele].innertext.get(at));
+	}
+	return out.join('/');
 }

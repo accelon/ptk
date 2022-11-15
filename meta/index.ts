@@ -1,6 +1,7 @@
 import {bookParanumToChunk,firstParanumOf} from "./cs-paranum.ts";
 import { FirstPN } from "./cs-first.ts";
-import { booksOf, pitakaOf,getFilesOfBook,sortFilenames} from "./sc-code.ts";
+import { booksOf, pitakaOf,sortFilenames,getFilesOfBook} from "./sc-code.ts";
+
 export const suttaOfBook=bkid=>{
     const out=[];
     if (bkid==='dn')      for (let i=1;i<=34;i++) out.push('d'+i);
@@ -22,10 +23,9 @@ export const suttaOfBook=bkid=>{
     return out;
 }
 
-export const cs ={
+export const meta_cs ={
     firstParanumOf,bookParanumToChunk,FirstPN,suttaOfBook
 }
-export const sc={
+export const meta_sc={
     getFilesOfBook,pitakaOf,booksOf,sortFilenames
 }
-export default {cs,sc};

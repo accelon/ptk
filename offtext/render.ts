@@ -83,7 +83,7 @@ export const renderOfftext=(linetext='', opts={})=>{
 
     for (let i=0;i<ot.tags.length;i++) {
         const tag=ot.tags[i];
-        for (let j=tag.choff;j<=tag.choff+tag.width;j++) {
+        for (let j=tag.choff;j<tag.choff+tag.width;j++) {
             if (!tagsAt[j]) tagsAt[j]=[];
             tagsAt[j].push(i);
         }

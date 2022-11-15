@@ -32,5 +32,24 @@ export const pinNotes=(lines,notes,opts={})=>{
     }
     return out;
 }
+export const stripLinesNote=(lines,notes,marker='⚓')=>{
+    const regex=new RegExp(marker+'([0-9]+)','g');
 
-export default {pinNotes};
+    lines=lines.map((line,y)=>{
+        let accwidth=0;
+        let nline=line.replace(regex,(m,m1,offset)=>{
+            const note=notes[m1];
+            if (note) {
+                note[0]=y;
+                note[1]=offset-accwidth;    
+            } else {
+                /* skip note in the first line , difficult to pin */
+                if (y) console.log('note not found',m1,y,line)
+            }
+            accwidth+=m.length;
+            return '';
+        })
+        return nline;
+    })
+    return lines;
+}

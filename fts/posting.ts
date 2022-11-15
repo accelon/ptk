@@ -34,7 +34,7 @@ export const plAnd=(pl1:number[],pl2:number[],dist=1)=>{
     }
     return out.slice(0,c);
 }
-export const plCount=(pl:number[],plgroup:number[])=>{
+export const plCount=(pl:number[],plgroup)=>{
     let p=0,start=0,end=0;
     const out=[];
     for (let i=0;i<plgroup.length;i++) {

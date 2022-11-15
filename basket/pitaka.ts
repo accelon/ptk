@@ -1,11 +1,11 @@
 import {ILineBase,LineBase,Column} from '../linebase/index.ts';
 import {Compiler,sourceType} from '../compiler/index.ts'
 import {unpackIntDelta,bsearchNumber} from '../utils/index.ts';
-import {rangeOfAddress} from './address.ts';
+import {rangeOfAddress,captionOfAddress} from './address.ts';
 import {columnField,inlineNote,rowOf,scanPrimaryKeys} from './columns.ts';
 import {Inverted,plContain} from '../fts/index.ts';
 import {TableOfContent} from '../compiler/toc.ts';
-import {parseQuery,scanSections} from '../fts/query.ts';
+import {parseQuery,scanText} from '../fts/query.ts';
 import {footNoteAddress,footNoteByAddress} from './footnote.ts';
 
 export const regPtkName =  /^[a-z\-_]{2,16}$/
@@ -24,8 +24,9 @@ export class Pitaka extends LineBase {
 		this.columns={};
 		this.tocs={};
 		this.rangeOfAddress=rangeOfAddress;
+		this.captionOfAddress=captionOfAddress;
 		this.scanPrimaryKeys=scanPrimaryKeys;
-		this.scanSections=scanSections;
+		this.scanText=scanText;
 		this.parseQuery=parseQuery;
 		this.scanCache={};
 		this.queryCache={};
@@ -118,12 +119,11 @@ export class Pitaka extends LineBase {
 		return this.getPostings(s);
 	}
 	getHeading(line:number) {
-		const tagname=this.attributes.chunktag||'ck';
-		const typedef=this.typedefOf(tagname);
-		const at=bsearchNumber(typedef.linepos, line)-1;
-		const lineoff=line-typedef.linepos[at];
-		let caption=typedef.innertext.get(at);
-		const id=typedef.fields?.id?.values[at];
+		const chunktag=this.defines.ck;
+		const at=bsearchNumber(chunktag.linepos, line)-1;
+		const lineoff=line-chunktag.linepos[at];
+		let caption=chunktag.innertext.get(at);
+		const id=chunktag.fields?.id?.values[at];
 /* TODO
 if caption has leading - , trace back to fetch ancestor node,
 this is suitable for tree structure with less branches,
@@ -131,9 +131,9 @@ not suitable for dictionary wordheads
 */
 
 		if (!caption) {
-			caption=this.columns[typedef.column]?.keys?.get(id);			
+			caption=this.columns[chunktag.column]?.keys?.get(id);			
 		}
-		return {id, tagname, caption,lineoff};
+		return {id, tagname:'ck', caption,lineoff};
 	}
 	getPostings(s:string){
 		const nPostings=this.inverted.nPostingOf(s);
@@ -146,16 +146,14 @@ not suitable for dictionary wordheads
 		return bsearchNumber(linepos,line) ||-1;
 	}
 	getNearestChunk( line) {
-		const chunktag=this.attributes.chunktag;
-		const booktag=this.attributes.booktag||'bk';
-		const def=this.defines[chunktag];
-		const bkdef=this.defines[booktag];
+		const chunktag=this.defines.ck;
+		const booktag=this.defines.bk;
 		const at=this.getNearestTag(line,chunktag)-1;
 		if (at<0) return null;
-		const bkat=this.getNearestTag(line,booktag)-1;
+		const bkat=this.getNearestTag(line,'bk')-1;
 
-		return {bkid:bkdef.fields.id.values[bkat] ,
-			at, id:def.fields.id.values[at], innertext: def.innertext.get(at)}
+		return {bkid:booktag.fields.id.values[bkat] ,
+			at, id:chunktag.fields.id.values[at], innertext: chunktag.innertext.get(at)}
 	}
 	findClosestTag(typedef, key, value, from=0){
 		let at=typedef.fields[key].values.indexOf(value);

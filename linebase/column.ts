@@ -1,5 +1,6 @@
 /* store in column oriented */ 
-import {LEMMA_DELIMITER,StringArray,alphabetically0,packIntDelta2d,unpackIntDelta2d,packInt,unpackIntDelta,unpackInt} from "../utils/index.ts"
+import {LEMMA_DELIMITER,StringArray,alphabetically0,
+	packIntDelta2d,	unpackIntDelta2d,packInt,unpackInt} from "../utils/index.ts"
 import {createField,VError} from  "../compiler/index.ts"
 import {parseOfftext} from '../offtext/index.ts'
 export class Column {
@@ -7,7 +8,7 @@ export class Column {
 		this.fieldvalues=[];
 		this.fieldnames=[];
 		this.fields=[];
-		this.attrs; //raw attributes in ^_<>
+		this.attrs; //raw attributes in ^:<>
 		this.name='';
 		this.keys=[];  //keys
 		this.values=[]; // 

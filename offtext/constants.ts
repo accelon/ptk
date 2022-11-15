@@ -1,9 +1,9 @@
 export const ALWAYS_EMPTY = {br:true,r:true};
 export const AUTO_TILL_END={e:true}
 
-export const OFFTAG_REGEX_G=/\^(\:?[a-z_]+[#@\/\.\:a-z_\-\d~]*)(<(?:\\.|.)*?>)?/g 
-export const OFFTAG_REGEX=/\^(\:?[a-z_]+[#@\/\.\:a-z_\-\d~]*)(<(?:\\.|.)*?>)?/ 
-export const OFFTAG_REGEX_SPLIT=/(\^\:?[a-z_]+[#@\/\.\:a-z_\-\d~]*)(<(?:\\.|.)*?>)?/ 
+export const OFFTAG_REGEX_G=/\^([#@\/\.\:a-z_\-\d~]+)(<(?:\\.|.)*?>)?/g 
+export const OFFTAG_REGEX=/\^([#@\/\.\:a-z_\-\d~]+)(<(?:\\.|.)*?>)?/ 
+export const OFFTAG_REGEX_SPLIT=/(\^[#@\/\.\:a-z_\-\d~]+)(<(?:\\.|.)*?>)?/ 
 
 export const HTMLTAG_REGEX_G=/(<(?:\\.|.)*?>)/g 
 

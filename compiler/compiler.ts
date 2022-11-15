@@ -6,42 +6,41 @@ import {validate_z} from './fielder.ts'
 import {StringArray} from '../utils/stringarray.ts'
 import {Typedef} from './typedef.ts'
 import {VError,MAX_VERROR} from './error.ts'
-import {removeBracket} from '../utils/cjk.ts';
+import {predefines} from './predefines.ts'
+
 export const sourceType=(firstline:string):SourceType=>{	
 	const at=firstline.indexOf('\n');
 	firstline=at>-1? firstline.slice(0,at):firstline;
 	const [text,tags]=parseOfftext(firstline);
-	let preload=false ,sourcetype, name,caption, chunktag;
+	let preload=false ,sourcetype, name,caption;
 	let consumed=false;
-	if (tags.length && tags[0].name=='_') { //define a section
+	if (tags.length && tags[0].name==':') { //directive
 		const attrs=tags[0].attrs;
 		preload=!!tags[0].attrs.preload;
-		chunktag=tags[0].attrs.chunktag||'ck';
 		sourcetype=tags[0].attrs.type;
 		name=tags[0].attrs.name;
 		caption=tags[0].attrs.caption;
 		if (attrs?.type?.toLowerCase()=='tsv') {
-			return {sourcetype:SourceType.TSV, tag:tags[0], preload, chunktag ,name,caption,consumed:false};
+			return {sourcetype:SourceType.TSV, tag:tags[0], preload ,name,caption,consumed:false};
 		}
-		consumed=true;  //combined all consumed ^_ lines and put to 000.js payaload
+		consumed=true;  //combined all consumed ^: lines and put to 000.js payaload
 	}
-	return {sourcetype:sourcetype||SourceType.Offtext,tag:tags[0],preload, chunktag,name,caption,consumed};
+	return {sourcetype:sourcetype||SourceType.Offtext,tag:tags[0],preload,name,caption,consumed};
 }
 export class CompiledFile implements ICompiledFile {
 	constructor (){
 		this.errors=[];
-		this.defines=[];
+		this.tagdefs=[];
 		this.processed;
 		this.sourcetype='';
 	}
 }
 export class Compiler implements ICompiler {
-	constructor () {
-		this.reset();
+	constructor (opts={}) {
+		this.reset(opts);
 	}
-	reset(){
+	reset(opts={}){
 		this.ptkname='';
-		this.chunktag='';
 		this.compilingname='';
 		this.line=0;
 		this.compiledLine=0;
@@ -55,26 +54,29 @@ export class Compiler implements ICompiler {
 		this.zcount=0;
 		this.prevzline=0;
 		this.prevdepth=0;
+		const predefine=predefines[opts?.define || 'generic'];
+		this.tagdefs=[]; // defines provided by the library, will be added to 000.js payload
+		this.compileOfftext	(predefine, this.tagdefs);
 	}
 	onError(code:VError, msg:string,  refline=-1, line:number) {
 		this.errors.push({name:this.compilingname, line:(line||this.line), code, msg, refline});
 		if (this.errors.length>=MAX_VERROR) this.stopcompile=true;
 	}
-	compileOfftext(str:string, defines:string[]){
+	compileOfftext(str:string, tagdefs:string[]){
 		const at=str.indexOf('^');
 		if (at==-1) return str;
 		const ot=new Offtext(str);
 		let tagtouched=false, updated=false ;
 		for (let i=0;i<ot.tags.length;i++) {
 			const tag=ot.tags[i];
-			if (tag.name[0]==':') {
+			if (tag.name[0]==':' && tag.name.length>1) {
 				const newtagname=tag.name.slice(1);
 				if (this.typedefs[newtagname]) {
 					this.onError(VError.TypeRedef, newtagname)
 				} else {
 					this.typedefs[newtagname]= new Typedef(tag.attrs,newtagname,this.primarykeys);
 				}
-				defines.push(str);
+				tagdefs.push(str);
 				str=null;  //no in source tag
 			} else {
 				if (tag.name[0]=='z') {
@@ -101,29 +103,22 @@ export class Compiler implements ICompiler {
 	compileBuffer(buffer:string,filename:string) {
 		if (!buffer)   return this.onError(VError.Empty);
 		if (!filename) return this.onError(VError.PtkNoName);
-		let processed,samepage=false, defines=[] , attributes={};
+		let processed,samepage=false, tagdefs=[] , attributes={};
 		const sa=new StringArray(buffer,{sequencial:true});
 		const firstline=sa.first();
-		const {sourcetype,tag,preload,chunktag,name,caption,consumed}=sourceType(firstline); //only first tag on first line
-		if (sourcetype=='txt' && consumed) defines.push(firstline);
+		const {sourcetype,tag,preload,name,caption,consumed}=sourceType(firstline); //only first tag on first line
+		if (sourcetype=='txt' && consumed) tagdefs.push(firstline);
 		let compiledname = name || filename;//name of this section
 		let textstart=0;//starting line of indexable text
 		this.compilingname=filename;
 		this.stopcompile=false;
 
-		if (tag.name=='_') { //global setting
+		if (tag.name==':') { // system directive
 			if (tag.attrs.ptk) {
 				if (this.ptkname && this.ptkname!==tag.attrs.ptk) {
 					this.onError(VError.PtkNamed, this.ptkname);
 				} else {
 					this.ptkname=tag.attrs.ptk;
-				}
-			}
-			if (tag.attrs.chunktag) {
-				if (this.chunktag && this.chunktag!==tag.attrs.chunktag) {
-					this.onError(VError.RedefineChunkTag, this.chunktag);
-				} else {
-					this.chunktag=tag.attrs.chunktag;
 				}
 			}
 			attributes=tag.attrs;
@@ -153,8 +148,7 @@ export class Compiler implements ICompiler {
 			if (consumed) linetext=sa.next();
 			this.line=0;
 			while (linetext || linetext==='') {
-
-				const o=this.compileOfftext(linetext, defines);
+				const o=this.compileOfftext(linetext, tagdefs);
 				if (o || o=='') {
 					out.push(o);
 					this.line++;
@@ -166,7 +160,7 @@ export class Compiler implements ICompiler {
 			processed=out;
 		}
 		this.compiledFiles[filename]={name:compiledname,caption,preload,sourcetype,processed,textstart,
-			errors:this.errors,samepage,defines, attributes};
+			errors:this.errors,samepage,tagdefs, attributes};
 		return this.compiledFiles[filename];
 	}
 }

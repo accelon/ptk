@@ -6,21 +6,19 @@ import {serializeToc} from './toc.ts';
 
 export const makeLineBaser=async (sourcebuffers,compiler:ICompiler,contentGetter)=>{
 	lbaser=new LineBaser();
-	const alldefines=[];
 	if (compiler) compiler.reset();
 	else compiler=new Compiler();
 	const indexer=new Indexer();
+	const alltagdefs=compiler.tagdefs.concat([]); //add built-in defines to 000.js payload
 
 	for (let i=0;i<sourcebuffers.length;i++) {
 		const buf=sourcebuffers[i];
-
 		const {text}=await contentGetter(i);
-
 		const ext=buf.name.match(/(.[a-z]+)/)[1]||'';
 		if (buf.name.endsWith('.css')) continue; // todo , should check sourcetype
 		compiler.compileBuffer(text,buf.name);
-		const {name,caption,errors,sourcetype,processed,samepage,preload,defines,textstart}=compiler.compiledFiles[buf.name];
-		alldefines.push(...defines);
+		const {name,caption,errors,processed,samepage,preload,tagdefs,textstart}=compiler.compiledFiles[buf.name];
+		alltagdefs.push(...tagdefs);
 		if (preload) lbaser.header.preload.push(name);
 		lbaser.append(processed,{name:name.replace('*',''),samepage});
 		if (errors.length) console.log(errors);
@@ -43,12 +41,12 @@ export const makeLineBaser=async (sourcebuffers,compiler:ICompiler,contentGetter
 	const [tokens,postings]=indexer.serialize();
 	lbaser.header.eot = lbaser._data.length;
 	lbaser.header.preload.push('_tokens','_toc');
-	tokens.unshift('^_<type="tokens">');
+	tokens.unshift('^:<type="tokens">');
 	lbaser.append(tokens,{newpage:true,name:'_tokens'});
 	lbaser.append(postings,{newpage:true,name:'_postings'});
 	if (compiler.toc.length) lbaser.append(serializeToc(compiler.toc), {newpage:true,name:'_toc'});
 
-	lbaser.payload=alldefines.join('\n');
+	lbaser.payload=alltagdefs.filter(it=>!!it).join('\n');
 	if (!compiler.ptkname) {
 		return "missing ptk name";	
 	}

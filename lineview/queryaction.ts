@@ -1,7 +1,5 @@
 import {IAddress,usePtk} from '../basket/index.ts';
 import {Action} from "./baseaction.ts";
-import {ACTIONPAGESIZE} from "./interfaces.ts";
-
 export class QueryAction extends Action{
 	constructor(addr:IAddress,depth=0){
 		super(addr,depth);

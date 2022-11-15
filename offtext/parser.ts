@@ -26,7 +26,7 @@ export const parseAttributes=(rawAttrs:string,compactAttr:string)=>{
         return (withq?'"':'')+quotes[parseInt(qc)]+(withq?'"':'');
     });
 
-    let rawattr=rawAttrs?rawAttrs.substr(1,rawAttrs.length-2).replace(QSTRING_REGEX_G,(m,m1)=>{
+    let rawattr=rawAttrs?rawAttrs.slice(1,rawAttrs.length-1).replace(QSTRING_REGEX_G,(m,m1)=>{
         quotes.push(m1);
         return QUOTEPREFIX+(quotes.length-1);
     }):'';
@@ -43,10 +43,10 @@ export const parseAttributes=(rawAttrs:string,compactAttr:string)=>{
            eq=(it[1]=='=')?1:0;
         } else {
            eq=it.indexOf('=');
-           if (eq>0) key=it.substr(0,eq);
+           if (eq>0) key=it.slice(0,eq);
         }
         if (eq>-1) {
-            attrs[key] = getqstr(it.substr(eq+1));
+            attrs[key] = getqstr(it.slice(eq+1));
             if (attrarr.length && !attrarr[0].trim()) attrarr.shift() ;//drop the following space
         } else {
             if (it) attrs[it] = true;
@@ -57,17 +57,23 @@ export const parseAttributes=(rawAttrs:string,compactAttr:string)=>{
     return attrs;
 }
 export const parseOfftag=(raw:string,rawAttrs:string)=>{ // 剖析一個offtag,  ('a7[k=1]') 等效於 ('a7','[k=1]')
-    if (raw[0]==OFFTAG_LEADBYTE) raw=raw.substr(1);
+    if (raw[0]==OFFTAG_LEADBYTE) raw=raw.slice(1);
     if (!rawAttrs){
-        const at=raw.indexOf('[');
+        const at=raw.indexOf('<');
         if (at>0) {
-            rawAttrs=raw.substr(at);
-            raw=raw.substr(0,at);
+            rawAttrs=raw.slice(at);
+            raw=raw.slice(0,at);
         }
     }
-    let [m2, tagName, compactAttr]=raw.match(OFFTAG_NAME_ATTR);
-    let attrs=parseAttributes(rawAttrs,compactAttr);
-    return [tagName,attrs];
+    const o=raw.match(OFFTAG_NAME_ATTR);
+    if (!o) {
+        console.log("\ninvalid tag, raw",raw,'attr',rawAttrs);
+        return [raw,{}];
+    } else {
+        let [m2, tagName, compactAttr]=o;
+        let attrs=parseAttributes(rawAttrs,compactAttr);
+        return [tagName,attrs];        
+    }
 }
 
 const resolveEnd=(raw, plain:string,tags:IOfftag[])=>{  
@@ -112,6 +118,9 @@ export const parseOfftext=(str:string,line:number=0)=>{
     let tags=[];
     let choff=0,prevoff=0; // choff : offset to plain text
     let text=str.replace(OFFTAG_REGEX_G, (m,rawName,rawAttrs,offset)=>{
+        if (!rawName) {
+            console.log(str)
+        }
         let [tagName,attrs]=parseOfftag(rawName,rawAttrs);
         let width=0;
         let start=offset+m.length, end=start; //文字開始及結束

@@ -18,12 +18,12 @@ export const getModulePath=name=>{
     return Path.resolve(dir ,"..")+Path.sep+name;
 }
 const isSourceFile=fn=>{
-    return fn.endsWith('.off')||fn.endsWith('.tsv')||fn=='accelon22.css'
+    return fn.endsWith('.off')||fn.endsWith('.tsv')
 }
 const build=opts=>{
     let files;
     let ptkname=arg;
-    
+
     if (!ptkname) { //pack all files in cwd
         files=fs.existsSync(listfilename)?PTK.readTextLines(listfilename):fs.readdirSync('.').filter(isSourceFile);
         opts.outdir='../';
@@ -31,11 +31,16 @@ const build=opts=>{
     } else { //pack 
         opts.ptkname=ptkname;
         opts.indir=ptkname+'.offtext/'
+
         files=fs.existsSync(opts.indir+listfilename)?PTK.readTextLines(opts.indir+listfilename):fs.readdirSync(opts.indir).filter(isSourceFile);
+
         if (!files.length) {
             opts.indir=ptkname+'.src/'
             files=fs.readdirSync(opts.indir).filter(isSourceFile);
         }
+    }
+    if (fs.existsSync(opts.indir+'accelon22.css')) {
+        files.push('accelon22.css')
     }
 
     if (!PTK.validPtkName(opts.ptkname)) {

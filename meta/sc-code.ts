@@ -1,4 +1,5 @@
-import {filesFromPattern} from "../platform/nodefs.ts"
+//do no import nodefs.ts
+import {filesFromPattern} from "../platform/fsutils.ts"
 const BookPrefix={
     vin:"pj,pc,mv,cv,pvr",
     dn:"dn1,dn2,dn3",

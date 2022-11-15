@@ -16,14 +16,15 @@ export class ExcerptAction extends Action{
 		const ptk=usePtk(this.ptkname);
 		let {name,tofind}=this.act[0];
 		const [first,last]=ptk.rangeOfAddress(name.slice(1));
+		
 		const at=ptk.header.fulltext.indexOf(name.slice(1));
 		const caption=ptk.header.fulltextcaption[at];
+
 		const sectionfrom=ptk.inverted.tokenlinepos[first];
 		const sectionto=ptk.inverted.tokenlinepos[last];
 		const [phrases,postings]=await ptk.parseQuery(tofind);
 		let chunkobj={}, lineobj={},hitcount=0;
-		const chunktag=ptk.attributes.chunktag||'ck';
-		const chunklinepos=ptk.typedefOf(chunktag).linepos;
+		const chunklinepos=ptk.defines.ck.linepos;
 		for (let i=0;i<postings.length;i++) {
 			const pl=plTrim(postings[i], sectionfrom,sectionto);
 			const [pllines,lineshits]=plContain(pl,ptk.inverted.tokenlinepos,true);

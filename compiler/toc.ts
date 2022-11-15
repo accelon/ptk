@@ -7,7 +7,7 @@ export const serializeToc=toc=>{
 		lines.push(line);
 		texts.push(text.replace(/\t/g,' '));
 	}
-	out.push('^_<type=toc>'); // section name is _toc
+	out.push('^:<type=toc>'); // section name is _toc
 	out.push(packIntDelta(lines));
 	out.push(packInt(depths));
 	out.push(texts.join('\t'));
