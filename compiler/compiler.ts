@@ -54,13 +54,15 @@ export class Compiler implements ICompiler {
 		this.zcount=0;
 		this.prevzline=0;
 		this.prevdepth=0;
-		const predefine=predefines[opts?.define || 'generic'];
 		this.tagdefs=[]; // defines provided by the library, will be added to 000.js payload
-		this.compileOfftext	(predefine, this.tagdefs);
 	}
 	onError(code:VError, msg:string,  refline=-1, line:number) {
 		this.errors.push({name:this.compilingname, line:(line||this.line), code, msg, refline});
 		if (this.errors.length>=MAX_VERROR) this.stopcompile=true;
+	}
+	setPredefine(name="generic"){
+		const predefine=predefines[name]||'';
+		this.compileOfftext	(predefine, this.tagdefs);
 	}
 	compileOfftext(str:string, tagdefs:string[]){
 		const at=str.indexOf('^');
@@ -120,6 +122,9 @@ export class Compiler implements ICompiler {
 				} else {
 					this.ptkname=tag.attrs.ptk;
 				}
+			} 
+			if (tag.attrs.define) {
+				this.setPredefine(tag.attrs.define);
 			}
 			attributes=tag.attrs;
 		}

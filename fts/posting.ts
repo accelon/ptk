@@ -20,8 +20,9 @@ export const plFind=(arr, v, p=0)=>{
 }
 
 export const plAnd=(pl1:number[],pl2:number[],dist=1)=>{
+
     let p2 = 0 , c=0;
-    if (pl1.length==0 ||pl2.length==0) return [];
+    if (!pl1 || !pl2 || pl1.length==0 ||pl2.length==0) return [];
     const sz=Math.min(pl1.length,pl2.length);
     let out=[];
     for (let p1=0;p1<pl1.length;p1++){

@@ -109,6 +109,7 @@ export class Pitaka extends LineBase {
 		const jobs=[];
 		const that=this;
 		for (let i=0;i<nPostings.length;i++) {
+			if (nPostings[i]<0) continue;
 			const line=this.inverted.postingStart+nPostings[i];
 			jobs.push( async function(at){
 				await that.loadLines([[line,line+1]]);

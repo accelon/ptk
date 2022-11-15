@@ -1,4 +1,4 @@
-import {plAnd,getCounter, getSpeed,plRanges,plCount} from './posting.ts';
+import {plAnd,plRanges,plCount} from './posting.ts';
 import {fromSim} from 'lossless-simplified-chinese'
 import {bsearchNumber} from '../utils/bsearch.js'
 
@@ -93,8 +93,8 @@ export async function phraseQuery(phrase:string){
         let pl1=out;
         out=plAnd(pl1,tokens[i],i);
     }
-    this.queryCache[qkey]=out;
-    return out;
+    this.queryCache[qkey]=out||[];
+    return this.queryCache[qkey];
 }
 export async function parseQuery(tofind:string,opts){
     opts=opts||{};

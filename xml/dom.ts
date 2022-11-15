@@ -35,6 +35,7 @@ export const DOMFromString=(str,debug)=>{
 }
 export const walkDOM=(el,ctx,onOpen={},onClose={},onText=null)=>{
     onText=onText||ctx.onText;
+    ctx.out=ctx.out||'';
     if (typeof el==='string') ctx.out+=onText?onText(el,ctx):el;
     const openhandler= onOpen[el.name] || onOpen["*"];
     if (openhandler) {

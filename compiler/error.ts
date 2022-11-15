@@ -1,4 +1,4 @@
-export const MAX_VERROR=100;
+export const MAX_VERROR=10;
 export enum VError {
 	NoKeys        = 'NO_KEYS' ,
 	NoKey         = 'NO_KEY' ,
