@@ -25,10 +25,16 @@ const build=opts=>{
     let ptkname=arg;
 
     if (!ptkname) { //pack all files in cwd
-        files=fs.existsSync(listfilename)?PTK.readTextLines(listfilename):fs.readdirSync('.').filter(isSourceFile);
-        opts.outdir='../';
-        opts.ptkname=Path.basename(process.cwd()).replace(/\..+$/,'');
-    } else { //pack 
+        if (fs.existsSync("off")) {
+            opts.ptkname=Path.basename(process.cwd()).replace(/\..+$/,'');    
+            opts.indir='off/'
+            files=fs.existsSync(opts.indir+listfilename)?PTK.readTextLines(opts.indir+listfilename):fs.readdirSync(opts.indir).filter(isSourceFile);
+        } else {
+            files=fs.existsSync(listfilename)?PTK.readTextLines(listfilename):fs.readdirSync('.').filter(isSourceFile);
+            opts.outdir='../';
+            opts.ptkname=Path.basename(process.cwd()).replace(/\..+$/,'');    
+        }
+    } else { //pack all files in off
         opts.ptkname=ptkname;
         opts.indir=ptkname+'.offtext/'
 
@@ -47,6 +53,7 @@ const build=opts=>{
         console.log(cyan(opts.ptkname),'does not match',PTK.regPtkName);
         return;
     }
+    console.log('indir',opts.indir)
 
 	if (files.length) {
 		dobuild(files,opts);

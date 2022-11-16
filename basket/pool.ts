@@ -18,12 +18,12 @@ export const hasLang=(lang:string)=>{
     }
 }
 export const poolParallelPitakas=(ptk)=>{
-    const at=ptk.name.indexOf('-');
+    let align=ptk.attributes?.align;
+    if (!align) align=ptk.name.replace(/\-[^-]+$/,'');
     const out=[];
-    const suffix=~at?ptk.name.slice(0,at):ptk.name;
     for (const n in _pool) {
-        if (n.startsWith(suffix) && n!==ptk.name) {
-            out.push(n);
+        if (_pool[n].attributes.align==align || n.replace(/\-[^-]+$/,'')==align) {
+            if (ptk.name!==_pool[n].name) out.push(n);
         }
     }
     return out;

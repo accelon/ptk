@@ -123,9 +123,7 @@ export class Compiler implements ICompiler {
 					this.ptkname=tag.attrs.ptk;
 				}
 			} 
-			if (tag.attrs.define) {
-				this.setPredefine(tag.attrs.define);
-			}
+			this.setPredefine(tag.attrs.define);
 			attributes=tag.attrs;
 		}
 		if (sourcetype===SourceType.TSV) {

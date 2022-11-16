@@ -44,3 +44,19 @@ type `ptk` to see available commands
 
 
 
+## 文件夾
+
+## ptk js
+   如果 ptk name 和 目錄同名，可將源文件放在 off
+
+## ptk js name
+   源文件在  name.offtext 或 name.src 
+   但ptk 名字會根據 0.off 中指定
+
+   詳見 bin.js::build
+
+
+## 平行語料庫
+
+資料庫有相同前綴 ，如 cs , cs-en 。
+或者在 directive 指定 align=cs  ( see pool.ts::poolParallelPitakas)
