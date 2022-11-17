@@ -17,6 +17,7 @@ export interface IPitaka extends ILineBase{
 	columnField:Function,
 }
 export class Pitaka extends LineBase {
+	defines:Record<string,unknown>
 	constructor(opts){
 		super(opts);
 		this.defines={};

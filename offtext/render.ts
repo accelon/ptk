@@ -1,10 +1,23 @@
-import {Offtext,Offtag,IRenderUnit} from './interfaces.ts';
+import {IOfftext,IOfftag,IRenderUnit} from './interfaces.ts';
 import {AUTO_TILL_END,ALWAYS_EMPTY,MIN_ABRIDGE} from './constants.ts';
 import {tokenize,TokenType,Token} from '../fts/index.ts';
 import {parseOfftext,Offtext} from './parser.ts';
 import {closeBracketOf} from '../utils/cjk.ts';
 
 export class RenderUnit implements IRenderUnit {
+    token:Token   //raw token from tokenize
+    open  :IOfftag //tag open at this token
+    close :IOfftag //tag close at this token
+    text :string  //the text to display
+    css  :string  //the classes of css
+    hide: boolean //hide the text
+    postingoffset:number
+    choff:number
+    ntoken:number
+    tags:Array<unknown>
+    luminate:number
+    highlight:boolean
+    offtext:IOfftext
     constructor (token: Token, ntoken:number, offtext:IOfftext, postingoffset:number) {
         this.token=token;
         this.postingoffset=postingoffset; //relative offset of posting (indexable token)
@@ -16,6 +29,7 @@ export class RenderUnit implements IRenderUnit {
         this.hide=false;
         this.luminate=0;      //highlight luminates surrounding token, for abridge
         this.highlight=false;
+        this.css='';
     }
     tagsOf(closing=false){
         const out=[];
@@ -123,7 +137,7 @@ export const renderOfftext=(linetext='', opts={})=>{
             if(closeAt) closeAt.hide=true;
         }
     }
-    return [ot,runits];
+    return [runits,ot];
 }
 
 export const abridgeRenderUnits=(runits:RenderUnit[], minwidth=20)=>{

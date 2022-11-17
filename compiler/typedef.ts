@@ -83,7 +83,7 @@ export class Typedef implements ITypedef {
 			if (V?.type==='number'){
 				V.values=unpackInt(section.shift());
 			} else if (V?.type==='text') {
-				V.values=section.shift().split('\t');
+				V.values=section.length?section.shift().split('\t'):[];
 			}
 		}
 		if (section.length) {

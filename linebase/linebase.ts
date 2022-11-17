@@ -85,9 +85,9 @@ export class LineBase{
 		if (line>this._lineoffsets[page].length) return this._pages[page].length;
 		return this._lineoffsets[page][line-1];
 	}
-	getLines(nlines){
+	getLines(nlines:Array<number>){
 		if (!nlines.length) return  [];
-		let out=[];
+		let out=Array<number>();
 		let pline=nlines[0];
 		let start=pline;
 		for (let i=1;i<nlines.length;i++) {
@@ -100,14 +100,14 @@ export class LineBase{
 		out=out.concat(this.slice(start,pline+1));
 		return out;
 	}
-	getLine(nline){
+	getLine(nline:number){
 		return this.slice(nline,nline+1)[0];
 	}
-	slice(nline,to){ //combine array of string from loaded pages
+	slice(nline:number,to:number){ //combine array of string from loaded pages
 		if (!to) to=nline+1;
 		const p1=this.pageOfLine(nline,this.pagestarts);
 		const p2=this.pageOfLine(to,this.pagestarts);
-		let i=0, out='' ,slicefrom,sliceto;
+		let out='' ;
 		for (let i=p1;i<=p2;i++) {
 			if (!this._pages[i]) return [];//page not loaded yet
 			if (i==p1 || i==p2) { // first or last part
@@ -125,7 +125,7 @@ export class LineBase{
 		}
 		return out.split('\n');
 	}
-    setPage(page,header,payload){
+    setPage(page:number,header,payload:string){
     	if (page==0) {
 	        this.header=header;
 	        this.name=this.header.name;
@@ -151,18 +151,13 @@ export class LineBase{
 			},50);
 		})
 	}
-	async preloadSection(name,type,headeronly=false){
-		let [from,to]=this.sectionRange(name,type);
-		if (headeronly) to=from+1;
-		await this.loadLines([[from,to]]);
-	}
-	getSection(name,type){
-		const [from,to]=this.sectionRange(name,type);
+	getSection(name:string){
+		const [from,to]=this.sectionRange(name);
 		return this.slice(from,to);
 	}	
 	sectionRange(sname:string):ILineRange {
 		const notfound=[0,0];
-		const {sectionnames,sectionstarts,sectiontypes}=this.header;
+		const {sectionnames,sectionstarts}=this.header;
 		if (!sectionnames || !sectionnames.length) return notfound;
 		for (let i=0;i<sectionnames.length;i++) {
 			const name=sectionnames[i];

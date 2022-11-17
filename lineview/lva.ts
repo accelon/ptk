@@ -126,9 +126,26 @@ export class LVA {
 		if (!division) return;
 		return (division.from>0);
 	}
-	less(idx:number){
+	canpromote(idx){
+		if (idx<1) return;
 		const division=typeof idx=='number'?this._divisions[idx]:idx;
 		if (!division) return;
+		if (division.depth>0) return true;
+	}
+	promote(idx){
+		const division=typeof idx=='number'?this._divisions[idx]:idx;
+		if (!division) return this;
+
+		if (!this.canpromote(idx)) return this;
+		division.depth=0;
+		this._divisions.splice(idx,1);
+		this._divisions.unshift(division);
+		this._combine();
+		return this
+	}
+	less(idx:number){
+		const division=typeof idx=='number'?this._divisions[idx]:idx;
+		if (!division) return this;
 
 		division.till-=ACTIONPAGESIZE;
 		if (division.till-ACTIONPAGESIZE<division.from) division.till=division.from+ACTIONPAGESIZE;
@@ -136,7 +153,7 @@ export class LVA {
 	}
 	more(idx){
 		const division=typeof idx=='number'?this._divisions[idx]:idx;
-		if (!division) return;
+		if (!division) return this;
 		let linecount=division.last-division.first;
 		const till=division.till;
 		if (till==-1) division.till=division.from+ACTIONPAGESIZE;
@@ -195,7 +212,7 @@ export class LVA {
 		return this;
 	}
 	top(idx){
-		const division=this._divisions[idx];
+		const division=typeof idx=='number'?this._divisions[idx]:idx;
 		if (!division) return;
 		const pagesize=division.till-division.from;
 		division.from=0;
