@@ -121,6 +121,7 @@ export class Pitaka extends LineBase {
 		return this.getPostings(s);
 	}
 	getHeading(line:number) {
+		if (!line) return '';
 		const chunktag=this.defines.ck;
 		const at=bsearchNumber(chunktag.linepos, line)-1;
 		const lineoff=line-chunktag.linepos[at];

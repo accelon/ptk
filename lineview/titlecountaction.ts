@@ -18,9 +18,10 @@ export class TitleCountAction extends Action{
 	async run(){
 		const ptk=usePtk(this.ptkname);
 		let {name,tofind}=this.act[0];
+		const address=name.slice(1)
+		const sectionrange=address?ptk.rangeOfAddress(address):[0,ptk.header.eot];
 
-		const sectionrange=ptk.rangeOfAddress(name.slice(1));
-		const caption=ptk.captionOfAddress(name.slice(1));
+		const caption=ptk.captionOfAddress(address);
 		const [sectionfrom,sectionto]=sectionrange.map(it=>ptk.inverted.tokenlinepos[it]);
 		let chunkcountobj={},hitcount=0 , items=[];
         const chunktag=ptk.defines.ck;
@@ -35,11 +36,12 @@ export class TitleCountAction extends Action{
 				const title=chunktag.innertext.get(j);
 				const address='ck'+(parseInt(id)?id:'#'+id);
 				if (items.length>=pagesize) break;
-				items.push({id, title, count:-1, address});
+				items.push({id, title, count:-1, address, line: chunktag.linepos[j] });
 			}
+	
 			this.ownerdraw={painter:'titlecount', data:{ last:at2-at1,
 				from:this.from, name, hitcount, caption,ptk,tofind , items}} ;
-			
+
 			return;
 		}
 
