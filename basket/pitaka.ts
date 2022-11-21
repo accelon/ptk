@@ -177,8 +177,12 @@ not suitable for dictionary wordheads
 	typedefOf(tagname:string) {
 		return this.defines[tagname];//.fields;
 	}
-	humanName(lang='zh'){
-		return this.attributes[lang]||this.name;
+	humanName(short:true,lang='zh'){
+		let n= this.attributes[lang]||this.name;
+		const at=n.indexOf('|');
+		if (at==-1) return n;
+
+		return short?n.slice(0,at):n.slice(at+1);
 	}
 	getParallelLine(masterptk,line){
 		return [true,0];

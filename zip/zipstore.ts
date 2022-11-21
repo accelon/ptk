@@ -22,6 +22,7 @@ export class ZipStore {
 		this.files=[];
 		this.zipStart=0;  //begining first file including header (PK)
 		const {fileCount,centralSize,centralOffset}=this.loadEndRecord();
+
 		if (!fileCount) return null;
 		this.loadFiles(fileCount,centralSize,centralOffset);
 	}
@@ -29,20 +30,24 @@ export class ZipStore {
 		//calculate centraloffset from end of buffer , 
 		//an partial zip buf is smaller than value specified in endRecord
 		const coffset=this.zipbuf.length-ZipConst.endLength-centralSize;
-		const centralbuf=new DataView(this.zipbuf.slice(coffset,coffset+centralSize).buffer);
-		let p=0;
+
+		// const centralbuf=new DataView(this.zipbuf.slice(coffset,coffset+centralSize).buffer);
+		const buf=new DataView(this.zipbuf.buffer);
+		let p=coffset;
+
 		for (let i=0;i<fileCount;i++) {
-			const signature=centralbuf.getUint32(p);
+			const signature=buf.getUint32(p);
 			if (signature!==ZipConst.centralHeaderSignature) {
 				//throw "wrong central header signature"
 				break;
 			}
-			const size   =centralbuf.getUint32(p+20,true);
-			const namelen=centralbuf.getUint16(p+28,true);
-			const extra=centralbuf.getUint16(p+30,true);
-			const commentlen=centralbuf.getUint16(p+32,true);
+			const size   =buf.getUint32(p+20,true);
+			const namelen=buf.getUint16(p+28,true);
+			const extra=buf.getUint16(p+30,true);
+			const commentlen=buf.getUint16(p+32,true);
 			
-			let   offset =centralbuf.getUint32(p+42,true);
+			let   offset =buf.getUint32(p+42,true);
+
 			p+= ZipConst.centralHeaderLength;
 			const encodedName=this.zipbuf.subarray(coffset+p,coffset+p+namelen)
 			const name=new TextDecoder().decode(encodedName);
@@ -63,15 +68,19 @@ export class ZipStore {
 	private loadEndRecord(){
 		const endRecord={signature:0,fileCount:0, centralSize:0, centralOffset:0};
 		//cannot use subarray here
-		const endbuf=new DataView(this.zipbuf.slice(this.zipbuf.length-ZipConst.endLength).buffer);
-		endRecord.signature=endbuf.getUint32(0);
+		const buf=new DataView(this.zipbuf.buffer);//this.zipbuf.slice(this.zipbuf.length-ZipConst.endLength).buffer);
+		// console.log(endbuf)
+		const endpos=this.zipbuf.length-ZipConst.endLength;
+		endRecord.signature=buf.getUint32(endpos);
 		if (endRecord.signature!==ZipConst.endSignature) {
-			//throw "wrong endRecord signature"
+			console.log('endrecord signature',endRecord.signature,'zipbuf length',this.zipbuf.length);
+			throw "wrong endRecord signature"
 			return endRecord;
 		}
-		endRecord.fileCount=endbuf.getUint16(8,true);
-		endRecord.centralSize=endbuf.getUint32(12,true);
-		endRecord.centralOffset=endbuf.getUint32(16,true);
+
+		endRecord.fileCount=buf.getUint16(endpos+8,true);
+		endRecord.centralSize=buf.getUint32(endpos+12,true);
+		endRecord.centralOffset=buf.getUint32(endpos+16,true);
 		return endRecord;
 	}
 }

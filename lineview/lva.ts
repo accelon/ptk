@@ -118,14 +118,14 @@ export class LVA {
 	cannext(idx){
 		const division=typeof idx=='number'?this._divisions[idx]:idx;
 		if (!division) return;
-		if (!division.ownerdraw?.pagable) return;
+		if (!division.pagable && !division.ownerdraw?.pagable) return;
 		const pagesize=this.getViewPageSize(division);
 		return division.last - division.first > pagesize;
 	}
 	canprev(idx){
 		const division=typeof idx=='number'?this._divisions[idx]:idx;
 		if (!division) return;
-		if (!division.ownerdraw?.pagable) return;
+		if (!division.pagable &&  !division.ownerdraw?.pagable) return;
 		return (division.from>0);
 	}
 	canpromote(idx){

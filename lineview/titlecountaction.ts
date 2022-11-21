@@ -5,9 +5,6 @@ import {plTrim, plContain} from '../fts/posting.ts';
 import {bsearchNumber} from "../utils/index.ts";
 import {fromObj} from '../utils/index.ts';
 
-const listChunk=(from:number,to:number)=>{
-
-}
 export class TitleCountAction extends Action{
 	constructor(addr:IAddress,depth=0){
 		super(addr,depth);
@@ -19,18 +16,19 @@ export class TitleCountAction extends Action{
 		const ptk=usePtk(this.ptkname);
 		let {name,tofind}=this.act[0];
 		const address=name.slice(1)
-		const sectionrange=address?ptk.rangeOfAddress(address):[0,ptk.header.eot];
-
+		const sectionrange=address?ptk.rangeOfAddress(address):[0,ptk.header.eot+1];
 		const caption=ptk.captionOfAddress(address);
 		const [sectionfrom,sectionto]=sectionrange.map(it=>ptk.inverted.tokenlinepos[it]);
+
 		let chunkcountobj={},hitcount=0 , items=[];
         const chunktag=ptk.defines.ck;
 
 		if (!tofind) { //list all chunk in this section
 			const at1=bsearchNumber(chunktag.linepos, sectionrange[0]);
-			const at2=bsearchNumber(chunktag.linepos, sectionrange[1]);
+			const at2=bsearchNumber(chunktag.linepos, sectionrange[1])+1;
 			let pagesize=this.till-this.from;
 			if (pagesize<ACTIONPAGESIZE) pagesize=ACTIONPAGESIZE;
+			
 			for (let j=at1+this.from;j<at2;j++) {
 				const id=chunktag.fields.id.values[j];
 				const title=chunktag.innertext.get(j);

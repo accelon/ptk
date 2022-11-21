@@ -126,7 +126,7 @@ export function captionOfAddress(address:string):string{
 		const [ele,id]=eleidarr[i];
 		if (!defines[ele]) return '';
 		const at=defines[ele].fields.id.values.indexOf(id);
-		out.push(defines[ele].innertext.get(at));
+		out.push(defines[ele]?.innertext?.get(at));
 	}
 	return out.join('/');
 }
