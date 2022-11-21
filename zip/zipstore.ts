@@ -49,8 +49,10 @@ export class ZipStore {
 			let   offset =buf.getUint32(p+42,true);
 
 			p+= ZipConst.centralHeaderLength;
-			const encodedName=this.zipbuf.subarray(coffset+p,coffset+p+namelen)
+			const encodedName=this.zipbuf.subarray(p,p+namelen)
+			
 			const name=new TextDecoder().decode(encodedName);
+			console.log(name)
 			p+= namelen ;
 			p+= extra + commentlen;
 
