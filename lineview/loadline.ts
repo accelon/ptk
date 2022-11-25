@@ -39,7 +39,7 @@ async function loadLines(lva, noparallel=false){
 	await Promise.all(jobs);
 	let seq=0;
 	for (let i=0;i<divisions.length;i++) {//將巢狀結構轉為行陣列，標上深度及框線
-		const {action,ptkname,depth,ownerdraw,highlightline}=divisions[i];
+		const {action,ptkname,depth,ownerdraw,highlightline,first,from}=divisions[i];
 		const ptk=usePtk(ptkname);
 		if (ownerdraw) {
 			out.push({seq,idx:i,ownerdraw,depth,ptkname,key: ptkname+':'+action,closable:true })
@@ -66,13 +66,14 @@ async function loadLines(lva, noparallel=false){
 			//上行的層級更深，除去本行的上框線不顯示
 			if(prevdepth>depth && (edge&1===1)) edge^=1;
 			const closable=((edge==1||edge==3) ) || !divisions[i].diggable;
-
+			
+			const sponser=closable&&from==0?'某三寶弟子':''
 			//show remain button on last line
 			//todo , do not show on left part of splited division
 			const highlight= highlightline-divisions[i].from == j   ; //relative to begining of chunk
 
 			segment.push({seq,idx:j==0?i:-1,ptkname, key:ptkname+':'+(lines[j]), 
-				line:lines[j],highlight,text, depth, edge,closable});
+				line:lines[j],highlight,text, depth, edge,closable,sponser});
 			seq++;
 		}
 		out.push(...segment);

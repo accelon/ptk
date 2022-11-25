@@ -95,7 +95,10 @@ export class Column {
 		this.values=allfields.map(it=>it.slice(1));
 		this.createFields(this.typedef);
 
-		if (!this.fieldnames.length)  return; // no type def
+		if (!this.fieldnames.length)  {
+			throw "missing typedef"
+			return; // no type def
+		}
 		for (let i=0;i<this.values.length;i++) {
 			const fields=this.values[i];
 			this.addRow(fields, i+1 ) ; //one base
@@ -115,7 +118,7 @@ export class Column {
 			} else if (V.type=='string') {
 				out.push(this.fieldvalues[i].join(LEMMA_DELIMITER));
 			} else if (V.type=='text') {
-				if (i!==this.fieldnames.length-1) {
+				if (i!==this.fieldnames.length-1) { //只有最後的欄位可以為memo
 					throw "text fieldtype must be the last, "+this.fieldnames[i];
 				}
 				textstart=out.length;

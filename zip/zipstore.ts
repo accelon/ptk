@@ -52,7 +52,6 @@ export class ZipStore {
 			const encodedName=this.zipbuf.subarray(p,p+namelen)
 			
 			const name=new TextDecoder().decode(encodedName);
-			console.log(name)
 			p+= namelen ;
 			p+= extra + commentlen;
 

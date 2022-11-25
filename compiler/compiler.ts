@@ -68,7 +68,7 @@ export class Compiler implements ICompiler {
 		const at=str.indexOf('^');
 		if (at==-1) return str;
 		const ot=new Offtext(str);
-		let tagtouched=false, updated=false ;
+		let updated=false ;
 		for (let i=0;i<ot.tags.length;i++) {
 			const tag=ot.tags[i];
 			if (tag.name[0]==':' && tag.name.length>1) {
@@ -123,7 +123,8 @@ export class Compiler implements ICompiler {
 					this.ptkname=tag.attrs.ptk;
 				}
 			} 
-			this.setPredefine(tag.attrs.define);
+			//do not set predefine for tsv
+			if (!tag.attrs.type) this.setPredefine(tag.attrs.define);
 			attributes=tag.attrs;
 		}
 		if (sourcetype===SourceType.TSV) {
