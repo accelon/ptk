@@ -132,6 +132,12 @@ export class StringArray {
 		}
 		this.endCache[suffix]=out;
 		return out;
+	}
+	enumMode(s:string,mode=0):number[]{
+		if (mode==0) return this.enumStart(s);
+		else if (mode==1) return this.enumMiddle(s);
+		else if (mode==2) return this.enumEnd(s);
+		return [];
 	}	
 	match(text:string):string[] { // find longest word
 		const getter:StringGetter=this.get.bind(this);
