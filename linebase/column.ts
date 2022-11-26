@@ -122,7 +122,9 @@ export class Column {
 					throw "text fieldtype must be the last, "+this.fieldnames[i];
 				}
 				textstart=out.length;
-				out.push(...this.fieldvalues[i]);
+				for (let j=0;j<this.fieldvalues[i].length;j++) {
+					out.push(this.fieldvalues[i][j])
+				}
 			} else if (V.type){
 				this.onError&&this.onError(VError.UnknownType,V.type);
 			}
