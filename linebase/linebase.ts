@@ -109,17 +109,17 @@ export class LineBase{
 		const p2=this.pageOfLine(to,this.pagestarts);
 		let out='' ;
 		for (let i=p1;i<=p2;i++) {
-			if (!this._pages[i]) return [];//page not loaded yet
+			if (!this._pages[i]) return out.split('\n');//page not loaded yet
 			if (i==p1 || i==p2) { // first or last part
 				let slicefrom=this.getPageLineOffset(i, nline- (p1>0?this.pagestarts[p1-1]:0));
 				if (nline) slicefrom++; //skip the \n for first line
-				const sliceto=this.getPageLineOffset(i, to- (p2>0?this.pagestarts[p2-1]:0) );
+				const sliceto=this.getPageLineOffset(i,  to- (p2>0?this.pagestarts[p2-1]:0) );
 				if (p2>p1) {
 					if (i==p1) out = this._pages[i].slice(slicefrom); //+1 skip the \n
 					else out+= (out?'\n':'')+this._pages[i].slice(0, sliceto); 
 					//do not allow empty line become the first line
 				} else { //same block
-					out= this._pages[i].slice(slicefrom,sliceto);
+					out+=this._pages[i].slice(slicefrom,sliceto);
 				}
 			} else out+='\n'+this._pages[i];//middle
 		}
