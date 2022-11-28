@@ -81,6 +81,10 @@ export class Typedef implements ITypedef {
 		for (let i=0;i<attrs.length;i++) {
 			const aname=attrs[i];
 			const V=this.fields[aname];
+			if (!V) {
+				console.error("unknown type "+aname);
+				continue;
+			}
 			if (V?.type==='number'){
 				V.values=unpackInt(section.shift());
 			} else if (V?.type==='text') {
@@ -108,7 +112,7 @@ export class Typedef implements ITypedef {
 			} else if (V.type=='text') {
 				attrs.push(aname);
 				out.push( V.values.join('\t'));
-			}
+			}	
 		}
 		out.unshift(attrs.join(LEMMA_DELIMITER));
 		return out.length?out.join('\n'):null;

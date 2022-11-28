@@ -5,6 +5,7 @@ import {KeyField} from './keyfield.ts';
 import {KeysField} from './keysfield.ts';
 import {TextField} from './textfield.ts';
 import {NumberField} from './numberfield.ts';
+import {GroupField} from './groupfield.ts';
 import {IOfftext,IOfftag} from './offtext/index.ts';
 import {closeBracketOf} from '../utils/index.ts';
 export function createField(name,def:string,primarykeys,ownkeys) {
@@ -39,6 +40,8 @@ export function createField(name,def:string,primarykeys,ownkeys) {
 	}	else if (typename==='keys') {
 		const keys=(primarykeys&&primarykeys[foreign]) ||ownkeys;
 		v=new KeysField (name,{keys,pattern,foreign});
+	} else if (typename==='group') {
+		v=new GroupField (name,{type:typename});
 	}	else if (typename==='note') {
 		const keys=(primarykeys&&primarykeys[foreign]) ||ownkeys;
 		v=new Field (name,{type:typename,keys,pattern,foreign});

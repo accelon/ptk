@@ -1,4 +1,4 @@
-import {poolAdd,poolGet}  from './pool.ts';
+import {poolAdd,poolGet,poolDel}  from './pool.ts';
 import {Pitaka} from './pitaka.ts';
 import {ZipStore} from '../zip/index.ts';
 import {parseAddress} from '../basket/address.ts'

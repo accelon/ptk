@@ -1,5 +1,11 @@
 import {IField} from './interfaces.ts'
 export class Field implements IField {
+	type:string
+	name:string
+	foreign:string
+	optional:boolean
+	unique:boolean
+	caption:string
 	constructor(name:string,def:Map){
 		this.name=name;
 		this.foreign=def.foreign||'';
@@ -22,7 +28,7 @@ export class Field implements IField {
 		}
 		if (def.unique) this.unique={};
 	}
-	validate(value){
+	validate(value:string,line:number){
 		return [0,value];
 	}
 	find(){
