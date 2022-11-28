@@ -46,11 +46,13 @@ const nodefs=new Promise(resolve=>{
 })
 
 export const readTextContent=(fn:string):string=>{
-    let s=fs.readFileSync(fn);
+    let raw=fs.readFileSync(fn);
     //3 times faster than readFileSync with encoding
     //buffer is hold in C++ object instead of node.js heap
-    s= new TextDecoder().decode(s); 
+    const decoder=new TextDecoder();
+    let s=decoder.decode(raw); 
     if (s.charCodeAt(0)===0xfeff) s=s.slice(1); //BOM is okay, no memory write involved
+
     // DOS style crlf get 300% memory consumption penalty 
     if (s.indexOf('\r')>-1) s=s.replace(/\r?\n/g,'\n');
     return s;
@@ -71,11 +73,11 @@ export const writePitaka=async (lbase,opts={})=>{
                 console.log('cannot create folder',name);
             }
         }
-        lbase.writePages((pagefn,buf)=>{
+        lbase.dump((pagefn,buf)=>{
             const outfn=folder+'/'+pagefn;
             writeChanged(outfn,buf,true);
         }); 
-    } else {
+    } else if (opts.JSZip) {
         const zip=new opts.JSZip();
         await lbase.writePages(async (pagefn,buf)=>{
             const outfn=name+'/'+pagefn;
