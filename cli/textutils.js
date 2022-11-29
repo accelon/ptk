@@ -1,9 +1,7 @@
-import {nodefs,writeChanged,StringArray,alphabetically,
-	readTextContent,readTextLines , 
-	unique,fromObj,incObj,listwords} from '../nodebundle.cjs'
-
-import {blue,yellow,red,bgWhite,bgGreen,bold,green,cyan,magenta,
-	inverse,dim,underline} from './colors.cjs';
+import * as PTK from '../nodebundle.cjs';
+const {writeChanged,StringArray,readTextContent,readTextLines } = PTK;
+import * as colors from './colors.cjs'; 
+const {red,bold,green,cyan} = colors;
 
 export const onelexicon=(taskname,cb)=>{
 	const fn=process.argv[3];

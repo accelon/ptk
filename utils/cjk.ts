@@ -8,7 +8,9 @@ export const CJKRanges={
     'ExtD':[0x2B740,0x2B81F],
     'ExtE':[0x2B820,0x2CEAF],
     'ExtF':[0x2CEB0,0x2EBE0],
-    'ExtG':[0x30000,0x3134A]
+    'ExtG':[0x30000,0x3134F],
+    'ExtH':[0x31350,0x323AF],
+    'ExtZ':[0xA0000,0xD47FF]
 }
 export const enumCJKRangeNames=()=>Object.keys(CJKRanges);
 

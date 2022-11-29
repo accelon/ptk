@@ -17,9 +17,7 @@ export const toSeal=str=>{
     let cp=part*999+seq;
 
     if (cp>=65534) cp+=2; // 65*99+599
-
     if (cp>=131068+2) cp+=2;
- 
     if (cp>=196602+4) cp+=2;
 
     return String.fromCodePoint(0xA0000+cp)

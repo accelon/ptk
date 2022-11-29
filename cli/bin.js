@@ -1,9 +1,11 @@
 ﻿#!/usr/bin/env node
-import Path from 'path';
-import {blue,yellow,red,cyan,green,bold,underline,magenta} from './colors.cjs'; // lukeed/kleur
+import * as colors from './colors.cjs'; // lukeed/kleur
+const {blue,yellow,red,cyan,underline,magenta} = colors;
 import {dobuild} from './build.js';
 import * as PTK from '../nodebundle.cjs';
 import {onelexicon, text_lexicon, lexicons} from './textutils.js'
+import Path from 'path';
+
 await PTK.nodefs;
 
 const listfilename='files.txt';  //readdir if listfile is missing
@@ -14,7 +16,7 @@ const arg2=process.argv[4];
 const foldername=process.cwd();
 export const getModulePath=name=>{
     let dir=decodeURI(new URL(import.meta.url).pathname);
-    if(import.meta.url.substr(0,5)==='file:' && Path.sep==='\\') dir=dir.substr(1);
+    if(import.meta.url.slice(0,5)==='file:' && Path.sep==='\\') dir=dir.slice(1);
     return Path.resolve(dir ,"..")+Path.sep+name;
 }
 const isSourceFile=fn=>{
