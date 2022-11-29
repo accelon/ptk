@@ -1,6 +1,7 @@
 import {bookParanumToChunk,firstParanumOf} from "./cs-paranum.ts";
 import { FirstPN } from "./cs-first.ts";
 import { booksOf, pitakaOf,sortFilenames,getFilesOfBook} from "./sc-code.ts";
+import {fromSeal, toSeal} from "./ebag.ts";
 
 export const suttaOfBook=bkid=>{
     const out=[];
@@ -28,4 +29,8 @@ export const meta_cs ={
 }
 export const meta_sc={
     getFilesOfBook,pitakaOf,booksOf,sortFilenames
+}
+
+export const meta_ebag={
+    fromSeal, toSeal
 }

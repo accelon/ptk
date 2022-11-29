@@ -114,11 +114,10 @@ export class Compiler implements ICompiler {
 		let textstart=0;//starting line of indexable text
 		this.compilingname=filename;
 		this.stopcompile=false;
-		if (!tag) {
-			console.log(firstline,filename);
-		}
+		
+		// if (!tag) console.log(firstline,filename);
 
-		if (tag.name==':') { // system directive
+		if (tag?.name==':') { // system directive
 			if (tag.attrs.ptk) {
 				if (this.ptkname && this.ptkname!==tag.attrs.ptk) {
 					this.onError(VError.PtkNamed, this.ptkname);

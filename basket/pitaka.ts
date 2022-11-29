@@ -42,6 +42,7 @@ export class Pitaka extends LineBase {
 		this.lang='';
 	}
 	async init(){
+		if (!this.payload) return;
 		const compiler=new Compiler();
 		compiler.compileBuffer(this.payload, this.name);
 		this.defines=compiler.typedefs;
@@ -57,7 +58,8 @@ export class Pitaka extends LineBase {
 			}
 		}
 		//load together , avoid duplicate jobs
-		await this.loadLines(ranges);
+		await this.loadLines(ranges);	
+		
 
 		//todo , need to preload ck tag
 
@@ -66,7 +68,7 @@ export class Pitaka extends LineBase {
 			if (section.length)	this.deserialize(section);
 			else console.error('empty section',this.header.preload[i]);
 		}
-		for (let n in this.defines) { //see compiler/typedef.ts serialize()
+		for (const n in this.defines) { //see compiler/typedef.ts serialize()
 			if (this.defines[n].fields.preload) {
 				const section=this.getSection('^'+n);
 				this.defines[n].deserialize(section);
@@ -79,7 +81,7 @@ export class Pitaka extends LineBase {
 			}
 		}
 		//link column and define
-		for (let n in this.columns) {
+		for (const n in this.columns) {
 			const tagname=(this.columns[n].attrs?.tagname)
 			if (tagname){
 				this.defines[tagname].column=n;
