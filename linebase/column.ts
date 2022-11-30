@@ -59,8 +59,11 @@ export class Column {
 		}
 	}
 	deserialize(section:string[]){
+		if (!section.length) return;
 		const firstline=section.shift();
 		const [text,tags]=parseOfftext(firstline);
+		if (!section.length) return;
+
 		this.attrs=tags[0]?.attrs;
 		this.name=this.attrs.name;
 		this.caption=this.attrs.caption;

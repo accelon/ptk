@@ -91,6 +91,7 @@ export class Pitaka extends LineBase {
 	deserialize(section) {	
 		if (!section.length) return;
 		if (!section[0]) section.shift();
+		if (!section.length) return;
 		const firstline=section[0];
 		const {sourcetype,name}=sourceType(firstline);
 		if (sourcetype==='tsv') {
