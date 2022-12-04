@@ -153,6 +153,7 @@ export class LineBase{
 	}
 	getSection(name:string){
 		const [from,to]=this.sectionRange(name);
+		if (from==to) return [];
 		return this.slice(from,to);
 	}	
 	sectionRange(sname:string):ILineRange {

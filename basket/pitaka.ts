@@ -66,7 +66,7 @@ export class Pitaka extends LineBase {
 		for (let i=0;i<this.header.preload.length;i++) {
 			const section=this.getSection(this.header.preload[i]);
 			if (section.length)	this.deserialize(section);
-			else console.error('empty section',this.header.preload[i]);
+			// else console.error('empty section',this.header.preload[i]);
 		}
 		for (const n in this.defines) { //see compiler/typedef.ts serialize()
 			if (this.defines[n].fields.preload) {

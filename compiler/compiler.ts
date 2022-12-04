@@ -126,8 +126,7 @@ export class Compiler implements ICompiler {
 				}
 			} 
 			//do not set predefine for tsv
-			//if (!tag.attrs.type) 
-			if (filename==='0.off') this.setPredefine(tag.attrs.define);
+			if (!tag.attrs.type) this.setPredefine(tag.attrs.define);
 			attributes=tag.attrs;
 		}
 		if (sourcetype===SourceType.TSV) {
