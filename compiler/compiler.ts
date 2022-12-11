@@ -8,7 +8,7 @@ import {Typedef} from './typedef.ts'
 import {VError,MAX_VERROR} from './error.ts'
 import {predefines} from './predefines.ts'
 
-export const sourceType=(firstline:string):SourceType=>{	
+export const sourceType=(firstline:string,filename:string):SourceType=>{	
 	const at=firstline.indexOf('\n');
 	firstline=at>-1? firstline.slice(0,at):firstline;
 	const [text,tags]=parseOfftext(firstline);
@@ -20,11 +20,12 @@ export const sourceType=(firstline:string):SourceType=>{
 		sourcetype=tags[0].attrs.type;
 		name=tags[0].attrs.name;
 		caption=tags[0].attrs.caption;
-		if (attrs?.type?.toLowerCase()=='tsv') {
+		if (attrs?.type?.toLowerCase()=='tsv' ||filename?.endsWith('.tsv') ) {
 			return {sourcetype:SourceType.TSV, tag:tags[0], preload ,name,caption,consumed:false};
 		}
 		consumed=true;  //combined all consumed ^: lines and put to 000.js payaload
 	}
+
 	return {sourcetype:sourcetype||SourceType.Offtext,tag:tags[0],preload,name,caption,consumed};
 }
 export class CompiledFile implements ICompiledFile {
@@ -108,7 +109,8 @@ export class Compiler implements ICompiler {
 		let processed,samepage=false, tagdefs=[] , attributes={};
 		const sa=new StringArray(buffer,{sequencial:true});
 		const firstline=sa.first();
-		const {sourcetype,tag,preload,name,caption,consumed}=sourceType(firstline); //only first tag on first line
+		const {sourcetype,tag,preload,name,caption,consumed}=sourceType(firstline,filename); //only first tag on first line
+
 		if (sourcetype=='txt' && consumed) tagdefs.push(firstline);
 		let compiledname = name || filename;//name of this section
 		let textstart=0;//starting line of indexable text
@@ -126,7 +128,7 @@ export class Compiler implements ICompiler {
 				}
 			} 
 			//do not set predefine for tsv
-			if (!tag.attrs.type) this.setPredefine(tag.attrs.define);
+			if (tag.attrs.type==='txt') this.setPredefine(tag.attrs.define);
 			attributes=tag.attrs;
 		}
 		if (sourcetype===SourceType.TSV) {

@@ -1,7 +1,27 @@
-import {loadJSONP,loadNodeJsZip,loadFetch,loadNodeJs,loadRemoteZip,loadInMemoryZipStore} from './loadpage.ts'
+import {loadJSONP,loadFetch,loadNodeJs,loadRemoteZip,loadInMemoryZipStore} from './loadpage.ts'
 import {bsearchNumber,lineBreaksOffset,unique} from '../utils/index.ts';
 import {ILineRange} from './interfaces.ts'
 let instancecount=0;
+const combineRange=range=>{
+	const combined=[];
+	let from=0;
+	range=range.filter(it=>!!it);
+	if (Array.isArray(range[0]) && range.length) {
+		range.sort((a,b)=>a-b);
+		from = range[0][0];
+		for (let i=1;i<range.length;i++) {
+			if (range[i][0]>range[i-1][1]) {
+				combined.push([from,range[i-1][1]]);
+				from = range[i][0];
+			}
+		}
+		if (range[range.length-1][1]>from) combined.push([from,range[range.length-1][1]]);
+
+	} else {
+		return range;
+	}
+	return combined;
+}
 export class LineBase{
 	constructor (opts={}) {
 		this.stamp=++instancecount;
@@ -53,31 +73,11 @@ export class LineBase{
 	    }
 	    return notloaded;
 	}
-	combineRange=range=>{
-		const combined=[];
-		let from=0;
-		range=range.filter(it=>!!it);
-		if (Array.isArray(range[0]) && range.length) {
-			range.sort((a,b)=>a-b);
-			from = range[0][0];
-			for (let i=1;i<range.length;i++) {
-				if (range[i][0]>range[i-1][1]) {
-					combined.push([from,range[i-1][1]]);
-					from = range[i][0];
-				}
-			}
-			if (range[range.length-1][1]>from) combined.push([from,range[range.length-1][1]]);
 
-		} else {
-			return range;
-		}
-		return combined;
-	}
 	async loadLines(_range:number[] | ILineRange[]){
 	    const that=this; //load a range, or a sequence of line or range.
 	    let toload=[],
-
-		range=this.combineRange(_range);
+		range=combineRange(_range);
         const notincache={};
         for (let i=0;i<range.length;i++) {
         	if (Array.isArray(range[i])) {

@@ -131,10 +131,11 @@ export class Pitaka extends LineBase {
 	getHeading(line:number) {
 		if (!line) return '';
 		const chunktag=this.defines.ck;
-		const at=bsearchNumber(chunktag.linepos, line)-1;
-		const lineoff=line-chunktag.linepos[at];
-		let caption=chunktag.innertext.get(at);
-		const id=chunktag.fields?.id?.values[at];
+		const linepos=chunktag?.linepos||[];
+		const at=bsearchNumber(linepos, line)-1;
+		const lineoff=line-linepos[at];
+		let caption=chunktag?.innertext.get(at);
+		const id=chunktag?.fields?.id?.values[at];
 /* TODO
 if caption has leading - , trace back to fetch ancestor node,
 this is suitable for tree structure with less branches,
@@ -142,7 +143,7 @@ not suitable for dictionary wordheads
 */
 
 		if (!caption) {
-			caption=this.columns[chunktag.column]?.keys?.get(id);			
+			caption=this.columns[chunktag?.column]?.keys?.get(id);			
 		}
 		return {id, tagname:'ck', caption,lineoff};
 	}

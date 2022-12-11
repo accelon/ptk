@@ -2,6 +2,7 @@ import {parseAddress} from '../basket/index.ts';
 
 import {RangeAction} from "./rangeaction.ts";
 
+import {InfoAction} from "./infoaction.ts";
 import {CustomAction} from "./customaction.ts";
 import {ExcerptAction} from "./excerptaction.ts";
 import {TitleCountAction} from "./titlecountaction.ts";
@@ -24,6 +25,8 @@ export const createAction=(addr, depth=0)=>{
 	} else {
 		if (atype=='@') { //ownerdraw
 			return new CustomAction(addr, depth);
+		} else if (atype=='!') {
+			return new InfoAction(addr, depth);
 		} else {
 			return new RangeAction(addr,depth);
 		}

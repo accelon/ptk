@@ -22,10 +22,9 @@ export class TitleCountAction extends Action{
 
 		let chunkcountobj={},hitcount=0 , items=[];
         const chunktag=ptk.defines.ck;
-
 		if (!tofind) { //list all chunk in this section
-			const at1=bsearchNumber(chunktag.linepos, sectionrange[0]);
-			const at2=bsearchNumber(chunktag.linepos, sectionrange[1])+1;
+			const at1=chunktag?bsearchNumber(chunktag.linepos, sectionrange[0]):0;
+			const at2=chunktag?bsearchNumber(chunktag.linepos, sectionrange[1])+1:0;
 			let pagesize=this.till-this.from;
 			if (pagesize<ACTIONPAGESIZE) pagesize=ACTIONPAGESIZE;
 			
