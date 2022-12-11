@@ -75,6 +75,7 @@ export class Typedef implements ITypedef {
 			this.linepos=unpackIntDelta(section.shift());
 		}
 		this.innertext=null;
+		if (!section.length) return;
 		if (this.fields.bracket) {
 			this.innertext=new StringArray(section.shift(),{sep:LEMMA_DELIMITER});
 		}

@@ -50,14 +50,18 @@ export class Pitaka extends LineBase {
 		this.lang=this.attributes.lang||'zh';
 		const ranges=[];
 		for (let i=0;i<this.header.preload.length;i++) {
-			ranges.push(this.sectionRange(this.header.preload[i]));
+			const r=this.sectionRange(this.header.preload[i]);
+			if (r&&r[1]>r[0])	 ranges.push(r);
 		}
+		
 		for (let n in this.defines) {
 			if (this.defines[n].fields.preload) {
-				ranges.push(this.sectionRange('^'+n));
+				const r=this.sectionRange('^'+n);
+				if (r&&r[1]>r[0]) ranges.push(r);
 			}
 		}
 		//load together , avoid duplicate jobs
+		
 		await this.loadLines(ranges);	
 		
 
@@ -109,6 +113,7 @@ export class Pitaka extends LineBase {
 		}
 	}
 	async loadPostings(s:string){
+		if (!this.inverted) return;
 		const nPostings=this.inverted.nPostingOf(s);
 		const jobs=[];
 		const that=this;

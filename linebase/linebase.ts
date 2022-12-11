@@ -53,10 +53,31 @@ export class LineBase{
 	    }
 	    return notloaded;
 	}
-	async loadLines(range:number[] | ILineRange[]){
-	    const that=this; //load a range, or a sequence of line or range.
-	    let toload=[];
+	combineRange=range=>{
+		const combined=[];
+		let from=0;
+		range=range.filter(it=>!!it);
+		if (Array.isArray(range[0]) && range.length) {
+			range.sort((a,b)=>a-b);
+			from = range[0][0];
+			for (let i=1;i<range.length;i++) {
+				if (range[i][0]>range[i-1][1]) {
+					combined.push([from,range[i-1][1]]);
+					from = range[i][0];
+				}
+			}
+			if (range[range.length-1][1]>from) combined.push([from,range[range.length-1][1]]);
 
+		} else {
+			return range;
+		}
+		return combined;
+	}
+	async loadLines(_range:number[] | ILineRange[]){
+	    const that=this; //load a range, or a sequence of line or range.
+	    let toload=[],
+
+		range=this.combineRange(_range);
         const notincache={};
         for (let i=0;i<range.length;i++) {
         	if (Array.isArray(range[i])) {
