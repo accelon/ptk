@@ -244,11 +244,17 @@ export class LVA {
 		}
 		return this;
 	}
+	changeAction(newaction,idx=0){
+		const division=typeof idx=='number'?this._divisions[idx]:idx;
+		if (!division) return this;
+		division.action=newaction;
+		return this;
+	}
 	dig(digaddr:string,idx=0,nline=0){ 
 		const newaddr=parseAddress(digaddr);
 		if (!newaddr) return this;
 		newaddr.ptkname=newaddr.ptkname||this._divisions[idx].ptkname;
-		const newaction=createAction(newaddr,0);
+		const newaction=createAction(newaddr,0,idx);
 		if ( !this._divisions||!this._divisions.length) {
 			this._divisions.push(newaddr);
 			return this;
@@ -285,7 +291,6 @@ export class LVA {
 			if (addr.action==toinsert.action) { //delete
 				this._divisions.splice(idx,1);
 				return this;
-				return;
 			}
 		} else {
 			breakleft=Object.assign({},addr, {till:splitat+1});

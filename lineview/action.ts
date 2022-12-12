@@ -2,12 +2,13 @@ import {parseAddress} from '../basket/index.ts';
 
 import {RangeAction} from "./rangeaction.ts";
 
-import {InfoAction} from "./infoaction.ts";
+import {GuideAction} from "./guideaction.ts";
 import {CustomAction} from "./customaction.ts";
 import {ExcerptAction} from "./excerptaction.ts";
 import {TitleCountAction} from "./titlecountaction.ts";
 import {QueryAction} from "./queryaction.ts";
 
+import {ACTIONPAGESIZE,EXCERPTACTIONPREFIX,GUIDEACTIONPREFIX,TITLECOUNTACTIONPREFIX,OWNERDRAWPREFIX} from './baseaction.ts'
 export const makeExcerptAddress=(section:string,tofind:string,chunk='')=>{
 	return '*'+section+(chunk?('.'+chunk):'') +'='+tofind; //
 }
@@ -15,18 +16,18 @@ export const createAction=(addr, depth=0)=>{
 	const at=addr.action.indexOf('=');
 	const atype=addr.action.slice(0,1);
 	if (at>0) {
-		if (atype=='*') {
+		if (atype==EXCERPTACTIONPREFIX) {
 			return new ExcerptAction(addr, depth);
-		} else if (atype=='~') {
+		} else if (atype==TITLECOUNTACTIONPREFIX) {
 			return new TitleCountAction(addr, depth);
 		} else {
 			return new QueryAction(addr, depth);
 		}
 	} else {
-		if (atype=='@') { //ownerdraw
+		if (atype==OWNERDRAWPREFIX) { //ownerdraw
 			return new CustomAction(addr, depth);
-		} else if (atype=='!') {
-			return new InfoAction(addr, depth);
+		} else if (atype==GUIDEACTIONPREFIX) {
+			return new GuideAction(addr, depth);
 		} else {
 			return new RangeAction(addr,depth);
 		}

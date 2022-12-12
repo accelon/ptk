@@ -3,8 +3,13 @@ import {poolParallelPitakas} from '../basket/pool.ts';
 import {parseCriteria} from '../fts/criteria.ts';
 import {IAction} from './interfaces.ts';
 export const ACTIONPAGESIZE=5;
+export const EXCERPTACTIONPREFIX='*';
+export const GUIDEACTIONPREFIX='!';
+export const TITLECOUNTACTIONPREFIX='~';
+export const OWNERDRAWPREFIX='@';
+
 export class Action implements IAction{
-	constructor (addr:IAddress,depth=0) {
+	constructor (addr:IAddress,depth=0, dividx=0) {
 		this.act=Action.parse(addr.action);
 		this.action=addr.action;
 		this.depth=depth;
@@ -21,6 +26,7 @@ export class Action implements IAction{
 		this.diggable=false;
 		this.ptkname=addr.ptkname;
 		this.opts={} ;//display options
+		this.dividx=dividx;
 	}
 	async run(){
 
