@@ -12,7 +12,7 @@ export const onelexicon=(taskname,cb)=>{
 	const now=new Date();
 	const text=readTextLines(fn,'utf8');
 	console.log(cyan(fn),text.length,'lines');
-	const out=cb(text);
+	const out=cb(text,fn);
 	const outfn=fn+'-'+taskname;
 	if (writeChanged(fn+'-'+taskname,out.join('\n'),'utf8')) {
 		console.log(bold(cyan(outfn)),'written',out.length,'lines');	

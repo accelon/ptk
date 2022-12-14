@@ -4,6 +4,7 @@ const {blue,yellow,red,cyan,underline,magenta} = colors;
 import {dobuild} from './build.js';
 import * as PTK from '../nodebundle.cjs';
 import {onelexicon, text_lexicon, lexicons} from './textutils.js'
+import nGram from './ngram.js';
 import Path from 'path';
 
 await PTK.nodefs;
@@ -14,6 +15,7 @@ const cmd=process.argv[2] || '-h';
 const arg=process.argv[3];
 const arg2=process.argv[4];
 const foldername=process.cwd();
+
 export const getModulePath=name=>{
     let dir=decodeURI(new URL(import.meta.url).pathname);
     if(import.meta.url.slice(0,5)==='file:' && Path.sep==='\\') dir=dir.slice(1);
@@ -63,6 +65,7 @@ const build=opts=>{
 		console.log(red("no source in current working directory"));
 	}
 }
+
 const js=()=>build({jsonp:true});
 const com=()=>{
 	let acceloncom=getModulePath('accelon22.com');
@@ -81,6 +84,25 @@ export const listwords=()=>text_lexicon('listwords', PTK.listwords);
 export const intersect=()=>lexicons('intersect',PTK.lexiconIntersect);
 export const union=()=>lexicons('union', PTK.lexiconUnion);
 export const xor=()=>lexicons('xor', PTK.lexiconXor);
+
+const prcoess_ngram=(lines,fn)=>{
+    const gram=parseInt(arg2)||2;
+    let stockgram=null;
+    if (gram>2) {
+        stockgram={};
+        const items=PTK.readTextLines(fn+'-ngram'+(gram-1));
+        for (let i=0;i<items.length;i++) {
+            const [gram,count]=items[i].split(',')
+            stockgram[gram]=count;
+        }
+    }
+    const tasker=new nGram({gram,stockgram});
+    tasker.add(lines);
+    const {result}=tasker.dump();
+    
+    return result;
+}
+const ngram=()=>onelexicon('ngram'+(parseInt(arg2)||2), prcoess_ngram);
 
 const help=()=>{
     console.log(yellow('command 指令'), cyan('mandatory 必要'),magenta('optional 选择性'))
@@ -107,7 +129,7 @@ const help=()=>{
 }
 
 try {
-    await ({'--help':help,'-h':help,ptk,js,com,dedup,unique,listwords,union,intersect,xor})[cmd](arg);
+    await ({'--help':help,'-h':help,ptk,js,com,dedup,unique,listwords,union,ngram,intersect,xor})[cmd](arg);
 
 } catch(e) {
     console.log( red('error running command'),cmd)

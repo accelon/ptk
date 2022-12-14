@@ -25,7 +25,7 @@ export const openSourceOption={
   {
       description: 'Source Files',
       accept: {
-          'text/plain': ['.off','.txt','.tsv','.css']
+          'text/plain': ['.off','.txt','.tsv','.css','.xml']
       }
   }
   ]
