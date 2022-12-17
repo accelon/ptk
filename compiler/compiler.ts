@@ -13,20 +13,19 @@ export const sourceType=(firstline:string,filename:string):SourceType=>{
 	firstline=at>-1? firstline.slice(0,at):firstline;
 	const [text,tags]=parseOfftext(firstline);
 	let preload=false ,sourcetype, name,caption;
-	let consumed=false;
+	let consumed=true;
+	sourcetype=filename?.endsWith('.tsv') ?SourceType.TSV:SourceType.Offtext;
+
 	if (tags.length && tags[0].name==':') { //directive
 		const attrs=tags[0].attrs;
 		preload=!!tags[0].attrs.preload;
-		sourcetype=tags[0].attrs.type;
+		sourcetype=tags[0].attrs.type?.toLowerCase()||sourcetype;
 		name=tags[0].attrs.name;
 		caption=tags[0].attrs.caption;
-		if (attrs?.type?.toLowerCase()=='tsv' ||filename?.endsWith('.tsv') ) {
-			return {sourcetype:SourceType.TSV, tag:tags[0], preload ,name,caption,consumed:false};
-		}
-		consumed=true;  //combined all consumed ^: lines and put to 000.js payaload
+		if (sourcetype=='tsv') consumed=false;
 	}
-
-	return {sourcetype:sourcetype||SourceType.Offtext,tag:tags[0],preload,name,caption,consumed};
+	// console.log(filename,sourcetype);
+	return {sourcetype,tag:tags[0],preload,name,caption,consumed};
 }
 export class CompiledFile implements ICompiledFile {
 	constructor (){
@@ -131,12 +130,14 @@ export class Compiler implements ICompiler {
 			if (tag.attrs.type==='txt') this.setPredefine(tag.attrs.define);
 			attributes=tag.attrs;
 		}
+
 		if (sourcetype===SourceType.TSV) {
 			const [text,tags]=parseOfftext(firstline);
 			const attrs=tags[0].attrs;
 			const typedef=text.split('\t') ; // typdef of each field , except field 0
 			const columns=new Column( {typedef, primarykeys:this.primarykeys ,onError:this.onError.bind(this) } );
 			const [serialized,_textstart]=columns.fromStringArray(sa,attrs,1) ; //build from TSV, start from line 1
+			
 			textstart=_textstart;
 			if (serialized) {
 				compiledname = attrs.name || filename;  //use filename if name is not specified

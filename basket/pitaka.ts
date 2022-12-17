@@ -69,7 +69,7 @@ export class Pitaka extends LineBase {
 
 		for (let i=0;i<this.header.preload.length;i++) {
 			const section=this.getSection(this.header.preload[i]);
-			if (section.length)	this.deserialize(section);
+			if (section.length)	this.deserialize(section,this.header.preload[i]);
 			// else console.error('empty section',this.header.preload[i]);
 		}
 		for (const n in this.defines) { //see compiler/typedef.ts serialize()
@@ -92,12 +92,15 @@ export class Pitaka extends LineBase {
 			}
 		}
 	}
-	deserialize(section) {	
+	deserialize(section,sectionname) {	
 		if (!section.length) return;
 		if (!section[0]) section.shift();
 		if (!section.length) return;
 		const firstline=section[0];
-		const {sourcetype,name}=sourceType(firstline);
+		const {name}=sourceType(firstline);
+		const at=this.header.sectionnames.indexOf(sectionname);
+		const sourcetype=this.header.sectiontypes[at];
+
 		if (sourcetype==='tsv') {
 			const column=new Column();
 			column.deserialize(section);

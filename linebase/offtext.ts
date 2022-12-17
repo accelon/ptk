@@ -1,5 +1,6 @@
 import {parseOfftext} from '../offtext/parser.ts'
 import {Column} from '../linebase/column.ts'
+/*
 export function processOfftextLines(lines:string[],filename:string){
 	if (!lines.length) return;
 	const {lbase,primarykeys}=this;
@@ -33,3 +34,4 @@ export function processOfftextLines(lines:string[],filename:string){
 	return lines;
 
 }
+*/
