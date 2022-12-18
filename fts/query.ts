@@ -19,8 +19,9 @@ const scoreMatch=(matching,weights)=>{
     boost*=boost;  // 有兩個詞，只有一個詞有hit ，那boost只有 0.25。
     return score*boost;
 }
-export const scoreLine=(postings,tokenlinepos,chunklinepos)=>{
-    const tlp=tokenlinepos, tlplast=tlp[tlp.length-1];
+export function scoreLine(postings,chunklinepos,tlp){
+    tlp=tlp||this.inverted.tokenlinepos, tlplast=tlp[tlp.length-1];
+    chunklinepos=chunklinepos||this.defines.ck.linepos;
     const averagelinelen=tlplast/tlp.length;
     const allhits=postings.reduce((acc,i)=>i.length+acc ,0 );
     const weights=postings.map( pl=> Math.sqrt(allhits/pl.length) );
@@ -71,7 +72,8 @@ export const scoreLine=(postings,tokenlinepos,chunklinepos)=>{
         const boost=Math.log(shortpara); //boost 不小於 1
 
         if (score>0) {
-            const chunk=bsearchNumber(chunklinepos,i)-1
+            const chunk=bsearchNumber(chunklinepos,i)-1;
+
             scoredLine.push([i+1,score*boost,chunk]);//y is 1 base
         }
         i++;
@@ -98,7 +100,7 @@ export async function phraseQuery(phrase:string){
 }
 export async function parseQuery(tofind:string,opts){
     opts=opts||{};
-    const phrases=tofind.split(/[ 　]/);
+    const phrases=tofind.split(/[, 　]/);
     if (phrases.length>MAX_PHRASE) phrases.length=MAX_PHRASE;
     const outphrases=[], postings=[];
     for (let i=0;i<phrases.length;i++) {

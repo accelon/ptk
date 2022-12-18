@@ -38,13 +38,13 @@ export class Column {
 			this.onError&&this.onError(VError.ExcessiveField, fields.length+ ' max '+this.fields.length,line);
 			return;
 		}
-		for (let i=0;i<fields.length;i++) {
+		for (let i=0;i<this.fields.length;i++) { //fields.length might be less than this.fields
 			const F=this.fields[i];
 			const [err,value]=F.validate(fields[i],line);
 			if (err) {
 				this.onError&&this.onError(err,this.fieldnames[i]+' '+fields[i],-1,line);
 			}
-			this.fieldvalues[i].push(value);
+			this.fieldvalues[i].push(value||'');
 
 			if (i+1==this.tokenfield) this.tokenizeField(value);
 		}

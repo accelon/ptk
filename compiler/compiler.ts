@@ -137,7 +137,7 @@ export class Compiler implements ICompiler {
 			const typedef=text.split('\t') ; // typdef of each field , except field 0
 			const columns=new Column( {typedef, primarykeys:this.primarykeys ,onError:this.onError.bind(this) } );
 			const [serialized,_textstart]=columns.fromStringArray(sa,attrs,1) ; //build from TSV, start from line 1
-			
+
 			textstart=_textstart;
 			if (serialized) {
 				compiledname = attrs.name || filename;  //use filename if name is not specified

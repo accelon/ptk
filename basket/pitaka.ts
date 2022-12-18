@@ -5,7 +5,7 @@ import {rangeOfAddress,captionOfAddress} from './address.ts';
 import {columnField,inlineNote,rowOf,scanPrimaryKeys} from './columns.ts';
 import {Inverted,plContain} from '../fts/index.ts';
 import {TableOfContent} from '../compiler/toc.ts';
-import {parseQuery,scanText} from '../fts/query.ts';
+import {parseQuery,scanText,scoreLine} from '../fts/query.ts';
 import {footNoteAddress,footNoteByAddress} from './footnote.ts';
 
 export const regPtkName =  /^[a-z\-_]{2,16}$/
@@ -29,6 +29,7 @@ export class Pitaka extends LineBase {
 		this.scanPrimaryKeys=scanPrimaryKeys;
 		this.scanText=scanText;
 		this.parseQuery=parseQuery;
+		this.scoreLine=scoreLine;
 		this.scanCache={};
 		this.queryCache={};
 		this.columnField=columnField;

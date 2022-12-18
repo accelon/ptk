@@ -70,6 +70,8 @@ export class LineBaser {
 		};
 		this.header.sectionnames.push(name);
 		this.header.sectionstarts.push(this._data.length);
+		if (name=='_tokens') type='tokens';
+		if (name=='_postings') type='postings';
 		this.header.sectiontypes.push(type);
 	}
 	append(buffer:(string|string[]), opts={}){

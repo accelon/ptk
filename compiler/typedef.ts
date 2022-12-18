@@ -21,7 +21,7 @@ export class Typedef implements ITypedef {
 		this.tagname=tagname;
 		this.linepos=[];
 		this.innertext=[];
-		this.savelinepos=false;   
+		
 		for (let aname in attrs) {
 			const def=attrs[aname];
 			const opts=typeof def=='string'?def:{optional:false};
@@ -34,7 +34,7 @@ export class Typedef implements ITypedef {
 	}
 	validateTag(offtext:IOfftext, tag:IOfftag , line:number, compiledLine:number , onError) {
 		let touched=false, newtag;
-		if (this.fields.id || this.savelinepos) { //auto save linepos if validating id
+		if (this.fields.id || this.attrs.savelinepos) { //auto save linepos if validating id
 			this.linepos.push(compiledLine+line);
 		}
 		if (this.fields.bracket) { // false to keep the bracket
