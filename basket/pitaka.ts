@@ -45,9 +45,10 @@ export class Pitaka extends LineBase {
 	async init(){
 		if (!this.payload) return;
 		const compiler=new Compiler();
-		compiler.compileBuffer(this.payload, this.name);
+
+		compiler.compileBuffer(this.payload, '0.off');
 		this.defines=compiler.typedefs;
-		this.attributes=compiler.compiledFiles[this.name]?.attributes;
+		this.attributes=compiler.compiledFiles['0.off']?.attributes;
 		this.lang=this.attributes.lang||'zh';
 		const ranges=[];
 		for (let i=0;i<this.header.preload.length;i++) {
@@ -157,16 +158,18 @@ not suitable for dictionary wordheads
 		return nPostings.map( np=> postings[np] );
 	}
 	getNearestTag(line,tag){
-		const linepos=this.defines[tag]?.linepos;
+		if (typeof tag=='string') tag=this.defines[tag];
+		const linepos=tag.linepos;
 		if (!linepos) return null;
-		return bsearchNumber(linepos,line) ||-1;
+		const at=bsearchNumber(linepos,line);
+		return (line<linepos[linepos.length-1])?at :at+1;
 	}
 	getNearestChunk( line) {
 		const chunktag=this.defines.ck;
 		const booktag=this.defines.bk;
 		const at=this.getNearestTag(line,chunktag)-1;
 		if (at<0) return null;
-		const bkat=this.getNearestTag(line,'bk')-1;
+		const bkat=this.getNearestTag(line,booktag) - 1;
 
 		return {bkid:booktag.fields.id.values[bkat] ,
 			at, id:chunktag.fields.id.values[at], innertext: chunktag.innertext.get(at)}

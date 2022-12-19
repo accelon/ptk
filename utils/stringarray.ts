@@ -69,12 +69,10 @@ export class StringArray {
 	get(idx:number):string{ //0 zero base
 		if (this.sequencial) return null;
 		if (idx==-1) return this.charpos.length.toString() ; //for  bsearchGetter
-		if (idx==0) {
-			return this.buf.slice(0,this.charpos[0]-1);
-		} else if (idx<=this.charpos.length) {
-			return this.buf.slice(this.charpos[idx-1],this.charpos[idx]-1);
-		}
-		return '';
+		const from = idx==0?0:this.charpos[idx-1];
+		const to= this.charpos[idx]  -  (idx==this.charpos.length-1?0:1);
+		return this.buf.slice(from,to);
+	
 	}
 	at(offset:number){
 		return bsearchNumber(this.charpos,offset);

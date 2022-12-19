@@ -13,7 +13,7 @@ export const sourceType=(firstline:string,filename:string):SourceType=>{
 	firstline=at>-1? firstline.slice(0,at):firstline;
 	const [text,tags]=parseOfftext(firstline);
 	let preload=false ,sourcetype, name,caption;
-	let consumed=true;
+	let consumed=false;
 	sourcetype=filename?.endsWith('.tsv') ?SourceType.TSV:SourceType.Offtext;
 
 	if (tags.length && tags[0].name==':') { //directive
@@ -22,6 +22,7 @@ export const sourceType=(firstline:string,filename:string):SourceType=>{
 		sourcetype=tags[0].attrs.type?.toLowerCase()||sourcetype;
 		name=tags[0].attrs.name;
 		caption=tags[0].attrs.caption;
+		consumed=true;
 		if (sourcetype=='tsv') consumed=false;
 	}
 	// console.log(filename,sourcetype);
@@ -127,7 +128,7 @@ export class Compiler implements ICompiler {
 				}
 			} 
 			//do not set predefine for tsv
-			if (tag.attrs.type==='txt') this.setPredefine(tag.attrs.define);
+			if (tag.attrs.type==='txt'||filename=='0.off') this.setPredefine(tag.attrs.define);
 			attributes=tag.attrs;
 		}
 
