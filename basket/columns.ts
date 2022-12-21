@@ -35,6 +35,8 @@ export function scanPrimaryKeys(tofind:string) {
 	const out=[];
 	if (!tofind) return [];
 	for (let name in this.primarykeys) {
+		if (!this.columns[name].attrs.bme) continue;
+	
 		const cachekey=name+'='+tofind;
 		let cache=this.scanCache[cachekey];
 		if (!cache) {

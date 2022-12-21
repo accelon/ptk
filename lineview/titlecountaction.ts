@@ -1,6 +1,6 @@
 import {Action} from "./baseaction.ts";
 import {ACTIONPAGESIZE} from "./interfaces.ts";
-import {IAddress,usePtk} from '../basket/index.ts';
+import {IAddress,usePtk,makeChunkAddress} from '../basket/index.ts';
 import {plTrim, plContain} from '../fts/posting.ts';
 import {bsearchNumber} from "../utils/index.ts";
 import {fromObj} from '../utils/index.ts';
@@ -19,9 +19,9 @@ export class TitleCountAction extends Action{
 		const sectionrange=address?ptk.rangeOfAddress(address):[0,ptk.header.eot+1];
 		const caption=ptk.captionOfAddress(address);
 		const [sectionfrom,sectionto]=sectionrange.map(it=>ptk.inverted.tokenlinepos[it]);
-
 		let chunkcountobj={},hitcount=0 , items=[];
         const chunktag=ptk.defines.ck;
+		const bktag=ptk.defines.bk;
 		if (!tofind) { //list all chunk in this section
 			const at1=chunktag?bsearchNumber(chunktag.linepos, sectionrange[0]):0;
 			const at2=chunktag?bsearchNumber(chunktag.linepos, sectionrange[1])+1:0;
@@ -29,11 +29,12 @@ export class TitleCountAction extends Action{
 			if (pagesize<ACTIONPAGESIZE) pagesize=ACTIONPAGESIZE;
 			
 			for (let j=at1+this.from;j<at2;j++) {
-				const id=chunktag.fields.id.values[j];
 				const title=chunktag.innertext.get(j);
-				const address='ck'+(parseInt(id)?id:'#'+id);
+				const line=chunktag.linepos[j];
+				const ck=ptk.getNearestChunk(line);
+				const address=makeChunkAddress(ck);
 				if (items.length>=pagesize) break;
-				items.push({id, title, count:-1, address, line: chunktag.linepos[j] });
+				items.push({id:ck.id, title, count:-1, address, line });
 			}
 	
 			this.ownerdraw={painter:'titlecount', data:{ last:at2-at1,
@@ -66,10 +67,12 @@ export class TitleCountAction extends Action{
 		arr=arr.slice(from,till);
 		items=arr.map(it=>{
             const count=it[1];
-            const id=chunktag.fields.id.values[it[0]];
-            const address='ck'+(parseInt(id)?id:'#'+id);
-            const title=chunktag.innertext.get(it[0]);
-            return { id,title, count,address }
+			const chunk=it[0];
+			const ck=ptk.getNearestChunk(chunktag.linepos[chunk]);
+
+            const address=makeChunkAddress(ck);
+            const title=chunktag.innertext.get(chunk);
+            return { id:ck.id,title, count,address }
         })
 		
 		this.first=0;

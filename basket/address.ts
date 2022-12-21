@@ -130,3 +130,12 @@ export function captionOfAddress(address:string):string{
 	}
 	return out.join('/');
 }
+
+export function makeElementId(ele,id:string):string{
+	return ele+( (parseInt(id).toString()==id)?'':'#')+id;
+}
+export function makeChunkAddress(ck,id:string,lineoffset=0):string{
+	return 'bk'+((parseInt(ck.bk.id).toString()==ck.bk.id)?'':'#')+ck.bk.id
+	 +'ck'+((parseInt(ck.id).toString()==ck.id)?'':'#')+id
+	 + (lineoffset?':'+lineoffset:'');
+}

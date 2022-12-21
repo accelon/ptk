@@ -282,7 +282,7 @@ export class LVA {
 			return this;
 		}
 		const addr=this._divisions[idx];
-		const splitat=addr.from+nline;
+		const splitat=addr.from+(nline||0);
 		let breakleft,breakright;
 		const toinsert=parseAddress(digaddr);
 

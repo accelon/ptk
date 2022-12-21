@@ -1,5 +1,6 @@
 import {openPtk,usePtk} from '../basket/index.ts'
 import {ILineViewAddress} from './interfaces.ts'
+import {getSponsor} from '../meta/sponsor.ts'
 export interface ILineViewItem {
 	key   : string,
 	text  : string,
@@ -67,7 +68,7 @@ async function loadLines(lva, noparallel=false){
 			if(prevdepth>depth && (edge&1===1)) edge^=1;
 			const closable=((edge==1||edge==3) ) || !divisions[i].diggable;
 			
-			const sponser=closable&&from==0?'某三寶弟子':''
+			const sponser=closable&&from==0?getSponsor(ptk, lines[j]):''
 			//show remain button on last line
 			//todo , do not show on left part of splited division
 			const highlight= highlightline-divisions[i].from == j   ; //relative to begining of chunk

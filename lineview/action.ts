@@ -8,8 +8,8 @@ import {ExcerptAction} from "./excerptaction.ts";
 import {TitleCountAction} from "./titlecountaction.ts";
 import {QueryAction} from "./queryaction.ts";
 
-import {ACTIONPAGESIZE,EXCERPTACTIONPREFIX,GUIDEACTIONPREFIX,TITLECOUNTACTIONPREFIX,OWNERDRAWPREFIX} from './baseaction.ts'
-export const makeExcerptAddress=(section:string,tofind:string,chunk='')=>{
+import {EXCERPTACTIONPREFIX,GUIDEACTIONPREFIX,TITLECOUNTACTIONPREFIX,OWNERDRAWPREFIX} from './baseaction.ts'
+export const makeExcerptAddress=(ptkname:string,section:string,tofind:string,chunk='')=>{
 	return '*'+section+(chunk?('.'+chunk):'') +'='+tofind; //
 }
 export const createAction=(addr, depth=0)=>{

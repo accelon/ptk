@@ -16,7 +16,7 @@ export class QueryAction extends Action{
 			if (!lexicon) continue;
 			let matcher=lexicon.enumMiddle;
 			let enummode=1;
-			if (tofind[0]=='^') {
+			if (tofind[0]=='$') {
 				enummode=0;
 				matcher=lexicon.enumStart;
 				tofind=tofind.slice(1);
@@ -25,11 +25,14 @@ export class QueryAction extends Action{
 				matcher=lexicon.enumEnd;
 				tofind=tofind.slice(0,tofind.length-1);
 			}
+			//
 			const items=matcher.call(lexicon,tofind);
 			const tagname=ptk.columns[name]?.attrs?.tagname;
 			const foreign=ptk.columns[name]?.attrs?.foreign || ptk.columns[name]?.fieldnames[0];
+
 			this.last=1;
 			this.till=1;
+
 			const caption=ptk.columns[name]?.caption;
 			this.ownerdraw={painter:'queryresult',
 			 data:{name, caption,ptk,tagname,foreign,tofind, items, lexicon}} ;
