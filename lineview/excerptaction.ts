@@ -11,7 +11,8 @@ export class ExcerptAction extends Action{
 	}
 	lineOf(idx:number){
 		return this.lines[idx];
-	}	
+	}
+	
 	async run(){
 		const ptk=usePtk(this.ptkname);
 		let {name,tofind}=this.act[0];

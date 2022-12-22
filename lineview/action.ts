@@ -5,6 +5,7 @@ import {RangeAction} from "./rangeaction.ts";
 import {GuideAction} from "./guideaction.ts";
 import {CustomAction} from "./customaction.ts";
 import {ExcerptAction} from "./excerptaction.ts";
+import {BooleanExcerptAction} from "./booleanexcerptaction.ts";
 import {TitleCountAction} from "./titlecountaction.ts";
 import {QueryAction} from "./queryaction.ts";
 
@@ -17,7 +18,11 @@ export const createAction=(addr, depth=0)=>{
 	const atype=addr.action.slice(0,1);
 	if (at>0) {
 		if (atype==EXCERPTACTIONPREFIX) {
-			return new ExcerptAction(addr, depth);
+			if (~addr.action.indexOf('@')) {
+				return new BooleanExcerptAction(addr, depth);
+			} else {
+				return new ExcerptAction(addr, depth);
+			}
 		} else if (atype==TITLECOUNTACTIONPREFIX) {
 			return new TitleCountAction(addr, depth);
 		} else {
