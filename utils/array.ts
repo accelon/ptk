@@ -46,7 +46,14 @@ export const intersect=(arr1:NumberArray,arr2:NumberArray):NumberArray=>{
     }
     return out;
 }
-
+export const intersects=(arr: Array<NumberArray>):NumberArray=>{
+    if (!arr || !arr.length) return [];
+    let out=arr.shift();
+    while (arr.length) {
+        out=intersect(out,arr.shift());
+    }
+    return out;
+}
 export const removeSubstring=(arr:NumberArray):NumberArray=>{
     const markdelete:NumberArray=[];
     for (let i=0;i<arr.length;i++) {

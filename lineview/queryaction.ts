@@ -29,13 +29,13 @@ export class QueryAction extends Action{
 			const items=matcher.call(lexicon,tofind);
 			const tagname=ptk.columns[name]?.attrs?.tagname;
 			const foreign=ptk.columns[name]?.attrs?.foreign || ptk.columns[name]?.fieldnames[0];
-
+			const backref=ptk.columns[name]?.attrs?.backref; 
 			this.last=1;
 			this.till=1;
 
 			const caption=ptk.columns[name]?.caption;
 			this.ownerdraw={painter:'queryresult',
-			 data:{name, caption,ptk,tagname,foreign,tofind, items, lexicon}} ;
+			 data:{name, caption,ptk,tagname,foreign,tofind, items, backref,lexicon}} ;
 		}
 	}
 }
