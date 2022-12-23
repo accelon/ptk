@@ -6,13 +6,13 @@ export function columnField(name:string, field:string, idx:number) {
 
 export async function inlineNote(tagname:string,noteid:string){
 	const typedef=this.defines[tagname];
-	const cols=this.columns[typedef.fields.type.foreign];
-	if (!cols) return;
-	const at=cols.keys.find(noteid);
+	const col=this.columns[typedef.fields.type.foreign];
+	if (!col) return;
+	const at=col.findKey(noteid);
 	const textfield=typedef.attrs.text;
-	const at2=cols.fieldnames.indexOf(textfield);
+	const at2=col.fieldnames.indexOf(textfield);
 	//can await in the future
-	const values=cols.fieldvalues[at2];
+	const values=col.fieldvalues[at2];
 	return (values&&values[at])||'';
 }
 export function rowOf(rowname:string,idx:number,field=-1) {

@@ -9,6 +9,7 @@ export class KeysField extends Field {
 	}
 	validate(value:string,line:number){
 		//convert items to key index, try foreign key first, 
+		
 		const keys=this.keys;
 		if (!keys) return [VError.NoKeys,value];
 		if (!value) { //empty value, validate pass if optional

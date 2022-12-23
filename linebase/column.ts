@@ -8,11 +8,10 @@ export class Column {
 	constructor(opts={}) {
 		this.fieldvalues=[];
 		this.fieldnames=[];
-		this.fields=[];
+		this.fieldsdef=[];
 		this.attrs; //raw attributes in ^:<>
 		this.name='';
-		this.keys=[];  //keys
-		this.values=[]; // 
+		this.keys=null;  //keys, null if keytype==serial 
 		this.primarykeys=opts.primarykeys||{};
 		this.onError=opts.onError;
 		this.typedef=opts.typedef;
@@ -33,16 +32,14 @@ export class Column {
 			}
 		}
 	}
-	addRow(fields:string[], line:number ){
-		if (fields.length>this.fields.length && line) {
-			this.onError&&this.onError(VError.ExcessiveField, fields.length+ ' max '+this.fields.length,line);
-			return;
-		}
-		for (let i=0;i<this.fields.length;i++) { //fields.length might be less than this.fields
-			const F=this.fields[i];
-			const [err,value]=F.validate(fields[i],line);
+	addRow(fields:string[], nrow:number , skipFirstField){
+		for (let i=0;i<this.fieldsdef.length;i++) { //fields.length might be less than this.fieldsdef
+			const F=this.fieldsdef[i];
+			const j=i+ (skipFirstField?1:0);
+	
+			const [err,value]=F.validate(fields[j], nrow);
 			if (err) {
-				this.onError&&this.onError(err,this.fieldnames[i]+' '+fields[i],-1,line);
+				this.onError&&this.onError(err,this.fieldnames[i]+' '+fields[i],-1, nrow);
 			}
 			this.fieldvalues[i].push(value||'');
 
@@ -55,7 +52,7 @@ export class Column {
 			const [name,def]=typedef[idx].split('=');
 			this.addColumn(name);
 			const field= createField(name,def||{} , this.primarykeys , this.keys);
-			this.fields.push(field);
+			this.fieldsdef.push(field);
 		}
 	}
 	deserialize(section:string[]){
@@ -70,7 +67,11 @@ export class Column {
 		
 		const typedef=text.split('\t') ; // typdef of each field , except field 0
 		this.createFields(typedef);
-		this.keys=new StringArray(section.shift(),{sep:LEMMA_DELIMITER});  //local keys
+		if (this.attrs.keytype=='serial') {
+			this.keys=null;
+		} else {
+			this.keys=new StringArray(section.shift(),{sep:LEMMA_DELIMITER});  //local keys
+		}
 
 		if (this.attrs.tokenfield) {
 			this.tokenfield=parseInt(this.attrs.tokenfield);
@@ -79,10 +80,12 @@ export class Column {
 		}
 
 		let idx=0 , usesection=false;
-		for (let fieldname in this.fields) {
-			const field=this.fields[fieldname];
+		for (let fieldname in this.fieldsdef) {
+			const field=this.fieldsdef[fieldname];
 			if (field.type==='number') {
 				this.fieldvalues[idx]=unpackInt(section.shift());
+			} else if (field.type==='numbers') {
+				this.fieldvalues[idx]=unpackIntDelta2d(section.shift());
 			} else if (field.type==='keys') {
 				this.fieldvalues[idx]=unpackIntDelta2d(section.shift());
 			} else if (field.type==='key') {
@@ -106,8 +109,7 @@ export class Column {
 		const allfields=[];
 		let line=sa.first();
 		let textstart=0;// starting of indexable text
-
-
+		let skipFirstField=false;
 		while (from>0) {
 			line=sa.next();
 			from--;
@@ -117,9 +119,12 @@ export class Column {
 			allfields.push(fields);
 			line=sa.next();
 		}
-		allfields.sort(alphabetically0)
-		this.keys=allfields.map(it=>it[0]);
-		this.values=allfields.map(it=>it.slice(1));
+		allfields.sort(alphabetically0);
+		
+		if (attrs.keytype!=='serial') {
+			skipFirstField=true;
+			this.keys=allfields.map(it=>it[0]);
+		}
 		this.createFields(this.typedef);
 
 		if (attrs.tokenfield) {
@@ -133,19 +138,22 @@ export class Column {
 			throw "missing typedef"
 			return; // no type def
 		}
-		for (let i=0;i<this.values.length;i++) {
-			const fields=this.values[i];
-			this.addRow(fields, i+1 ) ; //one base
+		for (let i=0;i<allfields.length;i++) {
+			this.addRow(allfields[i], i+1 , skipFirstField) ; //one base
 		}
-		const out=[this.keys.join(LEMMA_DELIMITER)]; //use StringTable
+		const out=[]; 
+		if (this.keys) out.push(this.keys.join(LEMMA_DELIMITER))
 		if (this.tokenfield>-1) {
 			out.push( Object.keys(this.tokentable).join(LEMMA_DELIMITER) )
 		}
 		for (let i=0;i<this.fieldnames.length;i++) {
-			const V=this.fields[i];
+			const V=this.fieldsdef[i];
 			if (V.type=='number') {
 				const numbers=this.fieldvalues[i].map(it=>parseInt(it)||0)||[];
 				out.push(packInt( numbers));
+			} else if (V.type=='numbers') {
+				const numbers=(this.fieldvalues[i])||[];
+				out.push(packIntDelta2d(numbers));
 			} else if (V.type=='keys') {
 				const numnums=(this.fieldvalues[i])||[];
 				out.push(packIntDelta2d(numnums));
@@ -175,5 +183,12 @@ export class Column {
 	fromTSV(buffer:string, attrs,from=1):string[]{
 		const sa=new StringArray(buffer,{sequencial:true});
 		return this.fromStringArray(sa,attrs,from);
+	}
+	findKey(key:string){
+		if (this.keys) {
+			return this.keys.find(key);
+		} else {
+			return parseInt(key)-1;
+		}
 	}
 }

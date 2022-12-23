@@ -30,7 +30,6 @@ export class BooleanExcerptAction extends Action{
 		if (till>=lines.length) till=lines.length;
 		lines=lines.slice(from,till);
 
-
         // console.log(this.from,this.last)
         this.ownerdraw={painter:'excerpt', data:{ last:this.last, samechunkline ,
             from:this.from, name, hitcount, caption,ptk,tofind , lines,hits,phraselength}} ;

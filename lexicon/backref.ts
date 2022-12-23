@@ -5,7 +5,7 @@ import {fromObj} from '../utils/sortedarray.ts'
 
 export const lookupKeyColumn=(ptk,name, key, keycolname)=>{
     const column = ptk.columns[name];
-    let at=column.keys.find(key);
+    let at=column.findKey(key);
 
     if (keycolname) { //normalize the key
         const keycolumn=ptk.columns[keycolname];
@@ -14,13 +14,13 @@ export const lookupKeyColumn=(ptk,name, key, keycolname)=>{
             const norm=keycolumn.fieldvalues[norm_at][at];
             if (norm) {
                 key=norm;
-                at=keycolumn.keys.find(key);
+                at=keycolumn.findKey(key);
             }
         }   
     }
     
     if (!~at) return [];
-    const at2=column.keys.find(key);
+    const at2=column.findKey(key);
     const out=column.fieldvalues[0][at2];
     return out;
 }

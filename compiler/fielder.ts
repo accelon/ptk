@@ -5,6 +5,7 @@ import {KeyField} from './keyfield.ts';
 import {KeysField} from './keysfield.ts';
 import {TextField} from './textfield.ts';
 import {NumberField} from './numberfield.ts';
+import {NumbersField} from './numbersfield.ts';
 import {GroupField} from './groupfield.ts';
 import {IOfftext,IOfftag} from './offtext/index.ts';
 import {closeBracketOf} from '../utils/index.ts';
@@ -30,6 +31,7 @@ export function createField(name,def:string,primarykeys,ownkeys) {
 	}
 
 	if (typename==='number') v=new NumberField (name,{pattern});
+	else if (typename==='numbers') v=new NumbersField (name,{pattern});
 	else if (typename==='unique_number') v=new NumberField (name,{pattern,unique:true,optional:false});
 	else if (typename==='unique') v=new TextField(name,{pattern,unique:true,optional:false});
 	else if (typename==='string') 	v=new Field (name,{pattern});
