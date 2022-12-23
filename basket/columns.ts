@@ -22,11 +22,11 @@ export function rowOf(rowname:string,idx:number,field=-1) {
 	}
 	const out=[];
 	if (field>0) {
-		out.push( { name,typedef:column.fields[field], value:column.fieldvalues[field][idx] } ) ;
+		out.push( { name,typedef:column.fieldsdef[field], value:column.fieldvalues[field][idx] } ) ;
 	} else {
 		for (let i=0;i<column.fieldnames.length;i++) {
 			const name=column.fieldnames[i];
-			out.push( { name,typedef:column.fields[i], value:column.fieldvalues[i][idx] } ) ;
+			out.push( { name,typedef:column.fieldsdef[i], value:column.fieldvalues[i][idx] } ) ;
 		}
 	}
 	return out;

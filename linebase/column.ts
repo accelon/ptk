@@ -119,9 +119,8 @@ export class Column {
 			allfields.push(fields);
 			line=sa.next();
 		}
-		allfields.sort(alphabetically0);
-		
 		if (attrs.keytype!=='serial') {
+			allfields.sort(alphabetically0);
 			skipFirstField=true;
 			this.keys=allfields.map(it=>it[0]);
 		}
