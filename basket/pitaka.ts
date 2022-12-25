@@ -174,9 +174,11 @@ not suitable for dictionary wordheads
 		const at=this.getNearestTag(line,chunktag)-1;
 		if (at<0) return null;
 		const bkat=this.getNearestTag(line,booktag) - 1;
-
-		return {bkid:booktag.fields.id.values[bkat] ,
-			at, id:chunktag.fields.id.values[at], innertext: chunktag.innertext.get(at)}
+		const bkid=booktag.fields.id.values[bkat];
+		return {bkid ,
+			at, id:chunktag.fields.id.values[at], 
+			bk:{id:bkid},
+			innertext: chunktag.innertext.get(at)}
 	}
 	findClosestTag(typedef, key, value, from=0){
 		let at=typedef.fields[key].values.indexOf(value);

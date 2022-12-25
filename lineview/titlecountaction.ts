@@ -34,7 +34,7 @@ export class TitleCountAction extends Action{
 				const ck=ptk.getNearestChunk(line);
 				const address=makeChunkAddress(ck);
 				if (items.length>=pagesize) break;
-				items.push({id:ck.id, title, count:-1, address, line });
+				items.push({id:ck.id,bkid:ck.bkid, title, count:-1, address, line });
 			}
 	
 			this.ownerdraw={painter:'titlecount', data:{ last:at2-at1,

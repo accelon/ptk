@@ -34,7 +34,7 @@ export function createField(name,def:string,primarykeys,ownkeys) {
 	else if (typename==='numbers') v=new NumbersField (name,{pattern,foreign});
 	else if (typename==='unique_number') v=new NumberField (name,{pattern,unique:true,optional:false,foreign});
 	else if (typename==='unique') v=new TextField(name,{pattern,unique:true,optional:false,foreign});
-	else if (typename==='string') 	v=new Field (name,{pattern});
+	else if (typename==='string') 	v=new Field (name,{pattern,foreign});
 	else if (typename==='text') 	v=new TextField (name,{pattern});
 	else if (typename==='key') {
 		const keys=(primarykeys&&primarykeys[foreign]) ||ownkeys;
@@ -48,7 +48,7 @@ export function createField(name,def:string,primarykeys,ownkeys) {
 		const keys=(primarykeys&&primarykeys[foreign]) ||ownkeys;
 		v=new Field (name,{type:typename,keys,pattern,foreign});
 	} else if (typename==='confer') {
-		v=new Field (name,{type:typename});
+		v=new Field (name,{type:typename,foreign});
 	}
 	if (!v) v=new Field (name,{}); //no validation is perform , just to suppress tag nodef warning
 	return v;

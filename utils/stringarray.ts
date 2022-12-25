@@ -139,20 +139,23 @@ export class StringArray {
 	}	
 	match(text:string):string[] { // find longest word
 		const getter:StringGetter=this.get.bind(this);
-		const at=bsearchGetter( getter, text ); // this.get(0) return len
+		const at=bsearchGetter( getter, text ) -1; // this.get(0) return len
 		const out=[];
-		let upper=at;
+		let upper=at-1;
+		if (text.startsWith(this.get(at))) out.push(this.get(at));
 		let lower=at+1;
 		while (upper>0) {
 			const found=this.get(upper);
-			if (text.startsWith(found))out.push( found); else break;
+			//ascii stop immediately
+			if (text.startsWith(found))out.push( found); else if (text.codePointAt(0)<0x100||text[0]!==found[0]) break;
 			upper--;
 		}
 		while (lower< this.len()) {
 			const found=this.get(lower);
-			if (text.startsWith(found)) out.push( found); else break;
+			if (text.startsWith(found)) out.push( found); else if (text.codePointAt(0)<0x100||text[0]!==found[0]) break;
 			lower++;
 		}
+		out.sort((a,b)=>b.length-a.length);
 		return out;
 	}
 	/* if delimiter is missing, value is the text after key, ie , a fixed with key */
@@ -160,4 +163,19 @@ export class StringArray {
 		const at=this.find(key);
 		return ~at?this.get(at).slice( key.length+this.delimiter.length):'';
 	}
+	findMatches=(rawtext:string)=>{ //given a rawtext, return list of found words, naive segmentation
+		let i=0;
+		const out=[];
+		while (i<rawtext.length) {
+			const tf=rawtext.slice(i);
+			const m=this.match(tf);
+			if (m.length) {
+				i+=m.length;
+				out.push([i,m[0]]);
+			} else {
+				i++;
+			}
+		}
+		return out;
+	}	
 }

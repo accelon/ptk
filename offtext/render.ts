@@ -18,6 +18,7 @@ export class RenderUnit implements IRenderUnit {
     luminate:number
     highlight:boolean
     offtext:IOfftext
+    extra:Object
     constructor (token: Token, ntoken:number, offtext:IOfftext, postingoffset:number) {
         this.token=token;
         this.postingoffset=postingoffset; //relative offset of posting (indexable token)
@@ -64,10 +65,8 @@ export const getRenderUnitClasses=(ru:RenderUnit,prepend='',append='')=>{
     const ot=ru.offtext;
     for (let j=0;j<ru.tags.length;j++) {
         const tag=ot.tags[ru.tags[j]];
-
         css.push(tag.name);
         if (tag.active) css.push(tag.name+'_active');
-        
         const hasbracket=closeBracketOf(ru.offtext.tagRawText(tag))?1:0;
         if (ru.choff==tag.choff+hasbracket) css.push(tag.name+'_start');
         if (ru.choff==tag.choff+tag.width-1-hasbracket) css.push(tag.name+'_end');
@@ -82,7 +81,6 @@ export const renderOfftext=(linetext='', opts={})=>{
     const extra=opts.extra||[];
     const hits=opts.hits||[];
     const phraselength=opts.phraselength||[];
-    const ltp=opts.linetokenpos||0;
     // const [plain,tags]=parseOfftext(linetext);
     const ot=new Offtext(linetext,opts.line||0);
     let postingoffset=0;
@@ -93,7 +91,7 @@ export const renderOfftext=(linetext='', opts={})=>{
     });
 
     const tagsAt=[]; //tags at plain position
-    let  phit=0;
+    let  phit=0 ,pextra=0;
 
     for (let i=0;i<ot.tags.length;i++) {
         const tag=ot.tags[i];
@@ -104,12 +102,18 @@ export const renderOfftext=(linetext='', opts={})=>{
             tagsAt[j].push(i);
         }
     }
-
     for (let i=0;i<runits.length;i++) {
         const ru=runits[i];
         ru.tags=tagsAt[ru.token.choff]||[];
-
-        if (hits.length && phit<hits.length) {
+        
+        if ( extra.length && pextra<extra.length) {
+            if (ru.choff==extra[pextra].choff) {
+                // const tlen=extra[pextra].text.length;
+                ru.extra=extra[pextra];
+                pextra++;
+            }
+        }
+        if (hits && hits.length && phit<hits.length) {
             if (ru.postingoffset>=hits[phit] &&  ru.postingoffset<hits[phit]+phraselength[phit]
                 && ru.token.type>=TokenType.SEARCHABLE) {
                 ru.highlight=true;
@@ -131,7 +135,6 @@ export const renderOfftext=(linetext='', opts={})=>{
                 }
             }
         }
-
         const bracket=closeBracketOf(ru.text);
         if (ru.hide|| (ru.tags.length && bracket)) {
             ru.hide=true;
@@ -139,7 +142,6 @@ export const renderOfftext=(linetext='', opts={})=>{
             if(closeAt) closeAt.hide=true;
         }
     }
-
     return [runits,ot];
 }
 
