@@ -33,23 +33,22 @@ export class Column {
 		}
 	}
 	addRow(fields:string[], nrow:number , skipFirstField){
-		for (let i=0;i<this.fieldsdef.length;i++) { //fields.length might be less than this.fieldsdef
+		let i=0;
+		if (skipFirstField) i++;
+		for (;i<this.fieldsdef.length;i++) { //fields.length might be less than this.fieldsdef
 			const F=this.fieldsdef[i];
-			const j=i+ (skipFirstField?1:0);
-	
-			const [err,value]=F.validate(fields[j], nrow);
+			const [err,value]=F.validate(fields[i], nrow);
 			if (err) {
 				this.onError&&this.onError(err,this.fieldnames[i]+' '+fields[i],-1, nrow);
 			}
 			this.fieldvalues[i].push(value||'');
-
 			if (i+1==this.tokenfield) this.tokenizeField(value);
 		}
 	}
 	createFields(typedef){
 		if (typedef) for (let idx in typedef) {
-			if (idx==0 && !typedef[idx]) continue; //primary key
-			const [name,def]=typedef[idx].split('=');
+			const fieldtype=typedef[idx]||'key=string';
+			const [name,def]=fieldtype.split('=');
 			this.addColumn(name);
 			const field= createField(name,def||{} , this.primarykeys , this.keys);
 			this.fieldsdef.push(field);

@@ -6,6 +6,9 @@ export class NumbersField extends Field {
 		this.type='numbers';
 	}
 	validate(value:string,line:number) {
+        if (typeof value=='undefined') {
+            console.log('undefined',line)
+        }
         const items=value.split(',');
         const out=[];
         for (let i=0;i<items.length;i++) {

@@ -21,7 +21,7 @@ export const lookupKeyColumn=(ptk,name, key, keycolname)=>{
     }
     
     if (!~at) return [];
-    const out=column.fieldvalues[0][at];
+    const out=column.fieldvalues[1][at];
     return out;
 }
 

@@ -16,9 +16,9 @@ export class BooleanExcerptAction extends Action{
         const [colname , members ]=name.slice(1).split('@'); 
         
         const tofinds=tofind.split(',');
-        const refcolname=members+'2'+colname;
+        const refcolname=colname.replace(/s$/,'');
         const items=intersects(tofinds.map(it=>lookupKeyColumn(ptk,refcolname,it,members)));
-        
+
         const linepos=ptk.defines[colname].linepos;
         lines=items.map(it=> linepos[it]);
 

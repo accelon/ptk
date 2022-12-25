@@ -62,9 +62,9 @@ export const getRenderUnitClasses=(ru:RenderUnit,prepend='',append='')=>{
     const css=[];
     css.push(prepend);
     const ot=ru.offtext;
-    
     for (let j=0;j<ru.tags.length;j++) {
         const tag=ot.tags[ru.tags[j]];
+
         css.push(tag.name);
         if (tag.active) css.push(tag.name+'_active');
         
@@ -97,7 +97,9 @@ export const renderOfftext=(linetext='', opts={})=>{
 
     for (let i=0;i<ot.tags.length;i++) {
         const tag=ot.tags[i];
-        for (let j=tag.choff;j<tag.choff+tag.width;j++) {
+        // j<tag.choff+tag.width 的話， 零字長 class 無法作用
+        // 整行標記之後 應有一半行空格，就不會塗到第一個字
+        for (let j=tag.choff;j<=tag.choff+tag.width;j++) {
             if (!tagsAt[j]) tagsAt[j]=[];
             tagsAt[j].push(i);
         }
@@ -137,6 +139,7 @@ export const renderOfftext=(linetext='', opts={})=>{
             if(closeAt) closeAt.hide=true;
         }
     }
+
     return [runits,ot];
 }
 
