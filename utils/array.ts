@@ -66,3 +66,15 @@ export const removeSubstring=(arr:NumberArray):NumberArray=>{
     }
     return arr.filter( (it,idx)=> markdelete.indexOf(idx)==-1 );
 }
+export const similaritySet=( arr,  basearr)=>{
+    let count=0;
+    for (let i=0;i<arr.length;i++) {
+        const v=arr[i];
+        const at=bsearchNumber(basearr, v  );
+        if (basearr[at]==v) count++;
+    }
+    // const sizediff= Math.abs(basearr.length - arr.length);
+
+    let r = count/basearr.length ;
+    return r;
+}

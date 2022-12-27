@@ -2,6 +2,8 @@
     lookup column[name] with key, if keycolname is supplied, convert to norm key
 */
 import {fromObj} from '../utils/sortedarray.ts'
+import {similaritySet} from '../utils/array.ts'
+
 
 export const lookupKeyColumn=(ptk,name, key, keycolname)=>{
     const column = ptk.columns[name];
@@ -31,7 +33,7 @@ export const countMembers=(items,foreigncol,tofind,col)=>{
     for (let i=0;i<items.length;i++) {
         const at=foreigncol.findKey(items[i]);
         const list=foreigncol.fieldvalues[0][at];
-        for (let i=0;i<list.length;i++) {
+        for (let i=0;i<list?.length;i++) {
             if (!members[list[i]]) members[list[i]]=0;
             members[list[i]]++;
         }
@@ -50,4 +52,20 @@ export const countMembers=(items,foreigncol,tofind,col)=>{
         while (drop) {arr.shift();drop--}
     }
     return arr;
+}
+const threshold=0.75;
+export const calApprox=( col,members)=>{
+    let idx=0;
+    if (col.attrs.keytype!=='serial') idx++;
+    const out=[];
+    const values=col.fieldvalues[idx];
+    for (let i=0;i<values.length;i++) {
+        const v=values[i];
+        const similarity=similaritySet(v, members); 
+        if (similarity>threshold) {
+
+            out.push([i, similarity]);
+        }
+    }
+    return out;
 }

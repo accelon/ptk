@@ -262,7 +262,7 @@ export class LVA {
 
 		if (sameAddress(this._divisions[idx],newaddr)) return this; //prevent recursive dig
 
-		if (!newaction.diggable) { //
+		if (!this._divisions[idx].diggable) { //
 			const removeat=this.removeSameAction(newaddr);
 			if (removeat==-1 || removeat>idx) { //bring to top
 				this._divisions.splice(idx,0,newaddr);

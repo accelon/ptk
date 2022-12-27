@@ -6,10 +6,11 @@ export const getOfftextLineClass=(ptk,offtext,attr)=>{
         const tag=tags[i];
         const def=ptk.defines[tag.name];
         const value=def.attrs[attr];
+        
         if (typeof value!=='undefined') {
-            const backlink=def.attrs.backlink;
+            const backref=def.attrs.backref;
             //attr=value 在 ^:tag 中定義
-            out.push({tagname:tag.name,ptk,backlink,attr,value});
+            out.push({tagname:tag.name,id:tag.attrs.id,ptk,backref,attr,value});
         }
     }
     // out.length&&console.log(out)
