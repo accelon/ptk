@@ -63,7 +63,6 @@ export const calApprox=( col,members)=>{
         const v=values[i];
         const similarity=similaritySet(v, members); 
         if (similarity>threshold) {
-
             out.push([i, similarity]);
         }
     }

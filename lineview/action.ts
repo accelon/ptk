@@ -6,6 +6,7 @@ import {GuideAction} from "./guideaction.ts";
 import {CustomAction} from "./customaction.ts";
 import {ExcerptAction} from "./excerptaction.ts";
 import {BooleanExcerptAction} from "./booleanexcerptaction.ts";
+import {ApproxAction} from "./approxaction.ts";
 import {TitleCountAction} from "./titlecountaction.ts";
 import {QueryAction} from "./queryaction.ts";
 
@@ -20,6 +21,8 @@ export const createAction=(addr, depth=0)=>{
 		if (atype==EXCERPTACTIONPREFIX) {
 			if (~addr.action.indexOf('@')) {
 				return new BooleanExcerptAction(addr, depth);
+			} else if (~addr.action.indexOf('~')) { 
+				return new ApproxAction(addr, depth);
 			} else {
 				return new ExcerptAction(addr, depth);
 			}
