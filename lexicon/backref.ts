@@ -53,7 +53,7 @@ export const countMembers=(items,foreigncol,tofind,col)=>{
     }
     return arr;
 }
-const threshold=0.75;
+const threshold=0.7;
 export const calApprox=( col,members)=>{
     let idx=0;
     if (col.attrs.keytype!=='serial') idx++;

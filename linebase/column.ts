@@ -189,4 +189,11 @@ export class Column {
 			return parseInt(key)-1;
 		}
 	}
+	getKey(i:number) {
+		if (this.keys) {
+			return this.keys.get(i)
+		} else {
+			return (i+1).toString()
+		}
+	}
 }

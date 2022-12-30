@@ -15,7 +15,8 @@ export class TitleCountAction extends Action{
 	async run(){
 		const ptk=usePtk(this.ptkname);
 		let {name,tofind}=this.act[0];
-		const address=name.slice(1)
+		const address=name.slice(1);
+
 		const sectionrange=address?ptk.rangeOfAddress(address):[0,ptk.header.eot+1];
 		const caption=ptk.captionOfAddress(address);
 		const [sectionfrom,sectionto]=sectionrange.map(it=>ptk.inverted.tokenlinepos[it]);
@@ -31,12 +32,12 @@ export class TitleCountAction extends Action{
 			for (let j=at1+this.from;j<at2;j++) {
 				const title=chunktag.innertext.get(j);
 				const line=chunktag.linepos[j];
-				const ck=ptk.getNearestChunk(line);
+				const ck=ptk.getNearestChunk(line+1);
 				const address=makeChunkAddress(ck);
 				if (items.length>=pagesize) break;
 				items.push({id:ck.id,bkid:ck.bkid, title, count:-1, address, line });
 			}
-	
+			
 			this.ownerdraw={painter:'titlecount', data:{ last:at2-at1,
 				from:this.from, name, hitcount, caption,ptk,tofind , items}} ;
 
@@ -59,24 +60,24 @@ export class TitleCountAction extends Action{
 		}
 		let till=this.till;
 		let from=this.from;
+
 		if (till==-1) till=this.from+ACTIONPAGESIZE;
 
 		let arr=fromObj(chunkcountobj,(a,b)=>[ parseInt(a) , b]).sort((a,b)=>b[1]-a[1]);
-
+		this.last=arr.length;
 		if (till>=arr.length) till=arr.length;
 		arr=arr.slice(from,till);
 		items=arr.map(it=>{
             const count=it[1];
 			const chunk=it[0];
 			const ck=ptk.getNearestChunk(chunktag.linepos[chunk]);
-
             const address=makeChunkAddress(ck);
             const title=chunktag.innertext.get(chunk);
             return { id:ck.id,title, count,address }
         })
-		
+
 		this.first=0;
-		this.last=arr.length;
+		
 		this.ownerdraw={painter:'titlecount', data:{ last:this.last,
 			from:this.from, name, hitcount, caption,ptk,tofind , items}} ;
 	}	

@@ -13,7 +13,7 @@ export class GuideAction extends Action{
 		const action=this.address.action.slice(1);
 		const idx=this.dividx;
 		const actionprefix=GUIDEACTIONPREFIX;
-		const selected=action.split(',');
+		const selected=action.split(',').filter(it=>!!it);
 
 		const pickercolname=ptk.attributes.picker; //symtom
 		const guidetag=ptk.attributes.picker+'s'; //^symtoms in text
@@ -25,7 +25,7 @@ export class GuideAction extends Action{
 		const tofinds=[];
 		for (let i=0;i<selected.length;i++) {
 			const at=pickercol.keys.find(selected[i]);
-			const expanded=pickercol.fieldvalues[1][at];
+			const expanded=pickercol.fieldvalues[2][at];
 			if (expanded) {
 				tofinds.push(...expanded.split(','));
 			} else {

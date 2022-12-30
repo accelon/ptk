@@ -176,9 +176,9 @@ not suitable for dictionary wordheads
 		const bkat=this.getNearestTag(line,booktag) - 1;
 		const bkid=booktag.fields.id.values[bkat];
 		return {bkid ,
-			at, id:chunktag.fields.id.values[at], 
+			at, id:chunktag.fields.id.values[at+1], 
 			bk:{id:bkid},
-			innertext: chunktag.innertext.get(at)}
+			innertext: chunktag.innertext.get(at+1)}
 	}
 	findClosestTag(typedef, key, value, from=0){
 		let at=typedef.fields[key].values.indexOf(value);

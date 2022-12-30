@@ -136,6 +136,6 @@ export function makeElementId(ele,id:string):string{
 }
 export function makeChunkAddress(ck,id:string,lineoffset=0):string{
 	return 'bk'+((parseInt(ck.bk?.id).toString()==ck.bk?.id)?'':'#')+ck.bk?.id
-	 +'.ck'+((parseInt(ck.id).toString()==ck.id)?'':'#')+id
+	 +'.ck'+((parseInt(ck.id).toString()==ck.id)?'':'#')+(id||ck.id)
 	 + (lineoffset?':'+lineoffset:'');
 }
