@@ -1,18 +1,20 @@
 export const predefines={
 generic:
-`^:ak<id=unique preload=true bracket=false>
-^:bk<id=unique preload=true bracket=false>
-^:ck<id=unique preload=true bracket=false>
+`^:ak<id=unique bracket=false>
+^:bk<id=unique  bracket=false>
+^:ck<id=unique bracket=false>
 ^:ad
 ^:bc
-^:f<id=number preload=true>
-^:fn<id=number preload=true>`,
+^:ver<savelinepos=true>
+^:f<id=number>
+^:fn<id=number>`,
 cs:
-`^:ak<id=unique preload=true bracket=false>
-^:bk<preload=true id=unique>
-^:ck<caption=chunk preload=true id=unique bracket=false>
-^:n<preload=true>
+`^:ak<id=unique  bracket=false>
+^:bk<id=unique>
+^:ck<caption=chunk id=unique bracket=false>
+^:n
 ^:h
 ^:sz
+^:https
 `
 }

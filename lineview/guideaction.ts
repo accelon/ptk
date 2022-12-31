@@ -5,6 +5,7 @@ export class GuideAction extends Action{
 	constructor(addr:IAddress,depth=0){
 		super(addr,depth);
 		this.address =addr;
+		this.closable=false;
 	}
 	async run(){
         const ptk=usePtk(this.ptkname);
@@ -25,11 +26,11 @@ export class GuideAction extends Action{
 		const tofinds=[];
 		for (let i=0;i<selected.length;i++) {
 			const at=pickercol.keys.find(selected[i]);
-			const expanded=pickercol.fieldvalues[2][at];
+			const expanded=pickercol.fieldvalues[3][at];
 			if (expanded) {
 				tofinds.push(...expanded.split(','));
 			} else {
-				tofinds.push(pickercol.fieldvalues[0][at]);
+				tofinds.push(pickercol.fieldvalues[2][at]);
 			}
 		}
 		
@@ -56,7 +57,6 @@ export class GuideAction extends Action{
 			const text=ptk.getLine(line);
 			return {chunkname,text,line,chunk}
 		})
-		
 		
 		this.ownerdraw={painter:'guide', data:{from:this.from, actionprefix,idx,
 			items, name, action,caption,ptk}} ;

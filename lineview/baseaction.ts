@@ -24,6 +24,7 @@ export class Action implements IAction{
 		this.text='';
 		this.lines=[];//for search result, non continous line
 		this.diggable=false;
+		this.closable=true;
 		this.ptkname=addr.ptkname;
 		this.opts={} ;//display options
 		this.dividx=dividx;

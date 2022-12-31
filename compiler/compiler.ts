@@ -12,21 +12,24 @@ export const sourceType=(firstline:string,filename:string):SourceType=>{
 	const at=firstline.indexOf('\n');
 	firstline=at>-1? firstline.slice(0,at):firstline;
 	const [text,tags]=parseOfftext(firstline);
-	let preload=false ,sourcetype, name,caption;
+	let lazy=true ,sourcetype, name,caption;
 	let consumed=false;
 	sourcetype=filename?.endsWith('.tsv') ?SourceType.TSV:SourceType.Offtext;
-
+	
 	if (tags.length && tags[0].name==':') { //directive
 		const attrs=tags[0].attrs;
-		preload=!!tags[0].attrs.preload;
+		if (attrs.hasOwnProperty(lazy)) lazy=!!attrs.lazy;
 		sourcetype=tags[0].attrs.type?.toLowerCase()||sourcetype;
-		name=tags[0].attrs.name;
-		caption=tags[0].attrs.caption;
+		name=attrs.name;
+		caption=attrs.caption;
 		consumed=true;
-		if (sourcetype=='tsv') consumed=false;
+		if (sourcetype=='tsv') {
+			consumed=false;
+			lazy=false;
+		}
 	}
 	// console.log(filename,sourcetype);
-	return {sourcetype,tag:tags[0],preload,name,caption,consumed};
+	return {sourcetype,tag:tags[0],lazy,name,caption,consumed};
 }
 export class CompiledFile implements ICompiledFile {
 	constructor (){
@@ -109,7 +112,7 @@ export class Compiler implements ICompiler {
 		let processed,samepage=false, tagdefs=[] , attributes={};
 		const sa=new StringArray(buffer,{sequencial:true});
 		const firstline=sa.first();
-		const {sourcetype,tag,preload,name,caption,consumed}=sourceType(firstline,filename); //only first tag on first line
+		const {sourcetype,tag,lazy,name,caption,consumed}=sourceType(firstline,filename); //only first tag on first line
 
 		if (sourcetype=='txt' && consumed) tagdefs.push(firstline);
 		let compiledname = name || filename;//name of this section
@@ -169,7 +172,7 @@ export class Compiler implements ICompiler {
 			this.compiledLine += out.length;
 			processed=out;
 		}
-		this.compiledFiles[filename]={name:compiledname,caption,preload,sourcetype,processed,textstart,
+		this.compiledFiles[filename]={name:compiledname,caption,lazy,sourcetype,processed,textstart,
 			errors:this.errors,samepage,tagdefs, attributes};
 		return this.compiledFiles[filename];
 	}

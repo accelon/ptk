@@ -51,13 +51,14 @@ export class Pitaka extends LineBase {
 		this.attributes=compiler.compiledFiles['0.off']?.attributes;
 		this.lang=this.attributes.lang||'zh';
 		const ranges=[];
+
 		for (let i=0;i<this.header.preload.length;i++) {
 			const r=this.sectionRange(this.header.preload[i]);
 			if (r&&r[1]>r[0])	 ranges.push(r);
 		}
 		
 		for (let n in this.defines) {
-			if (this.defines[n].fields.preload) {
+			if (!this.defines[n].fields.lazy) {
 				const r=this.sectionRange('^'+n);
 				if (r&&r[1]>r[0]) ranges.push(r);
 			}
@@ -75,7 +76,7 @@ export class Pitaka extends LineBase {
 			// else console.error('empty section',this.header.preload[i]);
 		}
 		for (const n in this.defines) { //see compiler/typedef.ts serialize()
-			if (this.defines[n].fields.preload) {
+			if (!this.defines[n].fields.lazy) {
 				const section=this.getSection('^'+n);
 				this.defines[n].deserialize(section);
 			}

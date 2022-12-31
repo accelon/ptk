@@ -8,7 +8,7 @@ import {packInt,packIntDelta,unpackIntDelta,unpackInt,LEMMA_DELIMITER,removeBrac
 /* types of attributes defined by ^:  */
 const reservedAttributes={ //是指令不是屬性名, 
 	caption:true,
-	preload:true,
+	lazy:false,
 	key:true,
 	field:true,
 	text:true,
