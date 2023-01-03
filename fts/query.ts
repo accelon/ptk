@@ -106,7 +106,7 @@ export async function parseQuery(tofind:string,opts){
     for (let i=0;i<phrases.length;i++) {
         if (!phrases[i].trim()) continue;
         let posting=await phraseQuery.call(this,phrases[i]);
-        if ((!posting || !posting.length) && opts.tosim) {
+        if ((!posting || !posting.length) && this.attributes.lang=='zh') {
             posting=await phraseQuery.call(this,fromSim(phrases[i]));
         }
         if (opts.ranges && opts.ranges.length) {//only search in ranges

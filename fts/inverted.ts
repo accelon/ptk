@@ -1,5 +1,6 @@
 import {StringArray,unpackIntDelta,LEMMA_DELIMITER,bsearchNumber} from '../utils/index.ts';
 import {tokenize,TokenType} from './tokenize.ts';
+import {fromSim} from 'lossless-simplified-chinese'
 
 export class Inverted {
 	constructor(section:string[],postingStart:number){
@@ -23,7 +24,12 @@ export class Inverted {
 			if (type==TokenType.CJK_BMP) {
 				const cp=text.charCodeAt(0);
 				at=bsearchNumber(this.bmpwithposting, cp);
-				if (this.bmpwithposting[at]!==cp) continue;
+				if (this.bmpwithposting[at]!==cp) {
+					//try sim
+					const cpsim=fromSim(text).charCodeAt(0);
+					at=bsearchNumber(this.bmpwithposting, cpsim);
+					if (this.bmpwithposting[at]!==cpsim) continue;
+				}
 			} else if (type>=TokenType.SEARCHABLE) {
 				if (~at) at+=this.bmppostingcount;
 				else {

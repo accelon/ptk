@@ -5,7 +5,6 @@ export class GuideAction extends Action{
 	constructor(addr:IAddress,depth=0){
 		super(addr,depth);
 		this.address =addr;
-		this.closable=false;
 	}
 	async run(){
         const ptk=usePtk(this.ptkname);
@@ -46,7 +45,7 @@ export class GuideAction extends Action{
 			const at=bsearchNumber( linepos, pos);
 			if (linepos[at] ==pos) {
 				guideline.push([pos, score[i][2]]);
-				if (guideline.length>50) break;
+				if (guideline.length>=100) break;
 			}
 		}
 

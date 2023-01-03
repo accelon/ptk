@@ -4,7 +4,6 @@ import {IAddress,usePtk} from '../basket/index.ts';
 import {plTrim,plContain} from '../fts/posting.ts';
 import {MAXPHRASELEN} from '../fts/constants.ts';
 import {fromObj,bsearchNumber} from '../utils/index.ts';
-
 export class ExcerptAction extends Action{
 	constructor(addr:IAddress,depth=0){
 		super(addr,depth);
@@ -29,7 +28,8 @@ export class ExcerptAction extends Action{
 			sectionfrom=tlp[0];
 			sectionto=tlp[ptk.header.eot];
 		}
-		const [phrases,postings]=await ptk.parseQuery(tofind);
+
+		const [phrases,postings]=await ptk.parseQuery(tofind,{tosim:ptk.attributes.lang=='zh'});
 		let chunkobj={}, lineobj={},hitcount=0;
 		const chunklinepos=ptk.defines.ck.linepos;
 		for (let i=0;i<postings.length;i++) {
