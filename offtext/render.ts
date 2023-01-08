@@ -105,7 +105,6 @@ export const renderOfftext=(linetext='', opts={})=>{
     for (let i=0;i<runits.length;i++) {
         const ru=runits[i];
         ru.tags=tagsAt[ru.token.choff]||[];
-        
         if ( extra.length && pextra<extra.length) {
             if (ru.choff==extra[pextra].choff) {
                 // const tlen=extra[pextra].text.length;

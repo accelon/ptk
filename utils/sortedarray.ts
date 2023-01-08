@@ -9,7 +9,6 @@ export const length_alphabetically1=(a:string,b:string)=>a[1].length==b[1].lengt
 
 export const dedup=(arr:string[],sorted=false)=>{
     if (!arr||!arr.length)return [];
-    console.log('dup')
     if (!sorted) arr.sort( typeof arr=='string'?alphabetically: (a,b)=>a-b);
     const out=[];
     let prev=arr[0];

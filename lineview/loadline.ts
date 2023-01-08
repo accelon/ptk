@@ -55,9 +55,10 @@ async function loadLines(lva, noparallel=false){
 		const linetexts=ptk.getLines(lines);
 
 		const prevdepth=i?divisions[i-1].depth:0;
-
+		const onLineText=ptk.template?.onLineText;
 		for (let j=0;j<linetexts.length;j++) { //優先顯示更深的層級框線
-			const text=linetexts[j];
+			const text=onLineText?onLineText(linetexts[j],lines[j]):linetexts[j];
+
 			let edge=0;
 			if (j===0) edge|=1; //上框線
 			if (j===linetexts.length-1) edge|=2; //下框線  edge==3 只有一行的顯示上下框

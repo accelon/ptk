@@ -2,7 +2,7 @@ import {bookParanumToChunk,firstParanumOf} from "./cs-paranum.ts";
 import { FirstPN } from "./cs-first.ts";
 import { booksOf, pitakaOf,sortFilenames,getFilesOfBook} from "./sc-code.ts";
 import {fromSeal, toSeal} from "./ebag.ts";
-
+export * as meta_cm from "./cm.ts"
 export const suttaOfBook=bkid=>{
     const out=[];
     if (bkid==='dn')      for (let i=1;i<=34;i++) out.push('d'+i);

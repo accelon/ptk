@@ -98,6 +98,11 @@ export class Column {
 				usesection=true;
 				this.fieldvalues[idx]=section;
 			}
+			//short hand
+			if (!this[field.name]) {
+				this[field.name]=this.fieldvalues[idx];
+			}
+			
 			idx++;
 		}
 		if (!usesection && section.length) {

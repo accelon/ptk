@@ -7,7 +7,7 @@ import {Inverted,plContain} from '../fts/index.ts';
 import {TableOfContent} from '../compiler/toc.ts';
 import {parseQuery,scanText,scoreLine} from '../fts/query.ts';
 import {footNoteAddress,footNoteByAddress} from './footnote.ts';
-
+import {Templates} from '../compiler/template.ts'
 export const regPtkName =  /^[a-z\-_]{2,16}$/
 export const validPtkName=(name:string):boolean=>!!name.match(regPtkName);
 export interface IPitaka extends ILineBase{
@@ -41,6 +41,7 @@ export class Pitaka extends LineBase {
 		this.inverted=null;
 		this.parallels={}; //parallels showing flag, ptkname:string, onoff:boolean
 		this.lang='';
+		this.preprocessor=null
 	}
 	async init(){
 		if (!this.payload) return;
@@ -50,11 +51,12 @@ export class Pitaka extends LineBase {
 		this.defines=compiler.typedefs;
 		this.attributes=compiler.compiledFiles['0.off']?.attributes;
 		this.lang=this.attributes.lang||'zh';
+		this.template=Templates[this.attributes.template]||{};
 		const ranges=[];
 
 		for (let i=0;i<this.header.preload.length;i++) {
 			const r=this.sectionRange(this.header.preload[i]);
-			if (r&&r[1]>r[0])	 ranges.push(r);
+			if (r&&r[1]>r[0])ranges.push(r);
 		}
 		
 		for (let n in this.defines) {
@@ -141,7 +143,7 @@ export class Pitaka extends LineBase {
 		const linepos=chunktag?.linepos||[];
 		const at=bsearchNumber(linepos, line)-1;
 		const lineoff=line-linepos[at];
-		let caption=chunktag?.innertext.get(at);
+		let caption=chunktag?.innertext.get(at) ;
 		const id=chunktag?.fields?.id?.values[at];
 		const bkat=this.getNearestTag(line,booktag) - 1;
 		const bkid=booktag.fields.id.values[bkat] ;
@@ -152,10 +154,14 @@ this is suitable for tree structure with less branches,
 not suitable for dictionary wordheads
 */
 
+		const onChunkCaption=this.template.onChunkCaption;
 		if (!caption) {
 			caption=this.columns[chunktag?.column]?.keys?.get(id);			
+			if (!caption && onChunkCaption) caption=onChunkCaption(id);
 		}
-		return {id, tagname:'ck', caption,lineoff , bkid};
+
+		const humanId= onChunkCaption?caption:id+'.'+caption;
+		return {id, tagname:'ck', caption,lineoff , bkid ,humanId};
 	}
 	getPostings(s:string){
 		const nPostings=this.inverted.nPostingOf(s);
