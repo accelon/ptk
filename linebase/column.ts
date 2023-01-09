@@ -11,7 +11,7 @@ export class Column {
 		this.fieldsdef=[];
 		this.attrs; //raw attributes in ^:<>
 		this.name='';
-		this.keys=null;  //keys, null if keytype==serial 
+		this.keys=null;  //keys, null if keytype==serial  or keytype==textline
 		this.primarykeys=opts.primarykeys||{};
 		this.onError=opts.onError;
 		this.typedef=opts.typedef;
@@ -66,7 +66,7 @@ export class Column {
 		
 		const typedef=text.split('\t') ; // typdef of each field , except field 0
 		this.createFields(typedef);
-		if (this.attrs.keytype=='serial') {
+		if (this.attrs.keytype=='serial' || this.attrs.keytype=='textline') {
 			this.keys=null;
 		} else {
 			this.keys=new StringArray(section.shift(),{sep:LEMMA_DELIMITER});  //local keys
@@ -123,7 +123,7 @@ export class Column {
 			allfields.push(fields);
 			line=sa.next();
 		}
-		if (attrs.keytype!=='serial') {
+		if (attrs.keytype!=='serial'&&attrs.keytype!=='textline') {
 			allfields.sort(alphabetically0);
 			skipFirstField=true;
 			this.keys=allfields.map(it=>it[0]);
@@ -151,8 +151,9 @@ export class Column {
 		}
 		for (let i=0;i<this.fieldnames.length;i++) {
 			const V=this.fieldsdef[i];
-			if (V.type=='number') {
+			if (V.type=='number' || V.type=='line') {
 				const numbers=this.fieldvalues[i].map(it=>parseInt(it)||0)||[];
+				//convert line to text line at runtime
 				out.push(packInt( numbers));
 			} else if (V.type=='numbers') {
 				const numbers=(this.fieldvalues[i])||[];

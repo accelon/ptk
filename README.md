@@ -1,9 +1,17 @@
 # PTK
 Accelon 的 backend
 
-## Basic cli commands
+## 安裝
+請用 [Accelon22](https://gitbub.com/accelon/accelon22) 的 install-dev.cmd 安裝
 
-type `ptk` to see available commands
+## 基本指令
+
+### 製作 js 版資料庫
+   ptk js
+
+
+
+
 
 ## 模塊
 
@@ -42,8 +50,6 @@ type `ptk` to see available commands
 * ptk文件      以zip 格式為容器，可含多個 jsonp 文件夾。
 * com文件      ptk 文件 加跨平台網頁服務器。
 
-
-
 ## 文件夾
 
 ## ptk js
@@ -54,7 +60,6 @@ type `ptk` to see available commands
    但ptk 名字會根據 0.off 中指定
 
    詳見 bin.js::build
-
 
 ## 平行語料庫
 

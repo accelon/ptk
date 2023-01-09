@@ -185,6 +185,7 @@ not suitable for dictionary wordheads
 		return {bkid ,
 			at, id:chunktag.fields.id.values[at+1], 
 			bk:{id:bkid},
+			line:chunktag.linepos[at],
 			innertext: chunktag.innertext.get(at+1)}
 	}
 	findClosestTag(typedef, key, value, from=0){
@@ -215,5 +216,12 @@ not suitable for dictionary wordheads
 	}
 	getParallelLine(masterptk,line){
 		return [true,0];
+	}
+	getSectionStart(name){
+		const at=this.header.sectionnames.indexOf(name);
+		if (~at) {
+			return this.header.sectionstarts[at]||-1;
+		}
+		return -1
 	}
 }

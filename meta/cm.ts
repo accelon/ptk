@@ -12,54 +12,66 @@ import { alphabetically,unique } from '../utils/sortedarray.ts'
 https://www.ijopmed.org/cm-wm-terms.html
 https://www.sohu.com/a/288411596_100020962
 */
-export const tounge={
-    /*brightness*/b:["淡","暗,黯"], 
-    /*color*/c:["白","黃","紅,赤","紫,絳","青","黑,灰"], 
-    /*location*/l:["尖,邊","中","根"], 
-    /*thickness*/t:["薄","厚,胖,嫩"],
-    /*pattern*/p:["清,無苔","垢","膩,黏","光,剝","裂,紋","斑","痕,印","刺","瘀"],
-    /*humidity*/h:["乾,燥,糙,焦", "潤,滑,津"]
-}
-export const pulse={
-    /*location*/l:["寸","關","尺"],
-    /*thickness*/t:["細"],
-    /*strength*/g:["軟","微,弱,無力","洪,有力","實,堅,大","虛"],
-    /*frequency*/q:["數,疾,促,頻","緩,遲"],
-    /*pressure*/p:["浮","沉,伏","按"],
-    /*smoothness*/s:["滑","澀,澁"],
-    /*waveform*/w:["弦","緊","結","代","濡"],
-}
+export const tounge=[
+    { prefix:'l',caption:"⚓",factors:["尖,邊","中","根"]}, //location
+    { prefix:'b',caption:"🔅",factors:["淡","暗,黯"]},  //brightness*/
+    { prefix:'c',caption:"🌈",factors:["白","黃","紅,赤","紫,絳","青","黑,灰"]}, //color
+    { prefix:'t',caption:"🍞",factors:["薄,少","厚,胖,嫩"]},//thickness
+    { prefix:'o',caption:"🐆",factors:["紋,裂","斑,痕,印","刺","瘀"]},
+    { prefix:'p',caption:"☘️",factors:["清,無","垢","膩,黏","剝,光"]}, //pattern
+    { prefix:'h',caption:"🤑",factors:["乾,燥,糙,焦,少津,無津", "潤,滑,多津,有津,涎"]} // humidity
+]
+export const pulse=[
+    {prefix:'l',caption:"⚓",factors:["寸","關","尺"]}, //location
+    {prefix:'t',caption:"👶",factors:["細"]},//thickness
+    {prefix:'g',caption:"💪",factors:["軟","弱,微,無力","洪,有力,大","實,堅","虛"]},//strength
+    {prefix:'q',caption:"🐢",factors:["急,疾,促","數,頻","緩","遲"]}, //frequency
+    {prefix:'p',caption:"🐘",factors:["浮","沉,伏","按"]}, //pressure
+    {prefix:'s',caption:"🎿",factors:["滑","澀,澁"]},//smoothness
+    {prefix:'w',caption:"🌊",factors:["弦","緊","結,結代","濡"]},//waveform
+]
 
-export const symtoms={
-    /*body*/o:["身,體,肢","手,指,肘,腕","足,腳,脛,膝,腿,踁,踝","腹,肚,臍,脘","腰","背","胸,脅","肌,皮,膚",
-        "骨,關節","筋","毛,髮","肛"],
-    /*head*/h:["目,眼","頭","面,臉","頸,項","口,唇,舌","耳","鼻","喉,咽"],
-    /*mental*/m:["精神,神","語,言"],
-    /*sex*/x:["陽痿,陰痿,陽萎,陰萎"],
-    /*viscera*/v:["心","肝","脾","肺","腎"],
-    /*bowel*/b:["膽","小腸","胃","大腸","膀胱","三焦","腸"],
-    /*excessive*/s:["熱,暑,燒","寒,冷","風","濕,溏","乾",],
-    /*excretion*/e:["大便,屎,便,下利,洩","小便,尿,溺,溲","汗","嘔,吐","痰","膿","涎,沫","涕","淚","血","白帶"],
-    /*unconfort*/u:["痛,疼","酸,痠","苦","腫","脹","悶","癢","麻,痺","攣,抽筋,抽搐","痞"],
-    /*inactive*/i:["疲,倦,萎,靡,恍惚,不振","昏,眩","懶,怠,呆,癡","睡,寐,眠,睏,臥","夢"],
-    /*aspiration*/a:["咳,喘","噯","噁","呼,吸"],
-    /*nutrition*/n:["渴","飲","食"],
-    /*feelings*/f:["畏","笑","惡","煩,躁","怒,狂","鬰","不樂","痵,怔,忡","譫"]
+export const symtom=[
+    {prefix:'a',caption:'🧍',factors:["肩","頸,項","癢","麻"]},
+    {prefix:'b',caption:'🧑',factors:["頭痛","頭暈","頭重","頭脹"]},
+    {prefix:'c',caption:'😐',factors:["白","黃"],include:"面,臉"},
+    {prefix:'d',caption:'🦵',factors:["冷","抽搐","顫,抖"],inluce:"手,足,肢"},
+    {prefix:'g',caption:'🤰',factors:["腹痛","腹脹","胸悶"]},
+    {prefix:'h',caption:'🐪',factors:["腰酸,腰痠","腰痛","背痛"]},
+    {prefix:'e',caption:'❄️',factors:["寒,畏寒,惡寒","惡風"]},
+    {prefix:'f',caption:'♨️',factors:["發熱,壯熱","少熱","寒熱"]},
+    {prefix:'i',caption:'💦',factors:["自汗","盜汗","無汗"]},
+    {prefix:'j',caption:'👀',factors:["畏光,羞明","腫","赤,紅","淚","不清,糊"] , include:"眼,目,視" },
+    {prefix:'k',caption:'👂',factors:["耳鳴","聾"]  },
+    {prefix:'l',caption:'👃',factors:["鼻塞","喘,哮","涕","鼻血,衂"]},
+    {prefix:'m',caption:'👄',factors:["渴,乾","嘔,呃","口臭","口淡","口苦","咳血"]  },
+    {prefix:'n',caption:'💬',factors:["咳嗽","痰","咽痛","譫,語"]  },
+    {prefix:'o',caption:'🦷',factors:["齦,牙宣","牙痛","蛀"]  },
+    {prefix:'p',caption:'💔',factors:["悸,痵,怔,忡","絞痛"]},
+    {prefix:'q',caption:'😞',factors:["煩,躁,亢","怒,狂","鬰,不樂","疲,倦,怠,懶,惰"]},
+    {prefix:'r',caption:'🛌',factors:["失眠,不寐","易醒,淺眠","多夢"]},
+    {prefix:'s',caption:'💩',factors:["便秘,秘結,便結","便溏,溏,拉稀","便血,下血","肛","痔"]},
+    {prefix:'t',caption:'🚽',factors:["不通,不利","濁","清長","多尿,頻數","失禁,夜尿","血尿,尿血"]},
+]
+const expandFactor=arr=>{
+    for (let i=0;i<arr.length;i++) {
+        if (~arr[i].indexOf(',')) {
+            arr[i]=arr[i].split(',')
+        }
+    }
 }
-const splitFactors=(factors)=>{
-    for (let key in factors){
-        const arr=factors[key];
-        for (let i=0;i<arr.length;i++) {
-            if (~arr[i].indexOf(',')) {
-                arr[i]=arr[i].split(',')
-            }
+const splitFactors=(allFactors)=>{
+    for (let i=0;i<allFactors.length;i++){
+        expandFactor(allFactors[i].factors);
+        if (typeof allFactors[i].include=='string') {
+            allFactors[i].include=allFactors[i].include.split(',')
         }
     }
 }
 splitFactors(tounge);
 splitFactors(pulse);
-splitFactors(symtoms);
-export const SickFactors={  tounge, pulse, symtoms }
+splitFactors(symtom);
+export const SickFactors={  tounge, pulse, symtom }
 
 export const SickCauses={ //病因
     l01:"風寒",l02:"風熱",l03:"風燥",l04:"虛風",l05:"陰寒",
@@ -178,17 +190,27 @@ export const SickSigns={ //病候
     h315:"腎陰消灼",h316:"腎陰虛熾",h317:"腎陰虛滯",h318:"腎陰失養",
     h319:"君相失寧",h320:"心腎不交",h321:"龍雷不藏",h322:"火不歸元"
 }
+
+const hasOneOf=(text,include)=>{
+    for (let i=0;i<include.length;i++) {
+        if (!text.indexOf(include[i])) return true;
+    }
+}
 //將一個詞編碼
 export const encodeFactor=( text,keyfactors)=>{
     const traits=[];
-    for (let key in keyfactors) {
-        const factors=keyfactors[key];
+    for (let type in keyfactors) {
+        const key=keyfactors[type].prefix;
+        const factors=keyfactors[type].factors;
+        const include=keyfactors[type].include;
         for (let j=0;j<factors.length;j++) {
             const factor=factors[j];
             if (typeof factor=='string') {
                 if (~text.indexOf(factor)) {
-                    if (!~traits.indexOf(key+j)) traits.push(key+j);
-                    // if (!inverted[key+j]) inverted[key+j]
+                    if (include?.length && !hasOneOf(text,include)) continue;
+                    if (!~traits.indexOf(key+j)) {
+                        traits.push(key+j);
+                    }
                 }
             } else {
                 for (let k=0;k<factors[j].length;k++) {
@@ -236,5 +258,101 @@ export const onChunkCaption=(chunkid,part)=>{
     if (part==2) return part2;
     return part1+'|'+part2;
 }
-addTemplate('cm',{onLineText,onChunkCaption});
+//this is slow
+const findPrefix=(Factors,prefix)=>{
+    for (let i=0;i<Factors.length;i++) {
+        if (Factors[i].prefix==prefix) return Factors[i].factors;
+    }
+    return [];
+}
+export const decodeFactor=(field,code)=>{
+    const [m0,prefix,n]=code.split(/([a-z])(\d+)/);
+    const factors=findPrefix(SickFactors[field], prefix);
+    let caption=factors[n];
+    if (typeof caption!=='string') caption=caption[0];
+    return caption;
+}
+const makeButtonStates=(Factors)=>{
+    const out=[];
+    for (let i=0;i<Factors.length;i++) {
+        const states=[];
+        const {caption,factors,prefix}=Factors[i];
+        for (let j=0;j<factors.length;j++) {
+            if (typeof factors[j]!=='string') {
+                states[factors[j][0]]= prefix+j;
+            } else states[factors[j]]=prefix+j;
+        }
+        out.push({caption, states, prefix});
+    }
+    return out;
+}
+const icons={ symtom:'⚠️', tounge:'👅', pulse:'✋🏻'}
+
+export const getMultiStateFilters=()=>{
+    return [
+        {name:'symtom',caption:icons.symtom , states: makeButtonStates(symtom) ,newline:true},
+        {name:'tounge',caption:icons.tounge, states: makeButtonStates(tounge) },
+        {name:'pulse',caption: icons.pulse, states: makeButtonStates(pulse) },
+    ]
+}
+
+
+export const stringifyChoice=(choices)=>{
+    let symtom='',tounge='',pulse='';
+    for (let key in choices) {
+        if (key=='symtom') symtom=choices[key].join('');
+        if (key=='tounge') tounge=choices[key].join('');
+        if (key=='pulse') pulse=choices[key].join('');
+    }
+    return symtom+'_'+tounge+'_'+pulse;
+}
+export const humanChoice=(choices)=>{
+    if (typeof choices=='string') choices=parseChoice(choices);
+    let out='';
+    for (let field in choices){
+        if (choices[field].length) {
+            out+=icons[field];
+            for (let i=0;i<choices[field].length;i++) {
+                out+= ' '+decodeFactor(field,choices[field][i]);
+            }
+        }
+    }
+    return out;
+}
+export const parseChoice=(str:string)=>{
+    const  [_symtom,_tounge,_pulse]=str.split('_');
+    const symtom=(_symtom||'').split(/([a-z]\d+)/).filter(it=>!!it)||[];
+    const tounge=(_tounge||'').split(/([a-z]\d+)/).filter(it=>!!it)||[];
+    const pulse=(_pulse||'').split(/([a-z]\d+)/).filter(it=>!!it)||[];
+    return {symtom,tounge,pulse }
+}
+export const runFilter=(col,choices,textstart=0)=>{
+    const out=[];
+    let choicecount=0;
+    // console.time('filter');
+    for (let field in choices) {
+        choicecount+=choices[field].length;
+    }
+
+    for (let i=0;i<col.ill.length;i++) {
+        let hit=0;
+        for (let field in choices) {
+            if (choices[field].length==0) continue;
+            for (let j=0;j<choices[field].length;j++) {
+                const key=choices[field][j];
+                if (~col[field][i].indexOf(key) ) hit++;
+            }
+            
+            if (choicecount==hit) {
+                // console.log(col.ill[i])
+                out.push( col.ill[i]+textstart ); // linepos
+            }
+        }
+    }
+    // console.timeEnd('filter')
+    return out;
+}
+addTemplate('cm',{filterColumn:'manifest',
+parseChoice, stringifyChoice,humanChoice,
+onLineText,onChunkCaption,getMultiStateFilters,runFilter});
 

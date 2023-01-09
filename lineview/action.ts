@@ -12,16 +12,16 @@ import {QueryAction} from "./queryaction.ts";
 
 import {EXCERPTACTIONPREFIX,GUIDEACTIONPREFIX,TITLECOUNTACTIONPREFIX,OWNERDRAWPREFIX} from './baseaction.ts'
 export const makeExcerptAddress=(ptkname:string,section:string,tofind:string,chunk='')=>{
-	return '*'+section+(chunk?('.'+chunk):'') +'='+tofind; //
+	return EXCERPTACTIONPREFIX+section+(chunk?('.'+chunk):'') +'='+tofind; //
 }
 export const createAction=(addr, depth=0)=>{
 	const at=addr.action.indexOf('=');
 	const atype=addr.action.slice(0,1);
 	if (at>0) {
 		if (atype==EXCERPTACTIONPREFIX) {
-			if (~addr.action.indexOf('@')) {
+			if (~addr.action.indexOf(OWNERDRAWPREFIX)) {
 				return new BooleanExcerptAction(addr, depth);
-			} else if (~addr.action.indexOf('~')) { 
+			} else if (~addr.action.indexOf(TITLECOUNTACTIONPREFIX)) { 
 				return new ApproxAction(addr, depth);
 			} else {
 				return new ExcerptAction(addr, depth);

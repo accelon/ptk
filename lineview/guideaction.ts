@@ -13,49 +13,21 @@ export class GuideAction extends Action{
 		const action=this.address.action.slice(1);
 		const idx=this.dividx;
 		const actionprefix=GUIDEACTIONPREFIX;
-		const selected=action.split(',').filter(it=>!!it);
+		const choices=ptk.template.parseChoice( action);
 
-		const pickercolname=ptk.attributes.picker; //symtom
-		const guidetag=ptk.attributes.picker+'s'; //^symtoms in text
+		const col=ptk.columns[ptk.template.filterColumn];
+		const textstart=ptk.getSectionStart(col.attrs.textstart)||0;
+		const matchline=ptk.template.runFilter(col,choices,textstart);
 
-		//在這些行中找 selected 
-		const linepos=ptk.defines[guidetag].linepos;//should be found in this linepos
-		const pickercol=ptk.columns[pickercolname];
+		await ptk.loadLines(matchline);
 
-		const tofinds=[];
-		for (let i=0;i<selected.length;i++) {
-			const at=pickercol.keys.find(selected[i]);
-			const expanded=pickercol.fieldvalues[3][at];
-			if (expanded) {
-				tofinds.push(...expanded.split(','));
-			} else {
-				tofinds.push(pickercol.fieldvalues[2][at]);
-			}
-		}
-		
-		const q=await ptk.parseQuery(tofinds.join(' '));
-
-		//join all q
-		let postings=q[1];
-		
-		const score=ptk.scoreLine(postings);
-		const guideline=[];
-		for (let i=0;i<score.length;i++) {
-			const pos=score[i][0];
-			const at=bsearchNumber( linepos, pos);
-			if (linepos[at] ==pos) {
-				guideline.push([pos, score[i][2]]);
-				if (guideline.length>=100) break;
-			}
-		}
-
-		await ptk.loadLines(guideline.map(item=>item[0]));
-
-		const items=guideline.map( ([line,chunk])=>{
-			const chunkname=ptk.defines.ck.innertext.get(chunk);
+		const items=matchline.map( line =>{
+			const ck=ptk.getNearestChunk(line);
 			const text=ptk.getLine(line);
-			return {chunkname,text,line,chunk}
-		})
+			const lineoff=line-ck.line;
+			if (!ck) return null;
+			return {chunkname:ck.name,text,line,ck,lineoff}
+		}).filter(it=>!!it);
 		
 		this.ownerdraw={painter:'guide', data:{from:this.from, actionprefix,idx,
 			items, name, action,caption,ptk}} ;
