@@ -1,5 +1,5 @@
 import {addTemplate} from '../compiler/template.ts'
-import { alphabetically,unique } from '../utils/sortedarray.ts'
+import { alphabetically,unique,fromObj } from '../utils/sortedarray.ts'
 /*
   病 Disease
   證: Sick = 病位Location + 病因Cause
@@ -326,15 +326,16 @@ export const parseChoice=(str:string)=>{
     const pulse=(_pulse||'').split(/([a-z]\d+)/).filter(it=>!!it)||[];
     return {symtom,tounge,pulse }
 }
-export const runFilter=(col,choices,textstart=0)=>{
-    const out=[];
+export const runFilter=(ptk,col,choices)=>{
+    const items=[], groupbytext={};
+    const recordlines=[]; // textline of entire record
+    const tag=ptk.defines[col.attrs.master];
     let choicecount=0;
     // console.time('filter');
     for (let field in choices) {
         choicecount+=choices[field].length;
     }
-
-    for (let i=0;i<col.ill.length;i++) {
+    for (let i=0;i<tag.linepos.length;i++) {
         let hit=0;
         for (let field in choices) {
             if (choices[field].length==0) continue;
@@ -342,15 +343,21 @@ export const runFilter=(col,choices,textstart=0)=>{
                 const key=choices[field][j];
                 if (~col[field][i].indexOf(key) ) hit++;
             }
-            
+        
             if (choicecount==hit) {
-                // console.log(col.ill[i])
-                out.push( col.ill[i]+textstart ); // linepos
+                items.push(i); 
+                recordlines.push(tag.linepos[i]);
+                recordlines.push(tag.linepos[i+1]?tag.linepos[i+1]:ptk.header.eot)
             }
         }
     }
-    // console.timeEnd('filter')
-    return out;
+    for (let i=0;i<items.length;i++) {
+        const t=tag.innertext.get(i);
+        if (!groupbytext[t] ) groupbytext[t]=0;
+        groupbytext[t]++;
+    }
+    const groups=fromObj(groupbytext , true)
+    return {items,recordlines,groups};
 }
 addTemplate('cm',{filterColumn:'manifest',
 parseChoice, stringifyChoice,humanChoice,

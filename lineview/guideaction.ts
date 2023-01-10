@@ -16,17 +16,30 @@ export class GuideAction extends Action{
 		const choices=ptk.template.parseChoice( action);
 
 		const col=ptk.columns[ptk.template.filterColumn];
-		const textstart=ptk.getSectionStart(col.attrs.textstart)||0;
-		const matchline=ptk.template.runFilter(col,choices,textstart);
+		const master=ptk.defines[col.attrs.master];
+		
+		let {items,recordlines,groups}=ptk.template.runFilter(ptk,col,choices);
+		await ptk.loadLines(recordlines);
 
-		await ptk.loadLines(matchline);
-
-		const items=matchline.map( line =>{
+		items=items.map( idx =>{
+			const line=master.linepos[idx];
 			const ck=ptk.getNearestChunk(line);
 			const text=ptk.getLine(line);
 			const lineoff=line-ck.line;
+			const record=[];
+			const recordend= master.linepos[idx+1];
+
+			for (let i=0;i<col.fieldnames.length;i++) {
+				const def=ptk.defines[col.fieldnames[i]];
+				if (!def) continue;
+				const at=bsearchNumber(def.linepos,line); //nearest record-field
+				if (def.linepos[at]<recordend) {
+					record.push(  def.linepos[at] );
+				}
+			}
 			if (!ck) return null;
-			return {chunkname:ck.name,text,line,ck,lineoff}
+
+			return {chunkname:ck.name,text,line,ck,lineoff, record}
 		}).filter(it=>!!it);
 		
 		this.ownerdraw={painter:'guide', data:{from:this.from, actionprefix,idx,

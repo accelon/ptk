@@ -11,7 +11,7 @@ export class Column {
 		this.fieldsdef=[];
 		this.attrs; //raw attributes in ^:<>
 		this.name='';
-		this.keys=null;  //keys, null if keytype==serial  or keytype==textline
+		this.keys=null;  //keys, null if keytype==serial 
 		this.primarykeys=opts.primarykeys||{};
 		this.onError=opts.onError;
 		this.typedef=opts.typedef;
@@ -66,7 +66,7 @@ export class Column {
 		
 		const typedef=text.split('\t') ; // typdef of each field , except field 0
 		this.createFields(typedef);
-		if (this.attrs.keytype=='serial' || this.attrs.keytype=='textline') {
+		if (this.attrs.keytype=='serial' ) {
 			this.keys=null;
 		} else {
 			this.keys=new StringArray(section.shift(),{sep:LEMMA_DELIMITER});  //local keys
@@ -123,7 +123,7 @@ export class Column {
 			allfields.push(fields);
 			line=sa.next();
 		}
-		if (attrs.keytype!=='serial'&&attrs.keytype!=='textline') {
+		if (attrs.keytype!=='serial') {
 			allfields.sort(alphabetically0);
 			skipFirstField=true;
 			this.keys=allfields.map(it=>it[0]);
