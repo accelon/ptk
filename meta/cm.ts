@@ -248,12 +248,16 @@ export const onLineText=(t,line)=>{
     }
     return t;
 }
-export const onChunkCaption=(chunkid,part)=>{
+const parseChunkId=chunkid=>{
     const l=chunkid.slice(0,2);
-    const z=chunkid.slice(2,5);
-    const h=chunkid.slice(5);
-    const part1=SickCauses['l'+l]+SickLocations[z]+'證';
-    const part2=SickSigns[h]+'候';
+    const z=chunkid.slice(3,5);
+    const h=chunkid.slice(6);
+    return {l,z,h};
+}
+export const onChunkCaption=(chunkid,part)=>{
+    const {l,z,h}=parseChunkId(chunkid);
+    const part1=SickCauses['l'+l]+SickLocations['z'+z]+'證';
+    const part2=SickSigns['h'+h]+'候';
     if (part==1) return part1;
     if (part==2) return part2;
     return part1+'|'+part2;
@@ -297,17 +301,17 @@ export const getMultiStateFilters=()=>{
 }
 
 
-export const stringifyChoice=(choices)=>{
+export const stringifyChoice=(choices,groupby=0,groupfilter='')=>{
     let symtom='',tounge='',pulse='';
     for (let key in choices) {
         if (key=='symtom') symtom=choices[key].join('');
         if (key=='tounge') tounge=choices[key].join('');
         if (key=='pulse') pulse=choices[key].join('');
     }
-    return symtom+'_'+tounge+'_'+pulse;
+    return symtom+'_'+tounge+'_'+pulse+'_'+groupby+'_'+groupfilter;
 }
 export const humanChoice=(choices)=>{
-    if (typeof choices=='string') choices=parseChoice(choices);
+    if (typeof choices=='string') [choices]=parseChoice(choices);
     let out='';
     for (let field in choices){
         if (choices[field].length) {
@@ -320,18 +324,64 @@ export const humanChoice=(choices)=>{
     return out;
 }
 export const parseChoice=(str:string)=>{
-    const  [_symtom,_tounge,_pulse]=str.split('_');
+    const  [_symtom,_tounge,_pulse,_groupby,_groupfilter]=str.split('_');
     const symtom=(_symtom||'').split(/([a-z]\d+)/).filter(it=>!!it)||[];
     const tounge=(_tounge||'').split(/([a-z]\d+)/).filter(it=>!!it)||[];
     const pulse=(_pulse||'').split(/([a-z]\d+)/).filter(it=>!!it)||[];
-    return {symtom,tounge,pulse }
+    const groupby=parseInt(_groupby)||0;
+    const groupfilter=_groupfilter;
+    return [ {symtom,tounge,pulse } , groupby, groupfilter];
 }
-export const runFilter=(ptk,col,choices)=>{
-    const items=[], groupbytext={};
-    const recordlines=[]; // textline of entire record
+const factorString=(code,groupby)=>{
+    if (groupby==1) {
+        return SickLocations['z'+code];
+    } else if (groupby==2) {
+        return SickCauses['l'+code]
+    } else if (groupby==3) {
+        const [m0,z,l]=code.match(/(\d+)z(\d+)/);
+        return SickLocations['z'+z]+SickCauses['l'+l];
+    } else if (groupby==4) {
+        return SickSigns['h'+code];
+    }
+    return ''
+}
+//1"病位",2"病因",2"證",3"候"];
+const groupBy=(items,chunks,groupby=1,groupfilter='')=>{
+    const obj={};
+    for (let i=0;i<items.length;i++) {
+        const ck= chunks[i]  ;
+        const {l,z,h} = parseChunkId(ck.id);
+        let gkey='';
+        if (groupby==1) gkey=z;
+        else if (groupby==2) gkey=l;
+        else if (groupby==3) gkey=l+'z'+z;
+        else if (groupby==4) gkey=h;
+        if (!obj[gkey]) obj[gkey]=0;
+        obj[gkey]++;
+    }
+    return fromObj(obj,(code,count)=>[factorString(code,groupby),count, code]);
+}
+const matchGroup=(ck,groupby,groupfilter)=>{
+    if (groupby && groupfilter) {
+        if (groupby==1) { 
+            return ~ck.id.indexOf('z'+groupfilter);
+        } else if (groupby==2) {
+            return ck.id.indexOf(groupfilter)==0;
+        } else if (groupby==3) {
+            return ~ck.id.indexOf(groupfilter);
+        } else if (groupby==4) {
+            return ~ck.id.indexOf('h'+groupfilter);
+        }
+    } return true;
+}
+export const runFilter=(ptk,col,opts={})=>{
+    const items=[], chunks=[]; // items tag.at , chunks:nearestChunk
+    const choices=opts.choices;
+    const groupby=opts.groupby;
+    const groupfilter=opts.groupfilter;
+
     const tag=ptk.defines[col.attrs.master];
     let choicecount=0;
-    // console.time('filter');
     for (let field in choices) {
         choicecount+=choices[field].length;
     }
@@ -343,23 +393,42 @@ export const runFilter=(ptk,col,choices)=>{
                 const key=choices[field][j];
                 if (~col[field][i].indexOf(key) ) hit++;
             }
-        
-            if (choicecount==hit) {
-                items.push(i); 
-                recordlines.push(tag.linepos[i]);
-                recordlines.push(tag.linepos[i+1]?tag.linepos[i+1]:ptk.header.eot)
+            if (hit*1.1<choicecount) continue;
+
+            const line=tag.linepos[i];
+            const ck=ptk.getNearestChunk(line);
+
+            if (groupby==0 && groupfilter) {
+                if (tag.innertext.get(i)!==groupfilter) continue;
+            } else {
+                if (!matchGroup(ck, groupby,groupfilter)) continue;
             }
+            items.push(i); 
+            chunks.push(ck);
         }
     }
-    for (let i=0;i<items.length;i++) {
-        const t=tag.innertext.get(i);
-        if (!groupbytext[t] ) groupbytext[t]=0;
-        groupbytext[t]++;
+    let groups=[],grouping={};
+    if (groupby) { //
+        groups=groupBy(items,chunks,groupby,groupfilter);
+    } else {
+        for (let i=0;i<items.length;i++) {
+            const t=tag.innertext.get(i);
+            if (!grouping[t] ) grouping[t]=0;
+            grouping[t]++;
+        }
+        //text as group filter
+        groups=fromObj(grouping , (text,count)=>[text,count,text]) ;
     }
-    const groups=fromObj(groupbytext , true)
-    return {items,recordlines,groups};
+    return {items,groups, mastertag:tag};
+}
+const groupStates=(format)=>{
+    if (format=='statebutton') {
+        return { "名":0,"位":1,"因":2,"證":3,"候":4}
+    } else {
+        return ["名","位","因","證","候"];
+    }
 }
 addTemplate('cm',{filterColumn:'manifest',
-parseChoice, stringifyChoice,humanChoice,
+parseChoice, stringifyChoice,humanChoice,groupStates,
 onLineText,onChunkCaption,getMultiStateFilters,runFilter});
 

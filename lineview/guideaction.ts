@@ -1,6 +1,7 @@
 import {Action,GUIDEACTIONPREFIX} from "./baseaction.ts";
 import {IAddress,usePtk} from '../basket/index.ts';
 import {bsearchNumber} from '../utils/bsearch';
+
 export class GuideAction extends Action{
 	constructor(addr:IAddress,depth=0){
 		super(addr,depth);
@@ -13,18 +14,17 @@ export class GuideAction extends Action{
 		const action=this.address.action.slice(1);
 		const idx=this.dividx;
 		const actionprefix=GUIDEACTIONPREFIX;
-		const choices=ptk.template.parseChoice( action);
+		const [choices,groupby,groupfilter]=ptk.template.parseChoice(action);
 
 		const col=ptk.columns[ptk.template.filterColumn];
 		const master=ptk.defines[col.attrs.master];
 		
-		let {items,recordlines,groups}=ptk.template.runFilter(ptk,col,choices);
-		await ptk.loadLines(recordlines);
+		let {items,groups}=ptk.template.runFilter(ptk,col,{choices,groupby,groupfilter});
 
 		items=items.map( idx =>{
 			const line=master.linepos[idx];
-			const ck=ptk.getNearestChunk(line);
-			const text=ptk.getLine(line);
+			const ck=ptk.getNearestChunk(line); 
+			const size=master.linepos[line+1]?master.linepos[line+1]:ptk.header.eot;
 			const lineoff=line-ck.line;
 			const record=[];
 			const recordend= master.linepos[idx+1];
@@ -33,13 +33,13 @@ export class GuideAction extends Action{
 				const def=ptk.defines[col.fieldnames[i]];
 				if (!def) continue;
 				const at=bsearchNumber(def.linepos,line); //nearest record-field
-				if (def.linepos[at]<recordend) {
+				if ( def.linepos[at]<recordend) {
 					record.push(  def.linepos[at] );
 				}
 			}
 			if (!ck) return null;
 
-			return {chunkname:ck.name,text,line,ck,lineoff, record}
+			return {chunkname:ck.name,line,size,ck,lineoff, record}
 		}).filter(it=>!!it);
 		
 		this.ownerdraw={painter:'guide', data:{from:this.from, actionprefix,idx,

@@ -178,15 +178,16 @@ not suitable for dictionary wordheads
 	getNearestChunk( line) {
 		const chunktag=this.defines.ck;
 		const booktag=this.defines.bk;
-		const at=this.getNearestTag(line,chunktag)-1;
-		if (at<0) return null;
+		const at=this.getNearestTag(line,chunktag);
+		if (at<1) return null;
 		const bkat=this.getNearestTag(line,booktag) - 1;
 		const bkid=booktag.fields.id.values[bkat];
+
 		return {bkid ,
-			at, id:chunktag.fields.id.values[at+1], 
+			at, id:chunktag.fields.id.values[at-1], 
 			bk:{id:bkid},
-			line:chunktag.linepos[at],
-			innertext: chunktag.innertext.get(at+1)}
+			line:chunktag.linepos[at-1],
+			innertext: chunktag.innertext.get(at-1)}
 	}
 	findClosestTag(typedef, key, value, from=0){
 		let at=typedef.fields[key].values.indexOf(value);
