@@ -379,7 +379,7 @@ export const runFilter=(ptk,col,opts={})=>{
     const choices=opts.choices;
     const groupby=opts.groupby;
     const groupfilter=opts.groupfilter;
-
+    
     const tag=ptk.defines[col.attrs.master];
     let choicecount=0;
     for (let field in choices) {
@@ -412,12 +412,13 @@ export const runFilter=(ptk,col,opts={})=>{
         groups=groupBy(items,chunks,groupby,groupfilter);
     } else {
         for (let i=0;i<items.length;i++) {
-            const t=tag.innertext.get(i);
+            const t=tag.innertext.get( items[i]);
             if (!grouping[t] ) grouping[t]=0;
             grouping[t]++;
         }
         //text as group filter
         groups=fromObj(grouping , (text,count)=>[text,count,text]) ;
+        groups.sort((a,b)=>b[1]-a[1])
     }
     return {items,groups, mastertag:tag};
 }
