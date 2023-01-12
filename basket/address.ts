@@ -128,7 +128,7 @@ export function captionOfAddress(address:string):string{
 	const out=[];
 	for (let i=0;i<eleidarr.length;i++) {
 		const [ele,id]=eleidarr[i];
-		if (!defines[ele]) return '';
+		if (!defines[ele] || !defines[ele].fields.id) return '';
 		const at=defines[ele].fields.id.values.indexOf(id);
 		out.push(defines[ele]?.innertext?.get(at));
 	}

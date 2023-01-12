@@ -1,9 +1,6 @@
 import {Action} from "./baseaction.ts";
 import {ACTIONPAGESIZE} from "./interfaces.ts";
 import {IAddress,usePtk} from '../basket/index.ts';
-import {plTrim,plContain} from '../fts/posting.ts';
-import {MAXPHRASELEN} from '../fts/constants.ts';
-import {fromObj,bsearchNumber} from '../utils/index.ts';
 import { calApprox} from '../lexicon/backref.ts';
 export class ApproxAction extends Action{
 	constructor(addr:IAddress,depth=0){
@@ -13,6 +10,9 @@ export class ApproxAction extends Action{
 		return this.lines[idx];
 	}
 	getApprox(ptk,tagname,id) {
+		if (ptk.template.getApprox) {
+			return ptk.template.getApprox(ptk,tagname,id);
+		}
 		const col=ptk.columns[tagname];
 		const at=col.findKey(id);
 		const members=col.fieldvalues[0][at];

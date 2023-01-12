@@ -1,5 +1,6 @@
 import {addTemplate} from '../compiler/template.ts'
 import { alphabetically,unique,fromObj } from '../utils/sortedarray.ts'
+import {bsearchNumber} from '../utils/bsearch.ts'
 /*
   病 Disease
   證: Sick = 病位Location + 病因Cause
@@ -233,7 +234,7 @@ export const encodeFactors=(words,fieldname)=>{
         const traits=encodeFactor(w,factors);
         if (traits.length) out+= traits.join('');
     }
-    const arr=unique(out.split(/([a-z]\d+)/).filter(it=>!!it)).sort(alphabetically)
+    const arr=unique(out.split(/([a-z]\d+)/).sort(alphabetically).filter(it=>!!it))
     return arr;
 }
     
@@ -429,7 +430,37 @@ const groupStates=(format)=>{
         return ["名","位","因","證","候"];
     }
 }
-addTemplate('cm',{filterColumn:'manifest',
+
+const factorSimilarity=(symtoms,str)=>{
+    const len=str.length/2 , count=symtoms.length;
+    let match=0;
+    for (let i=0;i<symtoms.length;i++) {
+        if (~str.indexOf(symtoms[i])) match++;
+    }
+    const r=(match*2)/(len+count);
+    if (r>1) console.log(match, len, count,symtoms,str)
+    return r;
+}
+const getApprox=(ptk,tagname,id)=>{
+    const out=[];
+    const at=bsearchNumber(ptk.defines.ill.linepos,id)-1; //id is line
+    const v=ptk.columns.manifest[tagname][at];
+    const values=v.split(/([a-z]\d)/).filter(it=>!!it);
+    for (let i=0;i<ptk.columns.manifest[tagname].length;i++) {
+        const str=ptk.columns.manifest[tagname][i];
+        if (!str || i==at) continue;
+        const similarity=factorSimilarity(values,str);
+        if (similarity>0.5) {
+            const illline= ptk.defines.ill.linepos[i];//line of ill, not symtom
+            const at2=bsearchNumber(ptk.defines[tagname].linepos,illline);
+            const id=i;//idx of ill
+            out.push( {  id,similarity,line: ptk.defines[tagname].linepos[at2] })
+        }
+        out.sort((a,b)=>b.similarity-a.similarity)
+    }
+    return out;
+}
+addTemplate('cm',{filterColumn:'manifest',getApprox,
 parseChoice, stringifyChoice,humanChoice,groupStates,
 onLineText,onChunkCaption,getMultiStateFilters,runFilter});
 
