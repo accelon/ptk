@@ -143,7 +143,6 @@ export class Pitaka extends LineBase {
 		const linepos=chunktag?.linepos||[];
 		const at=bsearchNumber(linepos, line)-1;
 		const lineoff=line-linepos[at];
-		let caption=chunktag?.innertext.get(at) ;
 		const id=chunktag?.fields?.id?.values[at];
 		const bkat=this.getNearestTag(line,booktag) - 1;
 		const bkid=booktag.fields.id.values[bkat] ;
@@ -153,15 +152,18 @@ if caption has leading - , trace back to fetch ancestor node,
 this is suitable for tree structure with less branches,
 not suitable for dictionary wordheads
 */
-
+		const caption=this.caption(id,chunktag?.innertext.get(at));
+		return {id, tagname:'ck', caption,lineoff , bkid};
+	}
+	caption(id,defv){
+		const chunktag=this.defines.ck;
+		let caption=defv;
 		const onChunkCaption=this.template.onChunkCaption;
 		if (!caption) {
 			caption=this.columns[chunktag?.column]?.keys?.get(id);			
 			if (!caption && onChunkCaption) caption=onChunkCaption(id);
 		}
-
-		const humanId= onChunkCaption?caption:id+'.'+caption;
-		return {id, tagname:'ck', caption,lineoff , bkid ,humanId};
+		return onChunkCaption?caption:id+'.'+caption;
 	}
 	getPostings(s:string){
 		const nPostings=this.inverted.nPostingOf(s);
@@ -182,12 +184,13 @@ not suitable for dictionary wordheads
 		if (at<1) return null;
 		const bkat=this.getNearestTag(line,booktag) - 1;
 		const bkid=booktag.fields.id.values[bkat];
-
-		return {bkid ,
-			at, id:chunktag.fields.id.values[at-1], 
+		const id=chunktag.fields.id.values[at-1];
+		const innertext=chunktag.innertext.get(at-1);
+		const caption=this.caption(id, innertext);
+		return {bkid ,caption, at, id ,
 			bk:{id:bkid},
 			line:chunktag.linepos[at-1],
-			innertext: chunktag.innertext.get(at-1)}
+			innertext}
 	}
 	findClosestTag(typedef, key, value, from=0){
 		let at=typedef.fields[key].values.indexOf(value);

@@ -34,8 +34,9 @@ export class TitleCountAction extends Action{
 				const line=chunktag.linepos[j];
 				const ck=ptk.getNearestChunk(line+1);
 				const address=makeChunkAddress(ck);
+				const caption=ck.caption;
 				if (items.length>=pagesize) break;
-				items.push({id:ck.id,bkid:ck.bkid, title, count:-1, address, line });
+				items.push({id:ck.id,bkid:ck.bkid,caption, title, count:-1, address, line });
 			}
 			
 			this.ownerdraw={painter:'titlecount', data:{ last:at2-at1,
@@ -52,7 +53,7 @@ export class TitleCountAction extends Action{
 			const pl=plTrim(postings[i], sectionfrom,sectionto);
             const [pllines]=plContain(pl,ptk.inverted.tokenlinepos);
             for (let j=0;j<pllines.length;j++) { //count hit in each chunk
-                const at=bsearchNumber(chunktag.linepos, pllines[j])-1;
+                const at=bsearchNumber(chunktag.linepos, pllines[j]);
                 if (!chunkcountobj[at]) chunkcountobj[at]=0;
                 chunkcountobj[at]++;
                 hitcount++;
@@ -72,8 +73,7 @@ export class TitleCountAction extends Action{
 			const chunk=it[0];
 			const ck=ptk.getNearestChunk(chunktag.linepos[chunk]);
             const address=makeChunkAddress(ck);
-            const title=chunktag.innertext.get(chunk);
-            return { id:ck.id,title, count,address }
+            return { id:ck.id, count,address ,caption:ck.caption,title:ck.caption}
         })
 
 		this.first=0;
