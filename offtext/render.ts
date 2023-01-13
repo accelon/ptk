@@ -97,7 +97,8 @@ export const renderOfftext=(linetext='', opts={})=>{
         const tag=ot.tags[i];
         // j<tag.choff+tag.width 的話， 零字長 class 無法作用
         // 整行標記之後 應有一半行空格，就不會塗到第一個字
-        for (let j=tag.choff;j<=tag.choff+tag.width;j++) {
+        const width=tag.width?tag.width:1;
+        for (let j=tag.choff;j<tag.choff+width;j++) {
             if (!tagsAt[j]) tagsAt[j]=[];
             tagsAt[j].push(i);
         }
@@ -113,7 +114,7 @@ export const renderOfftext=(linetext='', opts={})=>{
             }
         }
         if (hits && hits.length && phit<hits.length) {
-            if (ru.postingoffset>=hits[phit] &&  ru.postingoffset<hits[phit]+phraselength[phit]
+            if (ru.postingoffset>=hits[phit] &&  ru.postingoffset<=hits[phit]+phraselength[phit]
                 && ru.token.type>=TokenType.SEARCHABLE) {
                 ru.highlight=true;
             }

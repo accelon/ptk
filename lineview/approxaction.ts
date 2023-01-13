@@ -36,13 +36,13 @@ export class ApproxAction extends Action{
 		const similarity=items.map(it=> it.similarity);
         let lines=items.map(it=> it.line);
 
-        let till=this.till;
-		let from=this.from;
-		if (till==-1) till=this.from+ACTIONPAGESIZE;
+        let till=this.till || items.length;
+		let from=this.from||0;
+		if (till==-1) till=from+ACTIONPAGESIZE;
         this.first=0;
 		this.last=lines.length;
 		if (till>=lines.length) till=lines.length;
-		lines=lines.slice(from,till);
+		// lines=lines.slice(from,till);
 
         // console.log(this.from,this.last)
         this.ownerdraw={painter:'approx', data:{ last:this.last, samechunkline ,
