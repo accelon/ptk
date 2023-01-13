@@ -97,7 +97,7 @@ export class StringArray {
 			if (idx>lp && idx<lp2) {
 				out.push(at);
 			}
-			idx=this.buf.indexOf(infix,lp2+this.sep.length);
+			idx=this.buf.indexOf(infix,this.charpos[at]+this.sep.length);
 		}
 		this.middleCache[infix]=out;
 		return out;
