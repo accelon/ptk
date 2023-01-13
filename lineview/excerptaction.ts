@@ -36,11 +36,12 @@ export class ExcerptAction extends Action{
 			const pl=plTrim(postings[i], sectionfrom,sectionto);
 			const [pllines,lineshits]=plContain(pl,ptk.inverted.tokenlinepos,true);
 			const phraselen=phrases[i].length;
+			hitcount+=pl.length;
 			for (let j=0;j<pllines.length;j++) {
 				const line=pllines[j];
 				if (!lineobj[line]) lineobj[line]=[];
 				lineobj[line].push( ...lineshits[j].map(it=>it*MAXPHRASELEN + phraselen)  );
-				hitcount++;
+				
 				const at=bsearchNumber(chunklinepos, line);
 				if (!chunkobj[chunklinepos[at]]) chunkobj[ chunklinepos[at] ]=true;
 			}
