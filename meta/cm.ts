@@ -431,36 +431,40 @@ const groupStates=(format)=>{
     }
 }
 
-const factorSimilarity=(symtoms,str)=>{
-    const len=str.length/2 , count=symtoms.length;
+const factorSimilarity=(factors,str)=>{
+    const len=str.length/2 , count=factors.length;
     let match=0;
-    for (let i=0;i<symtoms.length;i++) {
-        if (~str.indexOf(symtoms[i])) match++;
+    for (let i=0;i<factors.length;i++) {
+        if (~str.indexOf(factors[i])) match++;
     }
     const r=(match*2)/(len+count);
-    if (r>1) console.log(match, len, count,symtoms,str)
+    // if (r>1) console.log(match, len, count,factors,str)
     return r;
 }
-const getApprox=(ptk,tagname,id)=>{
+export const similarFactors=(ptk,tagname,factors)=>{
     const out=[];
-    const at=bsearchNumber(ptk.defines.ill.linepos,id)-1; //id is line
-    const v=ptk.columns.manifest[tagname][at];
-    const values=v.split(/([a-z]\d)/).filter(it=>!!it);
     for (let i=0;i<ptk.columns.manifest[tagname].length;i++) {
         const str=ptk.columns.manifest[tagname][i];
-        if (!str || i==at) continue;
-        const similarity=factorSimilarity(values,str);
+        if (!str) continue;
+        const similarity=factorSimilarity(factors,str);
         if (similarity>0.5) {
             const illline= ptk.defines.ill.linepos[i];//line of ill, not symtom
             const at2=bsearchNumber(ptk.defines[tagname].linepos,illline);
             const id=i;//idx of ill
-            out.push( {  id,similarity,line: ptk.defines[tagname].linepos[at2] })
+            out.push( { i, id,similarity,line: ptk.defines[tagname].linepos[at2] })
         }
         out.sort((a,b)=>b.similarity-a.similarity)
     }
     return out;
 }
-addTemplate('cm',{filterColumn:'manifest',getApprox,
+export const getApprox=(ptk,tagname,id)=>{
+    const at=bsearchNumber(ptk.defines.ill.linepos,id)-1; //id is line
+    const v=ptk.columns.manifest[tagname][at];
+    const factors=v.split(/([a-z]\d)/).filter(it=>!!it);
+    const out=similarFactors(ptk,tagname,factors).filter(it=>it.i!==at);
+    return out;
+}
+addTemplate('cm',{filterColumn:'manifest',getApprox, similarFactors,
 parseChoice, stringifyChoice,humanChoice,groupStates,
 onLineText,onChunkCaption,getMultiStateFilters,runFilter});
 
