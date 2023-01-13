@@ -93,8 +93,8 @@ export class StringArray {
 		while (idx>-1) {
 			const at=this.at(idx);
 			const lp=at?this.charpos[at-1]:0;
-			const lp2=this.charpos[at];
-			if (idx>lp && idx<lp2-2) {
+			const lp2=this.charpos[at]-1-infix.length;
+			if (idx>lp && idx<lp2) {
 				out.push(at);
 			}
 			idx=this.buf.indexOf(infix,lp2+this.sep.length);
