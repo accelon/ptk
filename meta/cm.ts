@@ -22,6 +22,7 @@ export const tounge=[
     { prefix:'p',caption:"☘️",factors:["清,無","垢","膩,黏","剝,光"]}, //pattern
     { prefix:'h',caption:"🤑",factors:["乾,燥,糙,焦,少津,無津", "潤,滑,多津,有津,涎"]} // humidity
 ]
+
 export const pulse=[
     {prefix:'l',caption:"⚓",factors:["寸","關","尺"]}, //location
     {prefix:'t',caption:"👶",factors:["細"]},//thickness
@@ -37,7 +38,7 @@ export const symtom=[
     {prefix:'b',caption:'🧑',factors:["頭痛","頭暈","頭重","頭脹"]},
     {prefix:'c',caption:'😐',factors:["白","黃"],include:"面,臉"},
     {prefix:'d',caption:'🦵',factors:["冷","抽搐","顫,抖"],inluce:"手,足,肢"},
-    {prefix:'g',caption:'🤰',factors:["腹痛","腹脹","胸悶"]},
+    {prefix:'g',caption:'🤰',factors:["腹痛,腹疼","腹脹","胸悶"]},
     {prefix:'h',caption:'🐪',factors:["腰酸,腰痠","腰痛","背痛"]},
     {prefix:'e',caption:'❄️',factors:["寒,畏寒,惡寒","惡風"]},
     {prefix:'f',caption:'♨️',factors:["發熱,壯熱","少熱","寒熱"]},
@@ -360,7 +361,8 @@ const groupBy=(items,chunks,groupby=1,groupfilter='')=>{
         if (!obj[gkey]) obj[gkey]=0;
         obj[gkey]++;
     }
-    return fromObj(obj,(code,count)=>[factorString(code,groupby),count, code]);
+    return fromObj(obj,(code,count)=>[factorString(code,groupby),count, code])
+    .sort((a,b)=>b[1]-a[1]);
 }
 const matchGroup=(ck,groupby,groupfilter)=>{
     if (groupby && groupfilter) {

@@ -52,6 +52,9 @@ export const isPunc=(str:string)=>{
 export const trimPunc=(str:string)=>{
     return str.replace(/^[『「！。，：？]+/,'').replace(/[」？』。！：）｝〕；，]+$/,'');
 }
+export const removePunc=(str:string)=>{
+    return str.replace(/[！。、：；，？！（）《》｛｝〔〕『』「」]/g,'');
+}
 
 const openBrackets="(「『〔（︹︵︷【︻《〈︽︿﹁﹃﹙﹝‘“〝"; //closeBrackets are codepoint+1
 
