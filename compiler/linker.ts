@@ -21,7 +21,7 @@ export const makeLineBaser=async (sourcebuffers,compiler:ICompiler,contentGetter
 		alltagdefs.push(...tagdefs);
 		if (!lazy) lbaser.header.preload.push(name);
 		lbaser.append(processed,{name:name.replace('*',''),samepage,sourcetype});
-		if (errors.length) console.log(errors);
+		if (errors.length) console.table(errors);
 		let unindexablelines=textstart;
 		while (unindexablelines>0) {
 			indexer.addLine('');

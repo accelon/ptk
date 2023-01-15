@@ -5,6 +5,7 @@ export class NumberField extends Field {
 	constructor(name:string,def:Map){
 		super(name,def);
 		this.type='number';
+		this.name=name;
 		this.sortedIndex=null;
 	}
 	_sort(){
@@ -26,7 +27,7 @@ export class NumberField extends Field {
 		}
 		if (this.unique && n>=0) {
 			if (this.unique[value]) { //found in this line, cannot be zero
-				return [VError.NotUnique, value, this.unique[value] ]; //send ref line
+				return [VError.NotUnique, 'tag:'+this.name+', value:'+value, this.unique[value] ]; //send ref line
 			} else {
 				this.unique[value]=line; //first occurance
 			}

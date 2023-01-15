@@ -228,4 +228,14 @@ not suitable for dictionary wordheads
 		}
 		return -1
 	}
+	async fetchAddress(address:string) {
+		const range=this.rangeOfAddress(address);
+		await this.loadLines([range]);
+		const out=[];
+		for (let i=range[0];i<range[1];i++){
+			out.push(this.getLine(i))
+		}
+		return out;
+		
+	}
 }

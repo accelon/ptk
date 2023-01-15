@@ -15,12 +15,13 @@ const reservedAttributes={ //是指令不是屬性名,
 	type:true //name of painter
 }
 export class Typedef implements ITypedef {
-	constructor (attrs:Map, tagname:string, primarykeys:Map) {
+	constructor (attrs:Map, tagname:string, primarykeys:Map, typedefs:Map) {
 		this.fields={}; /* attribute might have validator */
 		this.mandatory={};  
 		this.tagname=tagname;
 		this.linepos=[];
 		this.innertext=[];
+		this.typedefs=typedefs;//to other typedefs
 		
 		for (let aname in attrs) {
 			const def=attrs[aname];
@@ -32,17 +33,25 @@ export class Typedef implements ITypedef {
 		this.attrs=attrs;
 		this.column='';  //backing column of this tag , see basket/pitaka.ts::init()
 	}
-	validateTag(offtext:IOfftext, tag:IOfftag , line:number, compiledLine:number , onError) {
-		let touched=false, newtag;
-		if (this.fields.id || this.attrs.savelinepos) { //auto save linepos if validating id
-			this.linepos.push(compiledLine+line);
+	resetChildTag(){
+		if (this.attrs.reset) {
+			const resetting=this.attrs.reset.split(',');
+			for (let i=0;i<resetting.length;i++) {
+				const childtypedef=this.typedefs[resetting[i]];
+				if (childtypedef) {
+					for (let fieldname in childtypedef.fields) {
+						const field=childtypedef.fields[fieldname];
+						if (field.unique) {
+							// console.log('reset',childtypedef.tagname,fieldname)
+							field.resetUnique();
+						}
+					}
+				}
+			}
 		}
-		if (this.fields.bracket) { // false to keep the bracket
-			let tagtext=offtext.tagText(tag);
-			if (this.fields.bracket!=='true') tagtext=removeBracket(tagtext);
-			this.innertext.push(tagtext);
-		}
-
+	}	
+	validateFields(tag,line,onError){
+		let touched=false,newtag;
 		for (let aname in tag.attrs) {
 			const V=this.fields[aname];
 			let value=tag.attrs[aname];
@@ -61,11 +70,25 @@ export class Typedef implements ITypedef {
 				touched=true;
 			}
 		}
+		return newtag
+	}
+	validateTag(offtext:IOfftext, tag:IOfftag , line:number, compiledLine:number , onError) {
+		if (this.fields.id || this.attrs.savelinepos) { //auto save linepos if validating id
+			this.linepos.push(compiledLine+line);
+		}
+		if (this.fields.bracket) { // false to keep the bracket
+			let tagtext=offtext.tagText(tag);
+			if (this.fields.bracket!=='true') tagtext=removeBracket(tagtext);
+			this.innertext.push(tagtext);
+		}
 		for (let aname in this.mandatory) {
 			if (!tag.attrs.hasOwnProperty(aname) && this.mandatory[aname]) {
 				onError(VError.Mandatory, aname);
 			}
 		}
+
+		this.resetChildTag();
+		const newtag=this.validateFields(tag,line,onError);
 		return newtag;
 	}
 	deserialize(section){

@@ -80,7 +80,7 @@ export class Compiler implements ICompiler {
 				if (this.typedefs[newtagname]) {
 					this.onError(VError.TypeRedef, newtagname)
 				} else {
-					this.typedefs[newtagname]= new Typedef(tag.attrs,newtagname,this.primarykeys);
+					this.typedefs[newtagname]= new Typedef(tag.attrs,newtagname,this.primarykeys, this.typedefs);
 				}
 				tagdefs.push(str);
 				str=null;  //no in source tag

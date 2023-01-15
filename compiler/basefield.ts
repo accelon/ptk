@@ -1,4 +1,5 @@
 import {IField} from './interfaces.ts'
+import {VError} from './error.ts';
 export class Field implements IField {
 	type:string
 	name:string
@@ -28,7 +29,17 @@ export class Field implements IField {
 		}
 		if (def.unique) this.unique={};
 	}
+	resetUnique(){
+		if (this.unique) this.unique={};
+	}
 	validate(value:string,line:number){
+		if (this.unique) {
+			if (this.unique[value]) { //found in this line, cannot be zero
+				return [VError.NotUnique, 'tag:'+this.name+', value:'+value, this.unique[value] ]; //send ref line
+			} else {
+				this.unique[value]=line; //first occurance
+			}
+		}
 		return [0,value];
 	}
 	find(){

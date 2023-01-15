@@ -1,8 +1,9 @@
 export const predefines={
 generic:
-`^:ak<id=unique bracket=false>
-^:bk<id=unique  bracket=false>
+`^:ak<id=unique bracket=false reset=ck>
+^:bk<id=unique bracket=false reset=n>
 ^:ck<id=unique bracket=false>
+^:n<id=unique_number>
 ^:ad
 ^:bc
 ^:ver<savelinepos=true>
@@ -12,7 +13,7 @@ cs:
 `^:ak<id=unique  bracket=false>
 ^:bk<id=unique>
 ^:ck<caption=chunk id=unique bracket=false>
-^:n
+^:n<id=unique_number>
 ^:h
 ^:sz
 ^:https
