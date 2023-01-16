@@ -1,31 +1,34 @@
 import { parseOfftext } from '../offtext/parser.ts';
-const PINSEP=':';
+const PINSEP='>',BACKPINSEP='<' ;
 export const posBackwardPin=(linetext,x,{wholeword,cjk})=>{
     if (x<1) return '';
     let len=2,occur=0; //start from 2 char for better looking of foot note
     if (cjk) len=1;
+
     if (wholeword) {
         while (x>len&&linetext.substr(x-len,1).match(/[\dA-Za-z]/)) len++;
         if (len>2) len--;
     }
+
     let at=linetext.indexOf(linetext.substr(x-len,len));
 
-    while (at!==x-len && x) {
-        if (!wholeword && linetext.substr(x-len,len).trim().length>4) break;
-        if (wholeword && !linetext.substr(x-len,1).match(/[\dA-Za-z]/) ) break;
-        if (cjk && !linetext.substr(x-len,1).match(/[\u3400-\u9fff]/) ) break;
-        len++;
-        at=linetext.indexOf(linetext.substr(x-len,len));
-    }
-    if (at!==x-len && linetext.charCodeAt(x)>0xff) len=2;
+    // while (at!==x-len && x) {
+    //     if (!wholeword && linetext.substr(x-len,len).trim().length>4) break;
+    //     if (wholeword && !linetext.substr(x-len,1).match(/[\dA-Za-z]/) ) break;
+    //     if (cjk && !linetext.substr(x-len,1).match(/[\u3400-\u9fff]/) ) break;
+    //     len++;
+    //     at=linetext.indexOf(linetext.substr(x-len,len));
+    // }
+    // if (at!==x-len && linetext.charCodeAt(x)>0xff) len=2;
+
 
     while (at!==x-len && at>-1) {
         occur++;
         at=linetext.indexOf(linetext.substr(x-len,len),at+1);
     }
     const pin=linetext.substring(x-len,x);
-    let pass=at===x-len&&linetext[x-len]!==PINSEP&&linetext.charCodeAt(x-len)>=0x20;
-    return pass?(occur?occur:'')+PINSEP+pin:null;
+    let pass=at===x-len&&linetext[x-len]!==BACKPINSEP&&linetext.charCodeAt(x-len)>=0x20;
+    return pass?(pin+(occur?BACKPINSEP+occur:'')):null;
 }
 export const pinPos=(_linetext,x,opts={})=>{
     const backward=opts.backward;
@@ -41,11 +44,11 @@ export const pinPos=(_linetext,x,opts={})=>{
     const cjk=opts.cjk;
     let pin='';
     if (linetext.charCodeAt(x)<0x20 || linetext[x]===PINSEP) {
-        console.log('cannot pin separator or control chars')
+        // console.log('cannot pin separator or control chars')
         return null;
     }
     if (x>linetext.length) {
-        console.log('beyond string boundary',x,linetext.length,linetext.substr(0,30));
+        // console.log('beyond string boundary',x,linetext.length,linetext.substr(0,30));
         return null;
     }
     
@@ -55,20 +58,24 @@ export const pinPos=(_linetext,x,opts={})=>{
     if (pin) return pin;
 
     let len=4,occur=0;
-    if (cjk) len=2;
+    if (cjk) len=1;
     let at=linetext.indexOf(linetext.substr(x,len));
-    while (x+len<linetext.length) {
-        if (!wholeword && linetext.substring(x,len).trim().length>3) break;
-        if (wholeword && len>3 && !linetext.substr(x+len,1).match(/[\dA-Za-zñṅḍṭṃṇāūḷī]/) ) break;
+
+    while (x+len<linetext.length && x>at) {
+        if (!wholeword && linetext.substring(x,len).trim().length>2) break;
+        if (wholeword && len>2 && !linetext.substr(x+len,1).match(/[\dA-Za-zñṅḍṭṃṇāūḷī]/) ) break;
         len++;
         at=linetext.indexOf(linetext.substr(x,len));
     }
+
     // console.log(linetext.substr(x,len),len,linetext.substr(x+len,1), linetext.substr(x,len+1))
+    
     if (at!==x && linetext.charCodeAt(x)>0xff
     &&linetext.charCodeAt(x+1)>0xff && cjk) {
         len=2;//shorter pin for non-ascii
         at=linetext.indexOf(linetext.substr(x,len));
     }
+
     // if (at!==x && linetext.substr(x,len).trim().length==0) len=; 
       //如果是很長的空白(可能是一連串標點)，必須弄短，否則會找不到
     while (at!==x && at>-1 && at<linetext.length) {

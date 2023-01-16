@@ -138,3 +138,15 @@ export const sortNumberArray=(arr:number[])=>{
     const newarr=value_id.map(([v,idx])=>v);
     return [newarr, indexes];
 }
+
+export const gini=sorted_arr=>{
+    let sum1=0,sum2=0;
+    for (let i=0;i<sorted_arr.length;i++){
+        let value=sorted_arr[i];
+        sum1 += ((2 * (i + 1)) - sorted_arr.length - 1) * value;
+        sum2 += value;
+    }
+    const perfect= (Math.pow(sorted_arr.length, 2) * (sum2 / sorted_arr.length));
+    const g=sum1 / perfect;
+    return g;
+}
