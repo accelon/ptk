@@ -5,6 +5,7 @@ import {dobuild} from './build.js';
 import * as PTK from '../nodebundle.cjs';
 import {onelexicon, text_lexicon, lexicons} from './textutils.js'
 import nGram from './ngram.js';
+import {xmltag} from './xml.js';
 import Path from 'path';
 
 await PTK.nodefs;
@@ -52,13 +53,11 @@ const build=opts=>{
     if (fs.existsSync(opts.indir+'accelon22.css')) {
         files.push('accelon22.css')
     }
-
     if (!PTK.validPtkName(opts.ptkname)) {
         console.log(cyan(opts.ptkname),'does not match',PTK.regPtkName);
         return;
     }
-    console.log('indir',opts.indir)
-
+    console.log('indir',opts.indir);
 	if (files.length) {
 		dobuild(files,opts);
 	} else {
@@ -85,7 +84,7 @@ export const intersect=()=>lexicons('intersect',PTK.lexiconIntersect);
 export const union=()=>lexicons('union', PTK.lexiconUnion);
 export const xor=()=>lexicons('xor', PTK.lexiconXor);
 
-const prcoess_ngram=(lines,fn)=>{
+const process_ngram=(lines,fn)=>{
     const gram=parseInt(arg2)||2;
     let stockgram=null;
     if (gram>2) {
@@ -102,7 +101,7 @@ const prcoess_ngram=(lines,fn)=>{
     
     return result;
 }
-const ngram=()=>onelexicon('ngram'+(parseInt(arg2)||2), prcoess_ngram);
+const ngram=()=>onelexicon('ngram'+(parseInt(arg2)||2), process_ngram);
 
 const help=()=>{
     console.log(yellow('command 指令'), cyan('mandatory 必要'),magenta('optional 选择性'))
@@ -121,15 +120,15 @@ const help=()=>{
     console.log('$',yellow('ptk dedup    '),cyan('file'), 'find out duplicated item 找出重复词');
     console.log('$',yellow('ptk listwords'),cyan('file'),magenta('lexicon'), 'list words found in lexicon 列出文本中出现的词');
     console.log('$',yellow('ptk ngram'),cyan('file'),magenta('gram=2'), 'build ngram 找常見詞');
-
     console.log(underline('Lexicon Processing 词典处理'));
     console.log('$',yellow('ptk union    '),cyan('lexicon1'),cyan('lexicon2'),magenta('...'),'merge all words in lexicons 词典的联集')
     console.log('$',yellow('ptk intersect'),cyan('lexicon1'),cyan('lexicon2'),magenta('...'),'find out common words 词典的交集')
     console.log('$',yellow('ptk xor      '),cyan('lexicon1'),cyan('lexicon2'),magenta('...'),'find out exclusive words 词典的相斥集(非共有)')
+    console.log('$',yellow('ptk xmltag file [outdir] [pintag=p]'),cyan('file'),'split xml into raw tag and plain text');
 }
 
 try {
-    await ({'--help':help,'-h':help,ptk,js,com,dedup,unique,listwords,union,ngram,intersect,xor})[cmd](arg);
+    await ({'--help':help,'-h':help,ptk,js,com,dedup,unique,listwords,union,ngram,intersect,xor,xmltag})[cmd](arg);
 
 } catch(e) {
     console.log( red('error running command'),cmd)

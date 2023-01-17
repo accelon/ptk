@@ -66,7 +66,7 @@ export const filesFromPattern=(pat,rootdir='')=>{
     const out=[];
     for (let fn in outfiles){
         if (fs.statSync(rootdir+fn).isDirectory()) {
-            const files=fs.readdirSync(rootdir+fn).map(f=>fn+'/'+f);
+            const files=fs.readdirSync(rootdir+fn).map(f=>fn+ (fn.endsWith('/')?'':'/')+f);
             out.push(...files);
         } else {
             out.push(fn);

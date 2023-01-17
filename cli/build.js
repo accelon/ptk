@@ -18,7 +18,9 @@ export const dobuild=async (files, opts={})=>{
 	let  css='';
 	const compiler=new Compiler();
 	const getFileContent=i=>{
-		return {text:fs.readFileSync(indir+sources[i].name,'utf8')};
+		let text=fs.readFileSync(indir+sources[i].name,'utf8');
+		if (text.indexOf('\r')) text=text.replace(/\r?\n/g,'\n').replace(/\r/g,'\n');
+		return {text};
 	}
 	for (let i=0;i<files.length;i++) {
 		const name=files[i];
@@ -26,7 +28,8 @@ export const dobuild=async (files, opts={})=>{
 			css=fs.readFileSync(indir+name,'utf8');
 			continue;
 		}
-		const text=fs.readFileSync( indir+name, 'utf8');
+		let text=fs.readFileSync( indir+name, 'utf8');
+		if (text.indexOf('\r')) text=text.replace(/\r?\n/g,'\n').replace(/\r/g,'\n');
 		if (!text.trim()) {
 			console.log('empty file',name);
 			continue;
