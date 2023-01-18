@@ -124,7 +124,7 @@ const help=()=>{
     console.log('$',yellow('ptk union    '),cyan('lexicon1'),cyan('lexicon2'),magenta('...'),'merge all words in lexicons 词典的联集')
     console.log('$',yellow('ptk intersect'),cyan('lexicon1'),cyan('lexicon2'),magenta('...'),'find out common words 词典的交集')
     console.log('$',yellow('ptk xor      '),cyan('lexicon1'),cyan('lexicon2'),magenta('...'),'find out exclusive words 词典的相斥集(非共有)')
-    console.log('$',yellow('ptk xmltag file [outdir] [pintag=p]'),cyan('file'),'split xml into raw tag and plain text');
+    console.log('$',yellow('ptk xmltag file [outdir]'),cyan('file'),'split xml into raw tag and plain text');
 }
 
 try {

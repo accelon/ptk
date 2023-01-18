@@ -1,5 +1,5 @@
 import {onTextWithInserts,onOpen,onClose,DOMFromString,xpath,walkDOMOfftext} from '../xml/index.ts';
-
+import { nullify_cbeta } from './nullify_cbeta.js';
 const buildCharmap=(charDecl)=>{
     const res={};
     if (!charDecl)return res;
@@ -104,4 +104,4 @@ export const translatePointer=str=>{
     return ''
 }
 
-export const meta_cbeta={translatePointer, parseFile,parseBuffer,buildCharmap,onOpen,onClose};
+export const meta_cbeta={translatePointer, parseFile,parseBuffer,buildCharmap,onOpen,onClose,nullify:nullify_cbeta};

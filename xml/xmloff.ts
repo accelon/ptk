@@ -2,7 +2,7 @@ import {DOMFromString,walkDOM} from './dom.ts'
 import {gini,fromObj} from '../utils/sortedarray.ts';
 import {toBase26} from '../utils/base26.ts'
 import {pinPos} from '../align/pinpos.ts';
-export const parseTEI=(content:string)=>{
+export const peelTEI=(content:string)=>{
     let offset=0,txt='',tagcount=0, pinoffset=0,pinid='';
     let pboffset=0,pbid='*',pbpincount=0;
     const tree=DOMFromString(content);
@@ -63,7 +63,7 @@ export const parseTEI=(content:string)=>{
     
     return [txt,tags,stat];
 }
-export const parseXML=(content:string,ctx={})=>{
+export const peelXML=(content:string,ctx={})=>{
     let offset=0,txt='',tagcount=0;
     const tree=DOMFromString(content);
     const tags=[];
