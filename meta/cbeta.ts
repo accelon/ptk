@@ -1,5 +1,5 @@
 import {onTextWithInserts,onOpen,onClose,DOMFromString,xpath,walkDOMOfftext} from '../xml/index.ts';
-import { nullify_cbeta } from './nullify_cbeta.js';
+import { nullify_cbeta } from './nullify_cbeta.ts';
 const buildCharmap=(charDecl)=>{
     const res={};
     if (!charDecl)return res;
