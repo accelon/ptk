@@ -1,19 +1,6 @@
 import {onTextWithInserts,onOpen,onClose,DOMFromString,xpath,walkDOMOfftext} from '../xml/index.ts';
 import { nullify_cbeta } from './nullify_cbeta.ts';
-const buildCharmap=(charDecl)=>{
-    const res={};
-    if (!charDecl)return res;
-    for (let i=0;i<charDecl.children.length;i++) {
-        const char=charDecl.children[i];
-        if (!char.attrs)continue;
-        const id=char.attrs['xml:id'];
-        const uni=xpath(char,'mapping');
-        if (uni&& uni.attrs.type=='unicode' && typeof uni.children[0]=='string') {
-            res[id]= String.fromCodePoint(parseInt( uni.children[0].substr(2),16));
-        }
-    }
-    return res;
-}
+import {createChunkId_cbeta,insertTag_cbeta,offGen_cbeta,buildCharMap_cbeta} from './offtag_cbeta.ts';
 const fixJuanT=(bkno,juan,sutraline)=>{
     let bk='';
     if (juan===1) {
@@ -50,7 +37,7 @@ const parseBuffer=(buf:string,fn='',ctx)=>{
     ctx.rawContent=buf;
     const el=DOMFromString(buf);
     const body=xpath(el,'text/body');
-    const charmap=buildCharmap(xpath(el,'teiHeader/encodingDesc/charDecl'));
+    const charmap=buildCharMap_cbeta(el);
 
     let m=fn.match(/n([\dabcdefABCDEF]+)_(\d+)/);
     let bk='',bkno='',chunk='';
@@ -104,4 +91,9 @@ export const translatePointer=str=>{
     return ''
 }
 
-export const meta_cbeta={translatePointer, parseFile,parseBuffer,buildCharmap,onOpen,onClose,nullify:nullify_cbeta};
+export const meta_cbeta={translatePointer, parseFile,parseBuffer,onOpen,onClose,
+    createChunkId:createChunkId_cbeta,
+    insertTag:insertTag_cbeta,
+    offGen:offGen_cbeta,
+    buildCharMap:buildCharMap_cbeta,
+    nullify:nullify_cbeta};
