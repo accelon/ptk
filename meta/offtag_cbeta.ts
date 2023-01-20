@@ -1,20 +1,18 @@
+
 import {xpath} from '../xml/dom.ts';
 export const createChunkId_cbeta=(arr)=>{
     const lb={}, p={};
-    if (!Array.isArray(arr)) arr=[arr];
     for (let i=0;i<arr.length;i++) {
-        const idarr=arr[i];
-        for (let key in idarr) {
-            if (key.startsWith('p')) {
-                p[key]=idarr[key];
+        const [id,tag,caption]=arr[i];
+        const insert=tag?(tag+(caption?'【'+caption+'】':'')):caption;
+        if (id.length>11) { 
+            p[id]=insert;
+        } else { //無字元位址
+            const at=id.indexOf('#');
+            if (~at) {
+                lb[id.slice(0,at)]=[insert,id.slice(at+1)]
             } else {
-                let id=idarr[key];
-                const at=key.indexOf('#');
-                if (~at) {
-                    lb[key.slice(0,at)]=[id,key.slice(at+1)]
-                } else {
-                    lb[key]=id;
-                }
+                lb[id]=insert;
             }
         }
     }
@@ -41,8 +39,8 @@ export const insertTag_cbeta=(txt,tags,chunkidarr)=>{
             vol=attrs['xml:id'].slice(0,3);
         } else if (name==='p' && _attrs) {
             const attrs=JSON.parse(_attrs);
-            const id=attrs['xml:id'];
-            const _ckid=chunkid.p[id];
+            const id=attrs['xml:id']||'';            
+            const _ckid=chunkid.p[id.slice(1)];
             if (_ckid) { //此處加入新tag
                 inserttag=_ckid;
                 insertoffset=offset;
@@ -64,6 +62,13 @@ export const insertTag_cbeta=(txt,tags,chunkidarr)=>{
                 } else if (typeof _ckid=='string') { //文字型，在開頭
                     inserttag=_ckid;
                     insertoffset=offset;
+                    const preveol=txt.charAt(offset-1);//上一行的結尾
+                    if (preveol!=='。') { //用最後一個出現的。作為起點
+                        const at=txt.indexOf('。',offset);
+                        if (~at && at>offset && offset+19>at) {
+                            insertoffset=at+1;
+                        }                       
+                    }
                 }
             }
         }
@@ -76,12 +81,10 @@ export const offGen_cbeta=(txt,tags,charmaps)=>{
     let offset=0,prevoff=0,started=false,hide=false;
     for (let i=0;i<tags.length;i++) {
         const [type, ntag, name,dist, _attrs]=tags[i];
-        offset+=dist;
-        
+        offset+=dist;        
         if (started) {
             const t=txt.slice(prevoff,offset);
             if (!hide) out.push(t);
-
             if (type=='^') {
                 if (name.startsWith('^')) out.push(name);
                 else out.push('\n^ck#'+name+'\n');
@@ -99,23 +102,34 @@ export const offGen_cbeta=(txt,tags,charmaps)=>{
     }
     return out.join('')
         .replace(/\[cf[A-Za-z\d_]+\]/g,'')
-        .replace(/\[mc_([A-Za-z\d_]+)\]/g,(m,mc)=>charmaps[mc])
+        .replace(/\[mc_([A-Za-z\d_]+)\]/g,(m0,mc)=>{
+            const m=charmaps[mc]
+            if (!m) {
+                console.log('cannot replace CBxxx',mc);
+            }
+            return m;
+        })
         .replace(/([！。？][」])/g,"$1\n")
         .replace(/。([^』」])/g,"。\n$1")
+        .replace(/([：；，])([一二三四五六七八九十])([，、])/g,"$1\n$2$3")
         .replace(/ *\n+/g,'\n').trim()
 }
 
-
+export const StockCharMap_cbeta={
+    'CB01647':'︵𮒻至壬︶',
+}
 export const buildCharMap_cbeta=tree=>{
-    const out={};
+    const out=StockCharMap_cbeta;
     const charDecl=xpath(tree,'teiHeader/encodingDesc/charDecl');
-    for (let i=0;i<charDecl.children.length;i++) {
+
+    for (let i=0;i<charDecl?.children.length;i++) {
         const item=charDecl.children[i];
         if (item.name=='char') {
             const id=item.attrs['xml:id'];
             for (let j=0;j<item.children.length;j++){
                 const m=item.children[j];
-                if (m.name=='mapping' && m.attrs?.type=="unicode") {
+                if (m.name=='mapping' &&
+                ( m.attrs?.type=="unicode"|| m.attrs?.type=='normal_unicode')) {
                     const code=parseInt('0x'+m.children[0].slice(2),16);
                     const c=String.fromCodePoint( code);
                     out[id]=c

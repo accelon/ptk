@@ -1,6 +1,7 @@
 import {onTextWithInserts,onOpen,onClose,DOMFromString,xpath,walkDOMOfftext} from '../xml/index.ts';
 import { nullify_cbeta } from './nullify_cbeta.ts';
-import {createChunkId_cbeta,insertTag_cbeta,offGen_cbeta,buildCharMap_cbeta} from './offtag_cbeta.ts';
+import {createChunkId_cbeta,insertTag_cbeta,offGen_cbeta,
+    StockCharMap_cbeta,buildCharMap_cbeta} from './offtag_cbeta.ts';
 const fixJuanT=(bkno,juan,sutraline)=>{
     let bk='';
     if (juan===1) {
@@ -96,4 +97,5 @@ export const meta_cbeta={translatePointer, parseFile,parseBuffer,onOpen,onClose,
     insertTag:insertTag_cbeta,
     offGen:offGen_cbeta,
     buildCharMap:buildCharMap_cbeta,
+    StockCharMap:StockCharMap_cbeta,
     nullify:nullify_cbeta};
