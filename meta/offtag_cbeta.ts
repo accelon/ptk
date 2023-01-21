@@ -86,8 +86,8 @@ export const offGen_cbeta=(txt,tags,charmaps)=>{
             const t=txt.slice(prevoff,offset);
             if (!hide) out.push(t);
             if (type=='^') {
-                if (name.startsWith('^')) out.push(name);
-                else out.push('\n^ck#'+name+'\n');
+                if (name.match(/^[a-z]/)) out.push('\n^ck#'+name+'\n');
+                else out.push(name);//as it is
             }            
         }
         if (name=='body') {
