@@ -152,18 +152,44 @@ if caption has leading - , trace back to fetch ancestor node,
 this is suitable for tree structure with less branches,
 not suitable for dictionary wordheads
 */
-		const caption=this.caption(id,chunktag?.innertext.get(at));
+		const caption=this.caption(at);
 		return {id, tagname:'ck', caption,lineoff , bkid};
 	}
-	caption(id,defv){
+	getCaption(at:Number){
 		const chunktag=this.defines.ck;
-		let caption=defv;
+		let caption=chunktag?.innertext.get(at);
+		const id=chunktag?.fields?.id?.values[at];
 		const onChunkCaption=this.template.onChunkCaption;
 		if (!caption) {
-			caption=this.columns[chunktag?.column]?.keys?.get(id);			
+			caption=this.columns[chunktag?.column]?.keys?.get(at);		
 			if (!caption && onChunkCaption) caption=onChunkCaption(id);
 		}
-		return onChunkCaption?caption:id+'.'+caption;
+		return caption;
+	}
+	caption(at:Number){
+		//return onChunkCaption?caption:id+'.'+caption;
+		let caption=this.getCaption(at);
+		let depth=0;
+		while (caption && caption.endsWith('-')) {
+			depth++;
+			caption=caption.slice(0,caption.length-1)
+		}
+		let at2=at, parents=[] ;
+		while (at2>0 && depth) {
+			at2--;
+			const par=this.getCaption(at2).split(/[- ]/);
+			const pdepth=par.length;
+			while (!par[par.length-1]) par.pop();
+			if (pdepth-1>depth ) { //比目前的深，無法取得父節點
+
+			} else if (par.length>1 || pdepth==1){
+				while (par.length&&depth) {
+					parents.unshift('-'+par.pop());
+					depth--;
+				}
+			}
+		}
+		return caption+ parents.join('');
 	}
 	getPostings(s:string){
 		const nPostings=this.inverted.nPostingOf(s);
@@ -177,20 +203,41 @@ not suitable for dictionary wordheads
 		const at=bsearchNumber(linepos,line);
 		return (line<linepos[linepos.length-1])?at :at+1;
 	}
-	getNearestChunk( line) {
+	getNearestChunk( line:Number) {
+		const chunktag=this.defines.ck;
+		const at=this.getNearestTag(line,chunktag)-1;
+		return this.getChunk(at);
+	}
+	getChunk(at:Number){
 		const chunktag=this.defines.ck;
 		const booktag=this.defines.bk;
-		const at=this.getNearestTag(line,chunktag);
-		if (at<1) return null;
+		if (at<0) return null;
+		if (at>=chunktag.fields.id.values.length) return null;
+
+		const line=chunktag.linepos[at];
 		const bkat=this.getNearestTag(line,booktag) - 1;
 		const bkid=booktag.fields.id.values[bkat];
-		const id=chunktag.fields.id.values[at-1];
-		const innertext=chunktag.innertext.get(at-1);
-		const caption=this.caption(id, innertext);
-		return {bkid ,caption, at, id ,
+
+		const id=chunktag.fields.id.values[at];
+		const innertext=chunktag.innertext.get(at);
+		const caption=this.caption(at);
+		return {bkid ,caption, at:at+1, id ,
 			bk:{id:bkid},
-			line:chunktag.linepos[at-1],
+			line:chunktag.linepos[at],
 			innertext}
+	}
+	getNeighborChunk(at:Number){
+		const chunktag=this.defines.ck;
+		const idv=chunktag.fields.id.values;
+		let from=at-2, till=at+2;
+		if (from<0) from=0;
+		if (till>=idv.length) till=idv.length-1;
+		const out=[];
+		for (let i=from;i<=till;i++) {
+			const ck=this.getChunk(i);
+			if(ck) out.push(ck);
+		}
+		return out;
 	}
 	findClosestTag(typedef, key, value, from=0){
 		let at=typedef.fields[key].values.indexOf(value);
