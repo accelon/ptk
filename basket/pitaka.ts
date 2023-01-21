@@ -177,7 +177,7 @@ not suitable for dictionary wordheads
 		let at2=at, parents=[] ;
 		while (at2>0 && depth) {
 			at2--;
-			const par=this.getCaption(at2).split(/[- ]/);
+			const par=this.getCaption(at2).split(/[- ]+/);
 			const pdepth=par.length;
 			while (!par[par.length-1]) par.pop();
 			if (pdepth-1>depth ) { //比目前的深，無法取得父節點
