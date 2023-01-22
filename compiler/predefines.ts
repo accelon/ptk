@@ -8,6 +8,8 @@ generic:
 ^:bc
 ^:ver<savelinepos=true>
 ^:f<id=number>
+^:sponsor<savelinepos=true>
+^:https<bracket=false onclick=gourl>
 ^:fn<id=number>`,
 cs:
 `^:ak<id=unique  bracket=false>
@@ -16,6 +18,6 @@ cs:
 ^:n<id=unique_number>
 ^:h
 ^:sz
-^:https
+^:https<bracket=false onclick=gourl>
 `
 }

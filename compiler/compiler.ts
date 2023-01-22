@@ -137,6 +137,9 @@ export class Compiler implements ICompiler {
 
 		if (sourcetype===SourceType.TSV) {
 			const [text,tags]=parseOfftext(firstline);
+			// if (!tags.length) {
+			// 	throw "invalid tsv, first line must be ^:"
+			// }
 			const attrs=tags[0].attrs;
 			const typedef=text.split('\t') ; // typdef of each field , except field 0
 			const columns=new Column( {typedef, primarykeys:this.primarykeys ,onError:this.onError.bind(this) } );

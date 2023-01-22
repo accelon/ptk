@@ -36,6 +36,7 @@ export class Pitaka extends LineBase {
 		this.inlineNote=inlineNote;
 		this.footNoteAddress=footNoteAddress;
 		this.footNoteByAddress=footNoteByAddress;
+		this.taggedLines={};
 
 		this.rowOf=rowOf;
 		this.inverted=null;

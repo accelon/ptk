@@ -70,13 +70,14 @@ async function loadLines(lva, noparallel=false){
 
 			const closable=(((edge==1||edge==3) ) || !divisions[i].diggable);
 			
-			const sponser=closable&&from==0?getSponsor(ptk, lines[j]):''
+			const sponsor=closable&&from==0?getSponsor(ptk, lines[j]):''
+			
 			//show remain button on last line
 			//todo , do not show on left part of splited division
 			const highlight= highlightline-divisions[i].from == j   ; //relative to begining of chunk
 
 			segment.push({seq,idx:j==0?i:-1,ptkname, key:ptkname+':'+(lines[j]), 
-				line:lines[j],highlight,text, depth, edge,closable,sponser});
+				line:lines[j],highlight,text, depth, edge,closable,sponsor});
 			seq++;
 		}
 		out.push(...segment);

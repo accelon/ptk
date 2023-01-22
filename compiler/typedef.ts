@@ -121,7 +121,8 @@ export class Typedef implements ITypedef {
 	}
 	serialize(){
 		const attrs=[],out=[];
-		if (this.linepos.length) {
+		if (this.linepos.length || this.fields.bracket) { 
+			//if innertext exists , must pack linepos even if empty
 			out.push(packIntDelta(this.linepos));
 		}
 		if (this.fields.bracket) {

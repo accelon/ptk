@@ -5,12 +5,15 @@ Accelon 的 backend
 請用 [Accelon22](https://gitbub.com/accelon/accelon22) 的 install-dev.cmd 安裝。
 找不到 `ptk`  指令，請到 ptk 所在目錄，執行 `npm i -g .` 
 
+## 程式更新
+並確保C:\Users\User\AppData\Roaming\npm\node_modules\ptk 是一個連到 ~/ptk 的JUNCTION
+
 
 ## 基本標記
 [基礎標記](basicofftag.md)
 
 ## 配合 .js 程式使用
-執行 build-cjs.cmd，產生 nodebundle.cjs ，供轉檔程式 (gen.js)使用，每次更新都要執行一次。
+因為 nodejs 無法直接執行 typescript ，執行 build-cjs.cmd，產生 nodebundle.cjs ，供轉檔程式 (gen.js)使用，每次更新都要執行一次。
 
 ## 基本指令
 ### 製作 js 版資料庫
