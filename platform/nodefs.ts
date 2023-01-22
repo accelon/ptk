@@ -100,5 +100,13 @@ export const deepReadDir = async (dirPath) => await Promise.all(
   })
 );
 
-
+export const  fetchFile=async (url)=>{
+    const at=url.lastIndexOf('/')
+    const fn=url.slice(at+1);
+    if (!fs.existsSync(fn)) {
+        const k=await fetch(url);
+        const content=await k.arrayBuffer();
+        writeChanged(fn,Buffer.from(content,'utf8'),true);
+    }    
+}
 export {nodefs};
