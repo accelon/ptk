@@ -1,6 +1,6 @@
 ﻿#!/usr/bin/env node
 import * as colors from './colors.cjs'; // lukeed/kleur
-const {blue,yellow,red,cyan,underline,magenta} = colors;
+const {blue,yellow,red,cyan,underline,magenta,green} = colors;
 import {dobuild} from './build.js';
 import * as PTK from '../nodebundle.cjs';
 import {onelexicon, text_lexicon, lexicons} from './textutils.js'
@@ -125,6 +125,9 @@ const help=()=>{
     console.log('$',yellow('ptk intersect'),cyan('lexicon1'),cyan('lexicon2'),magenta('...'),'find out common words 词典的交集')
     console.log('$',yellow('ptk xor      '),cyan('lexicon1'),cyan('lexicon2'),magenta('...'),'find out exclusive words 词典的相斥集(非共有)')
     console.log('$',yellow('ptk xmltag file [outdir]'),cyan('file'),'split xml into raw tag and plain text');
+
+    console.log(red('\nHappy Chinese New Year'));
+    console.log('PTK-CLI ver',green('2023.1.22'));
 }
 
 try {
