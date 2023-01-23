@@ -109,27 +109,28 @@ const help=()=>{
     console.log(cyan('file'),'plain text file in utf8 ，纯文本');
     console.log(cyan('lexicon'),'plain text file in utf8, one lemma per line 词典文本，一行一词');
     console.log(magenta('ptkname'),'a-z only, no number and _ 限英文小写字母');
-    console.log('src file in 源文件在', cyan('ptkname.offtext') ,'or',cyan('ptkname.src'));
-    console.log('if ptkname is missing, get source files from cwd and output to parent directory');
-    console.log('缺少ptkname 则从当前目彔获取源文件');
+    console.log('src file in 源文件在', cyan('ptkname.offtext') ,'or',cyan('ptkname.src'),'or',cyan('off'));
     console.log(underline('Making Pitaka 制作'));
-    console.log('$',yellow('ptk ptk '),magenta('ptkname'), 'pack into a zip file   打包成zip文件',cyan('ptkname.ptk'))
-    console.log('$',yellow('ptk js '),magenta('ptkname'), '*.js files output to   输出js文件到 ',cyan('ptkname'))
+    console.log('$',yellow('ptk ptk '),magenta('ptkname'), 'pack into a ptk file(zip)   打包成ptk(zip)文件',cyan('ptkname.ptk'))
+    console.log('$',yellow('ptk js  '),magenta('ptkname'), '*.js files output to   输出js文件到 ',cyan('ptkname'))
     //console.log('$',yellow('ptk com [lstfile]'),magenta('ptkname'),  'stand-alone executable 制造自足程序 ',cyan('ptkname.com'))
     console.log(underline('Text Processing 文本处理'));
     console.log('$',yellow('ptk unique   '),cyan('file'), 'remove duplicated item 去重复词');
     console.log('$',yellow('ptk dedup    '),cyan('file'), 'find out duplicated item 找出重复词');
     console.log('$',yellow('ptk listwords'),cyan('file'),magenta('lexicon'), 'list words found in lexicon 列出文本中出现的词');
-    console.log('$',yellow('ptk ngram'),cyan('file'),magenta('gram=2'), 'build ngram 找常見詞');
+    console.log('$',yellow('ptk ngram    '),cyan('file'),magenta('gram=2'), 'build ngram 找常見詞');
+    console.log('$',yellow('ptk dump     '),cyan('dataset'),cyan('srcfolder'),'e.g cbeta 傾倒文本');
+
     console.log(underline('Lexicon Processing 词典处理'));
     console.log('$',yellow('ptk union    '),cyan('lexicon1'),cyan('lexicon2'),magenta('...'),'merge all words in lexicons 词典的联集')
     console.log('$',yellow('ptk intersect'),cyan('lexicon1'),cyan('lexicon2'),magenta('...'),'find out common words 词典的交集')
     console.log('$',yellow('ptk xor      '),cyan('lexicon1'),cyan('lexicon2'),magenta('...'),'find out exclusive words 词典的相斥集(非共有)')
-    console.log('$',yellow('ptk xmltag file [outdir]'),cyan('file'),'split xml into raw tag and plain text');
-    console.log('$',yellow('ptk dump'),cyan('dataset'),'dump dataset');
+
+    console.log(underline('XML Processing XML处理'));    
+    console.log('$',yellow('ptk xmltag   '),cyan('file'),magenta('outdir'),'xml to tag and plain text拆分為標籤及純文字');
 
     console.log(red('\nHappy Chinese New Year'));
-    console.log('PTK-CLI ver',green('2023.1.22'));
+    console.log('PTK-CLI ver',green('2023.1.23'));
 }
 
 try {

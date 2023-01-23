@@ -59,7 +59,7 @@ export const dump=(arg,arg2)=>{
         console.timeEnd('dump');
     } else {
         console.log('supported dataset')
-        console.log('ptk dump cbeta [T]');
+        console.log('ptk dump cbeta folder');
     }
 
 }
