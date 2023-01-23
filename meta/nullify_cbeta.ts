@@ -39,6 +39,18 @@ const nullify_rdg=content=>{
     });
     return content;
 }
+const nullify_cbtt=content=>{
+    content=content.replace(/<cb:t ([^>]+)>([^<]+)<\/cb:t>/g,(m,_attrs,t)=>{
+        const attrs=parseXMLAttribute(_attrs);
+        const lang=attrs['xml:lang'];
+        if (lang==='zh-Hant') {
+            return t;
+        } else { //remove all other language
+            return '';
+        }
+    })
+    return content;
+}
 export const nullify_cbeta=content=>{
     content=content.replace(/<g ref="#([\-A-Za-z\d]+)"\/>/g,'[mc_$1]')
 
@@ -49,6 +61,8 @@ export const nullify_cbeta=content=>{
         return ' '.repeat(parseInt(quantity))
     })
     content=content.replace(/<unclear><\/unclear>/g,'[??]');
+
+    content=nullify_cbtt(content);
 
     content=nullify_note(content);
     content=nullify_note(content); //recursive , T14n0443_004.xml 0337016

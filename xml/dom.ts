@@ -40,7 +40,7 @@ export const walkDOM=(el,ctx,onOpen={},onClose={},onText=null)=>{
     const openhandler= onOpen[el.name] || onOpen["*"];
     if (openhandler) {
         const out2 = openhandler(el,ctx)||'';
-        if (typeof out2==='string') ctx.out+=out2;
+        if (typeof out2==='string' && !ctx.hide) ctx.out+=out2;
     }
     if (el.children && el.children.length) {
         for (let i=0;i<el.children.length;i++) {
@@ -48,7 +48,10 @@ export const walkDOM=(el,ctx,onOpen={},onClose={},onText=null)=>{
         }
     }
     const closehandler= onClose[el.name] || onClose["*"];
-    if (closehandler) ctx.out+= closehandler(el,ctx)||'';
+    if (closehandler) {
+        const out2=closehandler(el,ctx)||'';
+        if (!ctx.hide) ctx.out += out2;
+    }
 }
 export function JSONify(el) {
     if (typeof el !== "object") return el;

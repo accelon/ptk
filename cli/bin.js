@@ -6,6 +6,7 @@ import * as PTK from '../nodebundle.cjs';
 import {onelexicon, text_lexicon, lexicons} from './textutils.js'
 import nGram from './ngram.js';
 import {xmltag} from './xml.js';
+import {dump} from './dump.js';
 import Path from 'path';
 
 await PTK.nodefs;
@@ -125,13 +126,14 @@ const help=()=>{
     console.log('$',yellow('ptk intersect'),cyan('lexicon1'),cyan('lexicon2'),magenta('...'),'find out common words 词典的交集')
     console.log('$',yellow('ptk xor      '),cyan('lexicon1'),cyan('lexicon2'),magenta('...'),'find out exclusive words 词典的相斥集(非共有)')
     console.log('$',yellow('ptk xmltag file [outdir]'),cyan('file'),'split xml into raw tag and plain text');
+    console.log('$',yellow('ptk dump'),cyan('dataset'),'dump dataset');
 
     console.log(red('\nHappy Chinese New Year'));
     console.log('PTK-CLI ver',green('2023.1.22'));
 }
 
 try {
-    await ({'--help':help,'-h':help,ptk,js,com,dedup,unique,listwords,union,ngram,intersect,xor,xmltag})[cmd](arg);
+    await ({'--help':help,'-h':help,ptk,js,com,dedup,unique,listwords,union,ngram,intersect,xor,xmltag,dump})[cmd](arg,arg2);
 
 } catch(e) {
     console.log( red('error running command'),cmd)
