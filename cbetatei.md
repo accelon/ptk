@@ -67,6 +67,16 @@
 
 ## 其他
 
+### 轉出乾淨的純文字
+
+將大正第一冊轉成 cbeta-T01.txt
+
+    ptk dump cbeta /cbeta/XML/T/T01
+
+轉出印順導師全集
+
+    ptk dump cbeta /cbeta/XML/Y
+
 ### 拆解一般XML 標籤
 ptk xmltag 文件或目錄 輸出目錄
 

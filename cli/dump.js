@@ -3,7 +3,11 @@ import {readTextContent,meta_cbeta,DOMFromString,xpath,
 
 const onOpen={
     lb:(el,ctx)=> {
-        ctx.out+=ctx.vol+'p'+el.attrs.n+'\t';
+        if (ctx.set=='Y') { //導師全集用舊版頁碼
+            if (el.attrs.type!=='old') return '';
+        }
+        //因印順以新版換行，加迫加入換行。
+        ctx.out+= ((ctx.set=='Y')?'\n':'')+ctx.vol+'p'+el.attrs.n+'\t';
     },
     pb:(el,ctx)=>{
         ctx.vol=el.attrs['xml:id'].slice(0,3);
@@ -29,8 +33,11 @@ const tei_plaintext=(content)=>{
     ctx.charmaps=charmaps;
     const body=xpath(el,'text/body');
     walkDOM(body,ctx,onOpen,onClose,onText);
-    const t=ctx.out.replace(/\n+/g,'\n').trim();
+    let t=ctx.out.replace(/\n+/g,'\n').trim();
     ctx.out='';
+    if (ctx.set=='Y') { //因xml 以新版換行，調為舊版
+        t=t.replace(/\n([^Y])/g,'$1');
+    }
     return t;
 }
 const dump_cbeta=(files,set)=>{
@@ -56,7 +63,9 @@ export const dump=(arg,arg2)=>{
         const files=filesFromPattern(arg2+'/'+set+'*');
         console.log('dumping ',arg2,files.length,'files');
         const at=arg2.lastIndexOf('/')
+        ctx.set=arg2.slice(at+1,at+2); //T , Y 
         dump_cbeta(files, arg2.slice(at+1));
+        
         console.timeEnd('dump');
     } else {
         console.log('supported dataset')
