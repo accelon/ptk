@@ -14,23 +14,24 @@ const onClose={
     note:(el,ctx)=>{ ctx.hide=false; },
 }
 const onText=(t,ctx)=>{
-    t=t.replace(/\[([a-z]+)\d*_([_A-Za-z\d]+)\]/g,(m,type,gid)=>{
+    t=t.replace(/\[([a-z\.]+)\d*_([^\]]+)\]+/g,(m,type,gid)=>{
         if (type=='mc') {
-            return ctx.charmaps[gid];
-        } else if (type=='cf') {
-            return '';
+            return ctx.charmaps[gid]||'';
         }
+        return '';
     })
     return ctx.hide?'':t;
 }
+const ctx={};
 const tei_plaintext=(content)=>{
-    const ctx={};
     const el=DOMFromString(content);
     const charmaps=meta_cbeta.buildCharMap(el); //CB缺
     ctx.charmaps=charmaps;
     const body=xpath(el,'text/body');
     walkDOM(body,ctx,onOpen,onClose,onText);
-    return ctx.out.replace(/\n+/g,'\n');
+    const t=ctx.out.replace(/\n+/g,'\n').trim();
+    ctx.out='';
+    return t;
 }
 const dump_cbeta=(files,set)=>{
     const out=[];
@@ -54,8 +55,8 @@ export const dump=(arg,arg2)=>{
         const set=arg2[arg2.length-1];
         const files=filesFromPattern(arg2+'/'+set+'*');
         console.log('dumping ',arg2,files.length,'files');
-        files.length=100;
-        dump_cbeta(files, set)
+        const at=arg2.lastIndexOf('/')
+        dump_cbeta(files, arg2.slice(at+1));
         console.timeEnd('dump');
     } else {
         console.log('supported dataset')
