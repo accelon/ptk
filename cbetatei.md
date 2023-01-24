@@ -73,7 +73,7 @@
 
     ptk dump cbeta /cbeta/XML/T/T01
 
-轉出印順導師全集
+轉出印順導師全集(只產生舊版頁碼換行)
 
     ptk dump cbeta /cbeta/XML/Y
 

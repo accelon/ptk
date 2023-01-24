@@ -3,14 +3,17 @@ import {readTextContent,meta_cbeta,DOMFromString,xpath,
 
 const onOpen={
     lb:(el,ctx)=> {
-        if (ctx.set=='Y') { //導師全集用舊版頁碼
+        const vol=ctx.vol;
+        //有些書有舊版頁碼
+        const newyinshun=ctx.set=='Y' && (vol<24) || (vol>41) || (vol>24&&vol<31);
+        if (newyinshun) { //導師全集用舊版頁碼
             if (el.attrs.type!=='old') return '';
         }
         //因印順以新版換行，加迫加入換行。
-        ctx.out+= ((ctx.set=='Y')?'\n':'')+ctx.vol+'p'+el.attrs.n+'\t';
+        ctx.out+= ((ctx.set=='Y')?'\n':'')+ctx.set+ctx.vol+'p'+el.attrs.n+'\t';
     },
     pb:(el,ctx)=>{
-        ctx.vol=el.attrs['xml:id'].slice(0,3);
+        ctx.vol=parseInt(el.attrs['xml:id'].slice(1,3));
     },
     note:(el,ctx)=>{ctx.hide=true; },
 }
@@ -29,7 +32,7 @@ const onText=(t,ctx)=>{
 const ctx={};
 const tei_plaintext=(content)=>{
     const el=DOMFromString(content);
-    const charmaps=meta_cbeta.buildCharMap(el); //CB缺
+    const charmaps=meta_cbeta.buildCharMap(el); //CB缺字 及unicode/拼形式 對照表
     ctx.charmaps=charmaps;
     const body=xpath(el,'text/body');
     walkDOM(body,ctx,onOpen,onClose,onText);
