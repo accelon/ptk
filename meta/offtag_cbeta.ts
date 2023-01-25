@@ -63,9 +63,11 @@ export const insertTag_cbeta=(txt,tags,chunkidarr)=>{
                     inserttag=_ckid;
                     insertoffset=offset;
                     const preveol=txt.charAt(offset-1);//上一行的結尾
-                    if (preveol!=='。') { //用最後一個出現的。作為起點
-                        const at=txt.indexOf('。',offset);
+                    if (preveol!=='。'&&preveol!=='」') { //用第一個出現的。作為起點
+                        let at=txt.indexOf('。',offset);
                         if (~at && at>offset && offset+19>at) {
+                            //  T22p0309b25 ，結尾是 。」
+                            if (txt.charAt(at+1)=='」') at++;
                             insertoffset=at+1;
                         }                       
                     }

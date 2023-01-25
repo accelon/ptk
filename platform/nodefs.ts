@@ -57,7 +57,13 @@ export const readTextContent=(fn:string):string=>{
     if (s.indexOf('\r')>-1) s=s.replace(/\r?\n/g,'\n');
     return s;
 }
-export const readTextLines=(fn:string):string[]=>readTextContent(fn).split('\n');
+export const readTextLines=(fn:string,format=''):string[]=>{
+    const arr=readTextContent(fn).split('\n');
+    if (format=='tsv') {
+        return arr.map(it=>it.split('\t'));
+    }
+    return arr;
+};
 
 export const writePitaka=async (lbase,opts={})=>{
     const name=opts.name|| lbase.name;
