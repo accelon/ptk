@@ -57,12 +57,20 @@ export const readTextContent=(fn:string):string=>{
     if (s.indexOf('\r')>-1) s=s.replace(/\r?\n/g,'\n');
     return s;
 }
-export const readTextLines=(fn:string,format=''):string[]=>{
-    const arr=readTextContent(fn).split('\n');
-    if (format=='tsv') {
-        return arr.map(it=>it.split('\t'));
+/* read one or more files and split into array of string */
+export const readTextLines=(fn:[string|string[]],format=''):string[]=>{
+    let files=fn;
+    if (typeof fn=='string') {
+        files=[fn];
     }
-    return arr;
+    let out=[];
+    for (let i=0;i<files.length;i++) {
+        const arr=readTextContent(files[i]).split('\n');
+        if (format=='tsv') {
+            out=out.concat(arr.map(it=>it.split('\t')));
+        } else out=out.concat(arr);
+    }
+    return out;
 };
 
 export const writePitaka=async (lbase,opts={})=>{
