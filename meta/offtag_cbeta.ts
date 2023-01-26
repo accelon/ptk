@@ -34,9 +34,10 @@ export const insertTag_cbeta=(txt,tags,chunkidarr)=>{
         } else {
             out.push([type,ntag, name,dist,_attrs]);
         }
-        if (name==='pb') {
-            const attrs=JSON.parse(_attrs);
-            vol=attrs['xml:id'].slice(0,3);
+        if (name==='TEI' && type=='+') { 
+            //assuming xml will never cross vol
+            const attrs=JSON.parse(_attrs||'');
+            vol=attrs['xml:id']?.slice(0,3);
         } else if (name==='p' && _attrs) {
             const attrs=JSON.parse(_attrs);
             const id=attrs['xml:id']||'';            
@@ -48,6 +49,10 @@ export const insertTag_cbeta=(txt,tags,chunkidarr)=>{
         } else if (name==='lb') {
             const attrs=JSON.parse(_attrs);
             const id=attrs.n;
+            if (!vol) {
+                console.log(tags[i])
+                throw "no vol"
+            }
             let _ckid=chunkid.lb[vol+'p'+id];
             if (_ckid) { 
                 if (_ckid && Array.isArray(_ckid)) { //帶釘文

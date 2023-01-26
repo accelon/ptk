@@ -20,7 +20,7 @@ export class NumberField extends Field {
 	validate(value:string,line:number) {
 		const n=parseInt(value);
 		if (n.toString()!==value && value.length) {
-			return [VError.NotANumber , 0]; //default to 0
+			return [VError.NotANumber , line]; //default to 0
 		}
 		if (this.pattern && !value.match(this.pattern)) {
 			return [VError.Pattern,0];

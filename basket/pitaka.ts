@@ -52,7 +52,7 @@ export class Pitaka extends LineBase {
 		this.defines=compiler.typedefs;
 		this.attributes=compiler.compiledFiles['0.off']?.attributes;
 		this.lang=this.attributes.lang||'zh';
-		this.template=Templates[this.attributes.template]||{};
+		this.template=Templates[this.attributes.template]||Templates.generic;
 		const ranges=[];
 
 		for (let i=0;i<this.header.preload.length;i++) {

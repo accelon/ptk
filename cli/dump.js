@@ -10,7 +10,7 @@ const onOpen={
             if (el.attrs.type!=='old') return '';
         }
         //因印順以新版換行，加迫加入換行。
-        ctx.out+= ((ctx.set=='Y')?'\n':'')+ctx.set+ctx.vol+'p'+el.attrs.n+'\t';
+        ctx.out+= '\n'+ctx.set+ctx.vol+'p'+el.attrs.n+'\t';
     },
     pb:(el,ctx)=>{
         ctx.vol=parseInt(el.attrs['xml:id'].slice(1,3));
