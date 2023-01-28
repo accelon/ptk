@@ -258,6 +258,9 @@ const parseChunkId=chunkid=>{
 }
 export const onChunkCaption=(chunkid,part)=>{
     const {l,z,h}=parseChunkId(chunkid);
+    if (isNaN(parseInt(z)) || isNaN(parseInt(z)) || isNaN(parseInt(h))) {
+        return '';
+    }
     const part1=SickCauses['l'+l]+SickLocations['z'+z]+'證';
     const part2=SickSigns['h'+h]+'候';
     if (part==1) return part1;

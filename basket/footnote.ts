@@ -1,16 +1,18 @@
-import {bsearchNumber} from "../utils/index.ts"
+
 export function footNoteAddress(id:string,line:number){
     const ptk=this;
     const ck=ptk.getNearestChunk(line);
 
     const chunktag=ptk.defines.ck;
     const bktag=ptk.defines.bk;
-    const footbk=ck.bkid+'-fn';
+    const footbk=ck.bkid+'_fn';
     const at=bktag.fields.id.values.indexOf(footbk);
     const booknotebkline=bktag.linepos[at];
     const closestchunk=ptk.findClosestTag( chunktag, 'id',ck.id, booknotebkline);
     const chunk=chunktag.fields.id.values[closestchunk];    
-    const address=ptk.name+':'+footbk+ '.'+ptk.attributes.chunktag+chunk+'.fn'+id;
+    const address=ptk.name+':'+footbk+ '.'+
+    'ck'+(parseInt(chunk)?chunk:'#'+chunk)
+    +'.fn'+id;
     return address;
 }
 
@@ -20,7 +22,7 @@ export function footNoteByAddress(id:string,line:number){
     const chunktag=ptk.defines.ck;
     const bktag=ptk.defines.ck;   
     const footnotetag=ptk.defines.f;
-    let footbk=ck.bkid.replace('-fn','');
+    let footbk=ck.bkid.replace('_fn','');
     const at=bktag.fields.id.values.indexOf(footbk);
     if (at==0) footbk=''; else footbk+='.';  //not needed to specified chunk    
     
@@ -31,6 +33,6 @@ export function footNoteByAddress(id:string,line:number){
     const footnoteline=footnotetag.linepos[footnoteat];
 
     const highlightline=footnoteline-chunktag.linepos[closestchunk];
-    const address=footbk+ ptk.attributes.chunktag+chunk+ (highlightline?":"+highlightline:'');
+    const address=footbk+ 'ck'+chunk+ (highlightline?":"+highlightline:'');
     return address;
 }
