@@ -1,5 +1,5 @@
 let counter=0,maxspeed=0;
-import {bsearchNumber} from '../utils/bsearch.js';
+import {bsearchNumber} from '../utils/bsearch.ts';
 /*inspired by https://github.com/Siderite/SortedArrayIntersect AcceleratingIntersercter*/
 export const plFind=(arr, v, p=0)=>{
     let speed = 1;

@@ -8,6 +8,8 @@ import {TableOfContent} from '../compiler/toc.ts';
 import {parseQuery,scanText,scoreLine} from '../fts/query.ts';
 import {footNoteAddress,footNoteByAddress} from './footnote.ts';
 import {Templates} from '../compiler/template.ts'
+import {foreignLinksAtTag} from './parallel.ts';
+
 export const regPtkName =  /^[a-z\-_]{2,16}$/
 export const validPtkName=(name:string):boolean=>!!name.match(regPtkName);
 export interface IPitaka extends ILineBase{
@@ -36,8 +38,10 @@ export class Pitaka extends LineBase {
 		this.inlineNote=inlineNote;
 		this.footNoteAddress=footNoteAddress;
 		this.footNoteByAddress=footNoteByAddress;
+		this.foreignLinksAtTag=foreignLinksAtTag;
 		this.taggedLines={};
-
+		this.foreignlinks={}; 
+		this.backlinks={};
 		this.rowOf=rowOf;
 		this.inverted=null;
 		this.parallels={}; //parallels showing flag, ptkname:string, onoff:boolean
@@ -81,7 +85,7 @@ export class Pitaka extends LineBase {
 		for (const n in this.defines) { //see compiler/typedef.ts serialize()
 			if (!this.defines[n].fields.lazy) {
 				const section=this.getSection('^'+n);
-				this.defines[n].deserialize(section);
+				this.defines[n].deserialize(section,this); //call typedef.ts:deserialize
 			}
 			for (let attr in this.defines[n].fields) {
 				const A=this.defines[n].fields[attr];
@@ -97,6 +101,7 @@ export class Pitaka extends LineBase {
 				this.defines[tagname].column=n;
 			}
 		}
+
 	}
 	deserialize(section,sectionname) {	
 		if (!section.length) return;
@@ -265,6 +270,23 @@ not suitable for dictionary wordheads
 		if (at==-1) return n;
 
 		return short?n.slice(0,at):n.slice(at+1);
+	}
+	addBacklinks(tagname, tptk, bk,targettagname, chunks, nlinks) {
+		if (!tptk) tptk=this.name;
+		if (!this.backlinks[tptk]) this.backlinks[tptk]={};
+		if (!this.backlinks[tptk][this.name]) {
+			this.backlinks[tptk][this.name]=[];
+		}
+		this.backlinks[tptk][this.name].push([tagname,bk,targettagname,chunks,nlinks]);
+	}
+	addForeignLinks(fptk){ //call by connect when other database is opened;
+		for (let tptk in fptk.backlinks) {
+			if (tptk == this.name) { //link to me
+				for (let sptk in fptk.backlinks[this.name]) {
+					this.foreignlinks[sptk]=fptk.backlinks[this.name][sptk];
+				}
+			}
+		}
 	}
 	getParallelLine(masterptk,line){
 		return [true,0];

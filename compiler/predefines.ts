@@ -4,7 +4,7 @@ generic:
 ^:bk<id=unique bracket=false reset=n>
 ^:ck<id=unique bracket=false>
 ^:n<id=unique_number>
-^:j<@=string>
+^:j<@=link>
 ^:ad
 ^:bc
 ^:ver<savelinepos=true>

@@ -136,12 +136,12 @@ export function captionOfAddress(address:string):string{
 }
 
 export function makeElementId(ele,id:string):string{
-	return ele+( (parseInt(id).toString()==id)?'':'#')+id;
+	return ele+( !isNaN(parseInt(id))?'':'#')+id;
 }
-export function makeChunkAddress(ck,id:string,lineoff=0):string{
+export function makeChunkAddress(ck,lineoff=0):string{
 	const scrollto= lineoff?((lineoff>=5)?('>'+(lineoff-1)):'') +(lineoff?':'+lineoff:''):'';	
 
 	return 'bk'+((parseInt(ck.bk?.id).toString()==ck.bk?.id)?'':'#')+ck.bk?.id
-	 +'.ck'+((parseInt(ck.id).toString()==ck.id)?'':'#')+(id||ck.id)
+	 +'.ck'+(!isNaN(parseInt(ck.id))?'':'#')+ck.id
 	 + scrollto;
 }

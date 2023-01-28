@@ -1,7 +1,6 @@
-import {poolAdd,poolGet,poolDel}  from './pool.ts';
+import {poolAdd,poolGet,poolDel,poolGetAll}  from './pool.ts';
 import {Pitaka} from './pitaka.ts';
 import {ZipStore} from '../zip/index.ts';
-import {parseAddress} from '../basket/address.ts'
 export const openPtk=async (name:string)=>{
 	let ptk=usePtk(name);
 	if (ptk) return ptk;
@@ -10,6 +9,11 @@ export const openPtk=async (name:string)=>{
 	poolAdd(name,ptk); //add to pool for jsonp to work.
 	if (await ptk.isReady()) {
 		await ptk.init();
+		
+		const poolptk=poolGetAll();
+		for (let i=0;i<poolptk.length;i++) {
+			poolptk[i].addForeignLinks( ptk);
+		}
 		return ptk;
 	} else {
 		poolDel(name);
@@ -30,9 +34,3 @@ export const usePtk=(name:string)=>{
 	return poolGet(name);
 }
 
-export const getParallelAddresses=(address:string)=>{
-	//scan all ptk and list parallels, first item is master
-	const addr=parseAddress(address);
-	console.log(addr)
-	
-}

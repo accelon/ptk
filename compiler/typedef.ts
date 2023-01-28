@@ -73,7 +73,7 @@ export class Typedef implements ITypedef {
 		return newtag
 	}
 	validateTag(offtext:IOfftext, tag:IOfftag , line:number, compiledLine:number , onError) {
-		if (this.fields.id || this.attrs.savelinepos) { //auto save linepos if validating id
+		if (this.fields.id || this.fields['@'] || this.attrs.savelinepos) { //auto save linepos if validating id
 			this.linepos.push(compiledLine+line);
 		}
 		if (this.fields.bracket) { // false to keep the bracket
@@ -91,7 +91,7 @@ export class Typedef implements ITypedef {
 		const newtag=this.validateFields(tag,line,onError);
 		return newtag;
 	}
-	deserialize(section){
+	deserialize(section,ptk){
 		const attrline=section.shift();
 		const attrs=attrline?attrline.split(LEMMA_DELIMITER):[];
 		if (section.length > attrs.length) {
@@ -113,6 +113,8 @@ export class Typedef implements ITypedef {
 				V.values=unpackInt(section.shift());
 			} else if (V?.type==='text') {
 				V.values=section.length?section.shift().split('\t'):[];
+			} else if (V?.deserialize) {
+				V.values=V.deserialize(section,ptk);
 			}
 		}
 		if (section.length) {
@@ -137,7 +139,13 @@ export class Typedef implements ITypedef {
 			} else if (V.type=='text') {
 				attrs.push(aname);
 				out.push( V.values.join('\t'));
-			}	
+			} else if (V.serialize) {
+				attrs.push(aname);
+				const arr=V.serialize();
+				for (let i=0;i<arr.length;i++) {
+					out.push(arr[i]);
+				}
+			}
 		}
 		out.unshift(attrs.join(LEMMA_DELIMITER));
 		return out.length?out.join('\n'):null;

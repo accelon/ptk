@@ -1,6 +1,7 @@
 import {VError} from "./error.ts";
 /* validate an attribute of tag or a tsv field*/
 import {Field} from './basefield.ts';
+import {LinkField} from './linkfield.ts';
 import {KeyField} from './keyfield.ts';
 import {KeysField} from './keysfield.ts';
 import {TextField} from './textfield.ts';
@@ -29,12 +30,12 @@ export function createField(name,def:string,primarykeys,ownkeys) {
 		}
 		pattern= new RegExp(pat,regopts);
 	}
-
 	if (typename==='number') v=new NumberField (name,{pattern,foreign});
 	else if (typename==='numbers') v=new NumbersField (name,{pattern,foreign});
 	else if (typename==='unique_number') v=new NumberField (name,{pattern,unique:true,optional:false,foreign});
 	else if (typename==='unique') v=new TextField(name,{pattern,unique:true,optional:false,foreign});
 	else if (typename==='string') 	v=new Field (name,{pattern,foreign});
+	else if (typename==='link') 	v=new LinkField (name,{pattern,foreign});
 	else if (typename==='text') 	v=new TextField (name,{pattern});
 	else if (typename==='key') {
 		const keys=(primarykeys&&primarykeys[foreign]) ||ownkeys;

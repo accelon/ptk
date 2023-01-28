@@ -100,10 +100,10 @@ export const unpackIntDelta=(str:string)=>{
 
 export const unpackIntDelta2d=(str:string)=>{
 	if (!str)return [];
-	return unpack2d(str,true);
+	return unpackInt2d(str,true);
 }
 
-export const unpack2d=(str:string,delta=false)=>{
+export const unpackInt2d=(str:string,delta=false)=>{
 	if (!str)return [];
 	const arr=str.split(SEPARATOR2D);
 	if (arr.length==1) return [unpackInt(arr[0])];
