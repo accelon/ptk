@@ -83,7 +83,7 @@ export class Typedef implements ITypedef {
 		}
 		for (let aname in this.mandatory) {
 			if (!tag.attrs.hasOwnProperty(aname) && this.mandatory[aname]) {
-				onError(VError.Mandatory, aname);
+				onError(VError.Mandatory, tag.name+' '+aname);
 			}
 		}
 

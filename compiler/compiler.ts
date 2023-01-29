@@ -75,6 +75,7 @@ export class Compiler implements ICompiler {
 		let updated=false ;
 		for (let i=0;i<ot.tags.length;i++) {
 			const tag=ot.tags[i];
+			
 			if (tag.name[0]==':' && tag.name.length>1) {
 				const newtagname=tag.name.slice(1);
 				if (this.typedefs[newtagname]) {
@@ -90,7 +91,8 @@ export class Compiler implements ICompiler {
 				} else {
 					const typedef=this.typedefs[tag.name];
 					if (!typedef) {
-						this.onError(VError.MissingTypedef, tag.name);
+						console.error('cannot compile line\n',str)
+						// this.onError(VError.TypeTagName);
 					} else {
 						const newtag=typedef.validateTag(ot,tag , this.line,this.compiledLine,this.onError.bind(this));
 						if (newtag) {

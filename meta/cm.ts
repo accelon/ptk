@@ -305,7 +305,6 @@ export const getMultiStateFilters=()=>{
     ]
 }
 
-
 export const stringifyChoice=(choices,groupby=0,groupfilter='')=>{
     let symtom='',tounge='',pulse='';
     for (let key in choices) {
@@ -397,7 +396,11 @@ export const runFilter=(ptk,col,opts={})=>{
             if (choices[field].length==0) continue;
             for (let j=0;j<choices[field].length;j++) {
                 const key=choices[field][j];
-                if (~col[field][i].indexOf(key) ) hit++;
+                if (typeof col[field][i]=='undefined') {
+                    console.log('wrong field',field,'iindex',i)
+                } else {
+                    if (~col[field][i].indexOf(key) ) hit++;
+                }
             }
             if (hit*1.1<choicecount) continue;
 
@@ -405,7 +408,7 @@ export const runFilter=(ptk,col,opts={})=>{
             const ck=ptk.getNearestChunk(line);
 
             if (groupby==0 && groupfilter) {
-                if (tag.innertext.get(i)!==groupfilter) continue;
+                if (tag.innertext?.get(i)!==groupfilter) continue;
             } else {
                 if (!matchGroup(ck, groupby,groupfilter)) continue;
             }
@@ -418,7 +421,7 @@ export const runFilter=(ptk,col,opts={})=>{
         groups=groupBy(items,chunks,groupby,groupfilter);
     } else {
         for (let i=0;i<items.length;i++) {
-            const t=tag.innertext.get( items[i]);
+            const t=tag.innertext?.get( items[i]);
             if (!grouping[t] ) grouping[t]=0;
             grouping[t]++;
         }
@@ -429,6 +432,12 @@ export const runFilter=(ptk,col,opts={})=>{
     return {items,groups, mastertag:tag};
 }
 const groupStates=(format)=>{
+    if (format=='statebutton') {
+        return {}
+    } else {
+        return [];
+    }
+    //證候學用的分類
     if (format=='statebutton') {
         return { "名":0,"位":1,"因":2,"證":3,"候":4}
     } else {

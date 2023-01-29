@@ -9,7 +9,7 @@ export enum VError {
 	NotUnique     = 'NOT_UNIQUE',
 	Mandatory     = 'MANDANTORY',
 	TypeRedef     = 'TYPE_REDEF',
-	MissingTypedef= 'MISSING_TYPEDEF',
+	MissingTagName= 'MISSING_TAGNAME',
 	UnknownType   = 'UNKNOWN_TYPE',
 	ExcessiveField= 'EXCESSIVE_FIELD',
 
