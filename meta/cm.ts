@@ -405,7 +405,7 @@ export const runFilter=(ptk,col,opts={})=>{
             if (hit*1.1<choicecount) continue;
 
             const line=tag.linepos[i];
-            const ck=ptk.getNearestChunk(line);
+            const ck=ptk.nearestChunk(line);
 
             if (groupby==0 && groupfilter) {
                 if (tag.innertext?.get(i)!==groupfilter) continue;
@@ -473,6 +473,7 @@ export const similarFactors=(ptk,tagname,factors)=>{
 }
 export const getApprox=(ptk,tagname,id)=>{
     const at=bsearchNumber(ptk.defines.ill.linepos,id)-1; //id is line
+    if (!ptk.columns.manifest[tagname]) return [];
     const v=ptk.columns.manifest[tagname][at];
     const factors=v.split(/([a-z]\d)/).filter(it=>!!it);
     const out=similarFactors(ptk,tagname,factors).filter(it=>it.i!==at);

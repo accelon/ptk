@@ -1,7 +1,7 @@
 
 export function footNoteAddress(id:string,line:number){
     const ptk=this;
-    const ck=ptk.getNearestChunk(line);
+    const ck=ptk.nearestChunk(line);
 
     const chunktag=ptk.defines.ck;
     const bktag=ptk.defines.bk;
@@ -18,7 +18,7 @@ export function footNoteAddress(id:string,line:number){
 
 export function footNoteByAddress(id:string,line:number){
     const ptk=this;
-    const ck=ptk.getNearestChunk(line);
+    const ck=ptk.nearestChunk(line);
     const chunktag=ptk.defines.ck;
     const bktag=ptk.defines.ck;   
     const footnotetag=ptk.defines.f;

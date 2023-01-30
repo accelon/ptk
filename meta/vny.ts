@@ -1,6 +1,6 @@
 import {addTemplate} from '../compiler/template.ts'
 const getParallels=(ptk,line)=>{
-    const ck=ptk.getNearestChunk(line+1);
+    const ck=ptk.nearestChunk(line+1);
     const bktag=ptk.defines.bk;
     const pc=ptk.columns.pc;
     const pcid=parseInt(ck.id.slice(2));

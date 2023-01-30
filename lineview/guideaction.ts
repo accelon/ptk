@@ -23,7 +23,7 @@ export class GuideAction extends Action{
 
 		items=items.map( idx =>{
 			const line=master.linepos[idx];
-			const ck=ptk.getNearestChunk(line);
+			const ck=ptk.nearestChunk(line);
 
 			const size=(master.linepos[idx+1]?master.linepos[idx+1]:ptk.header.eot)-line;
 			const lineoff=line-ck.line;

@@ -21,3 +21,22 @@ export class TableOfContent {
 		this.texts = new StringArray(section.shift());
 	}
 }
+//chunk as toc
+export const depthOfId=(str:string)=>{
+	return str.split(/(\d+)/).filter(it=>!!it).length;
+}
+export function buildTocTag(toctags){
+	for (let i=0;i<toctags.length;i++) {
+		const toctag=toctags[i];
+		const out=[];
+		if (!this.defines[toctag]) {
+			console.log('not such tag',toctag);
+			continue;
+		}
+		const values=this.defines[toctag].fields.id.values;
+		for (let j=0;j<values.length;j++) {
+			out.push(depthOfId(values[j]));
+		}
+		this.defines[toctag].depths=out;
+	}
+}

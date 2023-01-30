@@ -86,7 +86,6 @@ export class Typedef implements ITypedef {
 				onError(VError.Mandatory, tag.name+' '+aname);
 			}
 		}
-
 		this.resetChildTag();
 		const newtag=this.validateFields(tag,line,onError);
 		return newtag;

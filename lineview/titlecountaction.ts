@@ -32,7 +32,7 @@ export class TitleCountAction extends Action{
 			for (let j=at1+this.from;j<at2;j++) {
 				const title=chunktag.innertext.get(j);
 				const line=chunktag.linepos[j];
-				const ck=ptk.getNearestChunk(line+1);
+				const ck=ptk.nearestChunk(line+1);
 				const address=makeChunkAddress(ck);
 				const caption=ck.caption;
 				if (items.length>=pagesize) break;
@@ -71,7 +71,7 @@ export class TitleCountAction extends Action{
 		items=arr.map(it=>{
             const count=it[1];
 			const chunk=it[0];
-			const ck=ptk.getNearestChunk(chunktag.linepos[chunk]);
+			const ck=ptk.nearestChunk(chunktag.linepos[chunk]);
             const address=makeChunkAddress(ck);
             return { id:ck.id, count,address ,caption:ck.caption,title:ck.caption}
         })

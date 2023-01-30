@@ -4,12 +4,13 @@ import {unpackIntDelta,bsearchNumber} from '../utils/index.ts';
 import {rangeOfAddress,captionOfAddress} from './address.ts';
 import {columnField,inlineNote,rowOf,scanPrimaryKeys} from './columns.ts';
 import {Inverted,plContain} from '../fts/index.ts';
-import {TableOfContent} from '../compiler/toc.ts';
+import {TableOfContent,buildTocTag} from '../compiler/toc.ts';
 import {parseQuery,scanText,scoreLine} from '../fts/query.ts';
 import {footNoteAddress,footNoteByAddress} from './footnote.ts';
 import {Templates} from '../compiler/template.ts'
 import {foreignLinksAtTag} from './parallel.ts';
-
+import {addBacklinks, addForeignLinks } from './links.ts';
+import {getCaption,caption,nearestChunk,getChunk,neighborChunks} from './chunk.ts'
 export const regPtkName =  /^[a-z\-_]{2,16}$/
 export const validPtkName=(name:string):boolean=>!!name.match(regPtkName);
 export interface IPitaka extends ILineBase{
@@ -46,7 +47,14 @@ export class Pitaka extends LineBase {
 		this.inverted=null;
 		this.parallels={}; //parallels showing flag, ptkname:string, onoff:boolean
 		this.lang='';
-		this.preprocessor=null
+		this.preprocessor=null;
+		this.addForeignLinks=addForeignLinks;
+		this.addBacklinks=addBacklinks;
+		this.getCaption=getCaption;
+		this.caption=caption;
+		this.nearestChunk=nearestChunk;
+		this.getChunk=getChunk;
+		this.neighborChunks=neighborChunks;
 	}
 	async init(){
 		if (!this.payload) return;
@@ -70,13 +78,9 @@ export class Pitaka extends LineBase {
 				if (r&&r[1]>r[0]) ranges.push(r);
 			}
 		}
-		//load together , avoid duplicate jobs
 		
 		await this.loadLines(ranges);	
 		
-
-		//todo , need to preload ck tag
-
 		for (let i=0;i<this.header.preload.length;i++) {
 			const section=this.getSection(this.header.preload[i]);
 			if (section.length)	this.deserialize(section,this.header.preload[i]);
@@ -102,7 +106,13 @@ export class Pitaka extends LineBase {
 			}
 		}
 
+		//build chunk toc
+		if (this.attributes.toctag) {
+			const toctags=this.attributes.toctag.split(',');
+			buildTocTag.call(this,toctags);
+		}
 	}
+
 	deserialize(section,sectionname) {	
 		if (!section.length) return;
 		if (!section[0]) section.shift();
@@ -150,7 +160,7 @@ export class Pitaka extends LineBase {
 		const at=bsearchNumber(linepos, line)-1;
 		const lineoff=line-linepos[at];
 		const id=chunktag?.fields?.id?.values[at];
-		const bkat=this.getNearestTag(line,booktag) - 1;
+		const bkat=this.nearestTag(line,booktag) - 1;
 		const bkid=booktag.fields.id.values[bkat] ;
 
 /* TODO
@@ -161,89 +171,17 @@ not suitable for dictionary wordheads
 		const caption=this.caption(at);
 		return {id, tagname:'ck', caption,lineoff , bkid};
 	}
-	getCaption(at:Number){
-		const chunktag=this.defines.ck;
-		let caption=chunktag?.innertext.get(at);
-		const id=chunktag?.fields?.id?.values[at];
-		const onChunkCaption=this.template.onChunkCaption;
-		if (!caption) {
-			caption=this.columns[chunktag?.column]?.keys?.get(at);		
-			if (!caption && onChunkCaption) caption=onChunkCaption(id);
-		}
-		return caption;
-	}
-	caption(at:Number){
-		//return onChunkCaption?caption:id+'.'+caption;
-		let caption=this.getCaption(at);
-		let depth=0;
-		while (caption && caption.endsWith('-')) {
-			depth++;
-			caption=caption.slice(0,caption.length-1)
-		}
-		let at2=at, parents=[] ;
-		while (at2>0 && depth) {
-			at2--;
-			const par=this.getCaption(at2).split(/[- ]+/);
-			const pdepth=par.length;
-			while (!par[par.length-1]) par.pop();
-			if (pdepth-1>depth ) { //比目前的深，無法取得父節點
-
-			} else if (par.length>1 || pdepth==1){
-				while (par.length&&depth) {
-					parents.unshift('-'+par.pop());
-					depth--;
-				}
-			}
-		}
-		return caption+ parents.join('');
-	}
 	getPostings(s:string){
 		const nPostings=this.inverted.nPostingOf(s);
 		const postings=this.inverted.postings;
 		return nPostings.map( np=> postings[np] );
 	}
-	getNearestTag(line,tag){
+	nearestTag(line,tag){
 		if (typeof tag=='string') tag=this.defines[tag];
 		const linepos=tag.linepos;
 		if (!linepos) return null;
 		const at=bsearchNumber(linepos,line);
 		return (line<linepos[linepos.length-1])?at :at+1;
-	}
-	getNearestChunk( line:Number) {
-		const chunktag=this.defines.ck;
-		const at=this.getNearestTag(line,chunktag)-1;
-		return this.getChunk(at);
-	}
-	getChunk(at:Number){
-		const chunktag=this.defines.ck;
-		const booktag=this.defines.bk;
-		if (at<0) return null;
-		if (at>=chunktag.fields.id.values.length) return null;
-
-		const line=chunktag.linepos[at];
-		const bkat=this.getNearestTag(line,booktag) - 1;
-		const bkid=booktag.fields.id.values[bkat];
-
-		const id=chunktag.fields.id.values[at];
-		const innertext=chunktag.innertext.get(at);
-		const caption=this.caption(at);
-		return {bkid ,caption, at:at+1, id ,
-			bk:{id:bkid},
-			line:chunktag.linepos[at],
-			innertext}
-	}
-	getNeighborChunk(at:Number){
-		const chunktag=this.defines.ck;
-		const idv=chunktag.fields.id.values;
-		let from=at-2, till=at+2;
-		if (from<0) from=0;
-		if (till>=idv.length) till=idv.length-1;
-		const out=[];
-		for (let i=from;i<=till;i++) {
-			const ck=this.getChunk(i);
-			if(ck) out.push(ck);
-		}
-		return out;
 	}
 	findClosestTag(typedef, key, value, from=0){
 		let at=typedef.fields[key].values.indexOf(value);
@@ -271,26 +209,7 @@ not suitable for dictionary wordheads
 
 		return short?n.slice(0,at):n.slice(at+1);
 	}
-	addBacklinks(tagname, tptk, bk,targettagname, chunks, nlinks) {
-		if (!tptk) tptk=this.name;
-		if (!this.backlinks[tptk]) this.backlinks[tptk]={};
-		if (!this.backlinks[tptk][this.name]) {
-			this.backlinks[tptk][this.name]=[];
-		}
-		this.backlinks[tptk][this.name].push([tagname,bk,targettagname,chunks,nlinks]);
-	}
-	addForeignLinks(fptk){ //call by connect when other database is opened;
-		for (let tptk in fptk.backlinks) {
-			if (tptk == this.name) { //link to me
-				for (let sptk in fptk.backlinks[this.name]) {
-					this.foreignlinks[sptk]=fptk.backlinks[this.name][sptk];
-				}
-			}
-		}
-	}
-	getParallelLine(masterptk,line){
-		return [true,0];
-	}
+
 	getSectionStart(name){
 		const at=this.header.sectionnames.indexOf(name);
 		if (~at) {
