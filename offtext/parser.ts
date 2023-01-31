@@ -165,6 +165,11 @@ export const parseOfftext=(str:string,line:number=0)=>{
         return '';
     })
     resolveEnd(str, text,tags);
+
+    //need one concreate char to hold tag at the end
+    if (tags.length && tags[tags.length-1].choff>=text.length) {
+        text+=' ';
+    }
     return [text,tags];
 }
 export interface IOfftext {raw:string, plain:string , tags:IOfftag[]} ;

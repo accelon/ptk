@@ -244,9 +244,13 @@ export class LVA {
 		}
 		return this;
 	}
-	changeAction(newaction,idx=0){
+	changeAction(newaction,idx=0,reset=false){
 		const division=typeof idx=='number'?this._divisions[idx]:idx;
 		if (!division) return this;
+		if (reset) {
+			division.from=0;
+			division.till=ACTIONPAGESIZE;
+		}
 		division.action=newaction;
 		return this;
 	}

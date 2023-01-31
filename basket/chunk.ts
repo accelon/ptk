@@ -53,7 +53,7 @@ export function getChunk(at:Number){
     const innertext=chunktag.innertext.get(at);
     const caption=this.caption(at);
     return {bkid ,caption, at:at+1, id ,
-        bk:{id:bkid},
+        bk:{id:bkid, caption: booktag?.innertext.get(bkat) },
         depth:chunktag.depths[at]||1,
         line:chunktag.linepos[at],
         innertext}
@@ -67,14 +67,12 @@ const resetBy=(ptk,tagname)=>{
     }
     return null;
 }
-export function ancestorChunks(at:Number){
+export function ancestorChunks(at:Number,start:Number){
     const chunktag=this.defines.ck;
-    const resettag=this.defines[resetBy(this,'ck')];
     let line=chunktag.linepos[at];
-    const resetat= resettag? resettag.linepos[this.nearestTag(line,resettag) - 1]:0;
     let depth=chunktag.depths[at];
     const out=[];
-    while (line>resetat && depth>1) {
+    while (line>start && depth>1) {
         if ( depth> chunktag.depths[at] ){
             out.unshift(at);
             depth--;
@@ -84,23 +82,25 @@ export function ancestorChunks(at:Number){
     }
     return out;
 }
-export function prevsiblingChunk(at:Number){
+export function prevsiblingChunk(at:Number, start:Number){
     let p=at-1;
     const chunktag=this.defines.ck;
     while (p>0) {
         if (chunktag.depths[p]==chunktag.depths[at] ) return p;
         else if (chunktag.depths[p]<chunktag.depths[at]) break;
         p--;
+        if (start<chunktag.linepos[p]) break;
     }
     return -1;
 }
-export function nextsiblingChunk(at:Number) {
+export function nextsiblingChunk(at:Number, end:Number) {
     let p=at+1;
     const chunktag=this.defines.ck;
     while (p<chunktag.linepos.length) {
         if (chunktag.depths[p]==chunktag.depths[at] ) return p;
         else if (chunktag.depths[p]<chunktag.depths[at]) break;
         p++;
+        if (chunktag.linepos[p]>=end) break;
     }
     return -1;
 }
@@ -111,17 +111,23 @@ export function firstChildChunk(at:Number) {
 }
 export function neighborChunks(at:Number){
     const ptk=this;
-    const ancestors=ancestorChunks.call(this,at);
+    // const chunktag=this.defines.ck
+    // const ck=this.nearestChunk( chunktag.linepos[at] );   
+    // at=ck.at-1;
+    const resettag=this.defines[resetBy(this,'ck')];
+    const nearest=resettag?this.nearestTag(at,resettag) - 1:0;
+    const start= resettag? resettag.linepos[nearest]:0;
+    const end=resettag? (resettag.linepos[nearest+1]|| ptk.header.eot): ptk.header.eot;
+    const ancestors=ancestorChunks.call(this,at,start);
     const out=ancestors.map(it=>ptk.getChunk.call(ptk,it));
-    
     const prev=prevsiblingChunk.call(this,at);
     if (prev>-1 && (!ancestors.length||ancestors[ancestors.length-1]<prev) ) {
         out.push( this.getChunk(prev) );
     } 
     out.push(this.getChunk(at));
-    const first=firstChildChunk.call(this,at);
+    const first=firstChildChunk.call(this,at, start);
     if (first>-1) out.push(this.getChunk(first));
-    const next=nextsiblingChunk.call(this,at);
+    const next=nextsiblingChunk.call(this,at, end);
     if (next>-1) out.push( this.getChunk(next) );
     return out;
 }
