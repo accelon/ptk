@@ -77,12 +77,27 @@ export class StringArray {
 	at(offset:number){
 		return bsearchNumber(this.charpos,offset);
 	}
+	//assuming sorted
 	find(pat:string):number { // return the closest match 
 		const getter:StringGetter=this.get.bind(this);
 		if (this.delimiter) pat+=this.delimiter; 
 		const at=bsearchGetter( getter, pat )  ; // this.get(-1) return len
 		const found=getter(at);
 		return (found.endsWith(pat))?at:-1;
+	}
+	indexOf(pat):number{
+		let at;
+		at=this.buf.indexOf(pat);
+
+		while (at>-1) {
+			if ( (at==0 || this.buf.charAt(at-1)==this.sep) &&
+               ( this.buf.length== pat.length+at || this.buf.charAt(at+pat.length)==this.sep)) {
+				return bsearchNumber(this.charpos,at);
+			} else {
+				at=this.buf.indexOf(pat,at+pat.length);
+			}
+		}
+		return -1;
 	}
 	enumMiddle(infix:string):number[]{
 		if (this.middleCache.hasOwnProperty(infix)) {

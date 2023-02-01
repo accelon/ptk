@@ -6,6 +6,8 @@ import * as PTK from '../nodebundle.cjs';
 import {onelexicon, text_lexicon, lexicons} from './textutils.js'
 import nGram from './ngram.js';
 import {xmltag} from './xml.js';
+import {markj} from './markj.js';
+import {markid} from './markid.js';
 import {dump} from './dump.js';
 import Path from 'path';
 
@@ -129,12 +131,17 @@ const help=()=>{
     console.log(underline('XML Processing XML处理'));    
     console.log('$',yellow('ptk xmltag   '),cyan('file'),magenta('outdir'),'xml to tag and plain text拆分為標籤及純文字');
 
-    console.log(red('\nHappy Chinese New Year'));
-    console.log('PTK-CLI ver',green('2023.1.23'));
+    console.log(underline('Markup 標記处理'));
+    console.log('$',yellow('ptk markj    '),cyan('address'),cyan('txtfile'),cyan('pattern'),'find origtext 找原書出處');
+    console.log('$',yellow('ptk markid   '),cyan('address'),cyan('txtfile'),'fill id, 補上 id');
+
+    // console.log(red('\nHappy Chinese New Year'));
+    console.log('PTK-CLI ver',green('2023.2.1'));
 }
 
 try {
-    await ({'--help':help,'-h':help,ptk,js,com,dedup,unique,listwords,union,ngram,intersect,xor,xmltag,dump})[cmd](arg,arg2);
+    await ({'--help':help,'-h':help,ptk,js,com,dedup,unique,listwords,
+    union,ngram,intersect,xor,xmltag,dump,markj,markid})[cmd](arg,arg2);
 
 } catch(e) {
     console.log( red('error running command'),cmd)

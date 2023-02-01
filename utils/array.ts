@@ -68,7 +68,7 @@ export const removeSubstring=(arr:NumberArray):NumberArray=>{
 }
 
 // Jaccard similarity coefficient 
-export const similaritySet=( arr,  basearr)=>{
+export const similarSet=( arr,  basearr)=>{
     const I=intersect(arr,basearr);
     const U=union(arr,basearr);
     return  I.length/U.length;

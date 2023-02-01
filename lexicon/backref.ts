@@ -2,7 +2,7 @@
     lookup column[name] with key, if keycolname is supplied, convert to norm key
 */
 import {fromObj} from '../utils/sortedarray.ts'
-import {similaritySet} from '../utils/array.ts'
+import {similarSet} from '../utils/array.ts'
 
 
 export const lookupKeyColumn=(ptk,name, key, keycolname)=>{
@@ -61,7 +61,7 @@ export const calApprox=( col,members)=>{
     const values=col.fieldvalues[idx];
     for (let i=0;i<values.length;i++) {
         const v=values[i];
-        const similarity=similaritySet(v, members); 
+        const similarity=similarSet(v, members); 
         if (similarity>threshold) {
             out.push([i, similarity]);
         }

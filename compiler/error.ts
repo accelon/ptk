@@ -16,6 +16,7 @@ export enum VError {
 	PtkNamed      = 'PTK_NAMED' ,
 	PtkNoName     = 'PTK_NONAME',
 	RedefineChunkTag = 'REDEFINE_CHUNK_CHUNK_TAG' ,
+	InvalidLinkAddress = 'INVALID_LINK_ADDRESS'
 
 }
 
