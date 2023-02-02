@@ -14,6 +14,7 @@ export class GuideAction extends Action{
 		const action=this.address.action.slice(1);
 		const idx=this.dividx;
 		const actionprefix=GUIDEACTIONPREFIX;
+		if (!ptk.template.parseChoice) return ;
 		const [choices,groupby,groupfilter]=ptk.template.parseChoice(action);
 
 		const col=ptk.columns[ptk.template.filterColumn];

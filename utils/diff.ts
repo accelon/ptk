@@ -49,8 +49,6 @@ export const printDiff=(d,caption)=>{
             out+=green(value);
         }
     })
-    console.log(caption);
-    console.log(out);
     let out2='';
     d.forEach( ({added,value,removed})=>{
         if (!added && !removed) {
@@ -59,7 +57,7 @@ export const printDiff=(d,caption)=>{
             out2+=red(value);
         }
     })
-    console.log(out2)
+
 }
 export const diffSim=D=>{
     let same=0,total=0;

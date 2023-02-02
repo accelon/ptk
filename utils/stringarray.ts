@@ -88,11 +88,12 @@ export class StringArray {
 	indexOf(pat):number{
 		let at;
 		at=this.buf.indexOf(pat);
-
 		while (at>-1) {
-			if ( (at==0 || this.buf.charAt(at-1)==this.sep) &&
-               ( this.buf.length== pat.length+at || this.buf.charAt(at+pat.length)==this.sep)) {
-				return bsearchNumber(this.charpos,at);
+			if (at==0) return 0;
+			if (this.buf.length== pat.length+at) return this.len()-1;
+			if ( this.buf.charAt(at-1)==this.sep&&
+                 this.buf.charAt(at+pat.length)==this.sep) {
+				return bsearchNumber(this.charpos,at)+1;
 			} else {
 				at=this.buf.indexOf(pat,at+pat.length);
 			}

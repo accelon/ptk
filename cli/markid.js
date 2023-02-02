@@ -35,10 +35,12 @@ export const markid=async ()=>{
             if (!closebracket) continue;
             const closeat=lines.indexOf(closebracket);
             const innertext=lines[i].slice(m[0].length,closeat);
+            
             let id='';
             totalcount++;
             const at=tag.innertext.indexOf(innertext);
             if (at>-1) {
+                console.log(innertext, tag.innertext.get(at))
                 id=tag.fields.id.values[at];
                 if (id ) {
                     foundcount++;

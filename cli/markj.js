@@ -17,7 +17,9 @@ export const markj=async ()=>{
     console.time('markj')
     const address=process.argv[3];
     const txtfile=process.argv[4];
-    const pattern=new RegExp(process.argv[5]||'');
+    const pat=process.argv[5];
+    const pattern=pat?new RegExp(pat||''):null;
+
     const addr=parseAddress(address);
     const ptk=await openPtk(addr.ptkname);
     if (!ptk) {
@@ -53,8 +55,10 @@ export const markj=async ()=>{
     let sim;
 
     for (let i=0;i<lines.length;i++) {
-        if (!lines[i].match(pattern))continue;
+        
+        if (pattern && !lines[i].match(pattern))continue;
         const linearr=tidyLine(lines[i]).split(/(.)/).filter(it=>!!it);
+        if (!pattern && linearr.length<6) continue;
         const matches=[];
         for (let j=0;j<candidates.length;j++) {
             const min=candidates[j].length>linearr.length?linearr.length:candidates[j].length;
@@ -71,24 +75,24 @@ export const markj=async ()=>{
         if (matches.length){
             matches.sort((a,b)=>b[0]-a[0]);
             const sim=matches[0][0];
-            if (sim>0.7) {
+            if (sim>0.8) {
                 const found=matches[0][1];
                 const ttagid= ttag.fields.id.values[found];
 
-                if (sim>0.93 && sim<=0.94) {
-                    const j=found-from;
-                    const min=candidates[j].length>linearr.length?linearr.length:candidates[j].length;
-                    const a1=unique(candidates[j].slice(0,min).sort(alphabetically));
-                    const a2=unique(linearr.slice(0,min).sort(alphabetically));
+                // if (sim>0.93 && sim<=0.94) {
+                //     const j=found-from;
+                //     const min=candidates[j].length>linearr.length?linearr.length:candidates[j].length;
+                //     const a1=unique(candidates[j].slice(0,min).sort(alphabetically));
+                //     const a2=unique(linearr.slice(0,min).sort(alphabetically));
         
-                    console.log('\n',lines[i], ttagid)
-                    console.log(ptk.getLine(ttag.linepos[found]));
-                    console.log(a1,a2, similarSet(a1,a2))
-                }
-                lines[i]+='^j@'+bkid+'.'+ttagname+(parseInt(ttagid)?'':'#')+ttagid+'<sim='+sim.toFixed(2)+'>';
+                //     // console.log('\n',lines[i], ttagid)
+                //     // console.log(ptk.getLine(ttag.linepos[found]));
+                //     // console.log(a1,a2, similarSet(a1,a2))
+                // }
+                lines[i]+='^j@'+bkid+'.'+ttagname+(parseInt(ttagid)?'':'#')+ttagid+((sim<0.9)?'<sim='+sim.toFixed(2)+'>':'');
                 foundcount++;   
             }
-        } else {
+        } else if (pattern) {
             lines[i]+='^j@notfound'
             unfoundcount++;
         }
