@@ -139,17 +139,19 @@ export class Pitaka extends LineBase {
 	async loadPostings(s:string){
 		if (!this.inverted) return;
 		const nPostings=this.inverted.nPostingOf(s);
-		const jobs=[];
+		const postinglines=[];
 		const that=this;
 		for (let i=0;i<nPostings.length;i++) {
 			if (nPostings[i]<0) continue;
 			const line=this.inverted.postingStart+nPostings[i];
-			jobs.push( async function(at){
-				await that.loadLines([[line,line+1]]);
-				that.inverted.postings[at]=unpackIntDelta(that.getLine(line));
-			}(nPostings[i]));
+			postinglines.push([line,line+1]);
 		}
-		await Promise.all(jobs);
+		await that.loadLines(postinglines);
+		for (let i=0;i<nPostings.length;i++) {
+			const at=nPostings[i];
+			const line=this.inverted.postingStart+nPostings[i];
+			this.inverted.postings[at]=unpackIntDelta(that.getLine(line));
+		}
 		return this.getPostings(s);
 	}
 	getHeading(line:number) {

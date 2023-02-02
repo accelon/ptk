@@ -89,12 +89,14 @@ export async function phraseQuery(phrase:string){
     let out=this.queryCache[qkey];
     if (out) return out;
     const tokens=await this.loadPostings(phrase);
+    console.log(tokens)
     if (!tokens) return [];
     out=tokens[0];
     for (let i=1;i<tokens.length;i++) {
         let pl1=out;
         out=plAnd(pl1,tokens[i],i);
     }
+    console.log(out)
     this.queryCache[qkey]=out||[];
     return this.queryCache[qkey];
 }
