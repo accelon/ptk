@@ -121,7 +121,6 @@ export async function parseQuery(tofind:string,opts){
 export async function scanText(tofind:string,opts) {
     const ptk=this;
     const [phrases,postings]=await ptk.parseQuery(tofind,opts);
-
     if (!postings.length || !ptk.inverted) return [];
     const tagname=opts?.groupby||'ak'
     const groupby=ptk.defines[tagname];

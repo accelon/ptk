@@ -68,7 +68,7 @@ export class Indexer {
 		for (let i=0;i<this.wordscount;i++) {
 			this.postings[i] = new Int32Array( this.postingcount[i]);
 		}
-		for (let i=0;i<this.bmp.length;i++) {
+		for (let i=0x0;i<this.bmp.length;i++) {
 			if (this.bmp[i]) {
 				this.bmppostings[i] = new Int32Array( this.bmp[i]);	
 			}

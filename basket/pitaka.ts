@@ -152,6 +152,7 @@ export class Pitaka extends LineBase {
 		
 		for (let i=0;i<nPostings.length;i++) {
 			const at=nPostings[i];
+			if (at==-1) continue;
 			const line=this.inverted.postingStart+nPostings[i];
 			if (!this.inverted.postings[at]) {
 				const packedline=that.getLine(line);
