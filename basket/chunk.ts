@@ -125,6 +125,7 @@ export function neighborChunks(at:Number){
         out.push( this.getChunk(prev) );
     } 
     out.push(this.getChunk(at));
+    //add bookname
     const first=firstChildChunk.call(this,at, start);
     if (first>-1) out.push(this.getChunk(first));
     const next=nextsiblingChunk.call(this,at, end);

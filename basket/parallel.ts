@@ -24,7 +24,7 @@ export function foreignLinksAtTag(tagname, line){
             for (let j=0;j<arr.length;j++){
                 const address=tagvalues[arr[j]];
                 const line=srclinepos[arr[j]];
-                const ck=sptk.nearestChunk(line);
+                const ck=sptk.nearestChunk(line+1);
                 out.push({text:address, line, ck});
                 // console.log(at,address);
             }

@@ -114,12 +114,12 @@ export const renderOfftext=(linetext='', opts={})=>{
             }
         }
         if (hits && hits.length && phit<hits.length) {
-            if (ru.postingoffset>=hits[phit] &&  ru.postingoffset<=hits[phit]+phraselength[phit]
+            if (ru.postingoffset>=hits[phit] && ru.postingoffset<hits[phit]+phraselength[phit]
                 && ru.token.type>=TokenType.SEARCHABLE) {
                 ru.highlight=true;
             }
 
-            if (hits[phit]<ru.postingoffset) phit++;
+            if (hits[phit]+phraselength[phit]<=ru.postingoffset) phit++;
 
             if (ru.highlight) {
                 ru.luminate++;
