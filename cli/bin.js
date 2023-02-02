@@ -136,7 +136,7 @@ const help=()=>{
     console.log('$',yellow('ptk markid   '),cyan('address'),cyan('txtfile'),'fill id, 補上 id');
 
     // console.log(red('\nHappy Chinese New Year'));
-    console.log('PTK-CLI ver',green('2023.2.1'));
+    console.log('PTK-CLI ver',green('2023.2.2'));
 }
 
 try {

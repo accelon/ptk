@@ -40,7 +40,6 @@ export const markid=async ()=>{
             totalcount++;
             const at=tag.innertext.indexOf(innertext);
             if (at>-1) {
-                console.log(innertext, tag.innertext.get(at))
                 id=tag.fields.id.values[at];
                 if (id ) {
                     foundcount++;

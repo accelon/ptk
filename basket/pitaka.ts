@@ -146,11 +146,17 @@ export class Pitaka extends LineBase {
 			const line=this.inverted.postingStart+nPostings[i];
 			postinglines.push([line,line+1]);
 		}
+		//must sort for combineRange
+		postinglines.sort((a,b)=>a[0]-b[0])
 		await that.loadLines(postinglines);
+		
 		for (let i=0;i<nPostings.length;i++) {
 			const at=nPostings[i];
 			const line=this.inverted.postingStart+nPostings[i];
-			this.inverted.postings[at]=unpackIntDelta(that.getLine(line));
+			if (!this.inverted.postings[at]) {
+				const packedline=that.getLine(line);
+				this.inverted.postings[at]=unpackIntDelta(packedline);
+			}
 		}
 		return this.getPostings(s);
 	}

@@ -20,7 +20,7 @@ const combineRange=range=>{
 	} else {
 		return range;
 	}
-	return combined;
+	return combined
 }
 export class LineBase{
 	constructor (opts={}) {
