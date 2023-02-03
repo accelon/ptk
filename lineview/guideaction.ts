@@ -9,7 +9,7 @@ export class GuideAction extends Action{
 	}
 	async run(){
         const ptk=usePtk(this.ptkname);
-        const caption=ptk.captionOfAddress(this.address);
+        const caption=ptk.innertext(this.address);
         let {name}=this.act[0];
 		const action=this.address.action.slice(1);
 		const idx=this.dividx;

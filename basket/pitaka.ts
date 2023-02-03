@@ -1,7 +1,7 @@
 import {ILineBase,LineBase,Column} from '../linebase/index.ts';
 import {Compiler,sourceType} from '../compiler/index.ts'
 import {unpackIntDelta,bsearchNumber} from '../utils/index.ts';
-import {rangeOfAddress,captionOfAddress} from './address.ts';
+import {rangeOfAddress,innertext} from './address.ts';
 import {columnField,inlineNote,rowOf,scanPrimaryKeys} from './columns.ts';
 import {Inverted,plContain} from '../fts/index.ts';
 import {TableOfContent,buildTocTag} from '../compiler/toc.ts';
@@ -11,6 +11,7 @@ import {Templates} from '../compiler/template.ts'
 import {foreignLinksAtTag} from './parallel.ts';
 import {addBacklinks, addForeignLinks } from './links.ts';
 import {getCaption,caption,nearestChunk,getChunk,neighborChunks} from './chunk.ts'
+
 export const regPtkName =  /^[a-z\-_]{2,16}$/
 export const validPtkName=(name:string):boolean=>!!name.match(regPtkName);
 export interface IPitaka extends ILineBase{
@@ -28,7 +29,7 @@ export class Pitaka extends LineBase {
 		this.columns={};
 		this.tocs={};
 		this.rangeOfAddress=rangeOfAddress;
-		this.captionOfAddress=captionOfAddress;
+		this.innertext=innertext;
 		this.scanPrimaryKeys=scanPrimaryKeys;
 		this.scanText=scanText;
 		this.parseQuery=parseQuery;

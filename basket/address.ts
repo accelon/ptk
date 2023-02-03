@@ -117,7 +117,7 @@ export function rangeOfAddress(address:string|IAddress):ILineRange{
 	}
 }
 //only display the first level
-export function captionOfAddress(address:string):string{
+export function innertext(address:string):string{
 	let addr=address;
 	if (typeof address=='string') {
 		addr=parseAddress(address);

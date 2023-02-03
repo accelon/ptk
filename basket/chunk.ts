@@ -52,9 +52,10 @@ export function getChunk(at:Number){
     const id=chunktag.fields.id.values[at];
     const innertext=chunktag.innertext.get(at);
     const caption=this.caption(at);
+    const depth=chunktag.depths?chunktag.depths[at]||1:1;
     return {bkid ,caption, at:at+1, id ,
         bk:{id:bkid, caption: booktag?.innertext.get(bkat) },
-        depth:chunktag.depths[at]||1,
+        depth,
         line:chunktag.linepos[at],
         innertext}
 }
@@ -69,6 +70,7 @@ const resetBy=(ptk,tagname)=>{
 }
 export function ancestorChunks(at:Number,start:Number){
     const chunktag=this.defines.ck;
+    if (!chunktag.depths) return [];
     let line=chunktag.linepos[at];
     let depth=chunktag.depths[at];
     const out=[];
@@ -85,6 +87,7 @@ export function ancestorChunks(at:Number,start:Number){
 export function prevsiblingChunk(at:Number, start:Number){
     let p=at-1;
     const chunktag=this.defines.ck;
+    if (!chunktag.depths&&at>0) return at-1;
     while (p>0) {
         if (chunktag.depths[p]==chunktag.depths[at] ) return p;
         else if (chunktag.depths[p]<chunktag.depths[at]) break;
@@ -96,6 +99,8 @@ export function prevsiblingChunk(at:Number, start:Number){
 export function nextsiblingChunk(at:Number, end:Number) {
     let p=at+1;
     const chunktag=this.defines.ck;
+    if (!chunktag.depths&&at<end) return at+1 ;
+
     while (p<chunktag.linepos.length) {
         if (chunktag.depths[p]==chunktag.depths[at] ) return p;
         else if (chunktag.depths[p]<chunktag.depths[at]) break;
@@ -106,6 +111,8 @@ export function nextsiblingChunk(at:Number, end:Number) {
 }
 export function firstChildChunk(at:Number) {
     const chunktag=this.defines.ck
+    if (!chunktag.depths) return -1;
+
     if (chunktag.depths[at+1]==chunktag.depths[at]+1 ) return at+1;
     return -1;
 }

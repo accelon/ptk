@@ -18,7 +18,7 @@ export class TitleCountAction extends Action{
 		const address=name.slice(1);
 
 		const sectionrange=address?ptk.rangeOfAddress(address):[0,ptk.header.eot+1];
-		const caption=ptk.captionOfAddress(address);
+		const caption=ptk.innertext(address);
 		const [sectionfrom,sectionto]=sectionrange.map(it=>ptk.inverted.tokenlinepos[it]);
 		let chunkcountobj={},hitcount=0 , items=[];
         const chunktag=ptk.defines.ck;

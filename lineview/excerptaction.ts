@@ -61,9 +61,11 @@ export class ExcerptAction extends Action{
 		const phraselength =arr.map(it=> it[1].map(n=>n%MAXPHRASELEN));
 
 		const cobj=fromObj(chunkobj,(a,b)=>a);
+
 		const samechunkline=cobj.length==1?cobj[0]:-1;
 
 		this.ownerdraw={painter:'excerpt', data:{ last:this.last, samechunkline ,
+			section,
 			from:this.from, name, hitcount, caption,ptk,tofind , lines,hits,phraselength}} ;
 	}	
 }
