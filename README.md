@@ -56,6 +56,11 @@ Accelon 的 backend
 
    詳見 bin.js::build
 
+## ptk dump 
+
+   產生 cbeta-T24.txt
+   ptk dump cbeta T/T24    
+
 ## 平行語料庫
 
 資料庫有相同前綴 ，如 cs , cs-en 。

@@ -124,6 +124,7 @@ export const offGen_cbeta=(txt,tags,charmaps)=>{
 
 export const StockCharMap_cbeta={
     'CB01647':'︵𮒻至壬︶',
+    'CB01808':'擪',
 }
 export const buildCharMap_cbeta=tree=>{
     const out=StockCharMap_cbeta;

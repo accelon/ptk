@@ -167,7 +167,7 @@ export class Pitaka extends LineBase {
 		const chunktag=this.defines.ck;
 		const booktag=this.defines.bk;
 		const linepos=chunktag?.linepos||[];
-		const at=bsearchNumber(linepos, line)-1;
+		const at=bsearchNumber(linepos, line+1)-1;
 		const lineoff=line-linepos[at];
 		const id=chunktag?.fields?.id?.values[at];
 		const bkat=this.nearestTag(line,booktag) - 1;
