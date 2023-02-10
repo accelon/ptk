@@ -39,6 +39,14 @@ const nullify_rdg=content=>{
     });
     return content;
 }
+const nullify_choice=content=>{
+    content=content.replace(/<orig([^>]*?)>([^<]*?)<\/orig>/g,(m,_attrs,t)=>{
+        return '<_orig t="'+t+'"/>';        
+    }).replace(/<sic([^>]*?)>([^<]*?)<\/sic>/g,(m,_attrs,t)=>{
+        return '<_sic t="'+t+'"/>';   
+    });
+    return content;
+}
 const nullify_cbtt=content=>{
     content=content.replace(/<cb:t ([^>]+)>([^<]+)<\/cb:t>/g,(m,_attrs,t)=>{
         const attrs=parseXMLAttribute(_attrs);
@@ -67,6 +75,7 @@ export const nullify_cbeta=content=>{
     content=nullify_note(content);
     content=nullify_note(content); //recursive , T14n0443_004.xml 0337016
     content=nullify_rdg(content);
+    content=nullify_choice(content);
     content=nullify_note(content);
 
     return content;

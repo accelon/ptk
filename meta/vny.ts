@@ -1,5 +1,6 @@
 import {addTemplate} from '../compiler/template.ts'
-const getParallels=(ptk,line)=>{
+//類似條文
+const getCorrespondece=(ptk,line)=>{
     const ck=ptk.nearestChunk(line+1);
     const bktag=ptk.defines.bk;
     const pc=ptk.columns.pc;
@@ -18,5 +19,5 @@ const getParallels=(ptk,line)=>{
     return out
 }
 addTemplate('vny',{
-    getParallels
+    getCorrespondece
 });

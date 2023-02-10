@@ -17,8 +17,7 @@ async function loadLines(lva, noparallel=false){
 		pitaka_lines[divisions[i].ptkname].push(...divisions[i].getLines());
 		//load all parallel
 		const parallels=divisions[i].getParallelWithDiff();
-		const ptk=usePtk(divisions[i].ptkname);
-	
+		const ptk=usePtk(divisions[i].ptkname);	
 		if (!noparallel) {
 			for ( let j=0;j< parallels.length;j++) {
 				const [pptk,linediff]=parallels[j];
@@ -73,14 +72,14 @@ async function loadLines(lva, noparallel=false){
 			const sponsor=closable&&from==0?getSponsor(ptk, lines[j]):'';
 			
 			//get chunk parallels
-			const parallels=(from==0&&j==0)? ptk.template?.getParallels(ptk,lines[j]):[];
+			const correspondences=(from==0&&j==0)? ptk.template?.getCorrespondence(ptk,lines[j]):[];
 			
 			//show remain button on last line
 			//todo , do not show on left part of splited division
 			const highlight= highlightline-divisions[i].from == j   ; //relative to begining of chunk
 
 			segment.push({seq,idx:j==0?i:-1,ptkname, key:ptkname+':'+(lines[j]), 
-				line:lines[j],highlight,text, depth, edge,closable,sponsor, parallels});
+				line:lines[j],highlight,text, depth, edge,closable,sponsor, correspondences});
 			seq++;
 		}
 		out.push(...segment);

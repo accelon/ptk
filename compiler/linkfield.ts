@@ -5,7 +5,7 @@ import {packInt2d} from  "../utils/packintarray.ts"
 import {unpackInt2d} from  "../utils/unpackintarray.ts"
 import {alphabetically0} from '../utils/sortedarray.ts'
 import {VError} from './error.ts';
-import {bsearch} from "../utils/bsearch.ts";
+
 /* link to foriegn key */
 export class LinkField extends Field {
 	constructor(name:string,def:Map){

@@ -62,3 +62,7 @@ Accelon 的 backend
 
 資料庫有相同前綴 ，如 cs , cs-en 。
 或者在 directive 指定 align=cs  ( see pool.ts::poolParallelPitakas)
+
+## build scripts
+
+    npm run build-browser  // load with script tag , window.PTK available
