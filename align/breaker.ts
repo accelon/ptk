@@ -267,6 +267,7 @@ export const removeSubPara=paralines=>{
     if (joined) out.push(joined);
     return out;
 }
+
 export const autoChineseBreak=line=>{// insert \n
     return line.replace(/([！。？][』」”’〕]+)/g,"$1\n")
     .replace(/([^。？；：\d]{4,15})([？；：])/g,"$1$2\n")

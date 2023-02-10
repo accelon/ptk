@@ -23,6 +23,8 @@ export const parseAction=(action:string)=>{
 			out.push([m2[1],m2[2]]);
 		} else if (m3) {
 			out.push([m3[1],m3[2]]);
+		} else {
+			out.push(['ck',branches[i]]); //default
 		}
 	}
 	return out;

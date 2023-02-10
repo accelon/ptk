@@ -94,3 +94,30 @@ export const extractBook=(arr:Array<string>|string)=>{
 }
 export const replaceAuthor=(str:string,cb:Function)=>str.replace(/(．)([\u3400-\u9fff\ud800-\udfff]{2,10})([〈《])/g,(m,m1,m2,m3)=>cb(m1,m2,m3))
 export const replaceBook=(str:string,cb:Function)=>str.replace(/([〈《])([\u3400-\u9fff\ud800-\udfff]{2,30})/g,(m,m1,m2,m3)=>cb(m1,m2,''))
+
+export const breakChineseSentence=(line,opts={})=>{
+    const threshold=opts.threshold||20;
+    const out=[];
+    let t='',prevpunc=0;
+    for (let i=0;i<line.length;i++) {
+        const ch=line.charAt(i);
+
+        if (t.length>threshold && prevpunc>0) {
+            out.push(t.slice(0,prevpunc+1));
+            t=t.slice(prevpunc+1);
+            prevpunc=0;
+        }
+        if (~"。？；".indexOf(ch)) {
+            if (t.length>threshold) {
+                out.push(t+ch);
+                t='';
+                continue;
+            } else {
+                prevpunc=t.length;
+            }
+        }
+        t+=ch;
+    }
+    out.push(t);
+    return out.join('\n');
+}

@@ -4,6 +4,7 @@ generic:
 ^:bk<id=unique bracket=false reset=ck,juan>
 ^:ck<id=unique bracket=false>
 ^:n<id=unique_number>
+^:o<@=link>
 ^:j<@=link>
 ^:ad
 ^:bc
