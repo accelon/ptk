@@ -15,6 +15,3 @@ export function addForeignLinks(fptk){ //call by connect when other database is 
         }
     }
 }
-export function getParallelLine(masterptk,line){
-    return [true,0];
-}

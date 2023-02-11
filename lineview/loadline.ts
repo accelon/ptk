@@ -16,7 +16,7 @@ async function loadLines(lva, noparallel=false){
 		if(!pitaka_lines[divisions[i].ptkname]) pitaka_lines[divisions[i].ptkname]=[];
 		pitaka_lines[divisions[i].ptkname].push(...divisions[i].getLines());
 		//load all parallel
-		const parallels=divisions[i].getParallelWithDiff();
+		const parallels=divisions[i].ownerdraw?[]:divisions[i].getParallelWithDiff();
 		const ptk=usePtk(divisions[i].ptkname);	
 		if (!noparallel) {
 			for ( let j=0;j< parallels.length;j++) {
@@ -24,15 +24,18 @@ async function loadLines(lva, noparallel=false){
 				if (!ptk.parallels[pptk.name]) continue;
 	
 				let lines=divisions[i].getLines();
-				if (linediff!==0) lines=lines.map(i=>i+linediff);
+				if (linediff) lines=lines.map(it=>it+linediff);
+
 				if(!pitaka_lines[pptk.name]) pitaka_lines[pptk.name]=[];
 				pitaka_lines[pptk.name].push( ...lines );
-			}	
+			}
+
 		}
 	}
 	for (const ptkname in pitaka_lines) {
 		const ptk=usePtk(ptkname);
 		if (!ptk) continue;
+		pitaka_lines[ptkname].sort((a,b)=>a-b);
 		jobs.push(ptk.loadLines(pitaka_lines[ptkname]));
 	}
 

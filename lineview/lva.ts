@@ -113,7 +113,7 @@ export class LVA {
 		const division=typeof idx=='number'?this._divisions[idx]:idx;
 		if (!division) return;
 		const pagesize=this.getViewPageSize(division);
-		return (division.till>0?division.till:0)+pagesize<division.last-division.first;
+		return (division.till>0?division.till:0)<division.last-division.first;
 	}
 	cannext(idx){
 		const division=typeof idx=='number'?this._divisions[idx]:idx;

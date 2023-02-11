@@ -1,7 +1,36 @@
 import {bsearchNumber} from '../utils/bsearch.ts';
 import {poolGet} from '../basket/pool.ts'
-export function getParallelLines(ptkname){
-    console.log('address',ptkname)
+
+const bookPrefix=bookname=>{
+    let prefix=bookname;
+    const at=bookname.lastIndexOf('_');
+    if (~at) prefix=bookname.slice(0,at);
+    return prefix;
+}
+
+export function getParallelLine(sourceptk,line){
+    const chunk=sourceptk.nearestChunk(line);
+    const lineoff=line-chunk.line;
+
+    const books=this.getParallelBook(chunk.bkid);
+    //同名 被 getParallelBook 去除，加回去
+    if (!~books.indexOf(chunk.bkid)) books.push(chunk.bkid);
+    const out=[];
+    for (let i=0;i<books.length;i++) {
+        const [start,end]=this.rangeOfAddress('bk#'+books[i]+'.ck#'+chunk.id);
+        if (lineoff<=end-start) {
+            out.push(start + lineoff - line)
+        }    
+    }
+    return out;
+}
+
+export function getParallelBook(bookname:string|Number){
+    if (typeof bookname=='number') {
+        bookname=this.defines.bk.fields.id.values[bookname];
+    }
+    const prefix=bookPrefix(bookname);
+    return this.defines.bk.fields.id.values.filter(it=>bookPrefix(it)==prefix&&bookname!==it);
 }
 //see compiler/linkfield.ts  for structure
 export function foreignLinksAtTag(tagname, line){

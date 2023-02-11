@@ -53,8 +53,10 @@ export function getChunk(at:Number){
     const innertext=chunktag.innertext.get(at);
     const caption=this.caption(at);
     const depth=chunktag.depths?chunktag.depths[at]||1:1;
+    const bkheading= booktag.fields.heading?.values[bkat] || booktag.innertext.get(bkat)
     return {bkid ,caption, at:at+1, id ,
-        bk:{id:bkid, caption: booktag?.innertext.get(bkat) },
+        bk:{id:bkid, caption: booktag?.innertext.get(bkat)
+        ,heading:bkheading },
         depth,
         line:chunktag.linepos[at],
         innertext}

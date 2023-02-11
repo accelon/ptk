@@ -8,7 +8,7 @@ import {TableOfContent,buildTocTag} from '../compiler/toc.ts';
 import {parseQuery,scanText,scoreLine} from '../fts/query.ts';
 import {footNoteAddress,footNoteByAddress} from './footnote.ts';
 import {Templates} from '../compiler/template.ts'
-import {foreignLinksAtTag} from './parallel.ts';
+import {foreignLinksAtTag,getParallelBook,getParallelLine} from './parallel.ts';
 import {addBacklinks, addForeignLinks } from './links.ts';
 import {getCaption,caption,nearestChunk,getChunk,neighborChunks} from './chunk.ts'
 
@@ -41,6 +41,8 @@ export class Pitaka extends LineBase {
 		this.footNoteAddress=footNoteAddress;
 		this.footNoteByAddress=footNoteByAddress;
 		this.foreignLinksAtTag=foreignLinksAtTag;
+		this.getParallelBook=getParallelBook;
+		this.getParallelLine=getParallelLine;
 		this.taggedLines={};
 		this.foreignlinks={}; 
 		this.backlinks={};
@@ -172,14 +174,14 @@ export class Pitaka extends LineBase {
 		const id=chunktag?.fields?.id?.values[at];
 		const bkat=this.nearestTag(line,booktag) - 1;
 		const bkid=booktag.fields.id.values[bkat] ;
-
+		const bkheading= booktag.fields.heading?.values[bkat] || booktag.innertext.get(bkat)
 /* TODO
 if caption has leading - , trace back to fetch ancestor node,
 this is suitable for tree structure with less branches,
 not suitable for dictionary wordheads
 */
 		const caption=this.caption(at);
-		return {id, tagname:'ck', caption,lineoff , bkid};
+		return {id, tagname:'ck', caption,lineoff , bkid ,bkheading};
 	}
 	getPostings(s:string){
 		const nPostings=this.inverted.nPostingOf(s);
