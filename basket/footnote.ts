@@ -5,7 +5,7 @@ export function footNoteAddress(id:string,line:number){
 
     const chunktag=ptk.defines.ck;
     const bktag=ptk.defines.bk;
-    const footbk=ck.bkid+'_fn';
+    const footbk='fn_'+ck.bkid;
     const at=bktag.fields.id.values.indexOf(footbk);
     const booknotebkline=bktag.linepos[at];
     const closestchunk=ptk.findClosestTag( chunktag, 'id',ck.id, booknotebkline);

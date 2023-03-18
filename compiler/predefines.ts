@@ -3,7 +3,7 @@ generic:
 `^:ak<id=unique bracket=false reset=n>
 ^:bk<id=unique heading=text bracket=false reset=ck,juan>
 ^:ck<id=unique heading=text bracket=false>
-^:n<id=unique_number>
+^:n<id=number>
 ^:o<@=link>
 ^:j<@=link>
 ^:ad
@@ -15,11 +15,20 @@ generic:
 ^:fn<id=number>`,
 cs:
 `^:ak<id=unique bracket=false reset=ck>
-^:bk<id=unique reset=n>
-^:ck<caption=chunk id=unique bracket=false>
-^:n<id=unique_number>
+^:bk<id=unique heading=text bracket=false reset=n>
+^:ck<id=unique heading=text bracket=false>
+^:n
 ^:h
 ^:sz
 ^:https<bracket=false onclick=gourl>
+`,
+zidian:
+`^:ak<id=unique bracket=false reset=ck>
+^:bk<id=unique heading=text bracket=false reset=n>
+^:ck<id=unique heading=text bracket=false>
+^:f<id=number>
+^:https<bracket=false onclick=gourl>
+^:j<@=link>
+^:o<@=link>
 `
 }

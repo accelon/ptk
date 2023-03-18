@@ -4,7 +4,8 @@ export const getOfftextLineClass=(ptk,offtext,attr)=>{
     const tags=offtext.tags;
     for (let i=0;i<tags.length;i++) {
         const tag=tags[i];
-           const def=ptk.defines[tag.name];
+        const def=ptk.defines[tag.name];
+        if (!def) continue;
         const value=def.attrs[attr];
         if (typeof value!=='undefined') {
             const backref=def.attrs.backref;

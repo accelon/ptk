@@ -4,6 +4,7 @@ const Entities={
 	'ntilde':'ñ','Ntilde':'Ñ',
 	'nbsp':' ','quot':'"',"ucirc":'û','acirc':'â','icirc':'î'
 }
+
 export const entity2unicode=s=>{
     s=s.replace(/&#x([\dABCDEF]+);/g,(m,m1)=>{
         return String.fromCodePoint( parseInt(m1,16));

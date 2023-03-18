@@ -27,7 +27,7 @@ export class LVA {
 			this._divisions=[];
 			return this;
 		}
-		const depth=this._divisions[idx].depth;
+		const depth=this._divisions[idx]?.depth;
 		let next=idx+1;
 		let nextdepth=this._divisions[next]?.depth;
 		while (next<this._divisions.length && nextdepth>depth) {

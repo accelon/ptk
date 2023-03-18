@@ -9,6 +9,7 @@ import {xmltag} from './xml.js';
 import {markj} from './markj.js';
 import {markid} from './markid.js';
 import {dump} from './dump.js';
+import {adb2zip} from './adb2zip.js';
 import Path from 'path';
 
 await PTK.nodefs;
@@ -135,13 +136,14 @@ const help=()=>{
     console.log('$',yellow('ptk markj    '),cyan('address'),cyan('txtfile'),cyan('pattern'),'find origtext 找原書出處');
     console.log('$',yellow('ptk markid   '),cyan('address'),cyan('txtfile'),'fill id, 補上 id');
 
-    // console.log(red('\nHappy Chinese New Year'));
-    console.log('PTK-CLI ver',green('2023.2.2'));
+    console.log('$',yellow('ptk adb2zip  '),cyan('filename'),'adb to zip ');
+
+    console.log('PTK-CLI ver',green('2023.3.18'));
 }
 
 try {
     await ({'--help':help,'-h':help,ptk,js,com,dedup,unique,listwords,
-    union,ngram,intersect,xor,xmltag,dump,markj,markid})[cmd](arg,arg2);
+    union,ngram,intersect,xor,xmltag,dump,markj,markid,adb2zip})[cmd](arg,arg2);
 
 } catch(e) {
     console.log( red('error running command'),cmd)

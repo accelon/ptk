@@ -4,8 +4,19 @@ import {Indexer} from '../fts/index.ts';
 import {parseOfftext} from '../offtext/index.ts';
 import {serializeToc} from './toc.ts';
 
+const writeTypedefs=(lbaser:LineBaser, typedefs)=>{
+	for (let tag in typedefs) {
+		const serialized=typedefs[tag].serialize();
+		if (tag=='ak' && !typedefs[tag].linepos.length)  {
+			console.log('no ^ak');
+		}
+		if (serialized) {
+			lbaser.append( serialized, {name:'^'+tag,newpage:true,samepage:true,type:'tag'});	
+		}
+	}
+}
 export const makeLineBaser=async (sourcebuffers,compiler:ICompiler,contentGetter)=>{
-	lbaser=new LineBaser();
+	const lbaser=new LineBaser();
 	if (compiler) compiler.reset();
 	else compiler=new Compiler();
 	const indexer=new Indexer();
@@ -54,11 +65,8 @@ export const makeLineBaser=async (sourcebuffers,compiler:ICompiler,contentGetter
 		return "missing ptk name";	
 	}
 
-	for (let tag in compiler.typedefs) {
-		const serialized=compiler.typedefs[tag].serialize();
-		const name='^'+tag;
-		serialized && lbaser.append( serialized, {name,newpage:true,samepage:true,type:'tag'});
-	}
+
+	writeTypedefs(lbaser,compiler.typedefs)
 
 	lbaser.setName(compiler.ptkname);
 	return lbaser;

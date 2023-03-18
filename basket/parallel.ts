@@ -9,7 +9,8 @@ const bookPrefix=bookname=>{
 }
 
 export function getParallelLine(sourceptk,line){
-    const chunk=sourceptk.nearestChunk(line);
+    const chunk=sourceptk.nearestChunk(line+1);
+    if (!chunk) return [];
     const lineoff=line-chunk.line;
 
     const books=this.getParallelBook(chunk.bkid);
@@ -29,6 +30,7 @@ export function getParallelBook(bookname:string|Number){
     if (typeof bookname=='number') {
         bookname=this.defines.bk.fields.id.values[bookname];
     }
+    if (!bookname) return [];
     const prefix=bookPrefix(bookname);
     return this.defines.bk.fields.id.values.filter(it=>bookPrefix(it)==prefix&&bookname!==it);
 }
@@ -42,7 +44,7 @@ export function foreignLinksAtTag(tagname, line){
     const out=[];
     for (let sptkname in this.foreignlinks) {
         const sptk=poolGet(sptkname);
-        const linkarr=this.foreignlinks[this.name];
+        const linkarr=this.foreignlinks[sptkname];
         for (let i=0;i<linkarr.length;i++) {
             const [srctag,bk,targettagname,idStrArr,idxarr]=linkarr[i];
             if (targettagname!==tagname) continue;
@@ -50,11 +52,11 @@ export function foreignLinksAtTag(tagname, line){
             const at2=idStrArr.find( val);
             const tagvalues=this.defines[srctag].fields['@'].values;
             const arr=idxarr[at2];
-            for (let j=0;j<arr.length;j++){
+            for (let j=0;j<arr?.length;j++){
                 const address=tagvalues[arr[j]];
                 const line=srclinepos[arr[j]];
                 const ck=sptk.nearestChunk(line+1);
-                out.push({text:address, line, ck});
+                out.push({text:address, line, ck, basket:sptkname});
                 // console.log(at,address);
             }
         }
