@@ -2,7 +2,7 @@
 Accelon 的 backend
 
 ## 開發環境安裝
-請用 [Accelon22](https://gitbub.com/accelon/accelon22) 的 install-dev.cmd 安裝。
+請用 [Accelon22](https://github.com/accelon/accelon22) 的 install-dev.cmd 安裝。
 找不到 `ptk`  指令，請到 ptk 所在目錄，執行 `npm link` 
 
 ## 基本標記
