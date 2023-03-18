@@ -1,6 +1,15 @@
 const m=(typeof navigator!=='undefined') && navigator.userAgent.match(/Chrome\/(\d+)/);
 export const supprtedBrowser=m&&parseInt(m[1])>=86;
 
+export const createBrowserDownload=(filename,buf)=>{
+  let file = new Blob([buf], {type: "application/octet-binary"});
+  let a = document.createElement("a"), url = URL.createObjectURL(file);
+  a.href = url;
+  a.download = filename;
+  document.body.appendChild(a);
+  a.click();
+}
+
 export async function verifyPermission(fileHandle, readWrite) {
     const options = {};
     if (readWrite) {
