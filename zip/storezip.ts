@@ -1,5 +1,5 @@
 //based on  https://github.com/Touffy/client-zip but only support sync mode
-import {formatDOSDateTime, encodeString,makeBuffer, clampInt16,clampInt32,makeUint8Array,crc32} from './utils.ts'
+import {encodeString,makeBuffer, clampInt16,clampInt32,makeUint8Array,crc32} from './utils.ts'
 import {fileHeader,ZipConst,centralHeader} from './format.ts'
 interface ZipInput {
 	filename:string,

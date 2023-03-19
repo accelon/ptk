@@ -1,9 +1,9 @@
 import {makeBuffer, makeUint8Array,clampInt16,formatDOSDateTime,clampInt32} from './utils.ts';
 export enum ZipConst {
-	fileHeaderSignature = 0x504b_0304,
-	descriptorSignature = 0x504b_0708,
-	centralHeaderSignature = 0x504b_0102,
-	endSignature = 0x504b_0506,
+	fileHeaderSignature = 0x504b_0304, //PK\0x03\0x04
+	descriptorSignature = 0x504b_0708, //PK\0x07\0x08
+	centralHeaderSignature = 0x504b_0102, //PK\0x01\0x02
+	endSignature = 0x504b_0506, //PK\0x05\0x06
 	fileHeaderLength = 30,
 	centralHeaderLength = 46,
 	endLength = 22,
@@ -12,7 +12,9 @@ export enum ZipConst {
 export function fileHeader(encodedname:Uint8Array, size:number , modDate:Date , crc :number) {
   const header = makeBuffer( ZipConst.fileHeaderLength)
   header.setUint32(0, ZipConst.fileHeaderSignature);
-  header.setUint32(4, 0x0A_00_0000);
+  header.setUint32(4, 0x0A_00_0008);  //enable utf8 https://pkware.cachefly.net/webdocs/casestudies/APPNOTE.TXT
+ 
+  
 //only support STORE mode
   formatDOSDateTime(modDate || new Date(), header, 10);
   header.setUint32(14,crc, true);
@@ -25,7 +27,11 @@ export function fileHeader(encodedname:Uint8Array, size:number , modDate:Date , 
 export function centralHeader(encodedname:Uint8Array, size:number, modDate:Date, crc:number, offset: number) {
   const header = makeBuffer(ZipConst.centralHeaderLength)
   header.setUint32(0, ZipConst.centralHeaderSignature)
+  
   header.setUint32(4, 0x14000a00);
+  //enable utf8
+  header.setUint16(8, 0x0008 ) ;//
+
   formatDOSDateTime(modDate, header, 12);
   header.setUint32(16, crc, true);
   header.setUint32(20, clampInt32(size), true);
