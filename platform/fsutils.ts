@@ -39,7 +39,7 @@ export const glob=(files,filepat)=>{
     }
 }
 
-export const filesFromPattern=(pat,rootdir='')=>{
+export const filesFromPattern=(pat,rootdir='./')=>{
     const outfiles={};
     const patterns=(typeof pat==='string')?pat.split(/[;,]/):pat;
     if (rootdir&&rootdir.slice(rootdir.length-1)!=='/') rootdir+='/';

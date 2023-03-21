@@ -7,6 +7,7 @@ generic:
 ^:o<@=link>
 ^:j<@=link>
 ^:ad
+^:ts<id=number>
 ^:bc
 ^:ver<savelinepos=true>
 ^:f<id=number>

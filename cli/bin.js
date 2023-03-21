@@ -10,6 +10,7 @@ import {markj} from './markj.js';
 import {markid} from './markid.js';
 import {dump} from './dump.js';
 import {adb2zip} from './adb2zip.js';
+import {ts} from './subtitle.js'
 import Path from 'path';
 
 await PTK.nodefs;
@@ -138,12 +139,14 @@ const help=()=>{
 
     console.log('$',yellow('ptk adb2zip  '),cyan('filename'),'adb to zip ');
 
+    console.log('$',yellow('ptk ts       '),cyan('filename'),'parse subtitle (*.srt) 字幕轉標記');
+
     console.log('PTK-CLI ver',green('2023.3.18'));
 }
 
 try {
     await ({'--help':help,'-h':help,ptk,js,com,dedup,unique,listwords,
-    union,ngram,intersect,xor,xmltag,dump,markj,markid,adb2zip})[cmd](arg,arg2);
+    union,ngram,intersect,xor,xmltag,dump,markj,markid,adb2zip,ts})[cmd](arg,arg2);
 
 } catch(e) {
     console.log( red('error running command'),cmd)

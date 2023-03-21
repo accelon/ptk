@@ -49,7 +49,10 @@ export const readTextContent=(fn:string):string=>{
     let raw=fs.readFileSync(fn);
     //3 times faster than readFileSync with encoding
     //buffer is hold in C++ object instead of node.js heap
-    const decoder=new TextDecoder();
+    
+    const dv=new DataView(raw.buffer);
+    const encoding=dv.getUint16(0)==0xfffe?'utf-16le':'utf-8'; //only support utf16 le and utf8
+    const decoder=new TextDecoder(encoding);
     let s=decoder.decode(raw); 
     if (s.charCodeAt(0)===0xfeff) s=s.slice(1); //BOM is okay, no memory write involved
 
