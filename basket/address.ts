@@ -14,9 +14,9 @@ export const parseAction=(action:string)=>{
 	const branches=action.split(BRANCH_SEP);
 	const out=[];
 	for (let i=0;i<branches.length;i++) {
-		const m1=branches[i].match(/([a-z_\-]+)#([a-z\d_-]+)/); // with # id
-		const m2=branches[i].match(/([a-z_\-]+)(\d+[a-z\d_-]+)/);  // with number prefix mix id
-		const m3=branches[i].match(/([a-z_\-]+)(\d*)/);  // with pure number id
+		const m1=branches[i].match(/^([a-z_\-]+)#([a-z\d_-]+)$/); // with # id
+		const m2=branches[i].match(/^([a-z_\-]+)(\d+[a-z\d_-]+)$/);  // with number prefix mix id
+		const m3=branches[i].match(/^([a-z_\-]+)(\d*)$/);  // with pure number id
 		if (m1) {
 			out.push([m1[1],m1[2]]);
 		} else if (m2) {
@@ -24,7 +24,12 @@ export const parseAction=(action:string)=>{
 		} else if (m3) {
 			out.push([m3[1],m3[2]]);
 		} else {
-			out.push(['ck',branches[i]]); //default
+			const at=branches[i].indexOf('#');
+			if (at>0) {
+				out.push([branches[i].slice(0,at), branches[i].slice(at+1)]);
+			} else {
+				out.push(['ck',branches[i]]); //default			
+			}
 		}
 	}
 	return out;

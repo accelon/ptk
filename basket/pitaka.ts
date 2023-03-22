@@ -188,12 +188,13 @@ not suitable for dictionary wordheads
 		const postings=this.inverted.postings;
 		return nPostings.map( np=> postings[np] );
 	}
-	nearestTag(line,tag){
+	nearestTag(line,tag, fieldname=''){
 		if (typeof tag=='string') tag=this.defines[tag];
 		const linepos=tag.linepos;
 		if (!linepos) return null;
 		const at=bsearchNumber(linepos,line);
-		return (line<linepos[linepos.length-1])?at :at+1;
+		if (!fieldname) return (line<linepos[linepos.length-1])?at :at+1;
+		else if (at>0) return tag.fields[fieldname].values[at-1];
 	}
 	findClosestTag(typedef, key, value, from=0){
 		let at=typedef.fields[key].values.indexOf(value);

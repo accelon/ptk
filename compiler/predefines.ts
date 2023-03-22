@@ -7,7 +7,8 @@ generic:
 ^:o<@=link>
 ^:j<@=link>
 ^:ad
-^:ts<id=number>
+^:mpeg<id=text savelinepos=true>
+^:ts<id=range>
 ^:bc
 ^:ver<savelinepos=true>
 ^:f<id=number>

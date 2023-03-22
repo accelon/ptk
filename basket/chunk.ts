@@ -39,6 +39,7 @@ export function nearestChunk( line:Number) {
     const at=this.nearestTag(line,chunktag)-1;
     return this.getChunk(at);
 }
+
 export function getChunk(at:Number){
     const chunktag=this.defines.ck;
     const booktag=this.defines.bk;
