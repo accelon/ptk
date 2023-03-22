@@ -15,6 +15,12 @@ export class GuideAction extends Action{
 		const action=this.address.action.slice(1);
 		const idx=this.dividx;
 		const actionprefix=GUIDEACTIONPREFIX;
+
+		if (ptk.template.guidedrawer) {
+			this.ownerdraw={painter:ptk.template.guidedrawer, data:{from:this.from, actionprefix,idx,
+				name, action,caption,ptk}} ;
+			return;
+		} 
 		if (ptk.template.parseChoice) {
 			const [choices,groupby,groupfilter]=ptk.template.parseChoice(action);
 

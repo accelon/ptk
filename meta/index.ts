@@ -3,6 +3,7 @@ import { FirstPN } from "./cs-first.ts";
 import { booksOf, pitakaOf,sortFilenames,getFilesOfBook,suttaOfBook} from "./sc-code.ts";
 import {fromSeal, toSeal} from "./ebag.ts";
 export * as meta_cm from "./cm.ts"
+export * as meta_subtitle from "./subtitle.ts"
 export * as meta_vny from "./vny.ts"
 
 export const meta_cs ={
