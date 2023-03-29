@@ -11,6 +11,7 @@ import {markid} from './markid.js';
 import {dump} from './dump.js';
 import {adb2zip} from './adb2zip.js';
 import {ts} from './subtitle.js'
+import {cbeta} from './cbeta.js'
 import Path from 'path';
 
 await PTK.nodefs;
@@ -113,10 +114,12 @@ const help=()=>{
     console.log(cyan('file'),'plain text file in utf8 ，纯文本');
     console.log(cyan('lexicon'),'plain text file in utf8, one lemma per line 词典文本，一行一词');
     console.log(magenta('ptkname'),'a-z only, no number and _ 限英文小写字母');
+
     console.log('src file in 源文件在', cyan('ptkname.offtext') ,'or',cyan('ptkname.src'),'or',cyan('off'));
     console.log(underline('Making Pitaka 制作'));
     console.log('$',yellow('ptk ptk '),magenta('ptkname'), 'pack into a ptk file(zip)   打包成ptk(zip)文件',cyan('ptkname.ptk'))
-    console.log('$',yellow('ptk js  '),magenta('ptkname'), '*.js files output to   输出js文件到 ',cyan('ptkname'))
+    console.log('$',yellow('ptk js  '),magenta('ptkname'), '*.js files output to   输出js文件到 ',cyan('ptkname'));
+    
     //console.log('$',yellow('ptk com [lstfile]'),magenta('ptkname'),  'stand-alone executable 制造自足程序 ',cyan('ptkname.com'))
     console.log(underline('Text Processing 文本处理'));
     console.log('$',yellow('ptk unique   '),cyan('file'), 'remove duplicated item 去重复词');
@@ -141,11 +144,13 @@ const help=()=>{
 
     console.log('$',yellow('ptk ts       '),cyan('filename'),'parse subtitle (*.srt) 字幕轉標記');
 
+    console.log('$',yellow('ptk cbeta    '),cyan('filename|string'),'convert cbeta address');
+
     console.log('PTK-CLI ver',green('2023.3.18'));
 }
 
 try {
-    await ({'--help':help,'-h':help,ptk,js,com,dedup,unique,listwords,
+    await ({'--help':help,'-h':help,ptk,js,com,dedup,unique,listwords,cbeta,
     union,ngram,intersect,xor,xmltag,dump,markj,markid,adb2zip,ts})[cmd](arg,arg2);
 
 } catch(e) {

@@ -1,6 +1,8 @@
 //將note 可能包含的 tag 換成等效的null tag,
 //以抽出notetext
-import {parseXMLAttribute} from '../xml/utils.js'
+import {parseXMLAttribute} from '../xml/utils.ts'
+import {convertCitationToTEIRef} from './cbeta-textlinks.ts'
+
 const escapeQuote=t=>{
     return t.replace(/"/g,'＂');
 }
@@ -21,6 +23,8 @@ const nullify_note=content=>{
                 (resp?' resp="'+resp +'"':'')
                 +' t="'+escapeQuote(t)+'"/>'
             }
+        } else { 
+            note='<_note>'+convertCitationToTEIRef(t)+'</_note>';
         }
         return note;
     })

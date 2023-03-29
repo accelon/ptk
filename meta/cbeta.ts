@@ -1,5 +1,6 @@
 import {onTextWithInserts,onOpen,onClose,DOMFromString,xpath,walkDOMOfftext} from '../xml/index.ts';
-import { nullify_cbeta } from './nullify_cbeta.ts';
+import {nullify_cbeta} from './nullify_cbeta.ts';
+import {parseRefTarget} from './cbeta-textlinks.ts';
 import {createChunkId_cbeta,insertTag_cbeta,offGen_cbeta,
     StockCharMap_cbeta,buildCharMap_cbeta} from './offtag_cbeta.ts';
 const fixJuanT=(bkno,juan,sutraline)=>{
@@ -91,6 +92,12 @@ export const translatePointer=str=>{
     }
     return ''
 }
+export const fromCBETA = cbeta =>{
+
+}
+export const toCBETA = address=>{
+    
+}
 
 export const meta_cbeta={translatePointer, parseFile,parseBuffer,onOpen,onClose,
     createChunkId:createChunkId_cbeta,
@@ -98,4 +105,6 @@ export const meta_cbeta={translatePointer, parseFile,parseBuffer,onOpen,onClose,
     offGen:offGen_cbeta,
     buildCharMap:buildCharMap_cbeta,
     StockCharMap:StockCharMap_cbeta,
+    parseRefTarget,
+    fromCBETA, toCBETA,
     nullify:nullify_cbeta};
