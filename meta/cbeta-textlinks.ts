@@ -13,7 +13,6 @@ const CorNames={
     'N':'nanchuan',
 }
 
-
 export const parseRefTarget=(str,reftype)=>{
     for (let i=0;i<RefTargetFormats.length;i++) {
         const m=str.match(RefTargetFormats[i]);
