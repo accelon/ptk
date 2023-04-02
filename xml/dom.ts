@@ -8,7 +8,7 @@ export interface DOMContext {
     started:boolean,
     snippet:string
 }
-export const DOMFromString=(str,debug)=>{
+export const DOMFromString=(str)=>{
     let tree;
     let el;
     const startElement=(name,attrs)=>{

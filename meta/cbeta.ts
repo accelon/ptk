@@ -6,29 +6,28 @@ import {createChunkId_cbeta,insertTag_cbeta,offGen_cbeta,
 const fixJuanT=(bkno,juan,sutraline)=>{
     let bk='';
     if (juan===1) {
-        bk='^bk#'+bkno+' '+sutraline;
+        bk='^bk'+bkno+'['+sutraline;
     }
-
     if (bkno==='946') {
         if (juan>=4) juan--; //946 其實只有四卷, 缺檔 _003
     } else if (bkno==="2799" ||bkno==='2825') {
         if (juan===3) juan=2;
     } else if (bkno==='2805') {
         if (juan===5) {
-            bk='^bk#'+bkno+' '+sutraline;
+            bk='^bk#'+bkno+'['+sutraline;
             juan=1;
         } else if (juan===7) juan=2; 
     } else if (bkno==='2139') {
         if (juan===10) juan=2; //workaround 老子西昇化胡經
     } else if (bkno==='2772') {
         if (juan===3) {
-            bk='^bk#'+bkno+' '+sutraline;
+            bk='^bk#'+bkno+'['+sutraline;
             juan=1;
         } else if (juan===6) juan=2; 
     } else if (bkno==='2748'||bkno==='2754'||bkno==='2757'
     ||bkno==='2764b'||bkno==='2769'||bkno==='2803'||bkno=='2809'
     ||bkno==='2820') { //only 1 juan
-        bk='^bk[id='+bkno+' '+sutraline;
+        bk='^bk<id='+bkno+'['+sutraline;
         juan=1;
     }
     return [bk,juan]
@@ -41,7 +40,7 @@ const parseBuffer=(buf:string,fn='',ctx)=>{
     const body=xpath(el,'text/body');
     const charmap=buildCharMap_cbeta(el);
 
-    let m=fn.match(/n([\dabcdefABCDEF]+)_(\d+)/);
+    let m=fn.match(/n([\dabcdefABCDEF]+)_(\d+)\.xml/);
     let bk='',bkno='',chunk='';
     
     const sutraNo=m[1].replace('_'+m[2],'').toLowerCase();
@@ -50,23 +49,26 @@ const parseBuffer=(buf:string,fn='',ctx)=>{
 
     const at=sutraline.indexOf('^');
     if (at>-1) {
-        sutraline=sutraline.substr(0,at)+')'+sutraline.substr(at);
-    } else sutraline+=')'
+        sutraline=sutraline.substr(0,at)+']'+sutraline.substr(at);
+    } else sutraline+=']'
 
     let juan=parseInt(m[2]);
     
+
     if (fn[0]=='T') {
         [bk,juan]=fixJuanT(bkno,juan,sutraline);
     } else if (juan===1) {
-        bk='^bk'+bkno+(sutraline!==')'?'('+sutraline:''); //empty sutraline
+        bk='^bk'+bkno+'['+sutraline; //empty sutraline
     }
 
-    chunk='^ck'+juan;
+    chunk='^ck'+juan+'【卷'+juan+'】';
+
     if (!ctx.teictx) { //cross multiple file
-        ctx.teictx={defs:ctx.labeldefs,lbcount:0,hide:0,snippet:'',
-        div:0,charmap,fn,started:false,transclusion:ctx.transclusion,milestones:ctx.milestones};    
+        ctx.teictx={defs:ctx.labeldefs||{},lbcount:0,hide:0,snippet:'',
+        div:0,charmap,fn,started:false,transclusion:ctx.transclusion||{},milestones:ctx.milestones||{}};    
     }
     let content=bk+chunk+walkDOMOfftext(body,ctx.teictx,onOpen,onClose,onTextWithInserts);
+    ctx.teictx.out='';
     content=content.replace(/\^r\n/g,'\n');
     return content;
 }

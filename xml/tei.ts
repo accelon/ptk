@@ -15,7 +15,7 @@ export const onClose={
         unhide(ctx);
         if (ctx.mulu && ctx.started) {
             ctx.mulu=false;
-            return '"]';
+            return '">';
         }
     },
     note:(el,ctx)=>unhide(ctx),
@@ -42,10 +42,10 @@ const pb=(el,ctx)=>{
     let out='', pn=el.attrs.n.replace(/^0+/,'');
     if (ctx.fn.match(/Y\d\dn\d/)) {
         if (pn.charCodeAt(0)>0x40){ 
-            out='^pg['+pn.substr(0,pn.length-1)+']';
+            out='^pg<'+pn.substr(0,pn.length-1)+'>';
             ctx.compact=false;
         } else if (pn[pn.length-1]!=='a') {//多欄 y21-009 0131b
-            out='^pg['+pn+']';
+            out='^pg<'+pn+'>';
             ctx.compact=false;
         } else {
             out='^p'+pn.substr(0,pn.length-1);
@@ -105,7 +105,7 @@ const byline=(el,ctx)=>{
     const type=el.attrs['cb:type'];
     if (type) {
         ctx.compact=true;
-        s+='^h[o='+type.toLowerCase()+']';
+        s+='^h<o='+type.toLowerCase()+'>';
     }
     return s;
 }
@@ -115,7 +115,7 @@ const cbtt=(el,ctx)=>{
     if (el.children[0].name==='cb:t' && el.children[1].name==='cb:t') {
         if (lang=='pi') {
             let pi=getPali(el.children[1].innerText(true)); //take only one level
-            s='^w['+lang+'='+pi+' '+ el.children[0].innerText(true)+']';
+            s='^w<'+lang+'='+pi+' '+ el.children[0].innerText(true)+'>';
         } else {
             s=el.children[0].innerText(true);
         }
@@ -123,7 +123,6 @@ const cbtt=(el,ctx)=>{
     ctx.hide++;
     return s;
 }
-
 
 export const onOpen={
     pb,g,lb,byline,'cb:tt':cbtt,
@@ -136,7 +135,7 @@ export const onOpen={
         if (ctx.ptr) {
             const ptr=ctx.ptr;
             ctx.ptr='';
-            return '^t[@'+ptr+']';
+            return '^t@'+ptr;
         }
     },    
     'cb:mulu':(el,ctx)=>{
@@ -148,14 +147,14 @@ export const onOpen={
                 return '^mu'+el.attrs.level;
             } else {
                 ctx.mulu=true;
-                return '^mu'+el.attrs.level+'[t="';    
+                return '^mu'+el.attrs.level+'<t="';
             }
         }        
     },
     'cb:div': (el,ctx)=>{
         ctx.div++;
         // ctx.compact=true;
-        return ctx.fn[0]==='Y'?'\n':'\n^h[o='+el.attrs.type+']';
+        return ctx.fn[0]==='Y'?'\n':'\n^h<o='+el.attrs.type+'>';
     },
     'ref':(el,ctx)=>{
         if (el.attrs.target && el.attrs.type) {
@@ -163,7 +162,7 @@ export const onOpen={
             if (ty==='taisho') {
                 const m=el.attrs.target.match(/#vol:(\d+);page:p(\d+[abc])/);
                 if (m) {
-                    return '^q[loc=/cb-t/v#'+m[1]+'/p#'+m[2]+']';
+                    return '^q<loc=/cb-t/v#'+m[1]+'/p#'+m[2]+'>';
                 }
             }
             // console.log(el.attrs.target)
