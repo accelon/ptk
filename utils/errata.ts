@@ -1,3 +1,4 @@
+/* Errata 順序無所謂，每次會從頭找，比較慢 */
 export const patchBuf=(buf:string,errata:Array,fn='')=>{
     if (!errata||!errata.length) return buf;
     let outbuf=buf;
@@ -68,4 +69,52 @@ export const RemainingErrata=(Erratas:Array)=>{
     }
     return count;
 }
-export default {patchBuf,RemainingErrata}
+/* 順序找定位點，插入文字，比 patchBuf 快，盡量用這個除非要刪改文字。*/
+export const insertBuf=(buf:string, inserts:Array ,fn='')=>{
+    if (!inserts||!inserts.length) return buf;
+    let outbuf='', prev=0;
+    for (let i=0;i<inserts.length;i++) {
+        let [tofind, insert , offset  ]=inserts[i];
+        let insertbefore=false;
+        if (~tofind.indexOf('>') || ~tofind.indexOf('<')) {//has pin
+            let at=tofind.indexOf('>'); 
+            if (at==-1) {
+                at=tofind.indexOf('<');
+                insertbefore=true;
+            }
+            offset=tofind.slice(at+1);
+            tofind=tofind.slice(0,at);
+        }
+
+        let at=buf.indexOf(tofind,prev);
+        if (at==-1) {
+            console.log("cannot find",tofind,'#'+i,fn);
+            outbuf+=buf.slice(prev);
+            return outbuf;
+        }
+        at+=tofind.length;
+        if (typeof offset=='number' && offset) {
+            at+=offset;
+        } else if (typeof offset=='string') {
+            const at2=buf.indexOf(offset,at);
+            if (at2==-1) {
+                console.log("cannot find offset",tofind,'offset',offset,'#'+i,fn);
+                outbuf+=buf.slice(prev);
+                return outbuf;
+            } else {
+                at=at2;
+            }
+            if (!insertbefore) {
+                at+=offset.length;
+            }
+        }
+
+        outbuf+=buf.slice(prev,at);
+        outbuf+=insert;
+        prev=at;
+    }
+    outbuf+=buf.slice(prev);
+    return outbuf;
+}
+
+export default {patchBuf,RemainingErrata, }

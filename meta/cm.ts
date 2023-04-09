@@ -479,7 +479,8 @@ export const getApprox=(ptk,tagname,id)=>{
     const out=similarFactors(ptk,tagname,factors).filter(it=>it.i!==at);
     return out;
 }
-addTemplate('cm',{filterColumn:'manifest',getApprox, similarFactors,
+export const meta_cm={filterColumn:'manifest',getApprox, similarFactors,
 parseChoice, stringifyChoice,humanChoice,groupStates,
-onLineText,onChunkCaption,getMultiStateFilters,runFilter});
+onLineText,onChunkCaption,getMultiStateFilters,runFilter};
+addTemplate('cm',meta_cm);
 

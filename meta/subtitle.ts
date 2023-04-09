@@ -36,5 +36,5 @@ const genWebVTT=lines=>{
     //console.log(out)
     return out.join('\n')
 }
-
-addTemplate('subtitle',{ guidedrawer:'subtitle',genWebVTT, parseTimeStamp,mpegfileOfID,subtitleOfID});
+export const meta_subtitle={ guidedrawer:'subtitle',genWebVTT, parseTimeStamp,mpegfileOfID,subtitleOfID};
+addTemplate('subtitle',meta_subtitle);

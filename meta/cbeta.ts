@@ -3,6 +3,7 @@ import {nullify_cbeta} from './nullify_cbeta.ts';
 import {parseRefTarget} from './cbeta-textlinks.ts';
 import {createChunkId_cbeta,insertTag_cbeta,offGen_cbeta,
     StockCharMap_cbeta,buildCharMap_cbeta} from './offtag_cbeta.ts';
+import { addTemplate } from '../compiler/template.js';
 const fixJuanT=(bkno,juan,sutraline)=>{
     let bk='';
     if (juan===1) {
@@ -169,3 +170,5 @@ export const meta_cbeta={translatePointer, parseFile,parseBuffer,onOpen,onClose,
     MaxPage,
     fromCBETA, toCBETA,
     nullify:nullify_cbeta};
+
+addTemplate('cbeta',{MaxPage, guidedrawer:'cbeta'} );

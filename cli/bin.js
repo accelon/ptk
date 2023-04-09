@@ -5,7 +5,7 @@ import {dobuild} from './build.js';
 import * as PTK from '../nodebundle.cjs';
 import {onelexicon, text_lexicon, lexicons} from './textutils.js'
 import nGram from './ngram.js';
-import {xmltag} from './xml.js';
+import {xmltag,tei} from './xml.js';
 import {markj} from './markj.js';
 import {markid} from './markid.js';
 import {dump} from './dump.js';
@@ -135,6 +135,7 @@ const help=()=>{
 
     console.log(underline('XML Processing XML处理'));    
     console.log('$',yellow('ptk xmltag   '),cyan('file'),magenta('outdir'),'xml to tag and plain text拆分為標籤及純文字');
+    console.log('$',yellow('ptk tei      '),cyan('file'),magenta('outdir'),'tei to tag and plain text拆分為標籤及純文字');
 
     console.log(underline('Markup 標記处理'));
     console.log('$',yellow('ptk markj    '),cyan('address'),cyan('txtfile'),cyan('pattern'),'find origtext 找原書出處');
@@ -151,7 +152,7 @@ const help=()=>{
 
 try {
     await ({'--help':help,'-h':help,ptk,js,com,dedup,unique,listwords,cbeta,
-    union,ngram,intersect,xor,xmltag,dump,markj,markid,adb2zip,ts})[cmd](arg,arg2);
+    union,ngram,intersect,xor,xmltag,tei,dump,markj,markid,adb2zip,ts})[cmd](arg,arg2);
 
 } catch(e) {
     console.log( red('error running command'),cmd)

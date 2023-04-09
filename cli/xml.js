@@ -1,4 +1,5 @@
-import {writeChanged, peelXML, fromObj,filesFromPattern,readTextContent, alphabetically0} from '../nodebundle.cjs'
+import {writeChanged, meta_cbeta,peelXML, fromObj,filesFromPattern,readTextContent, alphabetically0} from '../nodebundle.cjs'
+
 import path from 'path'
 export const xmltag=()=>{
     console.time('xmltag');
@@ -41,9 +42,9 @@ export const tei=()=>{
     const workingdir=process.argv[4];
     const pintag=process.argv[5]||'p';
     const checktag=[];
-    const content=readTextContent(fn);
-    content=nullify(content)
-    const [txt,tags,stat]=parseTEI(content,pintag);
+    let content=readTextContent(fn);
+    content=meta_cbeta.nullify(content)
+    const [txt,tags,stat]=meta_cbeta.parseBuffer(content,pintag);
     let outfn=fn;
     if (workingdir) {
         outfn= workingdir+path.sep +path.basename(fn)

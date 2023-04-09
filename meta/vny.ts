@@ -18,6 +18,5 @@ const getCorrespondece=(ptk,line)=>{
     }
     return out
 }
-addTemplate('vny',{
-    getCorrespondece
-});
+export const meta_vny={getCorrespondece};
+addTemplate('vny',meta_vny);

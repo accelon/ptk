@@ -11,6 +11,6 @@ export * from './basket/index.ts'
 export * from './lexicon/index.ts'
 export * from './fts/index.ts'
 export * from './meta/index.ts'
-export * from './meta/cbeta.ts'
+//export * from './meta/cbeta.ts'
 export * from './denote/index.ts'
 export const ptk_version= 20230203

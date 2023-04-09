@@ -107,7 +107,8 @@ export const breakChineseSentence=(line,opts={})=>{
             t=t.slice(prevpunc+1);
             prevpunc=0;
         }
-        if (~"。？；".indexOf(ch)) {
+        
+        if (~"。？！；".indexOf(ch)) {
             if (t.length>threshold) {
                 out.push(t+ch);
                 t='';
@@ -116,7 +117,12 @@ export const breakChineseSentence=(line,opts={})=>{
                 prevpunc=t.length;
             }
         }
-        t+=ch;
+        if (!t.length && ~'』」）｝〕】》〉'.indexOf(ch)) {
+            out[out.length-1]+=ch;
+        } else {
+            t+=ch;
+        }
+        
     }
     out.push(t);
     return out.join('\n');
