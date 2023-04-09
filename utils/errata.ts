@@ -76,10 +76,11 @@ export const insertBuf=(buf:string, inserts:Array ,fn='')=>{
     for (let i=0;i<inserts.length;i++) {
         let [tofind, insert , offset  ]=inserts[i];
         let insertbefore=false;
-        if (~tofind.indexOf('>') || ~tofind.indexOf('<')) {//has pin
-            let at=tofind.indexOf('>'); 
+        // pin syntax > 插入到找到字串之後    < 插入到找到字串之前
+        if (~tofind.indexOf('>',1) || ~tofind.indexOf('<',1)) {//has pin , not at the first char
+            let at=tofind.indexOf('>',1); 
             if (at==-1) {
-                at=tofind.indexOf('<');
+                at=tofind.indexOf('<',1);
                 insertbefore=true;
             }
             offset=tofind.slice(at+1);
