@@ -79,6 +79,17 @@ export const cjkPhrases=(str:string)=>{
     return out;
 }
 
+export const cjkSplitPuncs=(str:string)=>{
+    const out=[];
+    let prev=0;
+    str.replace(/([\u3001-\u301f\uff00-\ufffc]+)/g,(m,m1,idx)=>{
+        out.push(str.slice(prev,idx));
+        out.push(m1);
+        prev=idx+m1.length;
+    });
+    out.push(str.slice(prev));
+    return out;
+}
 
 export const extractAuthor=(arr:Array<string>|string)=>{
     const out=[]
@@ -95,35 +106,47 @@ export const extractBook=(arr:Array<string>|string)=>{
 export const replaceAuthor=(str:string,cb:Function)=>str.replace(/(．)([\u3400-\u9fff\ud800-\udfff]{2,10})([〈《])/g,(m,m1,m2,m3)=>cb(m1,m2,m3))
 export const replaceBook=(str:string,cb:Function)=>str.replace(/([〈《])([\u3400-\u9fff\ud800-\udfff]{2,30})/g,(m,m1,m2,m3)=>cb(m1,m2,''))
 
+const textlength=str=>{
+    return str.replace(/\^[a-z:\d\.\-@#]+/g,'').replace(/<[^>]+/g,'').length;
+}
 export const breakChineseSentence=(line,opts={})=>{
-    const threshold=opts.threshold||20;
-    const out=[];
-    let t='',prevpunc=0;
-    for (let i=0;i<line.length;i++) {
-        const ch=line.charAt(i);
+    const max=opts.threshold||30;
+    const mid=opts.threshold||20;
+    const min=opts.threshold||8;
 
-        if (t.length>threshold && prevpunc>0) {
-            out.push(t.slice(0,prevpunc+1));
-            t=t.slice(prevpunc+1);
-            prevpunc=0;
+    let thres=0 , t='' ;
+    const phrases=cjkSplitPuncs(line);
+    const out=[]
+    for (let i=0;i<phrases.length/2;i++) {
+        const nonpunc=phrases[i*2];
+        let punc=phrases[i*2+1]||'';
+        const strongbreak=punc.match(/[。！？]/) || nonpunc.slice(0,2)=='^j';//「『﹁﹃‘“〝‵
+
+        const nextstrongbreak= (phrases[(i+1)*2+1]||'').match(/[。！？]/);
+        thres+=  textlength(nonpunc);
+        t+=nonpunc+punc;        
+        if (t && (thres > max || (thres>mid&&!nextstrongbreak)|| (thres>min && strongbreak) )) {
+            out.push(t);
+            t='';
+            thres=0;           
         }
-        
-        if (~"。？！；".indexOf(ch)) {
-            if (t.length>threshold) {
-                out.push(t+ch);
-                t='';
-                continue;
-            } else {
-                prevpunc=t.length;
-            }
-        }
-        if (!t.length && ~'』」）｝〕】》〉'.indexOf(ch)) {
-            out[out.length-1]+=ch;
-        } else {
-            t+=ch;
-        }
-        
     }
-    out.push(t);
-    return out.join('\n');
+    t&&out.push(t);
+    //move open tag to next line
+    const out2=[];
+    let lead='';
+    for (let i=0;i<out.length;i++) {
+        const m=out[i].match(/([（《「『︵｛︷〔︹【︻︽〈︿﹃﹙﹛﹝‘“〝‵]+)$/);
+        if (m) {
+            out2.push( lead+out[i].slice(0,out[i].length - m[1].length));
+            lead=m[1];
+        } else {
+            out2.push(lead+out[i]);
+            lead=''
+        }
+    }
+
+    return out2.join('\n')
+    .replace(/\n(\^j[a-z\d@:\-]+)([：；，、。！？」』）〕】》]*)/g,(m,m1,punc)=>m1+(punc||'')+'\n')
+    .replace(/\n+/g,'\n').trimEnd(); //remove tailing \n and blanks
 }

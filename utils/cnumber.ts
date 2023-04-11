@@ -39,15 +39,15 @@ export const isChineseChapter=(str:string)=>{
     }
     return null;;
 }
-export const extractChineseNumber=(str:string,firstnum=false)=>{
-    let cn='';
+export const extractChineseNumber=(str:string,begining=false)=>{
+    let cn=-1;
     for (let i=0;i<headerWithNumber.length;i++) {
         const pat=headerWithNumber[i];
         const m=str.match(pat);
         if (m) cn=fromChineseNumber(m[1]);
     }
     if (!cn) {
-        const m=str.match(/^([一二三四五六七八九十○百零]+)$/);
+        const m=begining?str.match(/^[　 ]?([一二三四五六七八九十○百零]+)/):str.match(/([一二三四五六七八九十○百零]+)/);
         if (m) cn=fromChineseNumber(m[1]);
     }
     return cn;

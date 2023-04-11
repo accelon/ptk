@@ -44,6 +44,8 @@ export class Element implements IElement{
                 out.push(trim?t.trim():t);
             }
         }
+        //for empty tag
+        out.push(this.attrs.text||'');
         return out.join('');
     }
 }
