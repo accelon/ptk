@@ -15,7 +15,7 @@ export interface ICompiled {
 	errors:ICompileError[],
 }
 export interface ITypedef {
-	
+	count:number;
 }
 export interface IField {
 	find:Function,

@@ -189,26 +189,28 @@ export class LVA {
 		this._divisions=this._divisions.filter(it=>!!it);
 		this._combine();
 	}
-	next(idx){
+	next(idx,nline){
 		const division=typeof idx=='number'?this._divisions[idx]:idx;
 		if (!division) return;
 		this.removeChildren(idx);
 		const linecount=division.last-division.first;
 		const pagesize=this.getViewPageSize(division);
 		if (linecount<=pagesize || linecount<=ACTIONPAGESIZE) return this;
-		if (division.till==-1) division.till=division.from+ACTIONPAGESIZE;
-		division.from=division.till-1;
+		if (division.till==-1) division.till=division.from+ ACTIONPAGESIZE;
+		
+		division.from += (nline || pagesize);
+
 		if (division.from<0)division.from=0;
 		division.till=division.from+pagesize;
 		if (division.from+1>linecount) division.from=linecount-1;
 		if (division.till>linecount) division.till=linecount;
 		return this;
 	}
-	prev(idx){
+	prev(idx,pgsize){
 		const division=typeof idx=='number'?this._divisions[idx]:idx;
 		if (!division) return;
 		const pagesize=this.getViewPageSize(division);
-		division.from-=pagesize-1;
+		division.from-= (pgsize||pagesize);
 		if (division.from<0) division.from=0;
 		division.till= division.from+pagesize;
 		return this;

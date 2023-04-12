@@ -11,7 +11,7 @@ export const serializeToc=toc=>{
 	out.push(packIntDelta(lines));
 	out.push(packInt(depths));
 	out.push(texts.join('\t'));
-	console.log(lines.length,depths.length,texts.length)
+	//console.log(lines.length,depths.length,texts.length)
 	return out;
 }
 export class TableOfContent {

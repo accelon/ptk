@@ -6,9 +6,10 @@ import {serializeToc} from './toc.ts';
 
 const writeTypedefs=(lbaser:LineBaser, typedefs)=>{
 	for (let tag in typedefs) {
-		const serialized=typedefs[tag].serialize();
-		if (tag=='ak' && !typedefs[tag].linepos.length)  {
-			console.log('no ^ak');
+		const typedef=typedefs[tag]
+		const serialized=typedef.serialize();
+		if (tag=='ak' && !typedef.linepos.length)  {
+			console.log('missing ^ak');
 		}
 		if (serialized) {
 			lbaser.append( serialized, {name:'^'+tag,newpage:true,samepage:true,type:'tag'});	

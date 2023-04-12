@@ -18,7 +18,6 @@ export class Field implements IField {
 		this.type=def.type||'string';
 
 		this.values=[] ; //number or string value, runtime only
-		this.bracket=[]; //bracket text          
 		this.sortedIndex; 
 
 		for (let n in def) {

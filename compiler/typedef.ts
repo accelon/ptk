@@ -32,6 +32,7 @@ export class Typedef implements ITypedef {
 		}
 		this.attrs=attrs;
 		this.column='';  //backing column of this tag , see basket/pitaka.ts::init()
+		this.count=0;
 	}
 	resetChildTag(){
 		if (this.attrs.reset) {
@@ -52,6 +53,7 @@ export class Typedef implements ITypedef {
 	}	
 	validateFields(tag,line,onError){
 		let touched=false,newtag;
+		this.count++;
 		for (let aname in tag.attrs) {
 			const V=this.fields[aname];
 			let value=tag.attrs[aname];
@@ -76,9 +78,12 @@ export class Typedef implements ITypedef {
 		if (this.fields.id || this.fields['@'] || this.attrs.savelinepos) { //auto save linepos if validating id
 			this.linepos.push(compiledLine+line);
 		}
-		if (this.fields.bracket) { // false to keep the bracket
+		if (this.attrs.bracket) { // false to keep the bracket
 			let tagtext=offtext.tagText(tag);
-			if (this.fields.bracket!=='true') tagtext=removeBracket(tagtext);
+			if (!tagtext) { //use entire line as innertext
+				tagtext=offtext.plain.trim().slice(0,10);
+			}
+			if (this.attrs.bracket!=='true') tagtext=removeBracket(tagtext);
 			this.innertext.push(tagtext);
 		}
 		for (let aname in this.mandatory) {
@@ -122,6 +127,7 @@ export class Typedef implements ITypedef {
 	}
 	serialize(){
 		const attrs=[],out=[];
+		if (!this.count) return null;
 		if (this.linepos.length || this.fields.bracket) { 
 			//if innertext exists , must pack linepos even if empty
 			out.push(packIntDelta(this.linepos));

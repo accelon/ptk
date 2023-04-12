@@ -120,7 +120,7 @@ export const breakChineseSentence=(line,opts={})=>{
     for (let i=0;i<phrases.length/2;i++) {
         const nonpunc=phrases[i*2];
         let punc=phrases[i*2+1]||'';
-        const strongbreak=punc.match(/[。！？]/) || nonpunc.slice(0,2)=='^j';//「『﹁﹃‘“〝‵
+        const strongbreak=punc.match(/[。！？]/) || nonpunc.slice(0,2)=='^k';//「『﹁﹃‘“〝‵
 
         const nextstrongbreak= (phrases[(i+1)*2+1]||'').match(/[。！？]/);
         thres+=  textlength(nonpunc);
@@ -146,7 +146,9 @@ export const breakChineseSentence=(line,opts={})=>{
         }
     }
 
+    if (lead&&out2.length) out2[out2.length-1]+=lead;
+
     return out2.join('\n')
-    .replace(/\n(\^j[a-z\d@:\-]+)([：；，、。！？」』）〕】》]*)/g,(m,m1,punc)=>m1+(punc||'')+'\n')
+    .replace(/\n(\^[jkf][a-z\d@:\-]+)([：；，、。！？」』）〕】》]*)/g,(m,m1,punc)=>m1+(punc||'')+'\n')
     .replace(/\n+/g,'\n').trimEnd(); //remove tailing \n and blanks
 }

@@ -33,8 +33,7 @@ export const convertCitationToTEIRef=(str)=>{
 
         str=str.replace(CiteFormats[i],(m0, cor, vol, no, page)=>{
             const target='vol:'+vol+';page:p'+page;
-            const text='^j@'+parseRefTarget(target,cor.toLowerCase());
-   
+            const text='^k#'+parseRefTarget(target,cor.toLowerCase());
             return '<ref text="'+text+'"/>'
         })
     }

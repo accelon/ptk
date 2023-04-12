@@ -54,7 +54,6 @@ const parseBuffer=(buf:string,fn='',ctx)=>{
     } else sutraline+=']'
 
     let juan=parseInt(m[2]);
-    
 
     if (fn[0]=='T') {
         [bk,juan]=fixJuanT(bkno,juan,sutraline);

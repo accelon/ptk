@@ -3,9 +3,11 @@ generic:
 `^:ak<id=unique bracket=false reset=n>
 ^:bk<id=unique heading=text bracket=false reset=ck,juan>
 ^:ck<id=unique heading=text bracket=false>
+^:p<id=text>
 ^:n<id=number>
 ^:o<@=link>
 ^:j<@=link>
+^:k<id=text>
 ^:ad
 ^:mpeg<id=text savelinepos=true>
 ^:ts<id=range>

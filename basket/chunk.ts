@@ -1,4 +1,4 @@
-export function getCaption(at:Number){
+export function getCaption(at:number){
     const chunktag=this.defines.ck;
     let caption=chunktag?.innertext.get(at);
     const id=chunktag?.fields?.id?.values[at];
@@ -9,7 +9,7 @@ export function getCaption(at:Number){
     }
     return caption;
 }
-export function caption(at:Number){
+export function caption(at:number){
     //return onChunkCaption?caption:id+'.'+caption;
     let caption=this.getCaption(at);
     let depth=0;
@@ -34,30 +34,41 @@ export function caption(at:Number){
     }
     return caption+ parents.join('');
 }
-export function nearestChunk( line:Number) {
+export function nearestChunk( line:number) {
     const chunktag=this.defines.ck;
     const at=this.nearestTag(line,chunktag)-1;
     return this.getChunk(at);
 }
-
-export function getChunk(at:Number){
+export function getBookInfo (at:number) {
+    const booktag=this.defines.bk;
+    const bkid=booktag.fields.id.values[at];
+    let bkcaption=booktag?.innertext.get(at);
+    let short=bkcaption.slice(0,2);
+    const bkheading= booktag?.fields.heading?.values[at] || booktag?.innertext?.get(at)
+    const at2=bkcaption.indexOf(";");
+    if (~at2) {
+        short=bkcaption.slice(at2+1);
+        bkcaption=bkcaption.slice(0,at2);
+    }
+    return {id:bkid, caption:bkcaption, short,heading:bkheading }
+}
+export function getChunk(at:number){
     const chunktag=this.defines.ck;
     const booktag=this.defines.bk;
+
     if (at<0) return null;
     if (at>=chunktag.fields.id.values.length) return null;
 
     const line=chunktag.linepos[at];
     const bkat=this.nearestTag(line,booktag) - 1;
-    const bkid=booktag.fields.id.values[bkat];
-
+    const bk=getBookInfo.call(this,bkat);
+    const bkid=bk.id; //legacy
     const id=chunktag.fields.id.values[at];
     const innertext=chunktag.innertext.get(at);
     const caption=this.caption(at);
     const depth=chunktag.depths?chunktag.depths[at]||1:1;
-    const bkheading= booktag?.fields.heading?.values[bkat] || booktag?.innertext?.get(bkat)
-    return {bkid ,caption, at:at+1, id ,
-        bk:{id:bkid, caption: booktag?.innertext.get(bkat)
-        ,heading:bkheading },
+    
+    return {bk,bkid ,caption, at:at+1, id ,
         depth,
         line:chunktag.linepos[at],
         innertext}
@@ -72,7 +83,7 @@ const resetBy=(ptk,tagname)=>{
     }
     return null;
 }
-export function ancestorChunks(at:Number,start:Number){
+export function ancestorChunks(at:number,start:number){
     const chunktag=this.defines.ck;
     if (!chunktag.depths) return [];
     let line=chunktag.linepos[at];
@@ -88,7 +99,7 @@ export function ancestorChunks(at:Number,start:Number){
     }
     return out;
 }
-export function prevsiblingChunk(at:Number, start:Number){
+export function prevsiblingChunk(at:number, start:number){
     let p=at-1;
     const chunktag=this.defines.ck;
     if (!chunktag.depths&&at>0) return at-1;
@@ -100,7 +111,7 @@ export function prevsiblingChunk(at:Number, start:Number){
     }
     return -1;
 }
-export function nextsiblingChunk(at:Number, end:Number) {
+export function nextsiblingChunk(at:number, end:number) {
     let p=at+1;
     const chunktag=this.defines.ck;
     if (!chunktag.depths&&at<end) return at+1 ;
@@ -113,14 +124,14 @@ export function nextsiblingChunk(at:Number, end:Number) {
     }
     return -1;
 }
-export function firstChildChunk(at:Number) {
+export function firstChildChunk(at:number) {
     const chunktag=this.defines.ck
     if (!chunktag.depths) return -1;
 
     if (chunktag.depths[at+1]==chunktag.depths[at]+1 ) return at+1;
     return -1;
 }
-export function neighborChunks(at:Number){
+export function neighborChunks(at:number){
     const ptk=this;
     // const chunktag=this.defines.ck
     // const ck=this.nearestChunk( chunktag.linepos[at] );   

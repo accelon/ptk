@@ -69,8 +69,8 @@ export function validate_z(offtext:IOfftext,tag:IOfftag){
   }
 
   let  text=offtext.tagText(tag);
-  const bracket=closeBracketOf(text);
-  if (text.slice(text.length-1)==bracket) text=text.slice(1,text.length-1);
+  const closebracket=closeBracketOf(text);
+  if (text.slice(text.length-1)==closebracket) text=text.slice(1,text.length-1);
 
   const line=this.compiledLine+this.line;
   this.toc.push({depth,text,key:this.zcount, line});

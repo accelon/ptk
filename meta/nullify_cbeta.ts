@@ -69,8 +69,8 @@ export const nullify_cbeta=content=>{
     content=content.replace(/<figure><graphic url="([^>]+)"><\/graphic><\/figure>/g,'[fg_$1]')
 
     content=content.replace(/<space([^>]*?)\/>/g,(m,attrs)=>{
-        const {quantity}=parseXMLAttribute(attrs)
-        return ' '.repeat(parseInt(quantity))
+        const attributes=parseXMLAttribute(attrs)
+        return ' '.repeat(parseInt(attributes.quantity))
     })
     content=content.replace(/<unclear><\/unclear>/g,'[??]');
 

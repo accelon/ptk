@@ -1,6 +1,6 @@
 import {openPtk,usePtk} from '../basket/index.ts'
 import {ILineViewAddress} from './interfaces.ts'
-import {getSponsor} from '../meta/sponsor.ts'
+//import {getSponsor} from '../meta/sponsor.ts'
 export interface ILineViewItem {
 	key   : string,
 	text  : string,
@@ -72,8 +72,8 @@ async function loadLines(lva, noparallel=false){
 
 			const closable=(((edge==1||edge==3) ) || !divisions[i].diggable);
 			
-			const sponsor=closable&&from==0?getSponsor(ptk, lines[j]):'';
-			
+			//const sponsor=closable&&from==0?getSponsor(ptk, lines[j]):'';
+			const sponsor='';
 			//get chunk parallels
 			const correspondences=(from==0&&j==0)? ptk.template?.getCorrespondence(ptk,lines[j]):[];
 			

@@ -10,7 +10,7 @@ import {footNoteAddress,footNoteByAddress} from './footnote.ts';
 import {Templates} from '../compiler/template.ts'
 import {foreignLinksAtTag,getParallelBook,getParallelLine} from './parallel.ts';
 import {addBacklinks, addForeignLinks } from './links.ts';
-import {getCaption,caption,nearestChunk,getChunk,neighborChunks} from './chunk.ts'
+import {getCaption,getBookInfo,caption,nearestChunk,getChunk,neighborChunks} from './chunk.ts'
 
 export const regPtkName =  /^[a-z\-_]{2,16}$/
 export const validPtkName=(name:string):boolean=>!!name.match(regPtkName);
@@ -92,7 +92,11 @@ export class Pitaka extends LineBase {
 		for (const n in this.defines) { //see compiler/typedef.ts serialize()
 			if (!this.defines[n].fields.lazy) {
 				const section=this.getSection('^'+n);
-				this.defines[n].deserialize(section,this); //call typedef.ts:deserialize
+				if (section && section.length) {
+					this.defines[n].deserialize(section,this); //call typedef.ts:deserialize
+				} else {
+					this.defines[n].empty=true;
+				}
 			}
 			for (let attr in this.defines[n].fields) {
 				const A=this.defines[n].fields[attr];
@@ -100,6 +104,9 @@ export class Pitaka extends LineBase {
 					A.keys=this.primarykeys[A.foreign];
 				}
 			}
+		}
+		for (const n in this.defines) {
+			if (this.defines[n].empty) delete this.defines[n];
 		}
 		//link column and define
 		for (const n in this.columns) {
@@ -115,7 +122,6 @@ export class Pitaka extends LineBase {
 			buildTocTag.call(this,toctags);
 		}
 	}
-
 	deserialize(section,sectionname) {	
 		if (!section.length) return;
 		if (!section[0]) section.shift();
@@ -124,8 +130,7 @@ export class Pitaka extends LineBase {
 		const {name}=sourceType(firstline);
 		const at=this.header.sectionnames.indexOf(sectionname);
 		const sourcetype=this.header.sectiontypes[at];
-
-		if (sourcetype==='tsv') {
+		if (sourcetype==='tsv') { // linebaser.ts addSection()
 			const column=new Column();
 			column.deserialize(section);
 			this.columns[column.name]=column;
@@ -173,15 +178,15 @@ export class Pitaka extends LineBase {
 		const lineoff=line-linepos[at];
 		const id=chunktag?.fields?.id?.values[at];
 		const bkat=this.nearestTag(line,booktag) - 1;
-		const bkid=booktag.fields.id.values[bkat] ;
-		const bkheading= booktag.fields.heading?.values[bkat] || booktag.innertext.get(bkat)
+		const bk=getBookInfo.call(this,bkat);
+		const bkid=bk?.id ;
 /* TODO
 if caption has leading - , trace back to fetch ancestor node,
 this is suitable for tree structure with less branches,
 not suitable for dictionary wordheads
 */
 		const caption=this.caption(at);
-		return {id, tagname:'ck', caption,lineoff , bkid ,bkheading};
+		return {id, tagname:'ck', caption,lineoff ,  bk, bkid};
 	}
 	getPostings(s:string){
 		const nPostings=this.inverted.nPostingOf(s);

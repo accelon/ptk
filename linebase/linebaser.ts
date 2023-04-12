@@ -70,8 +70,9 @@ export class LineBaser {
 		};
 		this.header.sectionnames.push(name);
 		this.header.sectionstarts.push(this._data.length);
-		if (name=='_tokens') type='tokens';
-		if (name=='_postings') type='postings';
+
+		if (name.startsWith("_")) type=name.slice(1); // _tokens, _postings, and _toc
+
 		this.header.sectiontypes.push(type);
 	}
 	append(buffer:(string|string[]), opts={}){
