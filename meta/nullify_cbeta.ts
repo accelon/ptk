@@ -9,8 +9,10 @@ const escapeQuote=t=>{
 const nullify_note=content=>{
     //夾注    
     content=content.replace(/<note([^>]*?)>([^<]+)<\/note>/g,(m,_attrs,t)=>{
-        const {place,type,n,resp}=parseXMLAttribute(_attrs);
+        const attrs=parseXMLAttribute(_attrs);
+        const {place,type,n,resp} = attrs
         let note='';
+        
         if (place=='inline') note= '〔'+t+'〕';
         else if (place=='foot text' && type=='orig') {
             note='<origfoot n="'+n+'" t="'+escapeQuote(t)+'"/>'
@@ -23,11 +25,15 @@ const nullify_note=content=>{
                 (resp?' resp="'+resp +'"':'')
                 +' t="'+escapeQuote(t)+'"/>'
             }
-        } else { 
+        } else if (!attrs['xml:id']) { 
             note='<_note>'+convertCitationToTEIRef(t)+'</_note>';
+        } else {
+            note=m;//intact for <note xml:id
         }
         return note;
     })
+    //<note xml:id is keep intect
+
     return content;
 }
 const nullify_rdg=content=>{

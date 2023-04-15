@@ -110,9 +110,9 @@ const textlength=str=>{
     return str.replace(/\^[a-z:\d\.\-@#]+/g,'').replace(/<[^>]+/g,'').length;
 }
 export const breakChineseSentence=(line,opts={})=>{
-    const max=opts.threshold||30;
-    const mid=opts.threshold||20;
-    const min=opts.threshold||8;
+    const max=opts.threshold||22;
+    const mid=opts.threshold||14;
+    const min=opts.threshold||6;
 
     let thres=0 , t='' ;
     const phrases=cjkSplitPuncs(line);

@@ -132,7 +132,7 @@ export class Compiler implements ICompiler {
 				}
 			} 
 			//do not set predefine for tsv
-			if (tag.attrs.type==='txt'||filename=='0.off') this.setPredefine(tag.attrs.define);
+			if (tag.attrs.type==='txt'||filename=='0.off') this.setPredefine(tag.attrs.define||tag.attrs.template);
 			attributes=tag.attrs;
 		}
 

@@ -1,4 +1,4 @@
-import { getInserts,insertText } from "../utils/index.ts";
+import { getInserts,insertText,toBase26 } from "../utils/index.ts";
 import { onOfftext } from "../xml/index.js";
 const unhide=ctx=>{ (ctx.hide?ctx.hide--:0) };
 
@@ -26,7 +26,9 @@ export const onClose={
     //         return '^r';    
     //     }
     // },
-    p:(el,ctx)=>'\n',
+    lg:(el,ctx)=>{
+        return '\n'
+    },
 }
 const getPali=pi=>{
     if (pi.indexOf(' ')==-1 ) {//removing tailing .
@@ -49,22 +51,38 @@ const pb=(el,ctx)=>{
             ctx.compact=false;
         } else {
             out='^p'+pn.substr(0,pn.length-1);
+            ctx.compact=true;
         }
         if (el.attrs.type==='old') return '';
     } else {
         let vol='';
         ctx.vol=el.attrs['xml:id'].substr(1,2);
         if (el.attrs.n==='0001a') {
+            ctx.compact=true;
             vol='^v'+ctx.vol;
         } 
-        if (ctx.fn[0]==='N') {
+
+        if (ctx.fn[0]==='N') { //Nanchuan
             out=vol+'^p'+pn.replace(/a$/,'');
             ctx.compact=true;
-        } else {
-            out=vol+'^p'+ pn;
+        } else if (ctx.fn[0]==='T' || ctx.fn[0]==='X'){
+            ctx.pn=pn;
+            if (vol) {
+                out=vol;
+                ctx.compact=true;
+            }
         }
     }
     return out;
+}
+const p=(el,ctx)=>{
+    if (ctx.prevpn==ctx.pn && ctx.prevlb==ctx.lbcount) {
+        return '\n';
+    }     
+    ctx.prevlb=ctx.lbcount;
+    ctx.prevpn=ctx.pn;
+    ctx.compact=true;
+    return '\n^p'+ctx.pn+ctx.lbcount;
 }
 const g=(el,ctx)=>{
     if (ctx.hide)return;
@@ -109,27 +127,29 @@ const byline=(el,ctx)=>{
     }
     return s;
 }
-const cbtt=(el,ctx)=>{
-    let s='';
-    const lang=el.children.length>1&&el.children[1].attrs&&el.children[1].attrs['xml:lang'];
-    if (el.children[0].name==='cb:t' && el.children[1].name==='cb:t') {
-        if (lang=='pi') {
-            let pi=getPali(el.children[1].innerText(true)); //take only one level
-            s='^w<'+lang+'='+pi+' '+ el.children[0].innerText(true)+'>';
-        } else {
-            s=el.children[0].innerText(true);
-        }
-    }
-    ctx.hide++;
-    return s;
-}
+// const cbtt=(el,ctx)=>{
+//     let s='';
+//     const lang=el.children.length>1&&el.children[1].attrs&&el.children[1].attrs['xml:lang'];
+//     if (el.children[0].name==='cb:t' && el.children[1].name==='cb:t') {
+//         if (lang=='pi') {
+//             let pi=getPali(el.children[1].innerText(true)); //take only one level
+//             s='^w<'+lang+'='+pi+' '+ el.children[0].innerText(true)+'>';
+//         } else {
+//             s=el.children[0].innerText(true);
+//         }
+//     } else {
+//         s=el.children[0].innerText(true);
 
+//     }
+//     ctx.hide++;
+//     return s;
+// }
+export const caesura=(el,ctx)=>'　';
 export const onOpen={
-    pb,g,lb,byline,'cb:tt':cbtt,
+    p,pb,g,lb,byline,caesura,
     milestone:(el,ctx)=>{ctx.started=true;},//skip the redundant mulu before milestone, see T30n1579_037
-    
     note:(el,ctx)=>{  ctx.hide++;return ''},
-    lg:(el,ctx)=>{ctx.compact=true; return '\n^lg'},
+    l:(el,ctx)=>{ctx.compact=true; return '\n^l'},
     lem:(el,ctx)=>{ ctx.hide+=1},//just keep the rdg
     quote:(el,ctx)=>{
         if (ctx.ptr) {
@@ -140,14 +160,15 @@ export const onOpen={
     },    
     'cb:mulu':(el,ctx)=>{
         if (!ctx.started)return;
-        if (el.attrs.level) {// T01 0001b08 , skip cb:mulu without level 
+        const level=parseInt(el.attrs.level);
+        if (level) {// T01 0001b08 , skip cb:mulu without level 
             if (ctx.defs.mu && ctx.defs.mu.compact) {
                 ctx.hide++;
                 ctx.compact=true;
-                return '^mu'+el.attrs.level;
+                return '^z'+toBase26(level-1);
             } else {
                 ctx.mulu=true;
-                return '^mu'+el.attrs.level+'<t="';
+                return '^z'+toBase26(level-1)+'<t="';
             }
         }        
     },

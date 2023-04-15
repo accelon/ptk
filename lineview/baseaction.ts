@@ -28,6 +28,7 @@ export class Action implements IAction{
 		this.ptkname=addr.ptkname;
 		this.opts={} ;//display options
 		this.dividx=dividx;
+		this.pagable=true;
 	}
 	async run(){
 

@@ -6,7 +6,6 @@ export class RangeAction extends Action {
 		this.eleid=this.action;
 		this.address =addr;
 		this.diggable=true;
-		this.pagable=true;
 	}
 	async run(){
 		const ptk=usePtk(this.ptkname);

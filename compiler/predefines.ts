@@ -13,10 +13,20 @@ generic:
 ^:ts<id=range>
 ^:bc
 ^:ver<savelinepos=true>
-^:f<id=number>
+^:f<id=text>
 ^:sponsor<savelinepos=true>
 ^:https<bracket=false onclick=gourl>
 ^:fn<id=number>`,
+cbeta:
+`^:ak<id=unique bracket=false>
+^:bk<id=unique heading=text bracket=false reset=ck,p>
+^:ck<id=unique heading=text bracket=false>
+^:p<id=text>
+^:f<id=text>
+^:v
+^:h
+^:mc
+^:l`,
 cs:
 `^:ak<id=unique bracket=false reset=ck>
 ^:bk<id=unique heading=text bracket=false reset=n>

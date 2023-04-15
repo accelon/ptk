@@ -206,6 +206,31 @@ export class LVA {
 		if (division.till>linecount) division.till=linecount;
 		return this;
 	}
+	end(idx) {
+		const division=typeof idx=='number'?this._divisions[idx]:idx;
+		if (!division) return;
+		const linecount=division.last-division.first;
+		const pagesize=this.getViewPageSize(division);
+		division.till=linecount;
+		if (linecount>pagesize) {
+			division.from=division.till-pagesize;
+		} else {
+			division.from=0;
+		}
+		return this;
+	}
+	start(idx){
+		const division=typeof idx=='number'?this._divisions[idx]:idx;
+		if (!division) return;
+		this.removeChildren(idx);
+		const linecount=division.last-division.first;
+		const pagesize=this.getViewPageSize(division);
+		if (linecount<=pagesize || linecount<=ACTIONPAGESIZE) return this;
+		division.from=0;
+		division.till=pagesize;
+		if (division.till>linecount) division.till=linecount;
+		return this;
+	}
 	prev(idx,pgsize){
 		const division=typeof idx=='number'?this._divisions[idx]:idx;
 		if (!division) return;

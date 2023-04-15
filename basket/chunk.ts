@@ -1,4 +1,4 @@
-export function getCaption(at:number){
+export function getCaption(at:number,short=false){
     const chunktag=this.defines.ck;
     let caption=chunktag?.innertext.get(at);
     const id=chunktag?.fields?.id?.values[at];
@@ -7,7 +7,13 @@ export function getCaption(at:number){
         caption=this.columns[chunktag?.column]?.keys?.get(at);		
         if (!caption && onChunkCaption) caption=onChunkCaption(id);
     }
-    return caption;
+    const at2=caption.indexOf(";");
+    let shortcaption=caption;
+    if (at2) {
+        shortcaption=caption.slice(at2);
+        caption=caption.slice(0,at2);
+    }
+    return short?shortcaption:caption;
 }
 export function caption(at:number){
     //return onChunkCaption?caption:id+'.'+caption;

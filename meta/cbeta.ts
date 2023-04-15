@@ -4,6 +4,7 @@ import {parseRefTarget} from './cbeta-textlinks.ts';
 import {createChunkId_cbeta,insertTag_cbeta,offGen_cbeta,
     StockCharMap_cbeta,buildCharMap_cbeta} from './offtag_cbeta.ts';
 import { addTemplate } from '../compiler/template.js';
+import { breakChineseSentence } from '../utils/cjk.js';
 const fixJuanT=(bkno,juan,sutraline)=>{
     let bk='';
     if (juan===1) {
@@ -36,7 +37,9 @@ const fixJuanT=(bkno,juan,sutraline)=>{
 
 const parseBuffer=(buf:string,fn='',ctx)=>{
     // if (fn) process.stdout.write('\r processing'+fn+'    '+buf.length);
+    buf=buf.replace(/\r?\n<lb/g,'<lb').replace(/\r?\n<pb/g,'<pb');
     ctx.rawContent=buf;
+
     const el=DOMFromString(buf);
     const body=xpath(el,'text/body');
     const charmap=buildCharMap_cbeta(el);
@@ -67,9 +70,10 @@ const parseBuffer=(buf:string,fn='',ctx)=>{
         ctx.teictx={defs:ctx.labeldefs||{},lbcount:0,hide:0,snippet:'',
         div:0,charmap,fn,started:false,transclusion:ctx.transclusion||{},milestones:ctx.milestones||{}};    
     }
+    ctx.teictx.started=false;
     let content=bk+chunk+walkDOMOfftext(body,ctx.teictx,onOpen,onClose,onTextWithInserts);
     ctx.teictx.out='';
-    content=content.replace(/\^r\n/g,'\n');
+    content=content.replace(/\^r\n/g,'\n').replace(/\n+/g,'\n');
     return content;
 }
 const parseFile=async (f,ctx)=>{
@@ -79,8 +83,15 @@ const parseFile=async (f,ctx)=>{
     const ext=fn.match(/(\.\w+)$/)[1];
     if (ext=='.xml') {
         const xmlcontent=await fs.promises.readFile(f,'utf8');
-        const parsed=parseBuffer(xmlcontent,fn,ctx);
-        return parsed;
+        const parsed=parseBuffer( nullify_cbeta( xmlcontent) ,fn,ctx);
+        const lines=parsed.split("\n")
+        for (let i=0;i<lines.length;i++) {
+            let line=lines[i];
+            if (line.startsWith('^p')||line.startsWith('^lg')) {
+                lines[i]=breakChineseSentence(line);
+            }
+        }
+        return lines.join('\n');
     } else {
         throw "unknown extension "+ext
     }
