@@ -23,6 +23,9 @@ cbeta:
 ^:ck<id=unique heading=text bracket=false>
 ^:p<id=text>
 ^:f<id=text>
+^:fn<id=number>
+^:fm<id=text>
+^:k<id=text>
 ^:v
 ^:h
 ^:mc

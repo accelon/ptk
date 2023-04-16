@@ -149,6 +149,6 @@ export const breakChineseSentence=(line,opts={})=>{
     if (lead&&out2.length) out2[out2.length-1]+=lead;
 
     return out2.join('\n')
-    .replace(/\n(\^[jkf][a-z\d@:\-]+)([：；，、。！？」』）〕】》]*)/g,(m,m1,punc)=>m1+(punc||'')+'\n')
+    .replace(/\n(\^[jkf][#a-z\d@:\-]+)([：；，、。！？」』）〕】》]*)/g,(m,m1,punc)=>m1+(punc||'')+'\n')
     .replace(/\n+/g,'\n').trimEnd(); //remove tailing \n and blanks
 }

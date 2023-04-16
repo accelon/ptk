@@ -1,12 +1,29 @@
 
+export function findFootmarkInBook(ptk,id:string,line) {
+    const ck=ptk.nearestChunk(line);
+    const fntag=ptk.defines.fn;
+
+    const closestfn=ptk.findClosestTag( fntag, 'id', id, line);
+    if (~closestfn) {
+        return ptk.name+':bk#'+ck.bk.id+'.fm'+id;
+    }
+}
 export function footNoteAddress(id:string,line:number){
     const ptk=this;
-    const ck=ptk.nearestChunk(line);
 
+    //先找同頁注
+    const fnaddr=findFootmarkInBook(ptk,id,line);
+    if (fnaddr) return fnaddr;
+
+    //異頁注
+    const ck=ptk.nearestChunk(line);
     const chunktag=ptk.defines.ck;
     const bktag=ptk.defines.bk;
     const footbk='fn_'+ck.bkid;
+    
     const at=bktag.fields.id.values.indexOf(footbk);
+    if (at==-1) return ptk.name+':'+ck.bk.id+'.fm'+id;
+
     const booknotebkline=bktag.linepos[at];
     const closestchunk=ptk.findClosestTag( chunktag, 'id',ck.id, booknotebkline);
     const chunk=chunktag.fields.id.values[closestchunk];    

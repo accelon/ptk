@@ -4,12 +4,12 @@ export function getCaption(at:number,short=false){
     const id=chunktag?.fields?.id?.values[at];
     const onChunkCaption=this.template.onChunkCaption;
     if (!caption) {
-        caption=this.columns[chunktag?.column]?.keys?.get(at);		
+        caption=(this.columns[chunktag?.column]?.keys?.get(at)) ||'';		
         if (!caption && onChunkCaption) caption=onChunkCaption(id);
     }
-    const at2=caption.indexOf(";");
-    let shortcaption=caption;
-    if (at2) {
+    const at2=caption?.indexOf(";");
+    let shortcaption=caption||'';
+    if (~at2) {
         shortcaption=caption.slice(at2);
         caption=caption.slice(0,at2);
     }

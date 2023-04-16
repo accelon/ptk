@@ -34,6 +34,7 @@ export const DOMFromString=(str)=>{
     return tree;
 }
 export const walkDOM=(el,ctx,onOpen={},onClose={},onText=null)=>{
+    if (!el) return;
     onText=onText||ctx.onText;
     ctx.out=ctx.out||'';
     if (typeof el==='string') ctx.out+=onText?onText(el,ctx):el;
@@ -63,14 +64,14 @@ export function JSONify(el) {
 }
 export const xpath=(root,p)=>{
     const paths=p.split('/');
-    if (!root.children) return null;
+    if (!root || !root.children) return null;
     let found,el,children=root.children;
     for (let i=0;i<paths.length;i++) {
         for (let j=0;j<children.length;j++) {
             found=false;
             if (children[j].name===paths[i]) {
                 el=children[j];
-                children=children[j].children;
+                if (el) children=children[j].children;
                 found=true;
                 break;
             }

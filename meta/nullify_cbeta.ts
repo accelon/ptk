@@ -10,7 +10,7 @@ const nullify_note=content=>{
     //夾注    
     content=content.replace(/<note([^>]*?)>([^<]+)<\/note>/g,(m,_attrs,t)=>{
         const attrs=parseXMLAttribute(_attrs);
-        const {place,type,n,resp} = attrs
+        const {place,type,n,resp} = attrs;
         let note='';
         
         if (place=='inline') note= '〔'+t+'〕';
