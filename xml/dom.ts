@@ -34,7 +34,6 @@ export const DOMFromString=(str)=>{
     return tree;
 }
 export const walkDOM=(el,ctx,onOpen={},onClose={},onText=null)=>{
-    if (!el) return;
     onText=onText||ctx.onText;
     ctx.out=ctx.out||'';
     if (typeof el==='string') ctx.out+=onText?onText(el,ctx):el;

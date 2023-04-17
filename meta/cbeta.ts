@@ -70,6 +70,7 @@ const parseBuffer=(buf:string,fn='',ctx)=>{
         ctx.teictx={defs:ctx.labeldefs||{},lbcount:0,hide:0,snippet:'',
         div:0,charmap,fn,started:false,transclusion:ctx.transclusion||{},milestones:ctx.milestones||{}};    
     }
+
     ctx.teictx.started=false;
     let content=bk+chunk+walkDOMOfftext(body,ctx.teictx,onOpen,onClose,onTextWithInserts);
     ctx.teictx.out='';

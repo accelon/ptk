@@ -70,23 +70,17 @@ const nullify_cbtt=content=>{
     return content;
 }
 export const nullify_cbeta=content=>{
-    content=content.replace(/<g ref="#([\-A-Za-z\d]+)"\/>/g,'[mc_$1]')
-
     content=content.replace(/<figure><graphic url="([^>]+)"><\/graphic><\/figure>/g,'[fg_$1]')
-
     content=content.replace(/<space([^>]*?)\/>/g,(m,attrs)=>{
         const attributes=parseXMLAttribute(attrs)
         return ' '.repeat(parseInt(attributes.quantity))
     })
     content=content.replace(/<unclear><\/unclear>/g,'[??]');
-
     content=nullify_cbtt(content);
-
     content=nullify_note(content);
     content=nullify_note(content); //recursive , T14n0443_004.xml 0337016
     content=nullify_rdg(content);
     content=nullify_choice(content);
     content=nullify_note(content);
-
     return content;
 }

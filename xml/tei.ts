@@ -86,7 +86,7 @@ const p=(el,ctx)=>{
 }
 const g=(el,ctx)=>{
     if (ctx.hide)return;
-    const uni=ctx.charmap[ el.attrs.ref.substr(1)];
+    const uni=ctx.charmap[ el.attrs.ref.slice(1)];
     if (uni) return uni;
     else {
         ctx.compact=true;
