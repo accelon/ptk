@@ -1,5 +1,7 @@
 import {bsearchNumber,bsearch} from "./bsearch.ts";
 import {unique} from './sortedarray.ts';
+
+
 type NumberArray = number [];
 
 //arr need to be sorted but allow duplicate items
@@ -72,4 +74,14 @@ export const similarSet=( arr,  basearr)=>{
     const I=intersect(arr,basearr);
     const U=union(arr,basearr);
     return  I.length/U.length;
+}
+
+export const indexOfs=(arr,tofind)=>{
+    const out=[];
+    for (let j=0;j<arr.length;j++) {
+        if (~arr[j].indexOf(tofind)) {
+            out.push(j);
+        }
+    }
+    return out;
 }

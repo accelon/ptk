@@ -8,16 +8,30 @@ export const onTextWithInserts=(el,ctx)=>{
     }
     return onOfftext(el,ctx);
 }
+
+const byline=(el,ctx)=>{
+    let s='\n';
+    const type=el.attrs['cb:type'];
+    if (type) {
+        ctx.compact=true;
+        s+='^h<o='+type.toLowerCase()+'>';
+    }
+    return s;
+}
+
 export const onClose={
     'cb:div': (el,ctx)=>{ctx.div--},
     'cb:tt':(el,ctx)=>unhide(ctx),
+    'cb:docNumber':(el,ctx)=>unhide(ctx),
     'cb:mulu':(el,ctx)=>{
+        if (!ctx.started)return;
         unhide(ctx);
         if (ctx.mulu && ctx.started) {
             ctx.mulu=false;
             return '">';
         }
     },
+    byline:(el,ctx)=>"\n",
     note:(el,ctx)=>unhide(ctx),
     lem:(el,ctx)=>unhide(ctx),
     // l:(el,ctx)=>{ 
@@ -42,37 +56,23 @@ const pb=(el,ctx)=>{
     ctx.lbcount=0;
     ctx.compact=true;
     let out='', pn=el.attrs.n.replace(/^0+/,'');
-    if (ctx.fn.match(/Y\d\dn\d/)) {
-        if (pn.charCodeAt(0)>0x40){ 
-            out='^pg<'+pn.substr(0,pn.length-1)+'>';
-            ctx.compact=false;
-        } else if (pn[pn.length-1]!=='a') {//多欄 y21-009 0131b
-            out='^pg<'+pn+'>';
-            ctx.compact=false;
-        } else {
-            out='^p'+pn.substr(0,pn.length-1);
-            ctx.compact=true;
-        }
-        if (el.attrs.type==='old') return '';
-    } else {
-        let vol='';
-        ctx.vol=el.attrs['xml:id'].substr(1,2);
-        if (el.attrs.n==='0001a') {
-            ctx.compact=true;
-            vol='^v'+ctx.vol;
-        } 
+    let voltag='';
+    ctx.vol=parseInt(el.attrs['xml:id'].substr(1,2));
 
-        if (ctx.fn[0]==='N') { //Nanchuan
-            out=vol+'^p'+pn.replace(/a$/,'');
-            ctx.compact=true;
-        } else if (ctx.fn[0]==='T' || ctx.fn[0]==='X'){
-            ctx.pn=pn;
-            if (vol) {
-                out=vol;
-                ctx.compact=true;
-            }
-        }
+    if (el.attrs.n==='0001a') {
+        ctx.compact=true;
+        const ak=ctx.volumname[ctx.vol]?'^ak'+ctx.vol+'【'+ctx.volumname[ctx.vol]+'】':''
+        voltag='^v'+ctx.vol+ ak;
+    } 
+
+    if (ctx.fn[0]==='N') { //Nanchuan
+        out=voltag+'^p'+pn.replace(/a$/,'');
+        ctx.compact=true;
+    } else if (ctx.fn[0]==='T' || ctx.fn[0]==='X'){
+        ctx.pn=pn;
+        if (voltag) out=voltag;
     }
+
     return out;
 }
 const p=(el,ctx)=>{
@@ -118,15 +118,6 @@ const lb=(el,ctx)=>{
     }
     return out;
 }
-const byline=(el,ctx)=>{
-    let s='\n';
-    const type=el.attrs['cb:type'];
-    if (type) {
-        ctx.compact=true;
-        s+='^h<o='+type.toLowerCase()+'>';
-    }
-    return s;
-}
 // const cbtt=(el,ctx)=>{
 //     let s='';
 //     const lang=el.children.length>1&&el.children[1].attrs&&el.children[1].attrs['xml:lang'];
@@ -146,7 +137,7 @@ const byline=(el,ctx)=>{
 // }
 export const caesura=(el,ctx)=>'　';
 export const onOpen={
-    p,pb,g,lb,byline,caesura,
+    p,pb,g,lb,caesura,byline,
     milestone:(el,ctx)=>{ctx.started=true;},//skip the redundant mulu before milestone, see T30n1579_037
     note:(el,ctx)=>{  ctx.hide++;return ''},
     l:(el,ctx)=>{ctx.compact=true; return '\n^l'},
@@ -157,7 +148,8 @@ export const onOpen={
             ctx.ptr='';
             return '^t@'+ptr;
         }
-    },    
+    }, 
+    'cb:docNumber':(el,ctx)=>{ctx.hide++}, // 經號 privided by from catalog.json
     'cb:mulu':(el,ctx)=>{
         if (!ctx.started)return;
         const level=parseInt(el.attrs.level);
@@ -188,7 +180,11 @@ export const onOpen={
             }
             // console.log(el.attrs.target)
         }
+    },
+    t_rdg(el,ctx){
+        return el.attrs.t;
     }
+
     // deal with app inside cb:tt <app n="0002008">  t01n0001_001
     /*
     app:(el,ctx)=>{

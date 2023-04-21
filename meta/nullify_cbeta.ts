@@ -1,5 +1,6 @@
 //將note 可能包含的 tag 換成等效的null tag,
 //以抽出notetext
+
 import {parseXMLAttribute} from '../xml/utils.ts'
 import {convertCitationToTEIRef} from './cbeta-textlinks.ts'
 
@@ -82,5 +83,6 @@ export const nullify_cbeta=content=>{
     content=nullify_rdg(content);
     content=nullify_choice(content);
     content=nullify_note(content);
+    
     return content;
 }

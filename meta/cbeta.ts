@@ -5,10 +5,11 @@ import {createChunkId_cbeta,insertTag_cbeta,offGen_cbeta,
     StockCharMap_cbeta,buildCharMap_cbeta} from './offtag_cbeta.ts';
 import { addTemplate } from '../compiler/template.js';
 import { breakChineseSentence } from '../utils/cjk.js';
-const fixJuanT=(bkno,juan,sutraline)=>{
+import { writeChanged } from '../platform/nodefs.js';
+const fixJuanT=(bkno,juan,sutraname)=>{
     let bk='';
     if (juan===1) {
-        bk='^bk'+bkno+'['+sutraline;
+        bk='^bk'+bkno+'【'+sutraname;
     }
     if (bkno==='946') {
         if (juan>=4) juan--; //946 其實只有四卷, 缺檔 _003
@@ -16,20 +17,20 @@ const fixJuanT=(bkno,juan,sutraline)=>{
         if (juan===3) juan=2;
     } else if (bkno==='2805') {
         if (juan===5) {
-            bk='^bk#'+bkno+'['+sutraline;
+            bk='^bk#'+bkno+'【'+sutraname;
             juan=1;
         } else if (juan===7) juan=2; 
     } else if (bkno==='2139') {
         if (juan===10) juan=2; //workaround 老子西昇化胡經
     } else if (bkno==='2772') {
         if (juan===3) {
-            bk='^bk#'+bkno+'['+sutraline;
+            bk='^bk#'+bkno+'【'+sutraname;
             juan=1;
         } else if (juan===6) juan=2; 
     } else if (bkno==='2748'||bkno==='2754'||bkno==='2757'
     ||bkno==='2764b'||bkno==='2769'||bkno==='2803'||bkno=='2809'
     ||bkno==='2820') { //only 1 juan
-        bk='^bk<id='+bkno+'['+sutraline;
+        bk='^bk<id='+bkno+'【'+sutraname;
         juan=1;
     }
     return [bk,juan]
@@ -48,26 +49,26 @@ const parseBuffer=(buf:string,fn='',ctx)=>{
     let bk='',bkno='',chunk='';
     
     const sutraNo=m[1].replace('_'+m[2],'').toLowerCase();
-    let sutraline=ctx.catalog&&ctx.catalog[sutraNo]&&ctx.catalog[sutraNo].trim() ||'';
+    let sutraname=ctx.catalog&&ctx.catalog[sutraNo]&&ctx.catalog[sutraNo].trim() ||'';
     bkno=sutraNo.replace(/^0+/,'');
-
-    const at=sutraline.indexOf('^');
+    
+    const at=sutraname.indexOf('^');
     if (at>-1) {
-        sutraline=sutraline.substr(0,at)+']'+sutraline.substr(at);
-    } else sutraline+=']'
+        sutraname=sutraname.substr(0,at)+'】'+sutraname.substr(at);
+    } else sutraname+='】'
 
     let juan=parseInt(m[2]);
 
     if (fn[0]=='T') {
-        [bk,juan]=fixJuanT(bkno,juan,sutraline);
+        [bk,juan]=fixJuanT(bkno,juan,sutraname);
     } else if (juan===1) {
-        bk='^bk'+bkno+'['+sutraline; //empty sutraline
+        bk='^bk'+bkno+'【'+sutraname; //empty sutraname
     }
 
     chunk='^ck'+juan+'【卷'+juan+'】';
 
     if (!ctx.teictx) { //cross multiple file
-        ctx.teictx={defs:ctx.labeldefs||{},lbcount:0,hide:0,snippet:'',
+        ctx.teictx={defs:ctx.labeldefs||{},lbcount:0,hide:0,snippet:'', volumname:ctx.volumname,
         div:0,charmap,fn,started:false,transclusion:ctx.transclusion||{},milestones:ctx.milestones||{}};    
     }
 
@@ -77,18 +78,24 @@ const parseBuffer=(buf:string,fn='',ctx)=>{
     content=content.replace(/\^r\n/g,'\n').replace(/\n+/g,'\n');
     return content;
 }
+const tidy=content=>{
+    return content.replace(/，<caesura\/>/g,'，');
+}
 const parseFile=async (f,ctx)=>{
     let fn=f;
     if (typeof f.name==='string') fn=f.name;
-
     const ext=fn.match(/(\.\w+)$/)[1];
     if (ext=='.xml') {
-        const xmlcontent=await fs.promises.readFile(f,'utf8');
-        const parsed=parseBuffer( nullify_cbeta( xmlcontent) ,fn,ctx);
+        const xmlcontent=tidy(await fs.promises.readFile(f,'utf8'));
+        
+        const nullified=nullify_cbeta( xmlcontent);
+        
+       //if (~fn.indexOf('T01n0001_004')) writeChanged(fn+'-nullify',nullified,true)
+        const parsed=parseBuffer( nullified ,fn,ctx);
         const lines=parsed.split("\n")
         for (let i=0;i<lines.length;i++) {
             let line=lines[i];
-            if (line.startsWith('^p')||line.startsWith('^lg')) {
+            if (! (line.startsWith('^h')||line.startsWith('^bk'))) {
                 lines[i]=breakChineseSentence(line);
             }
         }

@@ -2,7 +2,7 @@ import {ILineBase,LineBase,Column} from '../linebase/index.ts';
 import {Compiler,sourceType} from '../compiler/index.ts'
 import {unpackIntDelta,bsearchNumber} from '../utils/index.ts';
 import {rangeOfAddress,innertext} from './address.ts';
-import {columnField,inlineNote,rowOf,scanPrimaryKeys} from './columns.ts';
+import {columnField,inlineNote,rowOf,scanColumnFields,searchColumnField} from './columns.ts';
 import {Inverted,plContain} from '../fts/index.ts';
 import {TableOfContent,buildTocTag} from '../compiler/toc.ts';
 import {parseQuery,scanText,scoreLine} from '../fts/query.ts';
@@ -30,7 +30,8 @@ export class Pitaka extends LineBase {
 		this.tocs={};
 		this.rangeOfAddress=rangeOfAddress;
 		this.innertext=innertext;
-		this.scanPrimaryKeys=scanPrimaryKeys;
+		this.scanColumnFields=scanColumnFields;
+		this.searchColumnField=searchColumnField;
 		this.scanText=scanText;
 		this.parseQuery=parseQuery;
 		this.scoreLine=scoreLine;
@@ -133,7 +134,7 @@ export class Pitaka extends LineBase {
 		if (sourcetype==='tsv') { // linebaser.ts addSection()
 			const column=new Column();
 			column.deserialize(section);
-			this.columns[column.name]=column;
+			this.columns[column.name]=column;			
 			this.primarykeys[column.name]=column.keys;
 		} else if (sourcetype==='tokens') {
 			section.shift();

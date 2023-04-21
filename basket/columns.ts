@@ -1,3 +1,6 @@
+import {indexOfs} from '../utils/array.ts';
+import {fromSim} from 'lossless-simplified-chinese';
+
 export function columnField(name:string, field:string, idx:number) {
 	const column=this.columns[name];
 	const at=column.fieldnames.indexOf(field);
@@ -31,12 +34,49 @@ export function rowOf(rowname:string,idx:number,field=-1) {
 	}
 	return out;
 }
-export function scanPrimaryKeys(tofind:string) {
+const getCacheKey=(name,field,tofind)=>{
+	return name+':'+field+'='+tofind
+}
+
+export function searchColumnField(name,field,tofind) {
+	const simtofind=fromSim(tofind);
+	let cachekey=getCacheKey(name,field,tofind);
+	let cache=this.scanCache[cachekey];
+	if (!cache && simtofind!==tofind) {
+		cache=this.scanCache[getCacheKey(name,field,simtofind)];
+	}
+	if (!cache) {
+		const array=this.columns[name][field];
+		if (!array) {
+			console.log('missing field',field,'in column',name);
+			return null;
+		}
+		let contain=indexOfs(array,tofind);
+		if (!contain.length && simtofind!==tofind) {
+			contain=indexOfs(array,simtofind);
+			if (contain.length) {
+				cachekey=getCacheKey(name,field,simtofind);
+			}
+		}
+		const caption=this.columns[name].caption||name;
+		cache={name,field:field,caption, contain};
+		this.scanCache[cachekey]=cache;
+	}
+	return cache;
+}
+export function scanColumnFields(tofind:string) {
 	const out=[];
 	if (!tofind) return [];
+	for (let name in this.columns) {		
+		if (!this.columns[name].attrs.scan) continue;
+		const scans=this.columns[name].attrs.scan.split(",");
+		for (let i=0;i<scans.length;i++) {
+			const cache=searchColumnField.call(this,name, scans[i],tofind)
+			out.push(cache);
+		}
+	}
 	for (let name in this.primarykeys) {
 		if (!this.columns[name].attrs.bme) continue;
-	
 		const cachekey=name+'='+tofind;
 		let cache=this.scanCache[cachekey];
 		if (!cache) {
@@ -48,7 +88,7 @@ export function scanPrimaryKeys(tofind:string) {
 			cache={name,caption,start,middle,end};
 			this.scanCache[cachekey]=cache;
 		}
-		out.push(cache);
+		out.push(cache);	
 	}
 	return out;
 }

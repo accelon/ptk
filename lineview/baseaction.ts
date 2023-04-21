@@ -7,7 +7,7 @@ export const EXCERPTACTIONPREFIX='*';
 export const GUIDEACTIONPREFIX='!';
 export const TITLECOUNTACTIONPREFIX='~';
 export const OWNERDRAWPREFIX='@';
-
+export const COLUMNFIELDSEP = ".";
 export class Action implements IAction{
 	constructor (addr:IAddress,depth=0, dividx=0) {
 		this.act=Action.parse(addr.action);
