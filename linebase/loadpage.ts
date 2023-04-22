@@ -7,7 +7,11 @@ const makePageURI=(folder,page)=>{
 }
 
 export async function loadNodeJs (page){
-    const fn=makePageURI(this.name,page);
+    let fn=makePageURI(this.name,page);
+    //try sibling folder
+    if (! fs.existsSync(fn) && fs.existsSync('../'+this.name+'/'+this.name)) {
+        fn=makePageURI('../'+this.name+'/'+this.name,page);
+    }
     try{
         const data=await fs.promises.readFile(fn,'utf8');
         this.setPage(page,...parseJsonp(data));

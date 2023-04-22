@@ -26,6 +26,7 @@ cbeta:
 ^:fn<id=number>
 ^:fm<id=text>
 ^:k<id=text>
+^:j<@=link>
 ^:v
 ^:h
 ^:mc

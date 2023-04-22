@@ -16,8 +16,6 @@ import Path from 'path';
 
 await PTK.nodefs;
 
-const listfilename='files.txt';  //readdir if listfile is missing
-
 const cmd=process.argv[2] || '-h';
 const arg=process.argv[3];
 const arg2=process.argv[4];
@@ -34,23 +32,25 @@ const isSourceFile=fn=>{
 const build=opts=>{
     let files;
     let ptkname=arg;
-
+    
     if (!ptkname) { //pack all files in cwd
         if (fs.existsSync("off")) {
             opts.ptkname=Path.basename(process.cwd()).replace(/\..+$/,'');    
             opts.indir='off/'
-            files=fs.existsSync(opts.indir+listfilename)?PTK.readTextLines(opts.indir+listfilename):fs.readdirSync(opts.indir).filter(isSourceFile);
+            const listfilename=opts.ptkname+'.lst';
+            files=fs.existsSync(listfilename)?PTK.readTextLines(listfilename):fs.readdirSync(opts.indir).filter(isSourceFile);
         } else {
+            opts.ptkname=Path.basename(process.cwd()).replace(/\..+$/,'');    
+            const listfilename=opts.ptkname+'.lst';
             files=fs.existsSync(listfilename)?PTK.readTextLines(listfilename):fs.readdirSync('.').filter(isSourceFile);
             opts.outdir='../';
-            opts.ptkname=Path.basename(process.cwd()).replace(/\..+$/,'');    
+            
         }
     } else { //pack all files in off
         opts.ptkname=ptkname;
         opts.indir=ptkname+'.offtext/'
-
+        const listfilename=ptkname+'.lst';  //readdir if listfile is missing
         files=fs.existsSync(opts.indir+listfilename)?PTK.readTextLines(opts.indir+listfilename):fs.readdirSync(opts.indir).filter(isSourceFile);
-
         if (!files.length) {
             opts.indir=ptkname+'.src/'
             files=fs.readdirSync(opts.indir).filter(isSourceFile);
