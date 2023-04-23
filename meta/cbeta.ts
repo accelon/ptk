@@ -6,7 +6,7 @@ import {createChunkId_cbeta,insertTag_cbeta,offGen_cbeta,
 import { addTemplate } from '../compiler/template.js';
 import { breakChineseSentence } from '../utils/cjk.js';
 import { bsearchNumber } from '../utils/bsearch.js';
-import {TaishoJuanPagePacked} from './taishosutrajuan.js';
+import {TaishoJuanPagePacked} from './taishosutrajuan.js'; //created by cb-t/gen-sutra-pagestart.js
 import { unpackIntDelta } from '../utils/unpackintarray.js';
 
 
@@ -152,6 +152,28 @@ export const TaishoVolSutra=[ //每一冊開頭的經號
 //大般若經220 6冊為 2921 號, 7冊為2922 號
 const TaishoJuanPage=TaishoJuanPagePacked.split(/\n/).map( unpackIntDelta );
 
+//給定經號和卷數，返回冊頁碼
+export const TaishoPageFromJuan=( sutranumber, juan )=>{
+    let vol=bsearchNumber(TaishoVolSutra, sutranumber+1 );
+    if (sutranumber==220) {
+        if (juan>400) {
+            juan-=400;
+            sutranumber=2922;
+            vol=6;
+        } else if (juan>200) {
+            juan-=200;
+            sutranumber=2921;
+            vol=7;
+        }
+    }
+
+    const jpage=TaishoJuanPage[sutranumber-1]
+    if (!jpage) return [0,0];
+    
+    const pgcol=jpage[juan-1]||0 ; 
+    const pagecol=Math.floor(pgcol/3) + String.fromCharCode( 0x61+pgcol%3);
+    return [vol,pagecol];
+}
 //給定冊頁碼，返回經號和卷數
 export const TaishoJuanFromPage=( volpage, page )=>{
     let vol=volpage,col=0;
@@ -160,7 +182,7 @@ export const TaishoJuanFromPage=( volpage, page )=>{
         [vol,page]=volpage.split('p');
     }
     vol=parseInt(vol);
-    if (isNaN(vol)) return 0;
+    if (isNaN(vol)) return [0,0];
 
     const pg=parseInt(page);
     const m=page.match(/([bc])$/);
@@ -174,38 +196,25 @@ export const TaishoJuanFromPage=( volpage, page )=>{
         startsutra=220;
         endsutra=221;
     } else if (vol==6) {
-        startsutra=2921;
+        startsutra=2921;  //TaishoJuanPage 第6冊的虛擬經號為2921
         endsutra=2922;
     } else if (vol==7) {
         startsutra=2922;
         endsutra=2923;
     }
-    let out;
     for (let i=startsutra;i<endsutra;i++) {
         const pages=TaishoJuanPage[i-1];
         const at=bsearchNumber(pages,pn+1);
-        // console.log(i,at,pages[at],pn)
-
         if (~at && pages[at]>=pn) {
-            if (at==0) {
-                out=[i-1, TaishoJuanPage[i-2].length-1 ];
-            } else {
-                out=[i, at ];
-            }
-            
-        }
-        if (out) {
-            if (out[0]==2921) {
-                out[0]=220;
-                out[1]+=200;
-            } else if (out[0]==2922) {
-                out[0]=220;
-                out[1]+=400;
+            if (i==2921) {
+                return [220, at+200]; //大般若經 200~400
+            } else if (i==2922) {
+                return [220, at+400]; //大般若經 400~600
             } 
-            return out;
+            return [i,at];
         }
     }
-    return 0;
+    return [0,0];
 }
 export const meta_cbeta={translatePointer, parseFile,parseBuffer,onOpen,onClose,
     createChunkId:createChunkId_cbeta,
@@ -218,6 +227,7 @@ export const meta_cbeta={translatePointer, parseFile,parseBuffer,onOpen,onClose,
     TaishoVolSutra,
     TaishoJuanPage,
     TaishoJuanFromPage,
+    TaishoPageFromJuan,
     fromCBETA, toCBETA,
     nullify:nullify_cbeta};
 
