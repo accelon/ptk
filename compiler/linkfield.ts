@@ -20,8 +20,8 @@ export class LinkField extends Field {
         if (!this.invertlinks[addr.ptkname]) this.invertlinks[addr.ptkname]={};
         let invertlinks=this.invertlinks[addr.ptkname];
         if (act.length!==2) {
-            console.log('act length',act)
-            return [VError.InvalidLinkAddress,addr.action];
+            //console.log('act length',act)
+            //return [VError.InvalidLinkAddress,addr.action];
             //throw "link must have 2 level addressing ";
         }
         for (let i=0;i<act.length;i++) {

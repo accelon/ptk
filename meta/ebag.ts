@@ -34,3 +34,7 @@ export const fromSeal=ch=>{
     const seq= ((n) %999) + 1;
     return 's'+part.toString().padStart(3,'0')+'-'+seq.toString().padStart(3,'0');
 }
+
+export const meta_ebag={
+    fromSeal, toSeal
+}

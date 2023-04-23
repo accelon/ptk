@@ -23,8 +23,9 @@ export class Indexer {
 		this.tokenlinepos = [];
 		this.bmppostings=new Array(65536);
 		this.bmptokencount= new Int32Array(65536);
-		this.tokencount=new Int32Array(0);//later
+		this.tokencount=new Int32Array(0);
 		this.finalized=false;
+		this.wordcount =0;
 	}
 	addLine(line:string) {
 		const tokens=tokenize(line);
@@ -34,6 +35,7 @@ export class Indexer {
 			if (type==TokenType.CJK_BMP) {
 				this.bmp[cp]++;
 				this.tokenlist.push(cp);
+				this.wordcount++;
 			} else if (type>=TokenType.SEARCHABLE){
 				let at=this.words[text];
 				if (typeof at=='undefined') {
@@ -44,6 +46,7 @@ export class Indexer {
 				}
 				this.postingcount[at]++;
 				this.tokenlist.push( at + 65536 );
+				this.wordcount++;
 			} else {
 				this.tokenlist.push(-1); //unsearchable token
 			}
@@ -100,7 +103,6 @@ export class Indexer {
 			throw "not finalized";
 		}
 		const tokens=[] , postings=[] ;
-		let packedsize=0;
 
 		const tokentable=fromObj(this.words, (word:string,nposting:number)=>[word,nposting]);
 		tokentable.sort(alphabetically0);
@@ -121,7 +123,6 @@ export class Indexer {
 			//原文刪去一些字或者用全集tokentable 但只索引子集，tokentable 沒更新, tokencount 會較小。
 			//增加的字會找不到。
 			const s=packIntDelta(this.bmppostings[i]);
-			packedsize+=s.length;
 			postings.push(s);
 		}
 
@@ -129,9 +130,8 @@ export class Indexer {
 			const nposting=tokentable[i][1];
 			if (!this.postings[nposting]) continue;
 			const s=packIntDelta(this.postings[nposting]);
-			packedsize+=s.length;
 			postings.push(s);
 		}
-		return [tokens,postings];
+		return [tokens,postings, this.wordcount];
 	}
 }

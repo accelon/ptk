@@ -53,9 +53,10 @@ export const makeLineBaser=async (sourcebuffers,compiler:ICompiler,contentGetter
 		}
 	}
 	indexer.finalize();
-	const [tokens,postings]=indexer.serialize();
+	const [tokens,postings,wordcount]=indexer.serialize();
 	lbaser.header.eot = lbaser._data.length;
 	lbaser.header.preload.push('_tokens','_toc');
+	lbaser.header.wordcount=wordcount;
 	tokens.unshift('^:<type="tokens">');
 	lbaser.append(tokens,{newpage:true,name:'_tokens'});
 	lbaser.append(postings,{newpage:true,name:'_postings'});
@@ -65,7 +66,6 @@ export const makeLineBaser=async (sourcebuffers,compiler:ICompiler,contentGetter
 	if (!compiler.ptkname) {
 		return "missing ptk name";	
 	}
-
 
 	writeTypedefs(lbaser,compiler.typedefs)
 
