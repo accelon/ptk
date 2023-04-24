@@ -9,7 +9,6 @@ import { bsearchNumber } from '../utils/bsearch.js';
 import {TaishoJuanPagePacked} from './taishosutrajuan.js'; //created by cb-t/gen-sutra-pagestart.js
 import { unpackIntDelta } from '../utils/unpackintarray.js';
 
-
 const fixJuanT=(bkno,juan,sutraname)=>{
     let bk='';
     if (juan===1) {
@@ -159,37 +158,37 @@ export const TaishoPageFromJuan=( sutranumber, juan )=>{
         if (juan>400) {
             juan-=400;
             sutranumber=2922;
-            vol=6;
+            vol=7;
         } else if (juan>200) {
             juan-=200;
             sutranumber=2921;
-            vol=7;
+            vol=6;
+        } else {
+            vol=5;
         }
     }
 
     const jpage=TaishoJuanPage[sutranumber-1]
-    if (!jpage) return [0,0];
+    if (!jpage) return [0,0,0];
     
     const pgcol=jpage[juan-1]||0 ; 
-    const pagecol=Math.floor(pgcol/3) + String.fromCharCode( 0x61+pgcol%3);
-    return [vol,pagecol];
+    return [vol,Math.floor(pgcol/3), pgcol%3 ];
 }
 //給定冊頁碼，返回經號和卷數
-export const TaishoJuanFromPage=( volpage, page )=>{
-    let vol=volpage,col=0;
+export const TaishoJuanFromPage=( volpage, page=1, col=0 )=>{
+    let vol=volpage;
     // input format:   "35p77c" , or    35, '77c'
     if (typeof volpage=='string') {
         [vol,page]=volpage.split('p');
     }
+    if (typeof page=='string') {
+        const m=page.match(/([bc])$/);
+        if (m) col= m[1].charCodeAt(0)-0x61 ;
+        page=parseInt(page);
+    }
     vol=parseInt(vol);
     if (isNaN(vol)) return [0,0];
-
-    const pg=parseInt(page);
-    const m=page.match(/([bc])$/);
-    if (m) col= m[1].charCodeAt(0)-0x61 ;
-    
-    const pn=pg*3+col;
-
+    const pn=page*3+col;
     let startsutra=TaishoVolSutra[vol-1];
     let endsutra=TaishoVolSutra[vol];
     if (vol==5) {
@@ -216,6 +215,12 @@ export const TaishoJuanFromPage=( volpage, page )=>{
     }
     return [0,0];
 }
+export const getSutraInfo=(ptk,no)=>{
+    const catalog=ptk.columns.catalog;
+    if (typeof no=='number') no=no.toString().padStart(4,'0');
+    const at=catalog.keys.indexOf(no);
+    return {title:catalog.title[at], bulei:catalog.bulei[at], author:catalog.author[at] , no};
+}
 export const meta_cbeta={translatePointer, parseFile,parseBuffer,onOpen,onClose,
     createChunkId:createChunkId_cbeta,
     insertTag:insertTag_cbeta,
@@ -226,9 +231,11 @@ export const meta_cbeta={translatePointer, parseFile,parseBuffer,onOpen,onClose,
     TaishoMaxPage,
     TaishoVolSutra,
     TaishoJuanPage,
+    getSutraInfo,
     TaishoJuanFromPage,
     TaishoPageFromJuan,
     fromCBETA, toCBETA,
-    nullify:nullify_cbeta};
+    nullify:nullify_cbeta
+};
 
 addTemplate('cbeta',{TaishoMaxPage, guidedrawer:'cbeta'} );

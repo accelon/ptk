@@ -17,22 +17,6 @@ generic:
 ^:sponsor<savelinepos=true>
 ^:https<bracket=false onclick=gourl>
 ^:fn<id=number>`,
-yinshun:
-`^:ak<id=unique bracket=false>
-^:bk<id=unique heading=text bracket=false reset=ck,p>
-^:ck<id=unique heading=text bracket=false>
-^:https<bracket=false onclick=gourl>
-^:p<id=text>
-^:f<id=text>
-^:ver<savelinepos=true>
-^:fn<id=number>
-^:fm<id=text>
-^:k<id=text>
-^:j<@=link>
-^:v
-^:h
-^:mc
-^:l`,
 cbeta:
 `^:ak<id=unique bracket=false>
 ^:bk<id=unique heading=text bracket=false reset=ck,p>

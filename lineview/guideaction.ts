@@ -15,7 +15,6 @@ export class GuideAction extends Action{
 		const action=this.address.action.slice(1);
 		const idx=this.dividx;
 		const actionprefix=GUIDEACTIONPREFIX;
-
 		if (ptk.template.guidedrawer) {
 			this.ownerdraw={painter:ptk.template.guidedrawer, data:{from:this.from, actionprefix,idx,
 				name, action,caption,ptk}} ;
@@ -32,12 +31,10 @@ export class GuideAction extends Action{
 			out=items.map( idx =>{
 				const line=master.linepos[idx];
 				const ck=ptk.nearestChunk(line);
-	
 				const size=(master.linepos[idx+1]?master.linepos[idx+1]:ptk.header.eot)-line;
 				const lineoff=line-ck.line;
 				const record=[];
 				const recordend= master.linepos[idx+1];
-	
 				for (let i=0;i<col.fieldnames.length;i++) {
 					const def=ptk.defines[col.fieldnames[i]];
 					if (!def) continue;
@@ -50,9 +47,7 @@ export class GuideAction extends Action{
 	
 				return {chunkname:ck.name,line,size,ck,lineoff, record}
 			}).filter(it=>!!it);
-		}
-
-		
+		}		
 		this.ownerdraw={painter:'guide', data:{from:this.from, actionprefix,idx,
 			items:out, name, action,caption,ptk}} ;
     }
