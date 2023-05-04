@@ -52,6 +52,10 @@ const getPali=pi=>{
     }
     return pi;
 }
+const corPrefix=fn=>{
+    const m=fn.match(/([A-Z]+)\d\d/);
+    return m?m[1]:'';
+}
 const pb=(el,ctx)=>{
     ctx.lbcount=0;
     ctx.compact=true;
@@ -65,10 +69,10 @@ const pb=(el,ctx)=>{
         voltag='^v'+ctx.vol+ ak;
     } 
 
-    if (ctx.fn[0]==='N') { //Nanchuan
+    if (corPrefix(ctx.fn)==='N') { //Nanchuan
         out=voltag+'^p'+pn.replace(/a$/,'');
         ctx.compact=true;
-    } else if (ctx.fn[0]==='T' || ctx.fn[0]==='X'){
+    } else if (corPrefix(ctx.fn)==='T' || corPrefix(ctx.fn)==='X'){
         ctx.pn=pn;
         if (voltag) out=voltag;
     }
@@ -167,7 +171,7 @@ export const onOpen={
     'cb:div': (el,ctx)=>{
         ctx.div++;
         // ctx.compact=true;
-        return ctx.fn[0]==='Y'?'\n':'\n^h<o='+el.attrs.type+'>';
+        return corPrefix(ctx.fn)==='Y'?'\n':'\n^h<o='+el.attrs.type+'>';
     },
     'ref':(el,ctx)=>{
         if (el.attrs.target && el.attrs.type) {

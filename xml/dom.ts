@@ -92,7 +92,7 @@ export const onOfftext=(el:IElement,ctx:DOMContext,onText)=>{
         s=' '+s;                               // use blank to separate tag ]
         ctx.compact=false;
     }
-    if (s) ctx.snippet=s;
+//    if (s) ctx.snippet=s;
     if (onText) {
         return onText(el,ctx,ctx.started?s:'');
     } else {

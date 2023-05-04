@@ -68,15 +68,17 @@ const parseBuffer=(buf:string,fn='',ctx)=>{
         bk='^bk'+bkno+'【'+sutraname; //empty sutraname
     }
 
-    chunk='^ck'+juan+'【卷'+juan+'】';
+    chunk='^'+ (ctx.juantag||'ck') +juan+'【卷'+juan+'】';
 
     if (!ctx.teictx) { //cross multiple file
         ctx.teictx={defs:ctx.labeldefs||{},lbcount:0,hide:0,snippet:'', volumname:ctx.volumname,
         div:0,charmap,fn,started:false,transclusion:ctx.transclusion||{},milestones:ctx.milestones||{}};    
     }
-
+    ctx.teictx.sutraNo=sutraNo;
     ctx.teictx.started=false;
-    let content=bk+chunk+walkDOMOfftext(body,ctx.teictx,onOpen,onClose,onTextWithInserts);
+    const openhandler=Object.assign({},onOpen,ctx.onOpen||{});
+    const closehandler=Object.assign({},onClose,ctx.onClose||{});
+    let content=bk+chunk+walkDOMOfftext(body,ctx.teictx,openhandler,closehandler,onTextWithInserts);
     ctx.teictx.out='';
     content=content.replace(/\^r\n/g,'\n').replace(/\n+/g,'\n');
     return content;
@@ -122,6 +124,7 @@ export const fromCBETA = cbeta =>{
 export const toCBETA = address=>{
     
 }
+
 const TaishoMaxPage=[ 0, //每一冊之頁數
 924,884,975,802,1074,1073,1110,917,788,//1
 1047,977,1119,998,968,807,857,963,946,744,//10
@@ -221,6 +224,13 @@ export const getSutraInfo=(ptk,no)=>{
     const at=catalog.keys.indexOf(no);
     return {title:catalog.title[at], bulei:catalog.bulei[at], author:catalog.author[at] , no};
 }
+export const TaishoSutraCode={
+    1:'da',
+    26:'ma',
+    99:'sa',
+    100:'ssa', //shorter samyutta agama
+    125:'ea',
+}
 export const meta_cbeta={translatePointer, parseFile,parseBuffer,onOpen,onClose,
     createChunkId:createChunkId_cbeta,
     insertTag:insertTag_cbeta,
@@ -231,6 +241,7 @@ export const meta_cbeta={translatePointer, parseFile,parseBuffer,onOpen,onClose,
     TaishoMaxPage,
     TaishoVolSutra,
     TaishoJuanPage,
+    TaishoSutraCode,
     getSutraInfo,
     TaishoJuanFromPage,
     TaishoPageFromJuan,
