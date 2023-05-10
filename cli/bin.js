@@ -13,7 +13,7 @@ import {adb2zip} from './adb2zip.js';
 import {ts} from './subtitle.js'
 import {cbeta} from './cbeta.js'
 import Path from 'path';
-import {brk} from './brk.js';
+//import {brk} from './brk.js';
 await PTK.nodefs;
 
 const cmd=process.argv[2] || '-h';
@@ -138,7 +138,7 @@ const help=()=>{
     console.log('$',yellow('ptk tei      '),cyan('file'),magenta('outdir'),'tei to tag and plain text拆分為標籤及純文字');
 
     console.log(underline('Markup 標記处理'));
-    console.log('$',yellow('ptk brk      '),cyan('[pat]'), 'create a pin break file, 產生分句檔 (brk/*.brk)')
+    //console.log('$',yellow('ptk brk      '),cyan('[pat]'), 'create a pin break file, 產生分句檔 (brk/*.brk)')
     // console.log('$',yellow('ptk align    '),cyan('file1'),cyan('file2'),  'align file2 with file1, borth need ^n marker ，將file2與file1對齊')
 
     console.log('$',yellow('ptk markj    '),cyan('address'),cyan('txtfile'),cyan('pattern'),'find origtext 找原書出處');
@@ -155,7 +155,7 @@ const help=()=>{
 }
 
 try {
-    await ({'--help':help,'-h':help,ptk,js,com,dedup,unique,listwords,cbeta,brk,
+    await ({'--help':help,'-h':help,ptk,js,com,dedup,unique,listwords,cbeta,
     union,ngram,intersect,xor,xmltag,tei,dump,markj,markid,adb2zip,ts})[cmd](arg,arg2);
 
 } catch(e) {

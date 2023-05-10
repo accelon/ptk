@@ -9,8 +9,6 @@ generic:
 ^:j<@=link>
 ^:k<id=text>
 ^:ad
-^:mpeg<id=text savelinepos=true>
-^:ts<id=range>
 ^:bc
 ^:ver<savelinepos=true>
 ^:f<id=text>
@@ -50,5 +48,12 @@ zidian:
 ^:https<bracket=false onclick=gourl>
 ^:j<@=link>
 ^:o<@=link>
-`
+`,
+subtitle:
+`^:ak<id=unique bracket=false reset=n>
+^:bk<id=unique heading=text bracket=false reset=ck>
+^:ck<id=unique heading=text bracket=false>
+^:mpeg<id=text savelinepos=true>
+^:ts<id=range>
+^:ver<savelinepos=true>`
 }

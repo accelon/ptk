@@ -40,7 +40,7 @@ export const codePointLength=(str:string)=>splitUTF32(str).length;
 export const StringByteLength=(str:string)=>new Blob([str]).size;
 export const UnicodeBlock=(n:number|string)=>{
     if (!n) return '';
-    const cp=(typeof n=='string') ?n.codePointAt(0):cp;
+    const cp=(typeof n=='string') ?n.codePointAt(0):n;
     if (cp<0x80) return '半形 ascii';
     else if (cp<0x400) return '2位元拉丁字母 2b Latin';
     else if (cp<0x900) return '其他 Miscellaneous';

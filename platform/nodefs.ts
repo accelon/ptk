@@ -14,10 +14,20 @@ export const makePitakaZip=async(arr:Uint8Array, writer)=>{
     if (writer) await writer(arr);
     return arr;
 }
+
+const samecontent=(a,b)=>{
+    if (typeof a==='string' && typeof b==='string') {
+        return a==b;
+    }
+    if (a instanceof Buffer && b instanceof Buffer) {
+        return Buffer.compare(a,b);
+    }
+    return false;
+}
 export const writeChanged=(fn,buf,verbose=false,enc='utf8')=>{ //write to fn only if changed
-    const oldbuf=fs.existsSync(fn) && fs.readFileSync(fn,enc);
-    if (oldbuf!==buf) {
-        fs.writeFileSync(fn,buf,enc);
+    const oldbuf=fs.existsSync(fn) && (enc?fs.readFileSync(fn,enc):fs.readFileSync(fn));
+    if (!samecontent(oldbuf,buf)) {
+        enc?fs.writeFileSync(fn,buf,enc):fs.writeFileSync(fn,buf);
         if (verbose) console.log(green('written'),fn,...humanBytes(buf.length));
         return true;
     }
