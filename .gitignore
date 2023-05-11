@@ -1,5 +1,6 @@
 preparing
-*.js
+index.js
+ptk.js
 build
 dist
 *.mjs
@@ -17,3 +18,4 @@ dist
 *-intersect
 *.csv
 *-xor
+test
