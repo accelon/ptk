@@ -10,7 +10,7 @@ export const createBrowserDownload=(filename,buf)=>{
   a.click();
 }
 
-export async function verifyPermission(fileHandle, readWrite) {
+export async function verifyPermission(fileHandle, readWrite=false) {
     const options = {};
     if (readWrite) {
       options.mode = 'readwrite';

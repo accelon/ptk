@@ -3,11 +3,11 @@ import {nullify_cbeta} from './nullify_cbeta.ts';
 import {parseRefTarget} from './cbeta-textlinks.ts';
 import {createChunkId_cbeta,insertTag_cbeta,offGen_cbeta,
     StockCharMap_cbeta,buildCharMap_cbeta} from './offtag_cbeta.ts';
-import { addTemplate } from '../compiler/template.js';
-import { breakChineseSentence } from '../utils/cjk.js';
-import { bsearchNumber } from '../utils/bsearch.js';
-import {TaishoJuanPagePacked} from './taishosutrajuan.js'; //created by cb-t/gen-sutra-pagestart.js
-import { unpackIntDelta } from '../utils/unpackintarray.js';
+import { addTemplate } from '../compiler/template.ts';
+import { breakChineseSentence } from '../utils/cjk.ts';
+import { bsearchNumber } from '../utils/bsearch.ts';
+import {TaishoJuanPagePacked} from './taishosutrajuan.ts'; //created by cb-t/gen-sutra-pagestart.js
+import { unpackIntDelta } from '../utils/unpackintarray.ts';
 
 const fixJuanT=(bkno,juan,sutraname)=>{
     let bk='';
