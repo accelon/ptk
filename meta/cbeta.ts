@@ -1,6 +1,6 @@
 import {onTextWithInserts,onOpen,onClose,DOMFromString,xpath,walkDOMOfftext} from '../xml/index.ts';
 import {nullify_cbeta} from './nullify_cbeta.ts';
-import {parseRefTarget} from './cbeta-textlinks.ts';
+import {parseRefTarget,parseVolNoPage} from './cbeta-textlinks.ts';
 import {createChunkId_cbeta,insertTag_cbeta,offGen_cbeta,
     StockCharMap_cbeta,buildCharMap_cbeta} from './offtag_cbeta.ts';
 import { addTemplate } from '../compiler/template.ts';
@@ -182,7 +182,8 @@ export const TaishoJuanFromPage=( volpage, page=1, col=0 )=>{
     let vol=volpage;
     // input format:   "35p77c" , or    35, '77c'
     if (typeof volpage=='string') {
-        [vol,page]=volpage.split('p');
+        [vol,_page]=volpage.split('p');
+        if (_page) page=_page;
     }
     if (typeof page=='string') {
         const m=page.match(/([bc])$/);
@@ -212,8 +213,12 @@ export const TaishoJuanFromPage=( volpage, page=1, col=0 )=>{
                 return [220, at+200]; //大般若經 200~400
             } else if (i==2922) {
                 return [220, at+400]; //大般若經 400~600
-            } 
-            return [i,at];
+            }
+            if (i>0 && at==0) { //return last juan of previous sutra
+                return [i-1 , TaishoJuanPage[i-2].length ];
+            } else {
+                return [i,at];
+            }
         }
     }
     return [0,0];
@@ -231,6 +236,13 @@ export const TaishoSutraCode={
     100:'ssa', //shorter samyutta agama
     125:'ea',
 }
+export const nextColumn=(obj)=>{
+    if (obj.col===2) {
+        obj.col=0;
+        obj.page++;
+    } else if (obj.col<2 ) obj.col++
+    return obj;
+}
 export const meta_cbeta={translatePointer, parseFile,parseBuffer,onOpen,onClose,
     createChunkId:createChunkId_cbeta,
     insertTag:insertTag_cbeta,
@@ -246,6 +258,8 @@ export const meta_cbeta={translatePointer, parseFile,parseBuffer,onOpen,onClose,
     TaishoJuanFromPage,
     TaishoPageFromJuan,
     fromCBETA, toCBETA,
+    parseVolNoPage, //行首格式
+    nextColumn,
     nullify:nullify_cbeta
 };
 
