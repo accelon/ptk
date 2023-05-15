@@ -1,6 +1,6 @@
 {
   "name": "ptk",
-  "version": "1.5.10",
+  "version": "1.5.15",
   "description": "Backend for accelon22",
   "type":"module",
   "bin":"cli/bin.js",
