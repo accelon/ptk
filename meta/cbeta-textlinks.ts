@@ -13,7 +13,7 @@ const CorNames={
     'N':'nanchuan',
 }
 export const parseVolNoPage=(str)=>{//CBETA 行首格式
-    const m=str.match(/([A-Z]{1,2})(\d\d)n(\d\d\d\d[a-z]?)_p(\d+)([a-z])(\d*)/);
+    const m=str.match(/([A-Z]{1,2})(\d\d)n(\d\d\d\d[A-Za-z]?)_?p(\d+)([a-z])(\d*)/);
     if (m) {
         return {cor:m[1], vol:parseInt(m[2]), no:m[3], 
             page: parseInt(m[4]) , col: m[5].charCodeAt(0)-0x61, line:parseInt(m[6])}
