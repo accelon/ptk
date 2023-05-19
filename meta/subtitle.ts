@@ -16,6 +16,10 @@ const subtitleOfID=async (ptk,id)=>{
     const blob=new Blob([genWebVTT(addr)],{type:'plain/text'});
     return URL.createObjectURL(blob);
 }
+const youtubeOfID=async (ptk,id)=>{//need previous call of mpegfileOfId 
+    const tag=await ptk.fetchTag('mpeg',id);
+    return tag?.attrs.youtube;
+}
 const formatSeconds=sec=>{
     const hh=Math.floor(sec/3600).toString();
     const mm=Math.floor( (sec - hh*3600) /60).toString();
@@ -36,5 +40,5 @@ const genWebVTT=lines=>{
     //console.log(out)
     return out.join('\n')
 }
-export const meta_subtitle={ guidedrawer:'subtitle',genWebVTT, parseTimeStamp,mpegfileOfID,subtitleOfID};
+export const meta_subtitle={ guidedrawer:'subtitle',genWebVTT, parseTimeStamp,mpegfileOfID,subtitleOfID,youtubeOfID};
 addTemplate('subtitle',meta_subtitle);

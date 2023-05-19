@@ -1,7 +1,7 @@
 import {ILineBase,LineBase,Column} from '../linebase/index.ts';
 import {Compiler,sourceType} from '../compiler/index.ts'
 import {unpackIntDelta,bsearchNumber} from '../utils/index.ts';
-import {rangeOfAddress,innertext} from './address.ts';
+import {rangeOfElementId,rangeOfAddress,innertext} from './address.ts';
 import {columnField,inlineNote,rowOf,scanColumnFields,searchColumnField} from './columns.ts';
 import {Inverted,plContain} from '../fts/index.ts';
 import {TableOfContent,buildTocTag} from '../compiler/toc.ts';
@@ -11,6 +11,7 @@ import {Templates} from '../compiler/template.ts'
 import {foreignLinksAtTag,getParallelBook,getParallelLine} from './parallel.ts';
 import {addBacklinks, addForeignLinks } from './links.ts';
 import {getCaption,getBookInfo,caption,nearestChunk,getChunk,neighborChunks} from './chunk.ts'
+import { parseOfftext } from '../offtext/parser.js';
 
 export const regPtkName =  /^[a-z\-_]{2,16}$/
 export const validPtkName=(name:string):boolean=>!!name.match(regPtkName);
@@ -237,13 +238,26 @@ not suitable for dictionary wordheads
 		return -1
 	}
 	async fetchAddress(address:string) {
-		const range=this.rangeOfAddress(address);
+		const range=this.rangeOfAddress.call(this,address);
 		await this.loadLines([range]);
 		const out=[];
 		for (let i=range[0];i<range[1];i++){
 			out.push(this.getLine(i))
 		}
 		return out;
-		
+	}
+	async fetchTag(ele:string,id:string) {
+		const range=rangeOfElementId.call(this,[[ele,id]]);
+		if (range.length) {
+			const [start,end]=range[0];
+			const line=await this.getLine(start);
+			const [text,tags]=parseOfftext(line);
+			for (let i=0;i<tags.length;i++) {
+				if (tags[i].name==ele && tags[i].attrs.id==id) {
+					return tags[i]
+				}
+			}
+		}
+		return null;
 	}
 }

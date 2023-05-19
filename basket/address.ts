@@ -77,11 +77,11 @@ export const parseAddress=(address:string):IAddress=>{
 		 , highlightline:Math.abs(parseInt(highlightline))||-1};
 }
 
-export function rangeOfElementId(eleid:string){
+export function rangeOfElementId(eleidarr){
 	const out=[], ptk=this;
 	let from=0;
-	for (let i=0;i<eleid.length;i++) {
-		const [ele,id]=eleid[i];
+	for (let i=0;i<eleidarr.length;i++) {
+		const [ele,id]=eleidarr[i];
 		if (ptk.defines[ele]) {
 			const idtype=ptk.defines[ele].fields?.id;
 			const _id=(idtype?.type=='number')?parseInt(id):id;
