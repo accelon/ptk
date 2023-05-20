@@ -151,7 +151,7 @@ const help=()=>{
     console.log('$',yellow('ptk cbeta    '),cyan('filename|string'),'convert cbeta address');
 
 
-    console.log('PTK-CLI ver',green('2023.3.18'));
+    console.log('PTK-CLI ver',green('2023.5.15'));
 }
 
 try {

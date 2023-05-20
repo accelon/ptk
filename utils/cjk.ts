@@ -47,7 +47,7 @@ export const isPunc=(str:string)=>{
     if (!str) return false;
     const cp=str.charCodeAt(0);
     // console.log(cp,str,full)
-    return ((cp>=0x3001&&cp<=0x301f) || cp>0xff00)
+    return ((cp>=0x3001&&cp<=0x301f) || cp>0xff00 || (cp>=0xfe10&&cp<=0xfe6b))
 }
 export const trimPunc=(str:string)=>{
     return str.replace(/^[『「！。，：？]+/,'').replace(/[」？』。！：）｝〕；，]+$/,'');
