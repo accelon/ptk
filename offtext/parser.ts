@@ -114,7 +114,7 @@ const resolveEnd=(raw, plain:string,tags:IOfftag[])=>{
 export const stripOfftag=(str:string)=>str.replace(OFFTAG_REGEX_G,'');
 
 export const parseOfftext=(str:string,line:number=0)=>{
-    if (str.indexOf('^')==-1) return [str,[]];
+    if (!str || str.indexOf('^')==-1) return [str||'',[]];
     let tags=[];
     let choff=0,prevoff=0; // choff : offset to plain text
     let text=str.replace(OFFTAG_REGEX_G, (m,rawName,rawAttrs,offset)=>{

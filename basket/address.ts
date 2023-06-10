@@ -123,6 +123,14 @@ export function rangeOfAddress(address:string|IAddress):ILineRange{
 		return [0,end ]; //數字型不知道終點，預設取一行
 	}
 }
+
+export async function fetchAddress(eleid):Arrary<String>{
+	const r=rangeOfAddress.call(this,eleid);
+	if (!r|| r[0]==r[1]) return []
+	await this.loadLines([r]);
+	const lines=this.slice(r[0],r[1]);
+	return lines;
+}
 //only display the first level
 export function innertext(address:string):string{
 	let addr=address;

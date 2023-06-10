@@ -4,7 +4,8 @@ import {createField} from './fielder.ts';
 import {VError} from './error.ts';
 import {StringArray} from '../utils/stringarray.ts'
 
-import {packInt,packIntDelta,unpackIntDelta,unpackInt,LEMMA_DELIMITER,removeBracket} from '../utils/index.ts'
+import {unique,packInt,packIntDelta,unpackIntDelta,unpackInt,LEMMA_DELIMITER,removeBracket} from '../utils/index.ts'
+
 /* types of attributes defined by ^:  */
 const reservedAttributes={ //是指令不是屬性名, 
 	caption:true,
@@ -30,9 +31,31 @@ export class Typedef implements ITypedef {
 			if (V) this.fields[aname]=V;
 			if (V && !V.optional && !reservedAttributes[aname]) this.mandatory[aname]=true;
 		}
+
+		
 		this.attrs=attrs;
+
 		this.column='';  //backing column of this tag , see basket/pitaka.ts::init()
 		this.count=0;
+
+		if (this.attrs.resetby) {
+			const resettingparents=this.attrs.resetby.split(',');
+			for (let i=0;i<resettingparents.length;i++) {
+				const parent=this.typedefs[resettingparents[i]];
+				if (parent) {
+					if (!parent.attrs.reset) {
+						parent.attrs.reset=tagname;
+					} else {
+						const arr=parent.attrs.reset.split(',');
+						arr.push( tagname);
+						parent.attrs.reset= unique(arr).join(',');
+					}
+				} else {
+					console.log("not such parent tag",resettingparents[i])
+				}
+			}
+			
+		}
 	}
 	resetChildTag(){
 		if (this.attrs.reset) {
@@ -49,7 +72,7 @@ export class Typedef implements ITypedef {
 					}
 				}
 			}
-		}
+		} 
 	}	
 	validateFields(tag,line,onError){
 		let touched=false,newtag;
