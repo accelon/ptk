@@ -5,12 +5,13 @@ export const parallelWithDiff=(ptk,line,includeself=false)=>{
     const out=[];
     if (!ptk) return out;
     const parallelPitakas=poolParallelPitakas(ptk);
+    
+
     for (let i=0;i<parallelPitakas.length;i++) {
         const pptk=usePtk(parallelPitakas[i]);
         const lines=pptk.getParallelLine( ptk, line );			
-        lines.forEach( it=>out.push([pptk,it]))
+        lines.forEach( it=>out.push([...it]))
     }
-
 
     //因為nearesttag 返回 0 表示 出現在第一個bk 之前
     const bk=ptk.nearestTag(line,'bk')-1;
@@ -18,8 +19,8 @@ export const parallelWithDiff=(ptk,line,includeself=false)=>{
     if (includeself) {
         out.push([ptk, bookstart, line]);
     }
-
     const lineoff=line-bookstart;
+    
     const books=ptk.getParallelBook(bk);
     for (let i=0;i<books.length;i++) {
         const [start,end]=ptk.rangeOfAddress('bk#'+books[i]);

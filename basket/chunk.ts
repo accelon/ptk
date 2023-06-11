@@ -74,7 +74,7 @@ export function getChunk(at:number){
     const caption=this.caption(at);
     const depth=chunktag.depths?chunktag.depths[at]||1:1;
     
-    return {bk,bkid ,caption, at:at+1, id ,
+    return {bk,bkid ,bkat,caption, at:at+1, id ,
         depth,
         line:chunktag.linepos[at],
         innertext}

@@ -11,16 +11,25 @@ const bookPrefix=bookname=>{
 export function getParallelLine(sourceptk,line){
     const chunk=sourceptk.nearestChunk(line+1);
     if (!chunk) return [];
-    const lineoff=line-chunk.line;
-
+    const bk=this.defines.bk;
     const books=this.getParallelBook(chunk.bkid);
+    const bookats=books.map(id=> bk.fields.id.values.indexOf(id) );
+
     //同名 被 getParallelBook 去除，加回去
-    if (!~books.indexOf(chunk.bkid)) books.push(chunk.bkid);
+    // if (!~books.indexOf(chunk.bkat)) bookats.push(chunk.bkat);
+    
+    const bookstart=sourceptk.defines.bk.linepos[chunk.bkat];
+    const sourcelineoff=line-bookstart;
+
     const out=[];
-    for (let i=0;i<books.length;i++) {
-        const [start,end]=this.rangeOfAddress('bk#'+books[i]+'.ck#'+chunk.id);
-        if (lineoff<=end-start) {
-            out.push(start + lineoff - line)
+    
+    for (let i=0;i<bookats.length;i++) {
+        const bkid=bk.fields.id.values[ bookats[i]];
+        const [start,end]=this.rangeOfAddress('bk#'+bkid+'.ck#'+chunk.id);
+        const bookstart=bk.linepos[bookats[i]];
+        const theline=bookstart+sourcelineoff;
+        if (theline<=end) {
+            out.push([this, start-bookstart, theline]);
         }    
     }
     return out;
