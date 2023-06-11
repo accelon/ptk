@@ -112,12 +112,12 @@ export function rangeOfAddress(address:string|IAddress):ILineRange{
 	if (typeof address=='string') {
 		addr=parseAddress(address);
 	}
-	const {ptkname,from,till,action} = addr;
+	const {from,till,action} = addr;
 	const eleid=parseAction(action);
 	const ranges=rangeOfElementId.call(this,eleid);
 	if (ranges.length) {
 		const [first,last]=ranges[ranges.length-1] ; 
-		return [first,last];
+		return [first,last,from,till];
 	} else {
 		const end=(till?till:from+1);
 		return [0,end ]; //數字型不知道終點，預設取一行

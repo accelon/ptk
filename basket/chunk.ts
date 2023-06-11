@@ -56,7 +56,7 @@ export function getBookInfo (at:number) {
         short=bkcaption.slice(at2+1);
         bkcaption=bkcaption.slice(0,at2);
     }
-    return {id:bkid, caption:bkcaption, short,heading:bkheading }
+    return {id:bkid, caption:bkcaption, short,heading:bkheading,at }
 }
 export function getChunk(at:number){
     const chunktag=this.defines.ck;

@@ -1,5 +1,5 @@
+import { parallelWithDiff } from '../align/parallels.js';
 import {IAddress,usePtk} from '../basket/index.ts';
-import {poolParallelPitakas} from '../basket/pool.ts';
 import {parseCriteria} from '../fts/criteria.ts';
 import {IAction} from './interfaces.ts';
 export const ACTIONPAGESIZE=5;
@@ -48,31 +48,8 @@ export class Action implements IAction{
 		return out;
 	}
 	getParallelWithDiff(){
-		const out=[];
 		const ptk=usePtk(this.ptkname);
-		if (!ptk) return out;
-		const parallelPitakas=poolParallelPitakas(ptk);
-		for (let i=0;i<parallelPitakas.length;i++) {
-			const pptk=usePtk(parallelPitakas[i]);
-			const thisline=this.lineOf(this.from);
-			const lines=pptk.getParallelLine( ptk, thisline );			
-			lines.forEach( it=>out.push([pptk,it]))
-		}
-
-		//因為nearesttag 返回 0 表示 出現在第一個bk 之前
-		const line=this.lineOf(this.from);
-		const bk=ptk.nearestTag(line,'bk')-1;
-		const bookstart=ptk.defines.bk.linepos[bk];
-		const lineoff=line-bookstart;
-		const books=ptk.getParallelBook(bk);
-		for (let i=0;i<books.length;i++) {
-			const [start,end]=ptk.rangeOfAddress('bk#'+books[i]);
-			if (lineoff <= end-start) {
-				//假設每一行都對齊，所以返回 書的行差
-				out.push([ptk, start-bookstart ]);
-			}
-		}	
-		return out;
+		return parallelWithDiff(ptk,this.first+this.from);
 	}
 
 	static parse(action:string){
