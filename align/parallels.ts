@@ -5,7 +5,6 @@ export const parallelWithDiff=(ptk,line,includeself=false)=>{
     const out=[];
     if (!ptk) return out;
     const parallelPitakas=poolParallelPitakas(ptk);
-    
 
     for (let i=0;i<parallelPitakas.length;i++) {
         const pptk=usePtk(parallelPitakas[i]);

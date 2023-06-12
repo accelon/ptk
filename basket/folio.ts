@@ -27,10 +27,10 @@ export const getConreatePos=(linetext,nth,nextline)=>{
     if (ntag<tags.length) tagstart=tags[ntag].start;
     while (nth&& i<chars.length) {
         const r=CJKRangeName(chars[i]);
-        if (r) { // a punc
+        if (r) {
             nth--;
         } else {
-            if (isgatha && ~"，、．；".indexOf(chars[i])) {
+            if (isgatha && ~"，、．；。".indexOf(chars[i])) {
                 nth--;
             }
         }
@@ -48,13 +48,24 @@ export const getConreatePos=(linetext,nth,nextline)=>{
         } else break;
         i++;
     }
+    let textbefore='';
     let s=text.slice(pos);
+    if (pos>0) {
+        const befores= splitUTF32Char(text.slice(0,pos));
+        let back=befores.length-1;
+
+        while (pos>0 && back>0 && CJKRangeName(befores[back])) {
+            textbefore=befores[back]+textbefore;
+            back--;
+            pos--;
+        }
+    }
+    if (textbefore) textbefore=textbefore+'^';
     if (nextline) {
         const [nextlinetext]=parseOfftext(nextline);
-        s+=nextlinetext;
+        s=s+nextlinetext;
     }
-
-    return [s,pos + tagstart ];
+    return [textbefore+s,pos + tagstart ];
 }
 
 //convert folio position to chunk-line
