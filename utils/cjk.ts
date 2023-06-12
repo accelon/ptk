@@ -109,6 +109,13 @@ export const replaceBook=(str:string,cb:Function)=>str.replace(/([〈《])([\u34
 const textlength=str=>{
     return str.replace(/\^[a-z:\d\.\-@#]+/g,'').replace(/<[^>]+/g,'').length;
 }
+const VerticalPuncs={
+    '「':'﹁','」':'﹂',
+    '『':'﹃','』':'﹄',
+}
+export const toVerticalPunc=(punc)=>{
+    return VerticalPuncs[punc]||punc;
+}
 export const breakChineseSentence=(line,opts={})=>{
     const max=opts.threshold||22;
     const mid=opts.threshold||14;

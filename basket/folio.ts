@@ -1,4 +1,4 @@
-import {parseOfftext, splitUTF32Char,CJKRangeName} from 'ptk'
+import {parseOfftext, splitUTF32Char,CJKRangeName, toVerticalPunc,styledNumber,bsearchNumber} from 'ptk'
 export const fetchFolioText=async (ptk,bk,pb)=>{
     const [from,to]=ptk.rangeOfAddress("bk#"+bk+".pb#"+pb);
     await ptk.loadLines([from,to])
@@ -68,6 +68,22 @@ export const getConreatePos=(linetext,nth,nextline)=>{
     return [textbefore+s,pos + tagstart ];
 }
 
+export const chunkOfFolio=(ptk,_bk,_pb)=>{
+    const pb=ptk.defines.pb;
+    const bk=ptk.defines.bk;
+    const ck=ptk.defines.ck;
+    if (!pb) return -1;
+
+    const [start,end]=ptk.rangeOfAddress('bk#'+_bk);
+    
+    const from= bsearchNumber(pb.linepos, start);
+    const pbat=pb.fields.id.values.indexOf(_pb,from );
+    const line=pb.linepos[pbat];
+
+    const at=bsearchNumber(ck.linepos,line+1);
+    debugger
+    console.log('ck', ck.fields.id.values[at])
+}
 //convert folio position to chunk-line
 export const folio2ChunkLine=async (ptk,foliotext,from,cx,pos)=>{
 	const out=[];
@@ -88,6 +104,7 @@ export const folio2ChunkLine=async (ptk,foliotext,from,cx,pos)=>{
 			await ptk.loadLines([startline]);
 			const line=ptk.getLine(startline);
 			out.unshift(line);
+            if (out.length>5) break;
 			if (~line.indexOf('^ck')) break;
 		}
 		const at=out[0].indexOf('^ck');
@@ -99,7 +116,44 @@ export const folio2ChunkLine=async (ptk,foliotext,from,cx,pos)=>{
 
 	const lines=s.split('\t');
 	const m=lines[0].match(/\^ck#?([a-z\d\-_]+)/);
+    if (!m) return '';
 	const ck=m[1];
     const lineoff=lines.length-1;
 	return 'ck#'+ck+ (lineoff?'>'+lineoff:'');
+}
+
+export const extractPuncPos=(foliotext,foliolines=5,validpuncs="「」『』。，；：、！？")=>{
+    const puncs=[];
+    for (let i=0;i<foliotext.length;i++) {
+        let ch=0,ntag=0,textsum=0;
+        const [text,tags]=parseOfftext(foliotext[i]);
+        const isgatha=!!tags.filter(it=>it.name=='gatha').length;
+        if (i>=foliolines) break;
+        
+        const chars=splitUTF32Char(text);
+        for (let j=0;j<chars.length;j++) {
+            while (ntag<tags.length&&textsum>tags[ntag].choff) {
+                if (tags[ntag].name=='ck') {
+                    puncs.push({line:i,ch, text: styledNumber(parseInt(tags[ntag].attrs.id),'①') });
+                }
+                ntag++;
+            }
+
+            textsum+=chars[j].length;
+            if (~validpuncs.indexOf(chars[j])) {
+                let text=toVerticalPunc(chars[j]);
+                puncs.push({line:i,ch, text });
+            }
+            const r=CJKRangeName(chars[j]);
+            if (r) {
+                ch++;
+            } else {
+                if (isgatha && ~validpuncs.indexOf(chars[i])) {
+                    ch++;
+                }
+            }
+
+        }
+    }
+    return puncs;
 }

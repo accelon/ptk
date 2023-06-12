@@ -198,6 +198,7 @@ not suitable for dictionary wordheads
 	}
 	nearestTag(line,tag, fieldname=''){
 		if (typeof tag=='string') tag=this.defines[tag];
+		if (!tag) return -1;
 		const linepos=tag.linepos;
 		if (!linepos) return null;
 		const at=bsearchNumber(linepos,line);

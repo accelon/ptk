@@ -39,6 +39,7 @@ export const getParallelLines=async (ptk,line,_out)=>{
         await ptk.loadLines([line]);
         const linetext=ptk.getLine(line);
         const heading=ptk.getHeading(line);
+        
         out.push( {ptk,heading,linetext,line} );
     }
     if (_out) _out.push(...out);
