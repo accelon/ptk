@@ -1,6 +1,8 @@
 import {parseOfftext, splitUTF32Char,CJKRangeName, toVerticalPunc,styledNumber,bsearchNumber} from 'ptk'
 export const fetchFolioText=async (ptk,bk,pb)=>{
     const [from,to]=ptk.rangeOfAddress("bk#"+bk+".pb#"+pb);
+    if (from==to) return ['',from,to];
+
     await ptk.loadLines([from,to])
     
     const lines=ptk.slice(from,to+1);
@@ -119,7 +121,7 @@ export const folio2ChunkLine=async (ptk,foliotext,from,cx,pos)=>{
     if (!m) return '';
 	const ck=m[1];
     const lineoff=lines.length-1;
-	return 'ck#'+ck+ (lineoff?'>'+lineoff:'');
+	return 'ck#'+ck+ (lineoff?':'+lineoff:'');
 }
 
 export const extractPuncPos=(foliotext,foliolines=5,validpuncs="「」『』。，；：、！？")=>{

@@ -79,7 +79,7 @@ export const parseAddress=(address:string):IAddress=>{
 
 export function rangeOfElementId(eleidarr){
 	const out=[], ptk=this;
-	let from=0;
+	let from=0,to=ptk.header.eot;
 	for (let i=0;i<eleidarr.length;i++) {
 		const [ele,id]=eleidarr[i];
 		if (ptk.defines[ele]) {
@@ -89,8 +89,13 @@ export function rangeOfElementId(eleidarr){
 			const at=idtype.values.indexOf(_id,startfrom);
 			const first=ptk.defines[ele].linepos[at] || ptk.defines[ele].linepos[0] ;
 			const last=ptk.defines[ele].linepos[at+1] || ptk.header.eot ;
-			from=first;
-			out.push([first,last]);
+			if (first>=from && last<=to) {
+				from=first;
+				to=last;
+				out.push([first,last]);	
+			} else {
+				out.push([0,0]);
+			}
 		} else {
 			//try book id first, then artbulk id
 			const at=ptk.defines.bk?.fields.id.values.indexOf(ele);
@@ -112,15 +117,15 @@ export function rangeOfAddress(address:string|IAddress):ILineRange{
 	if (typeof address=='string') {
 		addr=parseAddress(address);
 	}
-	const {from,till,action} = addr;
+	const {from,till,action,highlightline} = addr;
 	const eleid=parseAction(action);
 	const ranges=rangeOfElementId.call(this,eleid);
 	if (ranges.length) {
-		const [first,last]=ranges[ranges.length-1] ; 
-		return [first,last,from,till];
+		const [first,last]=ranges[ranges.length-1] ;
+		return [first,last,from,till,highlightline];
 	} else {
 		const end=(till?till:from+1);
-		return [0,end ]; //數字型不知道終點，預設取一行
+		return [0,end,from,till,highlightline ]; //數字型不知道終點，預設取一行
 	}
 }
 

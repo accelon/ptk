@@ -54,7 +54,7 @@ export const extractChineseNumber=(str:string,begining=false)=>{
 }
 const StyledNumber1={'Ⅰ':10,'ⅰ':10,'⒜':26,'Ⓐ':26,'ⓐ':26,'⓫':10,'㉑':15,'㍘':25,'㍙':24,'㈠':10,
 '㊀':10,'㋀':12,'㏠':31,'①':50,'⑴':20,'⒈':20,'⓵':10,'❶':10,'➀':10,'➊':10}
-export const styledNumber=(n,style,offset=1)=>{
+export const styledNumber=(n,style='①',offset=1)=>{
     let max=StyledNumber1[style];
     if (typeof n!=='number') n=parseInt(n)||0;
     if (!max) { //u
