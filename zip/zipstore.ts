@@ -18,6 +18,9 @@ export class ZipStore {
 	//zipbuf should at least include the Central records.
 	constructor (zipbuf:Uint8Array) { 
 		//may pass in nodejs readFile result
+		if (zipbuf instanceof ArrayBuffer) {
+			zipbuf=new Uint8Array(zipbuf);
+		}
 		this.zipbuf=(zipbuf instanceof Uint8Array)?zipbuf:new Uint8Array(zipbuf.buffer);
 		this.files=[];
 		this.zipStart=0;  //begining first file including header (PK)

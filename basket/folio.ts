@@ -36,8 +36,8 @@ export const getConreatePos=(linetext,nth,nextline)=>{
         }
         pos+=chars[i].codePointAt(0)>=0x20000?2:1;
         if (ntag<tags.length &&  pos>tags[ntag].choff ) {
-            ntag++;
             if (ntag<tags.length) tagstart=tags[ntag].start;
+            ntag++;
         }
         i++;
     }
@@ -117,9 +117,14 @@ export const folio2ChunkLine=async (ptk,foliotext,from,cx,pos)=>{
 	const lines=s.split('\t');
 	const m=lines[0].match(/\^ck#?([a-z\d\-_]+)/);
     if (!m) return '';
-	const ck=m[1];
+	const ck=parseInt(m[1]);
     const lineoff=lines.length-1;
-	return 'ck#'+ck+ (lineoff?':'+lineoff:'');
+    if (ck) {
+        return 'ck#'+ck+ (lineoff?':'+lineoff:'');
+    } else {
+        return '';
+    }
+	
 }
 
 export const extractPuncPos=(foliotext,foliolines=5,validpuncs=VALIDPUNCS)=>{
