@@ -16,3 +16,4 @@ export function registerServiceWorker(swfn="./sw.js"){
     navigator.serviceWorker.register(swfn);
   }
 }
+

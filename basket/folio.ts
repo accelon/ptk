@@ -1,4 +1,5 @@
 import {parseOfftext, splitUTF32Char,CJKRangeName, toVerticalPunc,styledNumber,bsearchNumber} from 'ptk'
+export const VALIDPUNCS="「」『』。，；：、！？"
 export const fetchFolioText=async (ptk,bk,pb)=>{
     const [from,to]=ptk.rangeOfAddress("bk#"+bk+".pb#"+pb);
     if (from==to) return ['',from,to];
@@ -23,21 +24,18 @@ export const fetchFolioText=async (ptk,bk,pb)=>{
 export const getConreatePos=(linetext,nth,nextline)=>{
     let [text,tags]=parseOfftext(linetext);
     const isgatha=!!tags.filter(it=>it.name=='gatha').length;
+    if (isgatha) {text=text.replace(/．/g,'　')}; //replace punc inside gatha to ． 
     let ntag=0;
     const chars=splitUTF32Char(text);
     let pos=0, i=0, tagstart=0;
-    if (ntag<tags.length) tagstart=tags[ntag].start;
+    if (ntag<tags.length && pos>tags[ntag].choff) tagstart=tags[ntag].start;
     while (nth&& i<chars.length) {
         const r=CJKRangeName(chars[i]);
-        if (r) {
+        if (r || chars[i]=='　') {
             nth--;
-        } else {
-            if (isgatha && ~"，、．；。".indexOf(chars[i])) {
-                nth--;
-            }
         }
         pos+=chars[i].codePointAt(0)>=0x20000?2:1;
-        if (ntag<tags.length &&  tags[ntag].choff > pos ) {
+        if (ntag<tags.length &&  pos>tags[ntag].choff ) {
             ntag++;
             if (ntag<tags.length) tagstart=tags[ntag].start;
         }
@@ -67,6 +65,7 @@ export const getConreatePos=(linetext,nth,nextline)=>{
         const [nextlinetext]=parseOfftext(nextline);
         s=s+nextlinetext;
     }
+    // returh "pure text with ^ " ,   offset of offtext
     return [textbefore+s,pos + tagstart ];
 }
 
@@ -83,12 +82,12 @@ export const chunkOfFolio=(ptk,_bk,_pb)=>{
     const line=pb.linepos[pbat];
 
     const at=bsearchNumber(ck.linepos,line+1);
-    debugger
     console.log('ck', ck.fields.id.values[at])
 }
 //convert folio position to chunk-line
 export const folio2ChunkLine=async (ptk,foliotext,from,cx,pos)=>{
 	const out=[];
+    if (!foliotext.length) return '';
 	for (let i=0;i<=cx;i++) {
 		if (i==cx) {
 			out.push(foliotext[i].slice(0,pos))
@@ -100,20 +99,19 @@ export const folio2ChunkLine=async (ptk,foliotext,from,cx,pos)=>{
 	let s=out.join('');
     out.length=0;
 	let at=s.lastIndexOf('^ck');
-	if (at==-1) {
+    if (~at) s=s.slice(at);
+	else {
 		while (startline>0) {
 			startline--;
 			await ptk.loadLines([startline]);
 			const line=ptk.getLine(startline);
 			out.unshift(line);
-            if (out.length>5) break;
+            if (out.length>100) break;
 			if (~line.indexOf('^ck')) break;
 		}
 		const at=out[0].indexOf('^ck');
 		out[0]=out[0].slice(at);
-		s=out.join('\t')+'\t'+s;
-	} else {
-		s=s.slice(at);
+		s=out.join('\t')+'\t'+s;	
 	}
 
 	const lines=s.split('\t');
@@ -124,14 +122,14 @@ export const folio2ChunkLine=async (ptk,foliotext,from,cx,pos)=>{
 	return 'ck#'+ck+ (lineoff?':'+lineoff:'');
 }
 
-export const extractPuncPos=(foliotext,foliolines=5,validpuncs="「」『』。，；：、！？")=>{
+export const extractPuncPos=(foliotext,foliolines=5,validpuncs=VALIDPUNCS)=>{
     const puncs=[];
     for (let i=0;i<foliotext.length;i++) {
         let ch=0,ntag=0,textsum=0;
-        const [text,tags]=parseOfftext(foliotext[i]);
+        let [text,tags]=parseOfftext(foliotext[i]);
         const isgatha=!!tags.filter(it=>it.name=='gatha').length;
         if (i>=foliolines) break;
-        
+        if (isgatha) {text=text.replace(/．/g,'　')}; //replace punc inside gatha to ． 
         const chars=splitUTF32Char(text);
         for (let j=0;j<chars.length;j++) {
             while (ntag<tags.length&&textsum>tags[ntag].choff) {
@@ -146,13 +144,10 @@ export const extractPuncPos=(foliotext,foliolines=5,validpuncs="「」『』。�
                 let text=toVerticalPunc(chars[j]);
                 puncs.push({line:i,ch, text });
             }
+
             const r=CJKRangeName(chars[j]);
-            if (r) {
+            if (r|| chars[j]=='　') {
                 ch++;
-            } else {
-                if (isgatha && ~validpuncs.indexOf(chars[i])) {
-                    ch++;
-                }
             }
 
         }
