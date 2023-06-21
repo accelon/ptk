@@ -75,6 +75,7 @@ export const chunkOfFolio=(ptk,_bk,_pb)=>{
     const ck=ptk.defines.ck;
     if (!pb) return -1;
 
+    if (typeof _pb=='number') _pb=_pb.toString();
     const [start,end]=ptk.rangeOfAddress('bk#'+_bk);
     
     const from= bsearchNumber(pb.linepos, start);
@@ -82,7 +83,8 @@ export const chunkOfFolio=(ptk,_bk,_pb)=>{
     const line=pb.linepos[pbat];
 
     const at=bsearchNumber(ck.linepos,line+1);
-    console.log('ck', ck.fields.id.values[at])
+    //console.log('ck', ck.fields.id.values[at])
+    return ck.fields.id.values[at];
 }
 //convert folio position to chunk-line
 export const folio2ChunkLine=async (ptk,foliotext,from,cx,pos)=>{
