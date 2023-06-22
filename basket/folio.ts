@@ -20,8 +20,22 @@ export const fetchFolioText=async (ptk,bk,pb)=>{
     text.push(remain);
     return [text,from,to];
 }
-
-export const getConreatePos=(linetext,nth,nextline)=>{
+export const concreateLength=(linetext)=>{
+    let [text,tags]=parseOfftext(linetext);
+    const isgatha=!!tags.filter(it=>it.name=='gatha').length;
+    if (isgatha) {text=text.replace(/．/g,'　')}; //replace punc inside gatha to ． 
+    const chars=splitUTF32Char(text);
+    let i=0,chcount=0;
+    while (i<chars.length) {
+        const r=CJKRangeName(chars[i]);
+        if (r || chars[i]=='　') {
+            chcount++;
+        }
+        i++;    
+    }
+    return chcount;
+}
+export const getConcreatePos=(linetext,nth,nextline)=>{
     let [text,tags]=parseOfftext(linetext);
     const isgatha=!!tags.filter(it=>it.name=='gatha').length;
     if (isgatha) {text=text.replace(/．/g,'　')}; //replace punc inside gatha to ． 
@@ -91,6 +105,7 @@ export const folio2ChunkLine=async (ptk,foliotext,from,cx,pos)=>{
 	const out=[];
     if (!foliotext.length) return '';
 	for (let i=0;i<=cx;i++) {
+        foliotext[i]=foliotext[i]||'';
 		if (i==cx) {
 			out.push(foliotext[i].slice(0,pos))
 		} else {
