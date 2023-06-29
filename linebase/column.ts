@@ -157,6 +157,9 @@ export class Column {
 				out.push(packInt( numbers));
 			} else if (V.type=='numbers') {
 				const numbers=(this.fieldvalues[i])||[];
+				if (numbers.length==1) {
+					throw "must have more than one array"
+				}
 				out.push(packIntDelta2d(numbers));
 			} else if (V.type=='keys') {
 				const numnums=(this.fieldvalues[i])||[];
@@ -194,6 +197,17 @@ export class Column {
 		} else {
 			return parseInt(key)-1;
 		}
+	}
+	fieldsByKey(key:string){
+		const at=this.findKey(key);
+		if (!key) return null;
+		if(~at) {
+			const out={key};
+			for (let i=0;i<this.fieldvalues.length;i++) {
+				out[this.fieldnames[i]]=this.fieldvalues[i][at];
+			}
+			return out;
+		} else return null;
 	}
 	getKey(i:number) {
 		if (this.keys) {

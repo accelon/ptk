@@ -5,13 +5,16 @@ export const parallelWithDiff=(ptk,line,includeself=false,local=true,remote=fals
     const out=[];
     if (!ptk) return out;
     //因為nearesttag 返回 0 表示 出現在第一個bk 之前
-    const bk=ptk.nearestTag(line,'bk')-1;
-    const bookstart=ptk.defines.bk.linepos[bk];
+    const bkat=ptk.nearestTag(line+1,'bk')-1;
+    const bookstart=ptk.defines.bk.linepos[bkat];
     if (includeself) {
         out.push([ptk, bookstart, line]);
     }
     const lineoff=line-bookstart;
-    const books=ptk.getParallelBook(bk);
+    const bkid=ptk.defines.bk.fields.id.values[bkat];
+    const books=ptk.getParallelBook(bkid);
+    const [bkstart,bkend]=ptk.rangeOfAddress('bk#'+bkid);
+
     if (local) {
         for (let i=0;i<books.length;i++) {
             const [start,end]=ptk.rangeOfAddress('bk#'+books[i]);
@@ -25,7 +28,9 @@ export const parallelWithDiff=(ptk,line,includeself=false,local=true,remote=fals
         const parallelPitakas=poolParallelPitakas(ptk);
         for (let i=0;i<parallelPitakas.length;i++) {
             const pptk=usePtk(parallelPitakas[i]);
-            const lines=pptk.getParallelLine( ptk, line );
+            // const lineoff=line-bkstart;
+            // const [start]=pptk.rangeOfAddress('bk#'+bkid);
+            const lines=pptk.getParallelLine( ptk, line ,true);
             lines.forEach( it=>out.push([...it]))
         }    
     }

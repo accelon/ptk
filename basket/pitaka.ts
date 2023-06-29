@@ -32,6 +32,7 @@ export class Pitaka extends LineBase {
 		this.rangeOfAddress=rangeOfAddress;
 		this.innertext=innertext;
 		this.scanColumnFields=scanColumnFields;
+		
 		this.searchColumnField=searchColumnField;
 		this.scanText=scanText;
 		this.parseQuery=parseQuery;

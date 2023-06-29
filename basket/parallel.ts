@@ -8,11 +8,11 @@ const bookPrefix=bookname=>{
     return prefix;
 }
 
-export function getParallelLine(sourceptk,line){
+export function getParallelLine(sourceptk,line,remote=false){
     const chunk=sourceptk.nearestChunk(line+1);
     if (!chunk) return [];
     const bk=this.defines.bk;
-    const books=this.getParallelBook(chunk.bkid);
+    const books=this.getParallelBook(chunk.bkid,remote);
     const bookats=books.map(id=> bk.fields.id.values.indexOf(id) );
 
     //同名 被 getParallelBook 去除，加回去
@@ -35,13 +35,14 @@ export function getParallelLine(sourceptk,line){
     return out;
 }
 
-export function getParallelBook(bookname:string|Number){
+export function getParallelBook(bookname:string|Number,remote:false){
     if (typeof bookname=='number') {
         bookname=this.defines.bk.fields.id.values[bookname];
     }
     if (!bookname) return [];
     const prefix=bookPrefix(bookname);
-    return this.defines.bk.fields.id.values.filter(it=>bookPrefix(it)==prefix&&bookname!==it);
+    //如果不是remote，那不能同名
+    return this.defines.bk.fields.id.values.filter(it=>bookPrefix(it)==prefix && (remote || bookname!==it));
 }
 //see compiler/linkfield.ts  for structure
 export function foreignLinksAtTag(tagname, line){
