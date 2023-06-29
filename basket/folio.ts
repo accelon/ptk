@@ -176,3 +176,29 @@ export const extractPuncPos=(foliotext,foliolines=5,validpuncs=VALIDPUNCS)=>{
     }
     return puncs;
 }
+
+export const folioPosFromLine=async (ptk, pb,line,bookid,fl,fc)=>{
+    const [text,start]=await fetchFolioText(ptk,bookid, pb);
+    if (!text) return;
+    const str=text.join('\n');
+    let linediff=line-start;
+    let foliolinecount=0;
+    let tappos=(parseInt(pb)-1)*fl*fc;
+    let next=0,n=0,linestart=0;
+    while (n<str.length && linediff>0) {
+        const ch=str.charAt(n);
+        if (ch=='\n') {
+            linestart=n+1;
+            foliolinecount++;
+        } else if (ch=='\t') {
+            linediff--;
+            next=n+1;
+        }
+        n++;
+    }
+    tappos+=foliolinecount*fc;
+    let str2=str.slice(linestart,next);;
+    const [leading]=parseOfftext(str2);
+    tappos+=concreateLength(leading);
+    return tappos;
+}
