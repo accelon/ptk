@@ -77,7 +77,9 @@ export class Typedef implements ITypedef {
 	validateFields(tag,line,onError){
 		let touched=false,newtag;
 		this.count++;
-		for (let aname in tag.attrs) {
+		
+		// for (let aname in tag.attrs) {
+		for (let aname in this.attrs){
 			const V=this.fields[aname];
 			let value=tag.attrs[aname];
 			if (V&&!V.foreign) V.values.push(tag.attrs[aname]);
@@ -163,7 +165,7 @@ export class Typedef implements ITypedef {
 			if (V.foreign) continue;
 			if (V.type=='number') {
 				attrs.push(aname);
-				out.push(packInt(V.values.map(it=>parseInt(it))));
+				out.push(packInt(V.values.map(it=>parseInt(it)||0)));
 			} else if (V.type=='text') {
 				attrs.push(aname);
 				out.push( V.values.join('\t'));

@@ -1,7 +1,7 @@
 import {poolParallelPitakas} from '../basket/pool.ts';
 import {usePtk} from '../basket/index.ts';
 
-export const parallelWithDiff=(ptk,line,includeself=false,local=false)=>{
+export const parallelWithDiff=(ptk,line,includeself=false,local=true,remote=false)=>{
     const out=[];
     if (!ptk) return out;
     //因為nearesttag 返回 0 表示 出現在第一個bk 之前
@@ -12,14 +12,16 @@ export const parallelWithDiff=(ptk,line,includeself=false,local=false)=>{
     }
     const lineoff=line-bookstart;
     const books=ptk.getParallelBook(bk);
-    for (let i=0;i<books.length;i++) {
-        const [start,end]=ptk.rangeOfAddress('bk#'+books[i]);
-        if (lineoff <= end-start) {
-            //假設每一行都對齊，所以返回 書的行差
-            out.push([ptk, start-bookstart, start+lineoff ]);
-        }
+    if (local) {
+        for (let i=0;i<books.length;i++) {
+            const [start,end]=ptk.rangeOfAddress('bk#'+books[i]);
+            if (lineoff <= end-start) {
+                //假設每一行都對齊，所以返回 書的行差
+                out.push([ptk, start-bookstart, start+lineoff ]);
+            }
+        }    
     }
-    if (!local) {
+    if (remote) {
         const parallelPitakas=poolParallelPitakas(ptk);
         for (let i=0;i<parallelPitakas.length;i++) {
             const pptk=usePtk(parallelPitakas[i]);
@@ -31,7 +33,7 @@ export const parallelWithDiff=(ptk,line,includeself=false,local=false)=>{
 }
 
 export const getParallelLines=async (ptk,line,_out,opts={})=>{
-    const lines=parallelWithDiff(ptk,line,true,opts.local);
+    const lines=parallelWithDiff(ptk,line,true,opts.local,opts.remote);
     const out=[];
     for (let i=0;i<lines.length;i++) {
         const [ptk,bookstart,line]=lines[i];
