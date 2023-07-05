@@ -53,7 +53,7 @@ const dump_cbeta=(files,set)=>{
     }
     writeChanged('cbeta-'+set+'.txt',out.join('\n'),true);
 }
-export const dump=(arg,arg2)=>{
+export const dumpxml=(arg,arg2)=>{
     if (arg=='cbeta') {
         console.time('dump');
         if (!arg2) {

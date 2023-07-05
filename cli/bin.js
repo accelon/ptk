@@ -8,7 +8,8 @@ import nGram from './ngram.js';
 import {xmltag,tei} from './xml.js';
 import {markj} from './markj.js';
 import {markid} from './markid.js';
-import {dump} from './dump.js';
+import {dumpxml} from './dumpxml.js';
+import {dump} from './dumpptk.js';
 import {adb2zip} from './adb2zip.js';
 import {ts} from './subtitle.js'
 import {cbeta} from './cbeta.js'
@@ -120,14 +121,15 @@ const help=()=>{
     console.log(underline('Making Pitaka 制作'));
     console.log('$',yellow('ptk ptk '),magenta('ptkname'), 'pack into a ptk file(zip)   打包成ptk(zip)文件',cyan('ptkname.ptk'))
     console.log('$',yellow('ptk js  '),magenta('ptkname'), '*.js files output to   输出js文件到 ',cyan('ptkname'));
-    
+    console.log('$',yellow('ptk dump'),magenta('ptkname'),'倒出 ptk 內容');
+
     //console.log('$',yellow('ptk com [lstfile]'),magenta('ptkname'),  'stand-alone executable 制造自足程序 ',cyan('ptkname.com'))
     console.log(underline('Text Processing 文本处理'));
     console.log('$',yellow('ptk unique   '),cyan('file'), 'remove duplicated item 去重复词');
     console.log('$',yellow('ptk dedup    '),cyan('file'), 'find out duplicated item 找出重复词');
     console.log('$',yellow('ptk listwords'),cyan('file'),magenta('lexicon'), 'list words found in lexicon 列出文本中出现的词');
     console.log('$',yellow('ptk ngram    '),cyan('file'),magenta('gram=2'), 'build ngram 找常見詞');
-    console.log('$',yellow('ptk dump     '),cyan('dataset'),cyan('srcfolder'),'e.g cbeta 傾倒文本');
+    console.log('$',yellow('ptk dumpxml  '),cyan('dataset'),cyan('srcfolder'),'e.g cbeta 傾倒文本');
 
     console.log(underline('Lexicon Processing 词典处理'));
     console.log('$',yellow('ptk union    '),cyan('lexicon1'),cyan('lexicon2'),magenta('...'),'merge all words in lexicons 词典的联集')
@@ -158,7 +160,7 @@ const help=()=>{
 
 try {
     await ({'--help':help,'-h':help,ptk,js,com,dedup,unique,listwords,cbeta,
-    union,ngram,intersect,xor,xmltag,tei,dump,markj,markid,adb2zip,ts,addn})[cmd](arg,arg2);
+    union,ngram,intersect,xor,xmltag,tei,dumpxml,dump,markj,markid,adb2zip,ts,addn})[cmd](arg,arg2);
 
 } catch(e) {
     console.log( red('error running command'),cmd)

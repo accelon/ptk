@@ -54,6 +54,7 @@ export class LineBase{
 	}
 	async loadAll (){
 		await this.loadLines([[0, this.pagestarts[this.pagestarts.length-1]]]);
+		return this.slice(0,this.pagestarts[this.pagestarts.length-1]);
 	}
 	inMem(){
 		return this.inmemory||this.zipstore;

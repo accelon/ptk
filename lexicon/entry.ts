@@ -1,5 +1,5 @@
-import { splitUTF32Char } from "../utils"
-
+import {splitUTF32Char} from "../utils"
+import {StringArray} from '../utils/stringarray'
 export const guessEntry=(sentence:string,values:Array<String>)=>{
     const at=sentence.indexOf('^');
     let textbefore='';
@@ -20,3 +20,4 @@ export const guessEntry=(sentence:string,values:Array<String>)=>{
     const chars=splitUTF32Char(sentence);
     return chars[0];
 }
+

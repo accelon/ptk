@@ -8,7 +8,7 @@ export const listwords=(text:StringArray, lexicon:StringArray)=>{
 		while (i<line.length) {
 			const cp=line.charCodeAt(i);
 			if (cp>=0xdc800 && cp<=0xdfff) i++;
-			const matches=lexicon.match(line.slice(i)).filter(it=>it.length>1);
+			const matches=lexicon.match(line.slice(i));
 			if (matches.length) {
 				matches.forEach(m=>incObj(patterns,m) )
 				// console.log( matches )
@@ -17,10 +17,10 @@ export const listwords=(text:StringArray, lexicon:StringArray)=>{
 		}
 		line=text.next();
 		linecount++
-		if (linecount>10000) break;
+		//if (linecount>10000) break;
 		if (linecount%1024==0) process.stdout.write('\r'+linecount+'/'+text.len()+'   ');
 	}
 
-	const arr=fromObj(patterns,true);
+	const arr=fromObj(patterns,true).filter(it=>!!it[0]);
 	return arr;
 }
