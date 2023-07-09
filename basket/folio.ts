@@ -13,8 +13,13 @@ export const fetchFolioText=async (ptk,bk,pb)=>{
     let m=firstline.match(/(\^pb\d+)/);
     lines[0]=firstline.slice( m.index+m[1].length);
     m=lastline.match(/(\^pb\d+)/);
-    const remain=lines[lines.length-1].slice(m.index);
-    lines[lines.length-1]=lastline.slice(0, m.index);
+    let till = m?.index||0;
+    let remain='';
+    if (m) {
+        till=m.index;
+        remain = lines[lines.length - 1].slice(m.index);
+    }
+    lines[lines.length - 1] = lastline.slice(0, till);
     
     const text=lines.join('\t').replace(/\^ck(\d+)【([^】]+?)】/g,'^ck$1<caption=$2>').split('^lb');
     text.push(remain);
