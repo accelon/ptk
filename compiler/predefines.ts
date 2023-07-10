@@ -2,7 +2,7 @@
 export const predefines={
 generic:
 `^:ak<id=unique bracket=false reset=n>
-^:bk<id=unique heading=text bracket=false reset=ck,juan hidden=number>
+^:bk<id=unique heading=text bracket=false reset=ck,juan>
 ^:ck<id=unique heading=text bracket=false>
 ^:p<id=text>
 ^:n<id=number>
@@ -18,7 +18,7 @@ generic:
 ^:fn<id=number>`,
 cbeta:
 `^:ak<id=unique bracket=false>
-^:bk<id=unique heading=text bracket=false reset=ck,p hidden=number>
+^:bk<id=unique heading=text bracket=false reset=ck,p>
 ^:ck<id=unique heading=text bracket=false>
 ^:https<bracket=false onclick=gourl>
 ^:p<id=text>

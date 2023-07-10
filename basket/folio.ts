@@ -21,7 +21,9 @@ export const fetchFolioText=async (ptk,bk,pb)=>{
     }
     lines[lines.length - 1] = lastline.slice(0, till);
     
-    const text=lines.join('\t').replace(/\^ck(\d+)【([^】]+?)】/g,'^ck$1<caption=$2>').split('^lb');
+    const text=lines.join('\t')
+    .replace(/\^folio#[a-z\d]+【([^】]+?)】/g,'')// 只作為 foliolist 的名字，查字典內文用不到
+    .replace(/\^ck(\d+)【([^】]+?)】/g,'^ck$1<caption=$2>').split('^lb');
     text.push(remain);
     return [text,from,to];
 }
