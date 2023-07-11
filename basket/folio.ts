@@ -3,13 +3,11 @@ export const VALIDPUNCS="「」『』。，；：、！？"
 export const fetchFolioText=async (ptk,bk,pb)=>{
     const [from,to]=ptk.rangeOfAddress("bk#"+bk+ (pb?".pb#"+pb:''));
     if (from==to) return ['',from,to];
-
-    await ptk.loadLines([from,to])
+    await ptk.loadLines([from,to+1])
+    const lines=ptk.slice(from,to+1); 
     
-    const lines=ptk.slice(from,to+1);
     let firstline=lines[0];
     let lastline=lines[lines.length-1];
-
     let m=firstline.match(/(\^pb\d+)/);
     lines[0]=firstline.slice( m.index+m[1].length);
     m=lastline.match(/(\^pb\d+)/);

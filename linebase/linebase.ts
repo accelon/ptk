@@ -66,9 +66,10 @@ export class LineBase{
 	pageOfRange([from,to]){
 	    if (from<0) return [];
 	    if (from>to) to+=from;
-	    const cstart=this.pageOfLine(from);
-	    const cend=this.pageOfLine(to);  
+	    let cstart=this.pageOfLine(from);
+	    const cend=this.pageOfLine(to);
 	    const notloaded=[];
+		if (cstart>1) cstart--; //fetch previous page
 	    for (let i=cstart;i<cend+1;i++) {
 	        if (!this._pages[i]) notloaded.push(i);
 	    }
