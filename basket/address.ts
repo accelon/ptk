@@ -88,10 +88,11 @@ export function rangeOfElementId(eleidarr){
 			const startfrom=bsearchNumber(ptk.defines[ele].linepos, from);
 			const at=idtype.values.indexOf(_id,startfrom);
 			const first=ptk.defines[ele].linepos[at] || ptk.defines[ele].linepos[0] ;
-			const last=ptk.defines[ele].linepos[at+1] || ptk.header.eot ;
-			if (first>=from && last<=to) {
+			let last=ptk.defines[ele].linepos[at+1] || ptk.header.eot ;
+			if (first>=from) {
 				from=first;
-				to=last;
+				if (last>to && to!==ptk.header.eot) last=to; //trim it
+				else to=last;
 				out.push([first,last]);	
 			} else {
 				out.push([0,0]);

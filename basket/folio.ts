@@ -11,7 +11,6 @@ export const fetchFolioText=async (ptk,bkfolio,pb)=>{
     const address=(bk?("bk#"+bk):'')+ (folio?'.':'')+(folio?('folio#'+folio):'')+(pb?".pb#"+pb:'');
     
     const [from,to]=ptk.rangeOfAddress( address);
-    console.log(address,from,to)
     if (from==to) return ['',from,to];
     await ptk.loadLines([from,to+1])
     const lines=ptk.slice(from,to+1); 
@@ -19,7 +18,8 @@ export const fetchFolioText=async (ptk,bkfolio,pb)=>{
     let firstline=lines[0];
     let lastline=lines[lines.length-1];
     let m=firstline.match(/(\^pb\d+)/);
-    lines[0]=firstline.slice( m.index+m[1].length);
+    if (m) lines[0]=firstline.slice( m?.index +m[1].length);
+    else console.log("error page",pb)
     m=lastline.match(/(\^pb\d+)/);
     let till = m?.index||0;
     let remain='';
