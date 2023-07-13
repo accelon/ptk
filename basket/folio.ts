@@ -1,7 +1,17 @@
 import {parseOfftext, splitUTF32Char,CJKRangeName, toVerticalPunc,styledNumber,bsearchNumber} from 'ptk'
 export const VALIDPUNCS="「」『』。，；：、！？"
-export const fetchFolioText=async (ptk,bk,pb)=>{
-    const [from,to]=ptk.rangeOfAddress("bk#"+bk+ (pb?".pb#"+pb:''));
+export const fetchFolioText=async (ptk,bkfolio,pb)=>{
+    let bk='',folio=bkfolio;
+    if (bkfolio.match(/\d$/)) {
+        bk=bkfolio.replace(/\d+$/g,'');
+    } else {
+        folio='';
+        bk=bkfolio;
+    }
+    const address=(bk?("bk#"+bk):'')+ (folio?'.':'')+(folio?('folio#'+folio):'')+(pb?".pb#"+pb:'');
+    
+    const [from,to]=ptk.rangeOfAddress( address);
+    console.log(address,from,to)
     if (from==to) return ['',from,to];
     await ptk.loadLines([from,to+1])
     const lines=ptk.slice(from,to+1); 
