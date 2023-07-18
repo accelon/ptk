@@ -1,5 +1,32 @@
 import {parseOfftext, splitUTF32Char,CJKRangeName, toVerticalPunc,styledNumber,bsearchNumber} from 'ptk'
 export const VALIDPUNCS="「」『』。，；：、！？"
+
+
+export const toFolioText=lines=>{
+    if (!lines || !lines.length) return [];
+
+    let firstline=lines[0];
+    let lastline=lines[lines.length-1];
+    let m=firstline.match(/(\^pb\d+)/);
+    if (m) lines[0]=firstline.slice( m?.index +m[1].length);
+    else {
+        console.log("missing pb markup at first line",firstline);
+    }
+    m=lastline.match(/(\^pb\d+)/);
+    let till = m?.index||0;
+    let remain='';
+    if (m) {
+        till=m.index;
+        remain = lines[lines.length - 1].slice(m.index+m[1].length);
+    }
+    lines[lines.length - 1] = lastline.slice(0, till);
+    
+    const text=lines.join('\t')
+    .replace(/\^folio#[a-z\d]+【([^】]+?)】/g,'')// 只作為 foliolist 的名字，查字典內文用不到
+    .replace(/\^ck(\d+)【([^】]+?)】/g,'^ck$1<caption=$2>').split('^lb');
+    if (remain) text.push(remain);
+    return text;
+}
 export const fetchFolioText=async (ptk,bkfolio,pb)=>{
     let bk='',folio=bkfolio;
     if (bkfolio.match(/\d$/)) {
@@ -13,27 +40,11 @@ export const fetchFolioText=async (ptk,bkfolio,pb)=>{
     const [from,to]=ptk.rangeOfAddress( address);
     if (from==to) return ['',from,to];
     await ptk.loadLines([from,to+1])
+
     const lines=ptk.slice(from,to+1); 
     
-    let firstline=lines[0];
-    let lastline=lines[lines.length-1];
-    let m=firstline.match(/(\^pb\d+)/);
-    if (m) lines[0]=firstline.slice( m?.index +m[1].length);
-    else console.log("error page",pb)
-    m=lastline.match(/(\^pb\d+)/);
-    let till = m?.index||0;
-    let remain='';
-    if (m) {
-        till=m.index;
-        remain = lines[lines.length - 1].slice(m.index);
-    }
-    lines[lines.length - 1] = lastline.slice(0, till);
-    
-    const text=lines.join('\t')
-    .replace(/\^folio#[a-z\d]+【([^】]+?)】/g,'')// 只作為 foliolist 的名字，查字典內文用不到
-    .replace(/\^ck(\d+)【([^】]+?)】/g,'^ck$1<caption=$2>').split('^lb');
-    text.push(remain);
-    return [text,from,to];
+    const text= toFolioText(lines);
+    return [text,from,to]
 }
 export const concreateLength=(linetext)=>{
     let [text,tags]=parseOfftext(linetext);
@@ -141,6 +152,7 @@ export const folio2ChunkLine=async (ptk,foliotext,from,cx,pos)=>{
             if (out.length>100) break;
 			if (~line.indexOf('^ck')) break;
 		}
+        if (!out.length) out.push('');
 		const at=out[0].indexOf('^ck');
 		out[0]=out[0].slice(at);
 		s=out.join('\t')+'\t'+s;	
