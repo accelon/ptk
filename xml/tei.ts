@@ -86,7 +86,7 @@ const p=(el,ctx)=>{
     ctx.prevlb=ctx.lbcount;
     ctx.prevpn=ctx.pn;
     ctx.compact=true;
-    return '\n^p'+ctx.pn+ctx.lbcount;
+    return '\n^cb'+ctx.pn+ctx.lbcount;
 }
 const g=(el,ctx)=>{
     if (ctx.hide)return;

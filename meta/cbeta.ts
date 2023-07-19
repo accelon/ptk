@@ -230,11 +230,11 @@ export const getSutraInfo=(ptk,no)=>{
     return {title:catalog.title[at], bulei:catalog.bulei[at], author:catalog.author[at] , no};
 }
 export const TaishoSutraCode={
-    1:'da',
-    26:'ma',
-    99:'sa',
-    100:'ssa', //shorter samyutta agama
-    125:'ea',
+    1:'agmd',
+    26:'agmm',
+    99:'agms',
+    100:'agmss', //shorter samyutta agama
+    125:'agmu',
 }
 export const nextColumn=(obj)=>{
     if (obj.col===2) {
