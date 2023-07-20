@@ -33,7 +33,7 @@ export const onClose={
     },
     byline:(el,ctx)=>"\n",
     note:(el,ctx)=>unhide(ctx),
-    lem:(el,ctx)=>unhide(ctx),
+    // lem:(el,ctx)=>unhide(ctx),
     // l:(el,ctx)=>{ 
     //     if (ctx.snippet.substr(ctx.snippet.length-1)=='。') {
     //         ctx.compact=true;
@@ -144,8 +144,8 @@ export const onOpen={
     p,pb,g,lb,caesura,byline,
     milestone:(el,ctx)=>{ctx.started=true;},//skip the redundant mulu before milestone, see T30n1579_037
     note:(el,ctx)=>{  ctx.hide++;return ''},
-    l:(el,ctx)=>{ctx.compact=true; return '\n^l'},
-    lem:(el,ctx)=>{ ctx.hide+=1},//just keep the rdg
+    l:(el,ctx)=>{ctx.compact=true; return '\n^gatha'},
+    // lem:(el,ctx)=>{ ctx.hide+=1},//just keep the rdg
     quote:(el,ctx)=>{
         if (ctx.ptr) {
             const ptr=ctx.ptr;
@@ -186,7 +186,7 @@ export const onOpen={
         }
     },
     t_rdg(el,ctx){
-        return el.attrs.t;
+        return '';//el.attrs.t;
     }
 
     // deal with app inside cb:tt <app n="0002008">  t01n0001_001

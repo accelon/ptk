@@ -68,7 +68,7 @@ const parseBuffer=(buf:string,fn='',ctx)=>{
         bk='^bk'+bkno+'【'+sutraname; //empty sutraname
     }
 
-    chunk='^'+ (ctx.juantag||'ck') +juan+'【卷'+juan+'】';
+    chunk='^juan'+juan;
 
     if (!ctx.teictx) { //cross multiple file
         ctx.teictx={defs:ctx.labeldefs||{},lbcount:0,hide:0,snippet:'', volumname:ctx.volumname,
@@ -155,7 +155,8 @@ export const TaishoVolSutra=[ //每一冊開頭的經號
 const TaishoJuanPage=TaishoJuanPagePacked.split(/\n/).map( unpackIntDelta );
 
 //給定經號和卷數，返回冊頁碼
-export const TaishoPageFromJuan=( sutranumber, juan )=>{
+export const TaishoPageFromJuan=( sutranumber, juan=1 )=>{
+    if (typeof sutranumber!=="number") sutranumber=parseInt(sutranumber)||1;
     let vol=bsearchNumber(TaishoVolSutra, sutranumber+1 );
     if (sutranumber==220) {
         if (juan>400) {

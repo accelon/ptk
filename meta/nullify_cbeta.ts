@@ -19,7 +19,7 @@ const nullify_note=content=>{
             note='<origfoot n="'+n+'" t="'+escapeQuote(t)+'"/>'
         } else if (type) {
             if (type.startsWith('cf')) {
-                note='['+type+'_'+t+']';
+                note='<'+type+' t="'+t+'" />';
             } else {
                 note='<'+type+'_note'+
                 (n?' n="'+n+'"':'')+
