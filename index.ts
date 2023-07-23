@@ -10,5 +10,5 @@ export * from './zip/index.ts'
 export * from './basket/index.ts'
 export * from './lexicon/index.ts'
 export * from './fts/index.ts'
-export * from './denote/index.ts'
+export * from './align/index.ts'
 export const ptk_version= 20230203

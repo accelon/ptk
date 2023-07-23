@@ -21,9 +21,10 @@ export const toFolioText=lines=>{
     }
     lines[lines.length - 1] = lastline.slice(0, till);
     
-    const text=lines.join('\t').split('^lb')
+    const text=lines.join('\t')
     //.replace(/\^folio#[a-z\d]+【([^】]+?)】/g,'')// 只作為 foliolist 的名字，查字典內文用不到
-    //.replace(/\^ck(\d+)【([^】]+?)】/g,'^ck$1<caption=$2>').split('^lb');
+    .replace(/【([^】]+?)】/g,'【】')
+    .split('^lb');
     if (remain) text.push(remain);
     return text;
 }
@@ -113,7 +114,7 @@ export const chunkOfFolio=(ptk,_bk,_pb)=>{
     const pb=ptk.defines.pb;
     const bk=ptk.defines.bk;
     const ck=ptk.defines.ck;
-    if (!pb) return -1;
+    if (!pb) return [null,-1];
 
     if (typeof _pb=='number') _pb=_pb.toString();
     const [start,end]=ptk.rangeOfAddress('bk#'+_bk);
@@ -124,7 +125,7 @@ export const chunkOfFolio=(ptk,_bk,_pb)=>{
 
     const at=bsearchNumber(ck.linepos,line+1);
     //console.log('ck', ck.fields.id.values[at])
-    return ck.fields.id.values[at];
+    return [ck.fields.id.values[at],at];
 }
 //convert folio position to chunk-line
 export const folio2ChunkLine=async (ptk,foliotext,from,cx,pos)=>{
@@ -184,6 +185,8 @@ export const extractPuncPos=(foliotext,foliolines=5,validpuncs=VALIDPUNCS)=>{
             while (ntag<tags.length&&textsum>tags[ntag].choff) {
                 if (tags[ntag].name=='ck') {
                     puncs.push({line:i,ch, text: styledNumber(parseInt(tags[ntag].attrs.id),'①') });
+                } else if (tags[ntag].name=='n') {//sutta number
+                    puncs.push({line:i,ch, text: 'n'+parseInt(tags[ntag].attrs.id) });
                 }
                 ntag++;
             }

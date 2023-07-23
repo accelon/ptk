@@ -42,7 +42,8 @@ export function getParallelBook(bookname:string|Number,remote:false){
     if (!bookname) return [];
     const prefix=bookPrefix(bookname);
     //如果不是remote，那不能同名
-    return this.defines.bk.fields.id.values.filter(it=>bookPrefix(it)==prefix && (remote || bookname!==it));
+    const books=this.defines.bk.fields.id.values.filter(it=>bookPrefix(it)==prefix && (remote || bookname!==it));
+    return books;
 }
 //see compiler/linkfield.ts  for structure
 export function foreignLinksAtTag(tagname, line){

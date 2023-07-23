@@ -39,6 +39,7 @@ export const parallelWithDiff=(ptk,line,includeself=false,local=true,remote=fals
 
 export const getParallelLines=async (ptk,line,_out,opts={})=>{
     const lines=parallelWithDiff(ptk,line,true,opts.local,opts.remote);
+
     const out=[];
     for (let i=0;i<lines.length;i++) {
         const [ptk,bookstart,line]=lines[i];

@@ -76,7 +76,7 @@ export function getChunk(at:number){
     
     return {bk,bkid ,bkat,caption, at:at+1, id ,
         depth,
-        line:chunktag.linepos[at],
+        line:chunktag.linepos[at],  lineend:chunktag.linepos[at+1]-1 ,
         innertext}
 }
 

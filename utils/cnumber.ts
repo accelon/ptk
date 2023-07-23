@@ -29,6 +29,18 @@ export const fromChineseNumber=(str:string)=>{
     .replace(/十/,'')
     .replace(/[○〇零]/g,'0'));
 }
+export const chineseDigit=n=>{
+    return 
+}
+export const toChineseNumber=(n:number)=>{
+    let out='';
+    while (n){
+        const digit=['〇','一','二','三','四','五','六','七','八','九'][n%10]
+        out=digit+out;
+        n=Math.floor(n/10);
+    }
+    return out;
+}
 export const isChineseChapter=(str:string)=>{
     for (let i=0;i<headerWithNumber.length;i++) {
         const pat=headerWithNumber[i];

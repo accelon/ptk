@@ -53,12 +53,7 @@ const findUnitText=(runits:RenderUnit[], text:string, from=0)=>{
         if (runits[i].token.text===text) return runits[i];
     }
 }
-const indexOfCharPos=(runits:RenderUnit[], choff:number , from=0)=>{
-    for (let i=from;i<runits.length;i++) {
-        if (runits[i].token.choff===choff) return i;
-    }
-    return -1
-}
+
 export const getRenderUnitClasses=(ru:RenderUnit,prepend='',append='')=>{
     const css=[];
     css.push(prepend);
@@ -70,7 +65,6 @@ export const getRenderUnitClasses=(ru:RenderUnit,prepend='',append='')=>{
         const hasbracket=closeBracketOf(ru.offtext.tagRawText(tag))?1:0;
         if (ru.choff==tag.choff+hasbracket) css.push(tag.name+'_start');
         if (ru.choff==tag.choff+tag.width-1-hasbracket) css.push(tag.name+'_end');
-        
     }
     if (ru.highlight) css.push('highlight');
     css.push(append);
