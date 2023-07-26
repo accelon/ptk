@@ -1,51 +1,28 @@
-import {parseOfftext, splitUTF32Char,CJKRangeName, toVerticalPunc,styledNumber,bsearchNumber} from 'ptk'
+//import { bsearchNumber ,parseOfftext,splitUTF32Char,CJKRangeName} from "../nodebundle.cjs";
+
+import {bsearchNumber,splitUTF32Char,CJKRangeName ,styledNumber,toVerticalPunc} from '../utils/index.ts';
+import {parseOfftext } from '../offtext/index.ts';
+
+export const MAXFOLIOLINE=8, MAXFOLIOCHAR=32;
 export const VALIDPUNCS="「」『』。，；：、！？"
 
-
+export const tidyFolioText=text=>{
+    //方括號的文字不算
+    return text.replace(/【([^】]*)】/g,(m,m1)=>'【'+ '-'.repeat(m1.length) +'】')
+}
 export const toFolioText=lines=>{
     if (!lines || !lines.length) return [];
-
     let firstline=lines[0];
-    let lastline=lines[lines.length-1];
     let m=firstline.match(/(\^pb\d+)/);
-    if (m) lines[0]=firstline.slice( m?.index +m[1].length);
-    else {
+    if (!m) { //lines[0]=firstline.slice( m?.index +m[1].length);
         console.log("missing pb markup at first line",firstline);
     }
-    m=lastline.match(/(\^pb\d+)/);
-    let till = m?.index||0;
-    let remain='';
-    if (m) {
-        till=m.index;
-        remain = lines[lines.length - 1].slice(m.index+m[1].length);
-    }
-    lines[lines.length - 1] = lastline.slice(0, till);
-    
-    const text=lines.join('\t')
+    const text=tidyFolioText(lines.join('\t'))
     //.replace(/\^folio#[a-z\d]+【([^】]+?)】/g,'')// 只作為 foliolist 的名字，查字典內文用不到
-    .replace(/【([^】]+?)】/g,'【】')
+    .replace(/(..)\^pb/g,'$1^lb^pb') //replace in middle pb
     .split('^lb');
-    if (remain) text.push(remain);
+    // if (remain) text.push(remain);
     return text;
-}
-export const fetchFolioText=async (ptk,bkfolio,pb)=>{
-    let bk='',folio=bkfolio;
-    if (bkfolio.match(/\d$/)) {
-        bk=bkfolio.replace(/\d+$/g,'');
-    } else {
-        folio='';
-        bk=bkfolio;
-    }
-    const address=(bk?("bk#"+bk):'')+ (folio?'.':'')+(folio?('folio#'+folio):'')+(pb?".pb#"+pb:'');
-    
-    const [from,to]=ptk.rangeOfAddress( address);
-    if (from==to) return ['',from,to];
-    await ptk.loadLines([from,to+1])
-
-    const lines=ptk.slice(from,to+1); 
-    
-    const text= toFolioText(lines);
-    return [text,from,to]
 }
 export const concreateLength=(linetext)=>{
     let [text,tags]=parseOfftext(linetext);
@@ -110,73 +87,132 @@ export const getConcreatePos=(linetext,nth,nextline)=>{
     return [textbefore+s,pos + tagstart ];
 }
 
-export const chunkOfFolio=(ptk,_bk,_pb)=>{
-    const pb=ptk.defines.pb;
-    const bk=ptk.defines.bk;
-    const ck=ptk.defines.ck;
-    if (!pb) return [null,-1];
-
-    if (typeof _pb=='number') _pb=_pb.toString();
-    const [start,end]=ptk.rangeOfAddress('bk#'+_bk);
-    
-    const from= bsearchNumber(pb.linepos, start);
-    const pbat=pb.fields.id.values.indexOf(_pb,from );
-    const line=pb.linepos[pbat];
-
-    const at=bsearchNumber(ck.linepos,line+1);
-    //console.log('ck', ck.fields.id.values[at])
-    return [ck.fields.id.values[at],at];
-}
-//convert folio position to chunk-line
-export const folio2ChunkLine=async (ptk,foliotext,from,cx,pos)=>{
-	const out=[];
-    if (!foliotext.length) return '';
-	for (let i=0;i<=cx;i++) {
-        foliotext[i]=foliotext[i]||'';
-		if (i==cx) {
-			out.push(foliotext[i].slice(0,pos))
-		} else {
-			out.push(foliotext[i]);
-		}
-	}
-	let startline=from;
-	let s=out.join('');
-    out.length=0;
-	let at=s.lastIndexOf('^ck');
-    if (~at) s=s.slice(at);
-	else {
-		while (startline>0) {
-			startline--;
-			await ptk.loadLines([startline]);
-			const line=ptk.getLine(startline);
-			out.unshift(line);
-            if (out.length>100) break;
-			if (~line.indexOf('^ck')) break;
-		}
-        if (!out.length) out.push('');
-		const at=out[0].indexOf('^ck');
-		out[0]=out[0].slice(at);
-		s=out.join('\t')+'\t'+s;	
-	}
-
-	const lines=s.split('\t');
-	const m=lines[0].match(/\^ck#?([a-z\d\-_]+)/);
-    if (!m) return '';
-	const ck=parseInt(m[1]);
-    const lineoff=lines.length-1;
-    if (ck) {
-        return 'ck#'+ck+ (lineoff?':'+lineoff:'');
-    } else {
-        return '';
+export class FolioText {
+    constructor (ptk){
+        this.ptk=ptk;
+        this.offtext='';
+        this.pbs=[];
+        this.pbpos=[];   //pb 的起點，不算標記本身
+        this.chunks=[];
+        this.chunkpos=[]; //chunk 的起點，不算標記本身
     }
-	
-}
+    toFolioPos(ck='1',lineoff=0,choff=0) {
+        const [ckstart,ckend]=this.chunkRange(ck);
+        const str=this.offtext.slice(ckstart,ckend);
+        let p=0;
+        while (lineoff>0 && p<str.length) {
+            if (str.charAt(p)=='\n') lineoff--;
+            p++;
+        }
+        const start=ckstart+p;
+        const pbat=bsearchNumber(this.pbpos,start)-1;
+        const  [pbstart,pbend]=this.pbRange(this.pbs[pbat]);
 
-export const extractPuncPos=(foliotext,foliolines=5,validpuncs=VALIDPUNCS)=>{
+        const end=Math.min(start,pbend)
+        const pbstr=this.offtext.slice(pbstart,end );
+
+        const pblines=pbstr.split('^lb');
+        const line=pblines.length;
+        const ch=concreateLength(pblines[pblines.length-1]);
+        return [this.pbs[pbat], line-1,ch ];
+    }
+    folioPageText(pb){
+        const [start,end]=this.pbRange(pb);
+        return toFolioText(this.offtext.slice(start,end).split('\n'));
+    }
+    fromFolioPos(foliopos,line,ch) {
+        let pbid=foliopos;
+        if (typeof foliopos=='object') {
+            [pbid, line,ch ]=foliopos;
+        }       
+        
+        const [pbstart,pbend]=this.pbRange(pbid);
+        const pbstr=tidyFolioText(this.offtext.slice(pbstart,pbend ))
+            
+        const pblines=pbstr.split('^lb');
+        // console.log(pblines,pbstart,pbend,pbid)
+        let start=pbstart;
+        for (let i=0;i<line;i++) {
+            start+=pblines[i].length+3; //\n and "^lb".length
+        }
+        start+=getConcreatePos(pblines[line],ch)[1];
+        const ckat=bsearchNumber(this.chunkpos,start)-1;
+        const ckid=this.chunks[ckat];
+        const  [ckstart,ckend]=this.chunkRange(ckid);
+        const str=this.offtext.slice(ckstart,ckend);
+        const cklines=str.split('\n');
+        let p=ckstart;
+        let ckline=0;
+        for (let i=0;i<cklines.length;i++) {
+            if (p+cklines[i].length>start) break;
+            ckline++;
+            p+=cklines[i].length;
+        }
+        return [ckid,ckline]
+    }
+    chunkRange(ck){
+        const at=this.chunks.indexOf(ck);
+        if (at==-1) return [0,0];
+        return [this.chunkpos[at], this.chunkpos[at+1]];
+    }
+    pbRange(pb){
+        if (typeof pb=='number') pb=pb.toString();
+        const at=this.pbs.indexOf(pb);
+        if (at==-1) return [0,0];
+        return [this.pbpos[at] , this.pbpos[at+1] ];
+    }
+    async load(bkfolio) {
+        const ptk=this.ptk;
+        let bk='',folio=bkfolio; 
+        if (bkfolio.match(/\d$/)) {
+            bk=bkfolio.replace(/\d+$/g,'');
+        } else {
+            folio='';
+            bk=bkfolio;
+        }
+        const address=(bk?("bk#"+bk):'')+ (folio?'.':'')+(folio?('folio#'+folio):'');//+(pb?".pb#"+pb:'');
+        const [from,to]=ptk.rangeOfAddress( address);
+        if (from==to) return ['',from,to];
+        await ptk.loadLines([from,to])
+    
+        this.offtext=ptk.slice(from,to).join('\n'); 
+        this.from=from;
+        this.to=to;
+        let p=0;
+        
+        while (p<this.offtext.length) {
+            
+            const ch3=this.offtext.slice(p,p+3)
+            if (ch3=='^pb') {
+                this.pbpos.push(p);
+                p+=3;
+                const m=this.offtext.slice(p).match(/([\d]+)/);
+                this.pbs.push(m[1]);
+                p+=m[1].length;
+                
+            } else if (ch3=='^ck') {
+                this.chunkpos.push(p);
+                p+=3;
+                if (this.offtext.charAt(p)=='#') p++
+                const m=this.offtext.slice(p).match(/([a-z\d]+)/);
+                this.chunks.push(m[1]);
+                p+=m[1].length;
+                
+            }
+            p++;
+        }
+        this.pbpos.push(this.offtext.length-1);
+        this.chunkpos.push(this.offtext.length-1);
+    }
+} 
+
+
+
+export const extractPuncPos=(foliopagetext,foliolines=5,validpuncs=VALIDPUNCS)=>{
     const puncs=[];
-    for (let i=0;i<foliotext.length;i++) {
+    for (let i=0;i<foliopagetext.length;i++) {
         let ch=0,ntag=0,textsum=0;
-        let [text,tags]=parseOfftext(foliotext[i]);
+        let [text,tags]=parseOfftext(foliopagetext[i]);
         const isgatha=!!tags.filter(it=>it.name=='gatha').length;
         if (i>=foliolines) break;
         if (isgatha) {text=text.replace(/．/g,'　')}; //replace punc inside gatha to ． 
@@ -205,30 +241,4 @@ export const extractPuncPos=(foliotext,foliolines=5,validpuncs=VALIDPUNCS)=>{
         }
     }
     return puncs;
-}
-
-export const folioPosFromLine=async (ptk, pb,line,bookid,fl,fc)=>{
-    const [text,start]=await fetchFolioText(ptk,bookid, pb);
-    if (!text) return;
-    const str=text.join('\n');
-    let linediff=line-start;
-    let foliolinecount=0;
-    let tappos=(parseInt(pb)-1)*fl*fc;
-    let next=0,n=0,linestart=0;
-    while (n<str.length && linediff>0) {
-        const ch=str.charAt(n);
-        if (ch=='\n') {
-            linestart=n+1;
-            foliolinecount++;
-        } else if (ch=='\t') {
-            linediff--;
-            next=n+1;
-        }
-        n++;
-    }
-    tappos+=foliolinecount*fc;
-    let str2=str.slice(linestart,next);;
-    const [leading]=parseOfftext(str2);
-    tappos+=concreateLength(leading);
-    return tappos;
 }
