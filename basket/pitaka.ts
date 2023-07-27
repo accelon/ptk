@@ -61,6 +61,7 @@ export class Pitaka extends LineBase {
 		this.nearestChunk=nearestChunk;
 		this.getChunk=getChunk;
 		this.neighborChunks=neighborChunks;
+		
 		this.fetchAddress=fetchAddress;
 	}
 	async init(){
@@ -262,5 +263,15 @@ not suitable for dictionary wordheads
 			}
 		}
 		return null;
+	}
+	tagInRange(ele:string,from:number,to:number){
+		if (typeof to=='undefined') {
+			to=this.header.eot;
+		}
+		const linepos=this.defines[ele]?.linepos;
+		if (!linepos) return [];
+		const at=bsearchNumber(linepos, from);
+		const at2=bsearchNumber(linepos, to)-1;
+		return [at,at2];
 	}
 }

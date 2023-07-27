@@ -95,6 +95,7 @@ export class FolioText {
         this.pbpos=[];   //pb 的起點，不算標記本身
         this.chunks=[];
         this.chunkpos=[]; //chunk 的起點，不算標記本身
+        this.ck=ptk.defines.ck;
     }
     toFolioPos(ck='1',lineoff=0,choff=0) {
         const [ckstart,ckend]=this.chunkRange(ck);
@@ -136,8 +137,12 @@ export class FolioText {
             start+=pblines[i].length+3; //\n and "^lb".length
         }
         start+=getConcreatePos(pblines[line],ch)[1];
-        const ckat=bsearchNumber(this.chunkpos,start)-1;
-        const ckid=this.chunks[ckat];
+        let ckat=bsearchNumber(this.chunkpos, start )-1;
+        if (ckat==-1) {//search from 
+            const [pbline]=this.ptk.rangeOfAddress('folio#'+this.folio+'.pb#'+pbid);
+            ckat= bsearchNumber(this.ck.linepos,pbline);
+        }
+        const ckid=this.ck.fields.id.values[ckat];
         const  [ckstart,ckend]=this.chunkRange(ckid);
         const str=this.offtext.slice(ckstart,ckend);
         const cklines=str.split('\n');
@@ -170,11 +175,12 @@ export class FolioText {
             folio='';
             bk=bkfolio;
         }
-        const address=(bk?("bk#"+bk):'')+ (folio?'.':'')+(folio?('folio#'+folio):'');//+(pb?".pb#"+pb:'');
-        const [from,to]=ptk.rangeOfAddress( address);
+        const addr=(bk?("bk#"+bk):'')+ (folio?'.':'')+(folio?('folio#'+folio):'');//+(pb?".pb#"+pb:'');
+        const [from,to]=ptk.rangeOfAddress( addr);
         if (from==to) return ['',from,to];
         await ptk.loadLines([from,to])
-    
+        
+        this.folio=folio;
         this.offtext=ptk.slice(from,to).join('\n'); 
         this.from=from;
         this.to=to;

@@ -137,6 +137,7 @@ export function firstChildChunk(at:number) {
     if (chunktag.depths[at+1]==chunktag.depths[at]+1 ) return at+1;
     return -1;
 }
+
 export function neighborChunks(at:number){
     const ptk=this;
     // const chunktag=this.defines.ck
