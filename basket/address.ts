@@ -40,41 +40,50 @@ export const sameAddress=(addr1,addr2)=>{
 	if (!addr1||!addr2) return;
 	return addr1.action==addr2.action && addr1.ptkname ==addr2.ptkname;
 }
-export const makeAddress=(ptkname='',action='',from=0,till=0,lineoff=-1)=>{
-	//lineoff >0 , highlight highlightline
-
-	return (ptkname?ptkname+':':'')+action+(from?'>'+from:'')+(till?'<'+till:'')+(lineoff>0?':'+lineoff:'');
+export const makeAddress=(ptkname='',action='',from=0,till=0,lineoff=0,choff=0)=>{
+	let linechoff='';
+	if (choff>0) {
+		linechoff=lineoff+'-'+choff;
+	} else if (lineoff>0) {
+		linechoff=lineoff.toString();
+	}
+	return (ptkname?ptkname+':':'')+action+(from?'>'+from:'')+(till?'<'+till:'')+(linechoff?':'+linechoff:'');
 }
 export const parseAddress=(address:string):IAddress=>{
-	let m0,ptkname='',action='', from='' ,till='', highlightline='' ; //left bound and right bound
+	let m0,ptkname='',action='', from='' ,till='', linechoff='' ; //left bound and right bound
 	let m=address.match(PTK_ACTION_FROMTILL);
 	if (m) {
-		[m0, ptkname, action, from , till, highlightline ] = m;
+		[m0, ptkname, action, from , till, linechoff ] = m;
 	} else {
 		m=address.match(PTK_FROMTILL);
 		if (m) {
-			[m0, ptkname, from,till ,highlightline] = m;
+			[m0, ptkname, from,till ,linechoff] = m;
 		} else {
 			m=address.match(FROMTILL);
-			if (m) [m0,from,till, highlightline] = m;	
+			if (m) [m0,from,till, linechoff] = m;	
 			else return null;
 		}
 	}
 	from=(from||'').slice(1);
 	till=(till||'').slice(1);
-	highlightline=(highlightline||'').slice(1);
+	linechoff=(linechoff||'').slice(1);
 	
-	if (!from && !till && highlightline) {
-		if (highlightline>ACTIONPAGESIZE) {
-			from=highlightline- Math.floor(ACTIONPAGESIZE/2);
+	if (!from && !till && linechoff) {
+		if (parseInt(linechoff)>ACTIONPAGESIZE) {
+			from=parseInt(linechoff) - Math.floor(ACTIONPAGESIZE/2);
 			till=from+ACTIONPAGESIZE;			
 		}
 	} 
-	
+	let choff=0;
+	const at=linechoff.indexOf('-');
+	if (~at) choff=parseInt(linechoff.slice(at+1));
+
 	ptkname=ptkname||'';
 	ptkname=ptkname.slice(0,ptkname.length-1); //remove :
 	return {ptkname, action,from:Math.abs(parseInt(from))||0,till:Math.abs(parseInt(till))||0
-		 , highlightline:Math.abs(parseInt(highlightline))||-1};
+		 , highlightline: linechoff?parseInt(linechoff):-1,
+		  lineoff:parseInt(linechoff), choff
+	};
 }
 
 export function rangeOfElementId(eleidarr){
@@ -159,7 +168,7 @@ export function innertext(address:string):string{
 export function makeElementId(ele,id:string):string{
 	return ele+( !isNaN(parseInt(id))?'':'#')+id;
 }
-export function makeChunkAddress(ck,lineoff=0):string{
+export function makeChunkAddress(ck,lineoff=-1):string{
 	const scrollto= lineoff?((lineoff>=5)?('>'+(lineoff-1)):'') +(lineoff?':'+lineoff:''):'';	
 
 	return 'bk'+((parseInt(ck.bk?.id).toString()==ck.bk?.id)?'':'#')+ck.bk?.id

@@ -20,8 +20,8 @@ export const OFFTAG_COMPACT_ID=/^([a-z\d]+[_a-z\d\-~\.]*)/;  //縮式 id
 export const QSTRING_REGEX_G= /"((?:\\.|.)*?)"/g                                  //字串標式
 export const OFFTAG_LEADBYTE='^';
 
-export const FROMTILL = /^(>\d+)?(<\d+)?(:\d+)?$/;
-export const PTK_FROMTILL = /^([a-z\.\d\-_]+\:)(>\d+)?(<\d+)?(:\d+)?$/;
-export const PTK_ACTION_FROMTILL = /^([a-z\.\d\-_]+\:)?([^<>\d:]+[^:<>]*)(>\d+)?(<\d+)?(:\d+)?$/;
+export const FROMTILL = /^(>\d+)?(<\d+)?(:[\-\d]+)?$/;
+export const PTK_FROMTILL = /^([a-z\.\d\-_]+\:)(>\d+)?(<\d+)?(:[\-\d]+)?$/;
+export const PTK_ACTION_FROMTILL = /^([a-z\.\d\-_]+\:)?([^<>\d:]+[^:<>]*)(>\d+)?(<\d+)?(:[\-\d]+)?$/;
 
 export const MIN_ABRIDGE=8; //minimum token in abridge segment

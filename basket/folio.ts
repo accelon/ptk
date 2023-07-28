@@ -46,14 +46,14 @@ export const getConcreatePos=(linetext,nth,nextline)=>{
     let ntag=0;
     const chars=splitUTF32Char(text);
     let pos=0, i=0, tagstart=0;
-    if (ntag<tags.length && pos>tags[ntag].choff) tagstart=tags[ntag].start;
+    if (ntag<tags.length && pos>=tags[ntag].choff) tagstart=tags[ntag].start;
     while (nth&& i<chars.length) {
         const r=CJKRangeName(chars[i]);
         if (r || chars[i]=='　') {
             nth--;
         }
         pos+=chars[i].codePointAt(0)>=0x20000?2:1;
-        if (ntag<tags.length &&  pos>tags[ntag].choff ) {
+        if (ntag<tags.length &&  pos>=tags[ntag].choff ) {
             if (ntag<tags.length) tagstart=tags[ntag].start;
             ntag++;
         }
@@ -68,6 +68,7 @@ export const getConcreatePos=(linetext,nth,nextline)=>{
     }
     let textbefore='';
     let s=text.slice(pos);
+    const chpos=pos;
     if (pos>0) {
         const befores= splitUTF32Char(text.slice(0,pos));
         let back=befores.length-1;
@@ -84,7 +85,7 @@ export const getConcreatePos=(linetext,nth,nextline)=>{
         s=s+nextlinetext;
     }
     // returh "pure text with ^ " ,   offset of offtext
-    return [textbefore+s,pos + tagstart ];
+    return [textbefore+s,chpos + tagstart ];
 }
 
 export class FolioText {
@@ -132,28 +133,29 @@ export class FolioText {
             
         const pblines=pbstr.split('^lb');
         // console.log(pblines,pbstart,pbend,pbid)
-        let start=pbstart;
+        let start=pbstart||0;
         for (let i=0;i<line;i++) {
             start+=pblines[i].length+3; //\n and "^lb".length
         }
-        start+=getConcreatePos(pblines[line],ch)[1];
+        const pbchoff=getConcreatePos(pblines[line],ch)[1]; //與 pblinestart 的距離
+        start+=pbchoff;
         let ckat=bsearchNumber(this.chunkpos, start )-1;
-        if (ckat==-1) {//search from 
-            const [pbline]=this.ptk.rangeOfAddress('folio#'+this.folio+'.pb#'+pbid);
-            ckat= bsearchNumber(this.ck.linepos,pbline);
-        }
-        const ckid=this.ck.fields.id.values[ckat];
+        const ckid=this.chunks[ckat<0?0:ckat];
         const  [ckstart,ckend]=this.chunkRange(ckid);
         const str=this.offtext.slice(ckstart,ckend);
         const cklines=str.split('\n');
-        let p=ckstart;
-        let ckline=0;
+        let p=ckstart||0;
+        let lineoff=0,choff=0;
         for (let i=0;i<cklines.length;i++) {
-            if (p+cklines[i].length>start) break;
-            ckline++;
-            p+=cklines[i].length;
+            if (p+cklines[i].length>=start) {
+                //從 ckline 起算的 距離(real ch offset)
+                choff=start-p;
+                break;
+            }
+            lineoff++;
+            p+=cklines[i].length+1;
         }
-        return [ckid,ckline]
+        return [ckid,lineoff,choff]
     }
     chunkRange(ck){
         const at=this.chunks.indexOf(ck);
