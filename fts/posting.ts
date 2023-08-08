@@ -20,7 +20,6 @@ export const plFind=(arr, v, p=0)=>{
 }
 
 export const plAnd=(pl1:number[],pl2:number[],dist=1)=>{
-
     let p2 = 0 , c=0;
     if (!pl1 || !pl2 || pl1.length==0 ||pl2.length==0) return [];
     const sz=Math.min(pl1.length,pl2.length);
@@ -41,12 +40,13 @@ export const plCount=(pl:number[],plgroup)=>{
     for (let i=0;i<plgroup.length;i++) {
         const [from,to]=plgroup[i];
         start=p;
+        //search this book than ak
         if (from>pl[p]) start=plFind(pl,from,p);
         end=start;
         while (pl[end]<to && end<pl.length) end++; 
         if (end>start) {
             out[i]=end-start;
-        }
+        } else out[i]=0;
         p=end;
     }
     for (let i=0;i<out.length;i++) {

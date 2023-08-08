@@ -26,7 +26,6 @@ export function scoreLine(postings,chunklinepos,tlp){
     const allhits=postings.reduce((acc,i)=>i.length+acc ,0 );
     const weights=postings.map( pl=> Math.sqrt(allhits/pl.length) );
     let i=0,scoredLine=[];
-
     const ptr=new Array(postings.length);
     ptr.fill(0);
     let prev=0;
@@ -125,18 +124,19 @@ export async function scanText(tofind:string,opts) {
     const tagname=opts?.groupby||'ak'
     const groupby=ptk.defines[tagname];
     const tlp=[], TLP = ptk.inverted.tokenlinepos;
-    if (groupby) { //no group, as a whole
+    if (groupby) { 
         for (let i=0;i<groupby.linepos.length;i++) {
             const nextstart=TLP[ groupby.linepos[i+1] ]||TLP[TLP.length-1] ;
             tlp.push([ TLP[ groupby.linepos[i]] , nextstart ]);
-        }
-        const res= plCount(postings[0], tlp).map((count,idx)=>{
+        }       
+        const res= plCount(postings[0], tlp);
+        const out=res.map((count,idx)=>{
             const id=groupby.fields.id.values[idx];
             return {count, caption: groupby.innertext.get(idx), 
                 scope:tagname+ (parseInt(id)?id:'#'+id) };
         });
-        return res;
-    } else {
+        return out;
+    } else {//no group, as a whole
         return [{count:postings.length,caption:'-', name:'-'}];
     }
 }

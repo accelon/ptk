@@ -100,7 +100,7 @@ export class StringArray {
 		}
 		return -1;
 	}
-	enumMiddle(infix:string):number[]{
+	enumMiddle(infix:string,max=100):number[]{
 		if (this.middleCache.hasOwnProperty(infix)) {
 			return this.middleCache[infix];
 		}
@@ -112,13 +112,14 @@ export class StringArray {
 			const lp2=this.charpos[at]-1-infix.length;
 			if (idx>lp && idx<lp2) {
 				out.push(at);
+				if (out.length>max) break;
 			}
 			idx=this.buf.indexOf(infix,this.charpos[at]+this.sep.length);
 		}
 		this.middleCache[infix]=out;
 		return out;
 	}
-	enumStart(prefix:string):number[]{
+	enumStart(prefix:string,max=100):number[]{
 		const getter:StringGetter=this.get.bind(this);
 		let at=bsearchGetter( getter, prefix ); // this.get(0) return len
 		if (at==-1) return [];
@@ -126,12 +127,15 @@ export class StringArray {
 		const len=this.len();
 		while (at<len) {
 			const found=this.get(at);
-			if (found.startsWith(prefix)) out.push(at); else break;
+			if (found.startsWith(prefix)) {
+				out.push(at); 
+				if (out.length>max) break;
+			} else break;
 			at++;
 		}
 		return out;
 	}
-	enumEnd(suffix:string):number[] {
+	enumEnd(suffix:string,max=100):number[] {
 		if (this.endCache.hasOwnProperty(suffix)) {
 			console.log('cache')
 			return this.endCache[suffix];
@@ -142,6 +146,7 @@ export class StringArray {
 		while (idx>-1 && this.buf.charAt(idx-1)!==this.sep) {
 			const at=this.at(idx);
 			out.push(at);
+			if (out.length>max) break;
 			idx=this.buf.indexOf(suffix,idx+this.sep.length);
 		}
 		this.endCache[suffix]=out;

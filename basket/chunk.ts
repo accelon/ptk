@@ -59,6 +59,7 @@ export function getBookInfo (at:number) {
     return {id:bkid, caption:bkcaption, short,heading:bkheading,at }
 }
 export function getChunk(at:number){
+    at=parseInt(at);
     const chunktag=this.defines.ck;
     const booktag=this.defines.bk;
 
@@ -74,9 +75,9 @@ export function getChunk(at:number){
     const caption=this.caption(at);
     const depth=chunktag.depths?chunktag.depths[at]||1:1;
     
-    return {bk,bkid ,bkat,caption, at:at+1, id ,
+    return {bk,bkid ,bkat,caption, at, id ,
         depth,
-        line:chunktag.linepos[at],  lineend:chunktag.linepos[at+1]-1 ,
+        line:chunktag.linepos[at],  lineend:chunktag.linepos[at+1]||-1 ,
         innertext}
 }
 

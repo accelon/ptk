@@ -32,6 +32,7 @@ export class FolioText {
         this.pbpos=[];   //pb 的起點，不算標記本身
         this.chunks=[];
         this.chunkpos=[]; //chunk 的起點，不算標記本身
+        this.chunklinepos=[];//chunk 所在行，從this.from 起算
         this.ck=ptk.defines.ck;
     }
     toFolioPos(ck='1',lineoff=0,choff=0) {
@@ -43,15 +44,20 @@ export class FolioText {
             p++;
         }
         const start=ckstart+p;// ckline 的起點 
-        const pbat=bsearchNumber(this.pbpos,start+choff)-1;
+        const pbat=bsearchNumber(this.pbpos,start+choff+1)-1;
         const  [pbstart,pbend]=this.pbRange(this.pbs[pbat]);
 
         const end=Math.min(start,pbend);
         let pbstr=this.offtext.slice(pbstart,end );
-
+        if (this.offtext.slice(end,end+3)=='^lb') {
+            //if start is end of folioline, add one more lb to increase pblines.length
+            //and ch will be zero
+            //so that first folio char is markable 
+            pbstr+='^lb';
+        }
         const pblines=pbstr.split('^lb');
         const line=pblines.length;
-        const ch=this.skipFolioChar(pblines[pblines.length-1]);
+        const ch=this.countFolioChar(pblines[pblines.length-1]);
         return [this.pbs[pbat], line-1,ch ];
     }
     folioPageText(pb){
@@ -80,6 +86,7 @@ export class FolioText {
             consumeChar();
             prev=offset+m4.length;
         })
+        textsnip=linetext.slice(prev);
         consumeChar();
         return count;
     }
@@ -104,8 +111,8 @@ export class FolioText {
         linetext.replace(OFFTAG_REGEX_G,(m4, rawName, rawAttrs, offset)=>{
             textsnip=linetext.slice(prev,offset);
             consumeChar();
-            if (ch==0) return;
             prev=offset+m4.length;
+            if (ch==0) return;
         })
         textsnip=linetext.slice(prev);
         consumeChar();
@@ -123,7 +130,7 @@ export class FolioText {
         const pblines=pbstr.split('^lb');
         let start=pbstart||0;
         for (let i=0;i<line;i++) {
-            start+=pblines[i].length+3; //\n and "^lb".length
+            start+=(pblines[i]?.length||0)+3; //\n and "^lb".length
         }
         const pbchoff=this.skipFolioChar( pblines[line],ch); //與 pblinestart 的距離
         start+=pbchoff;
@@ -143,12 +150,19 @@ export class FolioText {
             lineoff++;
             p+=cklines[i].length+1;
         }
-        return [ckid,lineoff,choff,  cklines[i]]
+        const ptkline=this.from+this.chunklinepos[ckat]+lineoff;
+        const linecount=this.chunklinepos[ckat+1]-this.chunklinepos[ckat];
+        const at=bsearchNumber(this.ptk.defines.ck.linepos, ptkline+1)-1;
+        return {ckid,lineoff,choff, linetext: cklines[i]||'', ptkline, linecount, at}
     }
-    chunkRange(ck){
-        const at=this.chunks.indexOf(ck);
+    chunkRange(ckid){
+        const at=this.chunks.indexOf(ckid);
         if (at==-1) return [0,0];
         return [this.chunkpos[at], this.chunkpos[at+1]];
+    }
+    chunkText(ckid) {
+        const [s,e]=this.chunkRange(ckid);
+        return this.offtext.slice(s,e);
     }
     pbRange(pb){
         if (typeof pb=='number') pb=pb.toString();
@@ -174,35 +188,34 @@ export class FolioText {
         this.offtext=ptk.slice(from,to).join('\n'); 
         this.from=from;
         this.to=to;
-        let p=0;
+        let p=0,linecount=0;
         
         while (p<this.offtext.length) {
-            
             const ch3=this.offtext.slice(p,p+3)
             if (ch3=='^pb') {
                 this.pbpos.push(p);
                 p+=3;
                 const m=this.offtext.slice(p).match(/([\d]+)/);
                 this.pbs.push(m[1]);
-                p+=m[1].length;
-                
+                p+=m[1].length;               
             } else if (ch3=='^ck') {
                 this.chunkpos.push(p);
                 p+=3;
                 if (this.offtext.charAt(p)=='#') p++
                 const m=this.offtext.slice(p).match(/([a-z\d]+)/);
                 this.chunks.push(m[1]);
-                p+=m[1].length;
-                
+                this.chunklinepos.push(linecount);
+                p+=m[1].length;                
+            } else {
+                if (ch3[0]=='\n') linecount++;
+                p++;
             }
-            p++;
         }
         this.pbpos.push(this.offtext.length-1);
         this.chunkpos.push(this.offtext.length-1);
+        this.chunklinepos.push(linecount+1);
     }
 } 
-
-
 
 export const extractPuncPos=(foliopagetext,foliolines=5,validpuncs=VALIDPUNCS)=>{
     const puncs=[];

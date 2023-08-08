@@ -5,3 +5,4 @@ export * from './indexer';
 export * from './inverted';
 export * from './posting';
 export * from './similarity'
+export * from './excerpt'
