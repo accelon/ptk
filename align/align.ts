@@ -41,6 +41,9 @@ export const autoAlign=(f1,guide,fn)=>{
     for (let i=0;i<gpara.length;i++) {
         const rgpara=sentenceRatio(gpara[i][1]);
         let rpara=sentenceRatio(para[i][1]);
+        if (gpara[i][0]!==para[i][0]) {
+            console.log('paranum diff',gpara[i][0],para[i][0])
+        }
         const aligned=alignParagraph(rpara,rgpara,para[i][0]);
         if (rpara.length<rgpara.length) { //
             while (para[i][1].length<rgpara.length) {

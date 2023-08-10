@@ -1,5 +1,5 @@
 import PTK from '../nodebundle.cjs';
-const {LineBaser,Compiler,writeChanged,humanBytes} = PTK;
+const {LineBaser,Compiler,writeChanged,humanBytes,makeInMemoryPtk} = PTK;
 //import kluer from './kluer.js'
 import * as colors from './colors.js';
 const {cyan,red} =colors;
