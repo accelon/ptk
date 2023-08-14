@@ -38,7 +38,7 @@ export class LineBase{
         if (typeof window!=='undefined') {
             protocol=window.location.protocol;
         }
-        if (this.zipstore) { //local in memory zip
+        if (this.zipstore) { //in memory zip
         	this._loader=loadInMemoryZipStore;
         } else if (protocol==='http:'||protocol==='https:'|| protocol==='chrome-extension:') {
             this._loader=loadFetch;

@@ -2,6 +2,7 @@
 
 import {bsearchNumber,splitUTF32Char,CJKRangeName ,styledNumber,toVerticalPunc} from '../utils/index.ts';
 import {parseOfftext ,OFFTAG_REGEX_G} from '../offtext/index.ts';
+import { parseAddress } from './address.js';
 
 export const MAXFOLIOLINE=8, MAXFOLIOCHAR=32;
 export const VALIDPUNCS="「」『』。，；：、！？"
@@ -23,6 +24,17 @@ export const toFolioText=lines=>{
     .split('^lb');
     // if (remain) text.push(remain);
     return text;
+}
+export const folioPosFromAddress=(ptk,address)=>{
+    const {choff,lineoff,action}=parseAddress(address);
+    const [start]=ptk.rangeOfAddress(action);
+    const folio=ptk.defines.folio;
+    const at=bsearchNumber(ptk.defines.folio.linepos, start)-1;
+
+    const id=folio.fields.id.values[at];
+    if (!id) return {};
+    
+    return {id};
 }
 export class FolioText {
     constructor (ptk){
@@ -111,11 +123,13 @@ export class FolioText {
         linetext.replace(OFFTAG_REGEX_G,(m4, rawName, rawAttrs, offset)=>{
             textsnip=linetext.slice(prev,offset);
             consumeChar();
+            if (ch<=0) return;
             prev=offset+m4.length;
-            if (ch==0) return;
         })
-        textsnip=linetext.slice(prev);
-        consumeChar();
+        if (ch>0) {
+            textsnip=linetext.slice(prev);
+            consumeChar();    
+        }
 
         return textlen+prev;
     }
@@ -130,7 +144,7 @@ export class FolioText {
         const pblines=pbstr.split('^lb');
         let start=pbstart||0;
         for (let i=0;i<line;i++) {
-            start+=(pblines[i]?.length||0)+3; //\n and "^lb".length
+            start+=(pblines[i]?.length||0)+ (i>0?3:0); //\n and "^lb".length after first line
         }
         const pbchoff=this.skipFolioChar( pblines[line],ch); //與 pblinestart 的距離
         start+=pbchoff;
@@ -224,7 +238,8 @@ export const extractPuncPos=(foliopagetext,foliolines=5,validpuncs=VALIDPUNCS)=>
         let [text,tags]=parseOfftext(foliopagetext[i]);
         const isgatha=!!tags.filter(it=>it.name=='gatha').length;
         if (i>=foliolines) break;
-        if (isgatha) {text=text.replace(/．/g,'　')}; //replace punc inside gatha to ． 
+        if (isgatha) {text=text.replace(/[？；，。．]/g,'　')}; //replace punc inside gatha to ． 
+        
         const chars=splitUTF32Char(text);
         for (let j=0;j<chars.length;j++) {
             while (ntag<tags.length&&textsum>tags[ntag].choff) {

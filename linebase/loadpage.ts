@@ -21,7 +21,7 @@ export async function loadNodeJs (page){
 }
 
 export async function loadRemoteZip (page){
-    throw 'not implement yet';
+   throw "not implement yet"
 }
 
 export async function loadInMemoryZipStore (page) { 

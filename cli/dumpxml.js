@@ -62,9 +62,11 @@ export const dumpxml=(arg,arg2)=>{
             console.log('Taisho vol 1   /cbeta/XML/T/T01');
             return;
         }
-        const set=arg2[arg2.length-1];
-        const files=filesFromPattern(arg2+'/'+set+'*');
+        const set=arg2.slice(arg2.length-2);
+        
+        const files=filesFromPattern("*.xml",arg2).map(it=>arg2+'/'+it);
         console.log('dumping ',arg2,files.length,'files');
+        console.log(files.join("\n"));
         const at=arg2.lastIndexOf('/')
         ctx.set=arg2.slice(at+1,at+2); //T , Y 
         dump_cbeta(files, arg2.slice(at+1));
