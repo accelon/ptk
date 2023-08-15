@@ -25,16 +25,23 @@ export const toFolioText=lines=>{
     // if (remain) text.push(remain);
     return text;
 }
-export const folioPosFromAddress=(ptk,address)=>{
+export const folioPosFromAddress=async (ptk,address)=>{
     const {choff,lineoff,action}=parseAddress(address);
+
     const [start]=ptk.rangeOfAddress(action);
     const folio=ptk.defines.folio;
-    const at=bsearchNumber(ptk.defines.folio.linepos, start)-1;
+    const folioat=bsearchNumber(ptk.defines.folio.linepos, start+1)-1;
+    const ckat=bsearchNumber(ptk.defines.ck.linepos, start+1)-1;
 
-    const id=folio.fields.id.values[at];
+    const id=folio.fields.id.values[folioat];
     if (!id) return {};
-    
-    return {id};
+       
+    const ck=ptk.defines.ck.fields.id.values[ckat];
+    const ft=new FolioText(ptk);
+    await ft.load(id);
+    const [pb,line,ch]=ft.toFolioPos(ck ,lineoff,choff);
+    // console.log(pb,line,ch,lineoff,choff)
+    return {id,pb,line,ch};
 }
 export class FolioText {
     constructor (ptk){
@@ -103,6 +110,7 @@ export class FolioText {
         return count;
     }
     skipFolioChar(linetext,ch) { //return str.slice offset by number of folio visible char, skip all tags.
+        if (!linetext) return 0;
         let prev=0,textlen=0,textsnip='';
         const consumeChar=()=>{
             if (prev&&textsnip[0]=='【') {//bracket follow a taginvisible to folio
