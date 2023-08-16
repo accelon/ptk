@@ -62,7 +62,7 @@ export class FolioText {
             if (str.charAt(p)=='\n') lineoff--;
             p++;
         }
-        const start=ckstart+p;// ckline 的起點 
+        const start=ckstart+p+choff;// ckline 的起點 
         const pbat=bsearchNumber(this.pbpos,start+choff+1)-1;
         const  [pbstart,pbend]=this.pbRange(this.pbs[pbat]);
 
@@ -91,7 +91,6 @@ export class FolioText {
             }
             const chars=splitUTF32Char(textsnip);
             let i=0;
-            textlen=0;
             while (i<chars.length) { 
                 const r=CJKRangeName(chars[i]);
                 if (r || chars[i]=='　') {
@@ -118,7 +117,6 @@ export class FolioText {
             }
             const chars=splitUTF32Char(textsnip);
             let i=0;
-            textlen=0;
             while (ch>-1 && i<chars.length) { 
                 const r=CJKRangeName(chars[i]);
                 if (r || chars[i]=='　') {
@@ -134,10 +132,10 @@ export class FolioText {
             if (ch<=0) return;
             prev=offset+m4.length;
         })
-        if (ch>0) {
+        // if (ch>0) {
             textsnip=linetext.slice(prev);
             consumeChar();    
-        }
+        // }
 
         return textlen+prev;
     }
@@ -154,7 +152,7 @@ export class FolioText {
         for (let i=0;i<line;i++) {
             start+=(pblines[i]?.length||0)+ (i>0?3:0); //\n and "^lb".length after first line
         }
-        const pbchoff=this.skipFolioChar( pblines[line],ch); //與 pblinestart 的距離
+        const pbchoff=this.skipFolioChar( pbstr.slice(start-pbstart),ch); //與 pblinestart 的距離
         start+=pbchoff;
         let ckat=bsearchNumber(this.chunkpos, start )-1;
         const ckid=this.chunks[ckat<0?0:ckat];
@@ -175,7 +173,8 @@ export class FolioText {
         const ptkline=this.from+this.chunklinepos[ckat]+lineoff;
         const linecount=this.chunklinepos[ckat+1]-this.chunklinepos[ckat];
         const at=bsearchNumber(this.ptk.defines.ck.linepos, ptkline+1)-1;
-        return {ckid,lineoff,choff, linetext: cklines[i]||'', ptkline, linecount, at}
+        const chunk=this.ptk.getChunk(at+1);
+        return {ckid,lineoff,choff, linetext: cklines[i]||'', ptkline, linecount, at, ck:chunk}
     }
     chunkRange(ckid){
         const at=this.chunks.indexOf(ckid);
