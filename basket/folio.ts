@@ -16,7 +16,7 @@ export const toFolioText=lines=>{
     let firstline=lines[0];
     let m=firstline.match(/(\^pb\d+)/);
     if (!m) { //lines[0]=firstline.slice( m?.index +m[1].length);
-        console.log("missing pb markup at first line",firstline);
+        //console.log("missing pb markup at first line",firstline);
     }
     const text=tidyFolioText(lines.join('\t'))
     //.replace(/\^folio#[a-z\d]+【([^】]+?)】/g,'')// 只作為 foliolist 的名字，查字典內文用不到
@@ -126,18 +126,17 @@ export class FolioText {
                 i++
             }
         }
+        let taglens=0;
         linetext.replace(OFFTAG_REGEX_G,(m4, rawName, rawAttrs, offset)=>{
             textsnip=linetext.slice(prev,offset);
             consumeChar();
             if (ch<=0) return;
             prev=offset+m4.length;
+            taglens+=m4.length;
         })
-        // if (ch>0) {
-            textsnip=linetext.slice(prev);
-            consumeChar();    
-        // }
-
-        return textlen+prev;
+        textsnip=linetext.slice(prev);
+        consumeChar();    
+        return textlen+taglens;
     }
     fromFolioPos(foliopos,line=0,ch=0) {
         let pbid=foliopos;
