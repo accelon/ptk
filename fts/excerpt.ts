@@ -1,11 +1,11 @@
 import {plTrim,plContain} from '../fts/posting.ts';
 import {MAXPHRASELEN} from '../fts/constants.ts';
 import {fromObj,bsearchNumber} from '../utils/index.ts';
-export const listExcerpts=async (ptk,tofind,section='')=>{
+export const listExcerpts=async (ptk,tofind,range)=>{
     const tlp=ptk.inverted.tokenlinepos;
     let sectionfrom=0,sectionto=0;
-    if (section) {
-        const [first,last]=ptk.rangeOfAddress(section);
+    if (range) {
+        const [first,last]=ptk.rangeOfAddress(range);
         sectionfrom=tlp[first];
         sectionto=tlp[last];
     } else {

@@ -153,7 +153,7 @@ export class FolioText {
         }
         const pbchoff=this.skipFolioChar( pbstr.slice(start-pbstart),ch); //與 pblinestart 的距離
         start+=pbchoff;
-        let ckat=bsearchNumber(this.chunkpos, start )-1;
+        let ckat=bsearchNumber(this.chunkpos, start+1 )-1;
         const ckid=this.chunks[ckat<0?0:ckat];
         const  [ckstart,ckend]=this.chunkRange(ckid);
         const str=this.offtext.slice(ckstart,ckend);
