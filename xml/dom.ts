@@ -36,7 +36,13 @@ export const DOMFromString=(str)=>{
 export const walkDOM=(el,ctx,onOpen={},onClose={},onText=null)=>{
     onText=onText||ctx.onText;
     ctx.out=ctx.out||'';
-    if (typeof el==='string') ctx.out+=onText?onText(el,ctx):el;
+    if (typeof el==='string') {
+        ctx.out+=onText?onText(el,ctx):el;
+    }
+    if (!el) {
+        console.log('empty tag')
+        return;
+    }
     const openhandler= onOpen[el.name] || onOpen["*"];
     if (openhandler) {
         const out2 = openhandler(el,ctx)||'';
