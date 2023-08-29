@@ -77,7 +77,6 @@ export class Typedef implements ITypedef {
 	validateFields(tag,line,onError){
 		let touched=false,newtag;
 		this.count++;
-		
 		// for (let aname in tag.attrs) {
 		for (let aname in this.attrs){
 			const V=this.fields[aname];
@@ -85,13 +84,16 @@ export class Typedef implements ITypedef {
 			if (V&&!V.foreign) V.values.push(tag.attrs[aname]);
 
 			let [err,newvalue,refline]= (V&&V.validate( tag.attrs[aname], line)) ||[0,value,-1];
+
 			if (err) {
 				onError(err, newvalue , refline);
-			} else if (newvalue!=value) { //type cast here  
+			} else { // if (newvalue!=value) { //type cast here  
+				
 				if (!touched) {
 					newtag=Object.assign({},tag);
 					newtag.attrs=Object.assign({},tag.attrs);
 				}
+
 				if (Array.isArray(newvalue)) newvalue=newvalue.join(',');
 				newtag.attrs[aname]=newvalue;
 				touched=true;

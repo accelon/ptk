@@ -199,9 +199,13 @@ export class FolioText {
             folio='';
             bk=bkfolio;
         }
+        let from,to;
         const addr=(bk?("bk#"+bk):'')+ (folio?'.':'')+(folio?('folio#'+folio):'');//+(pb?".pb#"+pb:'');
-        const [from,to]=ptk.rangeOfAddress( addr);
-        if (from==to) return ['',from,to];
+        [from,to]=ptk.rangeOfAddress( addr);
+        if (from==to) {
+            return ['',from,to];
+        }
+
         await ptk.loadLines([from,to])
         
         this.folio=folio;

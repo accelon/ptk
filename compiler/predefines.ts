@@ -33,10 +33,10 @@ cbeta:
 ^:mc
 ^:l`,
 cs:
-`^:ak<id=unique bracket=false reset=ck>
-^:bk<id=unique heading=text bracket=false reset=n>
-^:ck<id=unique heading=text bracket=false>
-^:n
+`^:ak<id=unique bracket=false>
+^:bk<id=unique heading=text bracket=false>
+^:ck<id=unique heading=text bracket=false resetby=ak>
+^:n<id=unique resetby=bk>
 ^:h
 ^:sz
 ^:https<bracket=false onclick=gourl>
