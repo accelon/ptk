@@ -35,10 +35,12 @@ cbeta:
 cs:
 `^:ak<id=unique bracket=false>
 ^:bk<id=unique heading=text bracket=false>
-^:ck<id=unique heading=text bracket=false resetby=ak>
+^:ck<id=unique heading=text bracket=false>
 ^:n<id=unique resetby=bk>
 ^:h
 ^:sz
+^:ckan
+^:cksn
 ^:https<bracket=false onclick=gourl>
 `,
 zidian:

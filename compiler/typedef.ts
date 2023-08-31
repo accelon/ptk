@@ -119,6 +119,7 @@ export class Typedef implements ITypedef {
 			}
 		}
 		this.resetChildTag();
+		
 		const newtag=this.validateFields(tag,line,onError);
 		return newtag;
 	}
