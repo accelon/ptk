@@ -11,9 +11,10 @@ export const downloadToCache=async(cachename,url,cb)=>{
     const cache=await caches.open(cachename);
     const cached=await cache.match(url);
 
-    if (!navigator.onLine) {
-        return cached || cache.match('/offline.html');;
-    }
+    // if (!navigator.onLine) {
+    //     return cached || cache.match('/offline.html');;
+    // }
+    
     //once download , zip and mp3 need to manually delete
     if (cached && cached.statusText=='OK' && (url.endsWith(".zip" || url.endsWith(".mp3")))) {
         return cached;

@@ -41,6 +41,16 @@ export const sameAddress=(addr1,addr2)=>{
 	return addr1.action==addr2.action && addr1.ptkname ==addr2.ptkname;
 }
 export const makeAddress=(ptkname='',action='',from=0,till=0,lineoff=0,choff=0)=>{
+	if (typeof(ptkname)=='object'){
+		const obj=ptkname;
+		ptkname=obj.ptkname;
+		action=obj.action||'';
+		from=obj.from||0;
+		till=obj.till||0;
+		lineoff=obj.highlightline||obj.lineoff||0;
+		choff=obj.choff||0;
+
+	}
 	let linechoff='';
 	if (choff>0) {
 		linechoff=lineoff+'-'+choff;
@@ -49,6 +59,7 @@ export const makeAddress=(ptkname='',action='',from=0,till=0,lineoff=0,choff=0)=
 	}
 	return (ptkname?ptkname+':':'')+action+(from?'>'+from:'')+(till?'<'+till:'')+(linechoff?':'+linechoff:'');
 }
+
 export const parseAddress=(address:string):IAddress=>{
 	let m0,ptkname='',action='', from='' ,till='', linechoff='' ; //left bound and right bound
 	let m=address.match(PTK_ACTION_FROMTILL);
@@ -174,4 +185,21 @@ export function makeChunkAddress(ck,lineoff=-1):string{
 	return 'bk'+((parseInt(ck.bk?.id).toString()==ck.bk?.id)?'':'#')+ck.bk?.id
 	 +'.ck'+(!isNaN(parseInt(ck.id))?'':'#')+ck.id
 	 + scrollto;
+}
+
+export function tagAtAction(action:string):Array{
+	const [start,end]=this.rangeOfAddress(action);
+	const arr=parseAction(action);
+	const out=[];
+	let parentlinepos=0;
+	for (let i=0;i<arr.length;i++) {
+		const [tagname,id]=arr[i];
+		const taglinepos=this.defines[tagname].linepos;
+		const tagidarr=this.defines[tagname].fields.id.values;
+		const searchfrom=bsearchNumber(taglinepos,parentlinepos);
+		const at=tagidarr.indexOf(id, searchfrom);
+		out.push({tagname,at,rel:at-searchfrom});
+		parentlinepos=taglinepos[at];
+	}
+	return out;
 }

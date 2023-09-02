@@ -7,7 +7,7 @@ const BookPrefix={
     sn:"sn1,sn2,sn3,sn4,sn5",//match subfolder 
     an:"an1,an2,an3,an4,an5,an6,an7,an8,an9,an10,an11",
     ab:"ds,dt,kv,pt,pp,vb,ya",
-    kn:"dhp,iti,ud,thag,thig"
+    kn:"kp,snp,dhp,iti,ud,vv"
 }
 const AB='abhidhamma',VIN='vinaya';
 export const booksOf=id=>{ //id can be separated by "," , or a book prefix

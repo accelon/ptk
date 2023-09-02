@@ -26,6 +26,8 @@ const buildReverse=()=>{
             else if (nseg>=45&&nseg<=56) bk='sn5';
         } else if (pf==='a') {
             bk='an'+seg;
+        } else if (pf==='k') {
+            bk='kn'+seg;
         }
         if (!bk) throw "error chunk "+c
         if (!BKPN_C[bk]) BKPN_C[bk]={};

@@ -1,7 +1,7 @@
 import {ILineBase,LineBase,Column} from '../linebase/index.ts';
 import {Compiler,sourceType} from '../compiler/index.ts'
 import {unpackIntDelta,bsearchNumber} from '../utils/index.ts';
-import {rangeOfElementId,rangeOfAddress,innertext,fetchAddress} from './address.ts';
+import {rangeOfElementId,tagAtAction,rangeOfAddress,innertext,fetchAddress} from './address.ts';
 import {columnField,inlineNote,rowOf,scanColumnFields,searchColumnField} from './columns.ts';
 import {Inverted,plContain} from '../fts/index.ts';
 import {TableOfContent,buildTocTag} from '../compiler/toc.ts';
@@ -30,6 +30,7 @@ export class Pitaka extends LineBase {
 		this.columns={};
 		this.tocs={};
 		this.rangeOfAddress=rangeOfAddress;
+		this.tagAtAction=tagAtAction; //return tag and relative/absolute at
 		this.innertext=innertext;
 		this.scanColumnFields=scanColumnFields;
 		
