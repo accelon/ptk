@@ -6,6 +6,7 @@ export const updateUrl=(address)=>{
 export const addressFromUrl=()=>{
     let hash=window.location.hash;
     if (hash[0]=='#') hash=hash.slice(1);
-    const address=decodeURI(hash);
-    return address; 
+    let  address=decodeURI(hash);
+    if (!~address.indexOf('ck')) address='';//invalid adress
+    return address||'ak#dn1.ck#d1.n1'; 
 }

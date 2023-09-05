@@ -197,8 +197,11 @@ export function tagAtAction(action:string):Array{
 		const taglinepos=this.defines[tagname].linepos;
 		const tagidarr=this.defines[tagname].fields.id.values;
 		const searchfrom=bsearchNumber(taglinepos,parentlinepos);
-		const at=tagidarr.indexOf(id, searchfrom);
-		out.push({tagname,at,rel:at-searchfrom});
+		let at=tagidarr.indexOf(id, searchfrom);
+		let rel=at-searchfrom;
+		if (at<0) at=0;
+		if (rel<0) rel=0;
+		out.push({tagname,at,rel});
 		parentlinepos=taglinepos[at];
 	}
 	return out;
