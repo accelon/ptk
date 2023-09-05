@@ -8,5 +8,5 @@ export const addressFromUrl=()=>{
     if (hash[0]=='#') hash=hash.slice(1);
     let  address=decodeURI(hash);
     if (!~address.indexOf('ck')) address='';//invalid adress
-    return address||'ak#dn1.ck#d1.n1'; 
+    return address; 
 }

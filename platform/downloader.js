@@ -1,6 +1,18 @@
 // Step 1: start the fetch and obtain a reader
+export const isLatest=async(url,cachename)=>{
+    const cachefn=url.replace(/\?.+/,'');
+    const fetchurl=cachefn+'?'+(new Date()).toISOString();
+    const ContentType=~fetchurl.indexOf('.mp3')?"audio/mpeg":"application/octet-stream";
+    const headresponse = await fetch(fetchurl,{method:"HEAD", mode:"no-cors",redirect:"follow", credentials: "omit", origin,headers:{Accept:ContentType}});
+    const cache=await caches.open(cachename);
+    const cached=await cache.match(cachefn)
+    const contentlength=headresponse.headers.get('Content-Length');
+    const isLatest=(cached && contentlength == cached.headers.get('Content-Length'));
+
+    return isLatest;
+}
 export const downloadToCache=async(cachename,url,cb)=>{
-    const cachefn=url;
+    const cachefn=url.replace(/\?.+/,'');//remove tailing timestamp
     // if (location.host!=='nissaya.cn' 
     // && location.host.indexOf('localhost')==-1 
     // && location.host.indexOf('127.0.0.1')==-1) url="https://nissaya.cn/"+url.replace(/^\//,'');
@@ -9,20 +21,20 @@ export const downloadToCache=async(cachename,url,cb)=>{
     const origin="https://nissaya.cn";
 
     const cache=await caches.open(cachename);
-    const cached=await cache.match(url);
+    const cached=await cache.match(cachefn);
 
     // if (!navigator.onLine) {
     //     return cached || cache.match('/offline.html');;
     // }
     
     //once download , zip and mp3 need to manually delete
-    if (cached && cached.statusText=='OK' && (url.endsWith(".zip" || url.endsWith(".mp3")))) {
+    if (cached && cached.statusText=='OK' && (url.endsWith(".zip") || url.endsWith(".mp3")||url.endsWith(".ptk"))) {
         return cached;
     }
     //HEAD is slow occasionally, clear it manually if want to update
-
     let headresponse = await fetch(url,{method:"HEAD", mode:"no-cors",redirect:"follow", credentials: "omit", origin,headers:{Accept:ContentType}});
-    if (cached && headresponse.headers.get('Content-Length') == cached.headers.get('Content-Length')) {
+    const lastmodified=headresponse.headers.get('Content-Length');
+    if (cached && lastmodified == cached.headers.get('Content-Length')) {
         // console.log('use cached')
         return cached;
     }
