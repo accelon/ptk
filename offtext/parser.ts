@@ -227,12 +227,13 @@ export const tokenizeOfftext=(str:string)=>{
     let tkoff=0;
     const addSnippet=snippet=>{ //不含offtag 的文字段
         if (!snippet) return;
-        const snippetstoken=tokenize(snippet)||[];
-        out=out.concat(snippetstoken);
-        if (snippetstoken.length) {
+        const tokens=tokenize(snippet)||[];
+        out=out.concat(tokens);
+        if (tokens.length) {
             const tkcount=out[out.length-1].tkoff //此snippet 有多少個token?
-            + (out[out.length-1].type>TokenType.SEARCHABLE?1:0) ; 
-            snippetstoken.forEach(it=>{ //位移snippet之前的choff和tkoff
+            + (out[out.length-1].type>=TokenType.SEARCHABLE?1:0) ; 
+            //如果最後一個token 是SEARCHABLE ，則 tkcount要加一
+            tokens.forEach(it=>{ //位移snippet之前的choff和tkoff
                 it.choff+=choff;
                 it.tkoff+=tkoff;
             });

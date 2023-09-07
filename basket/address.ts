@@ -1,5 +1,5 @@
 import {ILineRange} from '../linebase/index.ts';
-import {bsearchNumber} from '../utils/index.ts';
+import {bsearchNumber,unpackInt} from '../utils/index.ts';
 import {ACTIONPAGESIZE} from "../lineview/interfaces.ts";
 import {PTK_ACTION_FROMTILL,PTK_FROMTILL,FROMTILL} from '../offtext/index.ts'
 export const BRANCH_SEP = '.';
@@ -150,12 +150,33 @@ export function rangeOfAddress(address:string|IAddress):ILineRange{
 	}
 }
 
-export async function fetchAddress(eleid):Arrary<String>{
-	const r=rangeOfAddress.call(this,eleid);
+export async function fetchAddress(address):Arrary<String>{
+	const r=rangeOfAddress.call(this,address);
 	if (!r|| r[0]==r[1]) return []
 	await this.loadLines([r]);
 	const lines=this.slice(r[0],r[1]);
 	return lines;
+}
+//for grammar code
+export async function fetchAddressExtra(address,ext='num'){
+	const r=rangeOfAddress.call(this,address);
+	if (!r|| r[0]==r[1]) return []
+	const sectionname=this.getSectionName(r[0]);
+	const parsectionname=sectionname.replace('off',ext);
+
+	const start=this.getSectionStart(sectionname);
+	const parstart=this.getSectionStart(parsectionname);
+	if (~parstart) {
+		const r0=r[0]-start + parstart;
+		const r1=r[1]-start + parstart;
+		await this.loadLines([r0,r1]);
+		let lines=this.slice(r0,r1);
+		if (ext=='num') {
+			lines=lines.map( it=>unpackInt(it));
+		}
+		return lines;
+	}
+	return [];
 }
 //only display the first level
 export function innertext(address:string):string{

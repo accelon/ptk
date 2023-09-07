@@ -28,6 +28,10 @@ export class Indexer {
 		this.wordcount =0;
 	}
 	addLine(line:string) {
+		if (!line) {
+			this.tokenlist.push(0);
+			return;
+		}
 		const tokens=tokenize(line);
 		for (let j=0;j<tokens.length;j++) {
 			const {text,type} = tokens[j];

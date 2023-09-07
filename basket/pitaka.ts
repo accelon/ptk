@@ -1,7 +1,7 @@
 import {ILineBase,LineBase,Column} from '../linebase/index.ts';
 import {Compiler,sourceType} from '../compiler/index.ts'
 import {unpackIntDelta,bsearchNumber} from '../utils/index.ts';
-import {rangeOfElementId,tagAtAction,rangeOfAddress,innertext,fetchAddress} from './address.ts';
+import {rangeOfElementId,tagAtAction,rangeOfAddress,innertext,fetchAddress,fetchAddressExtra} from './address.ts';
 import {columnField,inlineNote,rowOf,scanColumnFields,searchColumnField} from './columns.ts';
 import {Inverted,plContain} from '../fts/index.ts';
 import {TableOfContent,buildTocTag} from '../compiler/toc.ts';
@@ -62,8 +62,8 @@ export class Pitaka extends LineBase {
 		this.nearestChunk=nearestChunk;
 		this.getChunk=getChunk;
 		this.neighborChunks=neighborChunks;
-		
 		this.fetchAddress=fetchAddress;
+		this.fetchAddressExtra=fetchAddressExtra;
 	}
 	async init(){
 		if (!this.payload) return;
@@ -233,22 +233,16 @@ not suitable for dictionary wordheads
 
 		return short?n.slice(0,at):n.slice(at+1);
 	}
-
 	getSectionStart(name){
 		const at=this.header.sectionnames.indexOf(name);
 		if (~at) {
-			return this.header.sectionstarts[at]||-1;
+			return this.header.sectionstarts[at];
 		}
 		return -1
 	}
-	async fetchAddress(address:string) {
-		const range=this.rangeOfAddress.call(this,address);
-		await this.loadLines([range]);
-		const out=[];
-		for (let i=range[0];i<range[1];i++){
-			out.push(this.getLine(i))
-		}
-		return out;
+	getSectionName(line){
+		const at=bsearchNumber(this.header.sectionstarts, line+1)-1;
+		return this.header.sectionnames[at];
 	}
 	async fetchTag(ele:string,id:string) {
 		const range=rangeOfElementId.call(this,[[ele,id]]);

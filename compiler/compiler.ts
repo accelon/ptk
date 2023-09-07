@@ -7,6 +7,7 @@ import {StringArray} from '../utils/stringarray.ts'
 import {Typedef} from './typedef.ts'
 import {VError,MAX_VERROR} from './error.ts'
 import {predefines} from './predefines.ts'
+import { packInt } from '../utils/packintarray.js';
 
 export const sourceType=(firstline:string,filename:string):SourceType=>{	
 	const at=firstline.indexOf('\n');
@@ -14,7 +15,7 @@ export const sourceType=(firstline:string,filename:string):SourceType=>{
 	const [text,tags]=parseOfftext(firstline);
 	let lazy=true ,sourcetype, name,caption;
 	let consumed=false;
-	sourcetype=filename?.endsWith('.tsv') ?SourceType.TSV:SourceType.Offtext;
+	sourcetype=filename?.endsWith('.tsv') ?SourceType.TSV:  (filename?.endsWith('.off')?SourceType.Offtext:SourceType.Unknown);
 	
 	if (tags.length && tags[0].name==':') { //directive
 		const attrs=tags[0].attrs;
@@ -72,7 +73,6 @@ export class Compiler implements ICompiler {
 		const at=str.indexOf('^');
 		if (at==-1) return str;
 		const ot=new Offtext(str);
-		let updated=false ;
 		for (let i=0;i<ot.tags.length;i++) {
 			const tag=ot.tags[i];
 			if (tag.name[0]==':' && tag.name.length>1) {
@@ -96,7 +96,6 @@ export class Compiler implements ICompiler {
 						const newtag=typedef.validateTag(ot,tag , this.line,this.compiledLine,this.onError.bind(this));
 						if (newtag) {
 							str=updateOfftext(str,tag,newtag);
-							updated=true;
 						}
 					}
 				}
@@ -132,7 +131,9 @@ export class Compiler implements ICompiler {
 				}
 			} 
 			//do not set predefine for tsv
-			if (tag.attrs.type==='txt'||filename=='0.off') this.setPredefine(tag.attrs.define||tag.attrs.template);
+			if (tag.attrs.type==='txt'||filename=='0.off') {
+				this.setPredefine(tag.attrs.define||tag.attrs.template);
+			}
 			attributes=tag.attrs;
 		}
 
@@ -145,7 +146,6 @@ export class Compiler implements ICompiler {
 			const typedef=text.split('\t') ; // typdef of each field , except field 0
 			const columns=new Column( {typedef, primarykeys:this.primarykeys ,onError:this.onError.bind(this) } );
 			const [serialized,_textstart]=columns.fromStringArray(sa,attrs,1) ; //build from TSV, start from line 1
-
 			textstart=_textstart;
 			if (serialized) {
 				compiledname = attrs.name || filename;  //use filename if name is not specified
@@ -159,11 +159,11 @@ export class Compiler implements ICompiler {
 			} else {
 				processed=[];
 			}
-		} else {
+		} else if (sourcetype===SourceType.Offtext) {
 			const out=[];
 			let linetext=sa.first();
 			if (consumed) linetext=sa.next();
-			this.line=0;
+			this.line=0; //for debugging showing line from begining of offtext file
 			while (linetext || linetext==='') {
 				const o=this.compileOfftext(linetext, tagdefs);
 				if (o || o=='') {
@@ -175,6 +175,22 @@ export class Compiler implements ICompiler {
 			}
 			this.compiledLine += out.length;
 			processed=out;
+		} else { // unknown type
+			if (compiledname.endsWith('.num')) {
+				let linetext=sa.first();
+				const out=[];
+				while (linetext || linetext==='') {
+					const o= packInt(linetext.split(',').map(it=>parseInt(it||'0')));
+					out.push(o);
+					linetext=sa.next();
+					if (this.stopcompile) break;
+				}
+				this.compiledLine += out.length;
+				textstart=out.length; //do not index it
+				processed=out;	
+			} else {
+				throw "unknown extension "+compiledname;
+			}
 		}
 		this.compiledFiles[filename]={name:compiledname,caption,lazy,sourcetype,processed,textstart,
 			errors:this.errors,samepage,tagdefs, attributes};
