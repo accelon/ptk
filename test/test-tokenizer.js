@@ -11,7 +11,7 @@ const testdata=[
 ['一^aa<aa>^bb<xx>',3],
 ['1 ^aa<aa>22^bb<xx>333 444',6],
 ['^^aa',2],
-['^aa^',2],
+['^aa^',2]
 ]
 let tests=0,passes=0;
 for (let i=0;i<testdata.length;i++) {

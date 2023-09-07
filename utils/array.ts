@@ -85,3 +85,17 @@ export const indexOfs=(arr,tofind)=>{
     }
     return out;
 }
+
+export const groupNumArray=(arr,int)=>{
+    let items=[];
+    const out=[items];
+    for (let i=0;i<arr.length;i++) {
+        if (arr[i]==int) {
+            items=[];
+            out.push(items)
+        } else {
+            items.push(arr[i]);
+        }
+    }
+    return out;
+}

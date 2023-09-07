@@ -243,7 +243,7 @@ export const tokenizeOfftext=(str:string)=>{
     str.replace(OFFTAG_REGEX_TOKENIZE, (m,rawName,rawAttrs,offset)=>{
         const prevtext=str.slice(choff,offset);
         addSnippet(prevtext); //到上一個offtag 之間的文字
-        const thetag=str.slice(offset,m.length);
+        const thetag=str.slice(offset,offset+m.length);
         //將tag及attributes原封不動作為一個token，之後有需要再parse它
         out.push(new Token( thetag , offset, tkoff, TokenType.OFFTAG));
         choff=offset+m.length;//文字開始之後 , offtext/parser.ts::parseOfftext , 附屬於tag 的文字，視為正常字
