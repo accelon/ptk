@@ -3,6 +3,7 @@ import {OFFTAG_REGEX_G, OFFTAG_NAME_ATTR,ALWAYS_EMPTY,OFFTAG_COMPACT_ID,
     OFFTAG_LEADBYTE} from './constants.ts';
 import {IOfftag} from './interfaces.ts';
 import {closeBracketOf,substrUTF32} from '../utils/index.ts'
+import {Token, TokenType, tokenize} from '../fts/tokenize'
 
 const parseCompactAttr=(str:string)=>{  //              序號和長度和標記名 簡寫情形，未來可能有 @ 
     const out={}, arr=str.split(/([@#~])/);
@@ -220,3 +221,36 @@ export const packOfftagAttrs=(attrs,opts={})=>{
     return out.trim();
 }
 
+
+
+export const tokenizeOfftext=(str:string)=>{
+    const [text,tags]=parseOfftext(str);
+    let out=[],choff=0;
+    let tkoff=0;
+
+    const addPuretextToken=text=>{
+        if (!text) return;
+        const subtoken=tokenize(text)||[];
+        out=out.concat(subtoken);
+        if (subtoken.length) {
+            const tkcount=out[out.length-1].tkoff + (out[out.length-1].type>TokenType.SEARCHABLE?1:0) ; //此prevtext 有多少個token?
+            subtoken.forEach(it=>{ //加上 prevtext之前的choff和tkoff
+                it.choff+=choff;
+                it.tkoff+=tkoff;
+            });
+            tkoff+=tkcount;
+        }    
+    }
+    for (let i=0;i<tags.length;i++) {
+        const tag=tags[i]
+        const prevtext=str.slice(choff,tag.offset);
+        prevtext&&addPuretextToken(prevtext)
+       
+        const thetag=str.slice(tag.offset,tag.start)
+        out.push(new Token( thetag , tag.offset, tkoff, TokenType.OFFTAG));
+        choff=tag.start;//文字開始之後 , offtext/parser.ts::parseOfftext , 附屬於tag 的文字，視為正常字
+        //OFFTAG不計入token
+    }
+    addPuretextToken(str.slice(choff));
+    return out;
+}

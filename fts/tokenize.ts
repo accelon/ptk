@@ -1,5 +1,6 @@
 export enum TokenType { 
     UNSEARCHABLE=0x1,
+    OFFTAG=0x3,
     SEARCHABLE=0x10,
     ROMANIZE=0x20,
     CJK=0x30,
@@ -9,8 +10,7 @@ export enum TokenType {
 
 import {Word_tailspace_Reg} from './constants'
 
-
-function Token(text:string, choff:number, tkoff:number, type:TokenType){
+export function Token(text:string, choff:number, tkoff:number, type:TokenType){
     return {text,choff,tkoff,type}
 }
 export type IToken = {text:string, choff:number, tkoff:number, type:TokenType};
@@ -60,3 +60,4 @@ export const tokenize=(text:string)=>{
     }
     return out;
 }
+
