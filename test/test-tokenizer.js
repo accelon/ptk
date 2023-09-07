@@ -16,9 +16,10 @@ const testdata=[
 let tests=0,passes=0;
 for (let i=0;i<testdata.length;i++) {
     tests++
-    if (tokenizeOfftext(testdata[i][0]).length==testdata[i][1])passes++;
+    const tokenized=tokenizeOfftext(testdata[i][0]);
+    if (tokenized.length==testdata[i][1])passes++;
     else {
-        console.log('fail',testdata[i])
+        console.log('fail',testdata[i], tokenized)
     }
 }
 

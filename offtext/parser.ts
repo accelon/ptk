@@ -1,4 +1,4 @@
-import {OFFTAG_REGEX_G, OFFTAG_NAME_ATTR,ALWAYS_EMPTY,OFFTAG_COMPACT_ID,
+import {OFFTAG_REGEX_G, OFFTAG_REGEX_TOKENIZE,OFFTAG_NAME_ATTR,ALWAYS_EMPTY,OFFTAG_COMPACT_ID,
     QUOTEPAT,QUOTEPREFIX,QSTRING_REGEX_G,QSTRING_REGEX_GQUOTEPAT,
     OFFTAG_LEADBYTE} from './constants.ts';
 import {IOfftag} from './interfaces.ts';
@@ -220,37 +220,34 @@ export const packOfftagAttrs=(attrs,opts={})=>{
     }
     return out.trim();
 }
-
-
-
+//將offtext剖為處理單元, 可直接送給indexer或繪製處理，offtag不searchable，故不會增加 tkoff
+//Token 的text全部接起來，會是輸入的str ，一個byte 不差
 export const tokenizeOfftext=(str:string)=>{
-    const [text,tags]=parseOfftext(str);
     let out=[],choff=0;
     let tkoff=0;
-
-    const addPuretextToken=text=>{
-        if (!text) return;
-        const subtoken=tokenize(text)||[];
-        out=out.concat(subtoken);
-        if (subtoken.length) {
-            const tkcount=out[out.length-1].tkoff + (out[out.length-1].type>TokenType.SEARCHABLE?1:0) ; //此prevtext 有多少個token?
-            subtoken.forEach(it=>{ //加上 prevtext之前的choff和tkoff
+    const addSnippet=snippet=>{ //不含offtag 的文字段
+        if (!snippet) return;
+        const snippetstoken=tokenize(snippet)||[];
+        out=out.concat(snippetstoken);
+        if (snippetstoken.length) {
+            const tkcount=out[out.length-1].tkoff //此snippet 有多少個token?
+            + (out[out.length-1].type>TokenType.SEARCHABLE?1:0) ; 
+            snippetstoken.forEach(it=>{ //位移snippet之前的choff和tkoff
                 it.choff+=choff;
                 it.tkoff+=tkoff;
             });
             tkoff+=tkcount;
         }    
     }
-    for (let i=0;i<tags.length;i++) {
-        const tag=tags[i]
-        const prevtext=str.slice(choff,tag.offset);
-        prevtext&&addPuretextToken(prevtext)
-       
-        const thetag=str.slice(tag.offset,tag.start)
-        out.push(new Token( thetag , tag.offset, tkoff, TokenType.OFFTAG));
-        choff=tag.start;//文字開始之後 , offtext/parser.ts::parseOfftext , 附屬於tag 的文字，視為正常字
-        //OFFTAG不計入token
-    }
-    addPuretextToken(str.slice(choff));
+    str.replace(OFFTAG_REGEX_TOKENIZE, (m,rawName,rawAttrs,offset)=>{
+        const prevtext=str.slice(choff,offset);
+        addSnippet(prevtext); //到上一個offtag 之間的文字
+        const thetag=str.slice(offset,m.length);
+        //將tag及attributes原封不動作為一個token，之後有需要再parse它
+        out.push(new Token( thetag , offset, tkoff, TokenType.OFFTAG));
+        choff=offset+m.length;//文字開始之後 , offtext/parser.ts::parseOfftext , 附屬於tag 的文字，視為正常字
+    })
+    addSnippet(str.slice(choff)); //最後一段文字
+
     return out;
 }
