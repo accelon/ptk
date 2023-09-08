@@ -41,11 +41,11 @@ const build=opts=>{
             opts.ptkname=Path.basename(process.cwd()).replace(/\..+$/,'');    
             opts.indir='off/'
             const listfilename=opts.ptkname+'.lst';
-            files=fs.existsSync(listfilename)?PTK.readTextLines(listfilename):fs.readdirSync(opts.indir).filter(isSourceFile);
+            files=fs.existsSync(listfilename)?PTK.readTextLines(listfilename):fs.readdirSync(opts.indir);
         } else {
             opts.ptkname=Path.basename(process.cwd()).replace(/\..+$/,'');    
             const listfilename=opts.ptkname+'.lst';
-            files=fs.existsSync(listfilename)?PTK.readTextLines(listfilename):fs.readdirSync('.').filter(isSourceFile);
+            files=fs.existsSync(listfilename)?PTK.readTextLines(listfilename):fs.readdirSync('.')
             opts.outdir='../';
             
         }
@@ -53,12 +53,13 @@ const build=opts=>{
         opts.ptkname=ptkname;
         opts.indir=ptkname+'.offtext/'
         const listfilename=ptkname+'.lst';  //readdir if listfile is missing
-        files=fs.existsSync(opts.indir+listfilename)?PTK.readTextLines(opts.indir+listfilename):fs.readdirSync(opts.indir).filter(isSourceFile);
+        files=fs.existsSync(opts.indir+listfilename)?PTK.readTextLines(opts.indir+listfilename):fs.readdirSync(opts.indir);
         if (!files.length) {
             opts.indir=ptkname+'.src/'
             files=fs.readdirSync(opts.indir).filter(isSourceFile);
         }
     }
+    files=files.filter(isSourceFile);
     if (fs.existsSync(opts.indir+'accelon22.css')) {
         files.push('accelon22.css')
     }
