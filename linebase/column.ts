@@ -193,7 +193,7 @@ export class Column {
 	}
 	findKey(key:string){
 		if (this.keys) {
-			return this.keys.find(key);
+			return this.keys.find(key.toString());
 		} else {
 			return parseInt(key)-1;
 		}
@@ -207,6 +207,19 @@ export class Column {
 				out[this.fieldnames[i]]=this.fieldvalues[i][at];
 			}
 			return out;
+		} else return null;
+	}
+	fieldByKey(key:string,fieldname:'') {
+		const at=this.findKey(key);
+		if (!key) return null;
+		if(~at) {
+			const out={key};
+			const at2=this.fieldnames.indexOf(fieldname);
+			if (~at2) {
+				return this.fieldvalues[at2][at];
+			} else { //return second field
+				return this.fieldvalues[1][at];
+			}
 		} else return null;
 	}
 	getKey(i:number) {
