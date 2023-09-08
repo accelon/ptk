@@ -30,7 +30,7 @@ export const getModulePath=name=>{
     return Path.resolve(dir ,"..")+Path.sep+name;
 }
 const isSourceFile=fn=>{
-    return fn.endsWith('.off')||fn.endsWith('.tsv')
+    return fn.endsWith('.off')||fn.endsWith('.tsv')||fn.endsWith('.num')
 }
 const build=opts=>{
     let files;
