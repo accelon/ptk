@@ -4,6 +4,7 @@ import {bsearchNumber,splitUTF32Char,CJKRangeName ,styledNumber,toVerticalPunc} 
 import {parseOfftext ,OFFTAG_REGEX_G} from '../offtext/index.ts';
 import { parseAddress } from './address.js';
 
+
 export const MAXFOLIOLINE=8, MAXFOLIOCHAR=32;
 export const VALIDPUNCS="「」『』。，；：、！？"
 
@@ -25,8 +26,33 @@ export const toFolioText=lines=>{
     // if (remain) text.push(remain);
     return text;
 }
+export const countFolioChar=linetext=>{
+    let prev=0,textlen=0,textsnip='',count=0;
+    const consumeChar=()=>{
+        if (prev&&textsnip[0]=='【') {//bracket follow a taginvisible to folio
+            textsnip=textsnip.replace(/【([^】]*)】/,(m,m1)=>'【'+'-'.repeat(m1.length)+'】');
+        }
+        const chars=splitUTF32Char(textsnip);
+        let i=0;
+        while (i<chars.length) { 
+            const r=CJKRangeName(chars[i]);
+            if (r || chars[i]=='　') {
+                count++;
+            }
+            i++
+        }
+    }        
+    linetext.replace(OFFTAG_REGEX_G,(m4, rawName, rawAttrs, offset)=>{
+        textsnip=linetext.slice(prev,offset);
+        consumeChar();
+        prev=offset+m4.length;
+    })
+    textsnip=linetext.slice(prev);
+    consumeChar();
+    return count;
+}
 export const folioPosFromAddress=async (ptk,address)=>{
-    const {choff,lineoff,action}=parseAddress(address);
+    const {choff,_lineoff,action}=parseAddress(address);
 
     const [start]=ptk.rangeOfAddress(action);
     const folio=ptk.defines.folio;
@@ -35,12 +61,12 @@ export const folioPosFromAddress=async (ptk,address)=>{
 
     const id=folio.fields.id.values[folioat];
     if (!id) return {};
-       
+    
     const ck=ptk.defines.ck.fields.id.values[ckat];
     const ft=new FolioText(ptk);
     await ft.load(id);
+    let lineoff=start-ptk.defines.ck.linepos[ckat];
     const [pb,line,ch]=ft.toFolioPos(ck ,lineoff,choff);
-    // console.log(pb,line,ch,lineoff,choff)
     return {id,pb,line,ch};
 }
 export class FolioText {
@@ -84,29 +110,7 @@ export class FolioText {
         return toFolioText(this.offtext.slice(start,end).split('\n'));
     }
     countFolioChar(linetext) {
-        let prev=0,textlen=0,textsnip='',count=0;
-        const consumeChar=()=>{
-            if (prev&&textsnip[0]=='【') {//bracket follow a taginvisible to folio
-                textsnip=textsnip.replace(/【([^】]*)】/,(m,m1)=>'【'+'-'.repeat(m1.length)+'】');
-            }
-            const chars=splitUTF32Char(textsnip);
-            let i=0;
-            while (i<chars.length) { 
-                const r=CJKRangeName(chars[i]);
-                if (r || chars[i]=='　') {
-                    count++;
-                }
-                i++
-            }
-        }        
-        linetext.replace(OFFTAG_REGEX_G,(m4, rawName, rawAttrs, offset)=>{
-            textsnip=linetext.slice(prev,offset);
-            consumeChar();
-            prev=offset+m4.length;
-        })
-        textsnip=linetext.slice(prev);
-        consumeChar();
-        return count;
+        return countFolioChar(linetext)
     }
     skipFolioChar(linetext,ch) { //return str.slice offset by number of folio visible char, skip all tags.
         if (!linetext) return 0;
@@ -155,6 +159,7 @@ export class FolioText {
         start+=pbchoff;
         let ckat=bsearchNumber(this.chunkpos, start+1 )-1;
         const ckid=this.chunks[ckat<0?0:ckat];
+        
         const  [ckstart,ckend]=this.chunkRange(ckid);
         const str=this.offtext.slice(ckstart,ckend);
         const cklines=str.split('\n');

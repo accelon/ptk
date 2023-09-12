@@ -10,7 +10,8 @@ export interface IAddress {
 	till:number,
 	highlightline:number,
 }
-export const parseAction=(action:string)=>{
+export const parseAction=(action:string,objform=false)=>{
+	if (!action) return [];
 	const branches=action.split(BRANCH_SEP);
 	const out=[];
 	for (let i=0;i<branches.length;i++) {
@@ -32,7 +33,16 @@ export const parseAction=(action:string)=>{
 			}
 		}
 	}
-	return out;
+	if (objform) {
+		const obj={};
+		for (let i=0;i<out.length;i++) {
+			const [tag,value]=out[i];
+			obj[tag]=value;
+		}
+		return obj;
+	} else {
+		return out;
+	}
 }
 export const sameAddress=(addr1,addr2)=>{
 	if (typeof addr1=='string') addr1=parseAddress(addr1);
