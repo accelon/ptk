@@ -42,7 +42,7 @@ export function caption(at:number){
 }
 export function nearestChunk( line:number) {
     const chunktag=this.defines.ck;
-    const at=this.nearestTag(line,chunktag)-1;
+    const at=this.nearestTag(line,chunktag);
     return this.getChunk(at);
 }
 export function getBookInfo (at:number) {
@@ -67,7 +67,7 @@ export function getChunk(at:number){
     if (at>=chunktag.fields.id.values.length) return null;
 
     const line=chunktag.linepos[at];
-    const bkat=this.nearestTag(line,booktag) - 1;
+    const bkat=this.nearestTag(line,booktag);
     const bk=getBookInfo.call(this,bkat);
     const bkid=bk.id; //legacy
     const id=chunktag.fields.id.values[at];

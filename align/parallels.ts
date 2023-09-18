@@ -5,7 +5,7 @@ export const parallelWithDiff=(ptk,line,includeself=false,local=true,remote=fals
     const out=[];
     if (!ptk) return out;
     //因為nearesttag 返回 0 表示 出現在第一個bk 之前
-    const bkat=ptk.nearestTag(line+1,'bk')-1;
+    const bkat=ptk.nearestTag(line+1,'bk');
     const bookstart=ptk.defines.bk.linepos[bkat];
     if (includeself) {
         out.push([ptk, bookstart, line]);

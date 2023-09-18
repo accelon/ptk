@@ -182,7 +182,7 @@ export class Pitaka extends LineBase {
 		const at=bsearchNumber(linepos, line+1)-1;
 		const lineoff=line-linepos[at];
 		const id=chunktag?.fields?.id?.values[at];
-		const bkat=this.nearestTag(line,booktag) - 1;
+		const bkat=this.nearestTag(line+1,booktag);
 		const bk=getBookInfo.call(this,bkat);
 		const bkid=bk?.id ;
 /* TODO
@@ -203,9 +203,10 @@ not suitable for dictionary wordheads
 		if (!tag) return -1;
 		const linepos=tag.linepos;
 		if (!linepos) return null;
-		const at=bsearchNumber(linepos,line);
-		if (!fieldname) return (line<linepos[linepos.length-1])?at :at+1;
-		else if (at>0) return tag.fields[fieldname].values[at-1];
+		const at=bsearchNumber(linepos,line)-1;
+		const adjustat=(line<linepos[linepos.length-1])?at :at+1;
+		if (!fieldname) return adjustat;
+		else return tag.fields[fieldname].values[adjustat];
 	}
 	findClosestTag(typedef, key, value, from=0){
 		let at=typedef.fields[key].values.indexOf(value);

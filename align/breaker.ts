@@ -256,8 +256,8 @@ export const removeSubPara=paralines=>{
     let joined='';
     const out=[];
     for (let i=0;i<paralines.length;i++) {
-        if (paralines[i].match(/\^n\d+/)) {
-            if (joined && joined.match(/\^n\d+/)) {
+        if (paralines[i].match(/\^n[\d\-]+/)) {
+            if (joined && joined.match(/\^n[\-\d]+/)) {
                 out.push(joined);
                 joined='';
             }
@@ -301,7 +301,9 @@ export const afterPN=str=>{
         if (str.substr(0,3)==='^n ') return str.substr(3);
         else {
             const m=str.match(/^\n[\d\-]/);
-            if (m) return str.substr(m.length);
+            if (m) {
+                return str.substr(m.length);
+            }
         }
     }
     const m=str.match(/\^n([\d\-]+ ?)/);
@@ -347,7 +349,9 @@ export const guidedBreakLines=(buf,pins,fn='')=>{
     let pn='';
     for (let i=0;i<lines.length&&i<pins.length;i++) {
         const m=lines[i].match(/\^n([\d\-]+)/);
-        if (m) pn=m[1];
+        if (m) {
+            pn=m[1];
+        }
         const id=fn.replace('.xml','')+'.'+pn;
         if (!pins[i].length) {
             throw `empty pin entry of ${id}, #${i+1}`
