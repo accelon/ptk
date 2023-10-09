@@ -1,6 +1,7 @@
 import {poolParallelPitakas} from '../basket/pool.ts';
 import {usePtk} from '../basket/index.ts';
 
+
 export const parallelWithDiff=(ptk,line,includeself=false,local=true,remote=false)=>{
     const out=[];
     if (!ptk) return out;

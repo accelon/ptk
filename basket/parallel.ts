@@ -1,5 +1,5 @@
 import {bsearchNumber} from '../utils/bsearch.ts';
-import {poolGet} from '../basket/pool.ts'
+import {poolGet,poolParallelPitakas} from '../basket/pool.ts'
 
 const bookPrefix=bookname=>{
     let prefix=bookname;
@@ -70,6 +70,24 @@ export function foreignLinksAtTag(tagname, line){
                 out.push({text:address, line, ck, basket:sptkname});
                 // console.log(at,address);
             }
+        }
+    }
+    return out;
+}
+
+
+export function enumParallelsPtk(address:string){ //list ptk having same bk and ck
+    const ptk=this;
+    const range=ptk.rangeOfAddress(address);
+    const ck=ptk.nearestChunk(range[0]+1);
+    const paralleladdress='bk#'+ck.bkid+'.ck#'+ck.id;
+    const ptks=poolParallelPitakas(ptk);
+    const out=[ptk.header.name];
+    for (let i=0;i<ptks.length;i++) {
+        const ptk2=poolGet(ptks[i]);
+        const [start,end]=ptk2.rangeOfAddress(paralleladdress);
+        if (end>0) {
+            out.push( ptks[i])
         }
     }
     return out;

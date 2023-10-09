@@ -2,6 +2,7 @@ import PTK from '../nodebundle.cjs';
 const {LineBaser,Compiler,writeChanged,humanBytes,makeInMemoryPtk} = PTK;
 //import kluer from './kluer.js'
 import * as colors from './colors.js';
+import Path from 'path';
 const {cyan,red} =colors;
 
 const filelist=files=>files.length>10?[files.length,files.slice(0,10)]:[files.length,files];
@@ -17,18 +18,19 @@ export const dobuild=async (files, opts={})=>{
 	let lbaser=new LineBaser();
 	let  css='';
 	const compiler=new Compiler();
+
 	const getFileContent=i=>{
-		let text=fs.readFileSync(indir+sources[i].name,'utf8');
+		let text=fs.readFileSync(Path.join(indir,sources[i].name),'utf8');
 		if (text.indexOf('\r')) text=text.replace(/\r?\n/g,'\n').replace(/\r/g,'\n');
 		return {text};
 	}
 	for (let i=0;i<files.length;i++) {
 		const name=files[i];
 		if (name=='accelon22.css') {
-			css=fs.readFileSync(indir+name,'utf8');
+			css=fs.readFileSync( Path.join(indir,name),'utf8');
 			continue;
 		}
-		let text=fs.readFileSync( indir+name, 'utf8');
+		let text=fs.readFileSync( Path.join(indir,name), 'utf8');
 		if (text.indexOf('\r')) text=text.replace(/\r?\n/g,'\n').replace(/\r/g,'\n');
 		if (!text.trim()) {
 			console.log('empty file',name);

@@ -84,7 +84,8 @@ const parseBuffer=(buf:string,fn='',ctx)=>{
     return content;
 }
 const tidy=content=>{
-    return content.replace(/，<caesura\/>/g,'，');
+    
+    return content.replace(/([、，；]?)<caesura[^>]*\/>/g,(m,m1)=>m1||'　');
 }
 const parseFile=async (f,ctx)=>{
     let fn=f;
@@ -255,6 +256,7 @@ export const meta_cbeta={translatePointer, parseFile,parseBuffer,onOpen,onClose,
     TaishoVolSutra,
     TaishoJuanPage,
     TaishoSutraCode,
+    tidy,
     getSutraInfo,
     TaishoJuanFromPage,
     TaishoPageFromJuan,

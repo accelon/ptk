@@ -5,7 +5,9 @@ export const align=(arg,arg2)=>{
     let f2=arg2;
     if (!f1) throw "missing file 1"
     if (!f2) {
-        f2='../'+defaultGuide+'/'+f1.replace(/([a-z]+)\.off$/,defaultGuide+'.off');
+        f2='../sc/'+f1.replace(/([a-z]+)\.off$/,'ms.off')
+        .replace(/[\-_a-z]+\.offtext\//,'sc-pli.offtext/') //for cs-pku.offtext
+        .replace('off/','sc-pli.offtext/');
         if (!fs.existsSync(f2)) {
             throw "missing file 2 "+f2
         }
@@ -19,3 +21,4 @@ export const align=(arg,arg2)=>{
 
     writeChanged(f1+'.aligned',out.join('\n'),true)
 }
+

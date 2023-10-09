@@ -1,4 +1,5 @@
 // Step 1: start the fetch and obtain a reader
+import {humanBytes} from '../utils/misc.ts'
 export const isLatest=async(url,cachename)=>{
     const cachefn=url.replace(/\?.+/,'');
     const fetchurl=cachefn+'?'+(new Date()).toISOString();
@@ -63,7 +64,7 @@ export const downloadToCache=async(cachename,url,cb)=>{
             if (done) break;
             chunks.push(value);
             receivedLength += value.length;
-            cb&&cb( Math.floor( (100*receivedLength/contentLength))+'%');
+            cb&&cb( Math.floor( (100*receivedLength/contentLength))+'% / '+humanBytes(contentLength));
         // console.log(`Received ${receivedLength} of ${contentLength}`)
         }
     

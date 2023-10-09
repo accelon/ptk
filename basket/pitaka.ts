@@ -8,7 +8,7 @@ import {TableOfContent,buildTocTag} from '../compiler/toc.ts';
 import {parseQuery,scanText,scoreLine} from '../fts/query.ts';
 import {footNoteAddress,footNoteByAddress} from './footnote.ts';
 import {Templates} from '../compiler/template.ts'
-import {foreignLinksAtTag,getParallelBook,getParallelLine} from './parallel.ts';
+import {foreignLinksAtTag,getParallelBook,getParallelLine,enumParallelsPtk} from './parallel.ts';
 import {addBacklinks, addForeignLinks } from './links.ts';
 import {getCaption,getBookInfo,caption,nearestChunk,getChunk,neighborChunks} from './chunk.ts'
 import { parseOfftext } from '../offtext/parser.js';
@@ -47,6 +47,7 @@ export class Pitaka extends LineBase {
 		this.foreignLinksAtTag=foreignLinksAtTag;
 		this.getParallelBook=getParallelBook;
 		this.getParallelLine=getParallelLine;
+		this.enumParallelsPtk=enumParallelsPtk;
 		this.taggedLines={};
 		this.foreignlinks={}; 
 		this.backlinks={};

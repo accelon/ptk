@@ -119,13 +119,14 @@ export function rangeOfElementId(eleidarr){
 			const at=idtype.values.indexOf(_id,startfrom);
 			const first=ptk.defines[ele].linepos[at] || ptk.defines[ele].linepos[0] ;
 			let last=ptk.defines[ele].linepos[at+1] || ptk.header.eot ;
-			if (first>=from) {
+			if (first>=from && idtype.values[at]==_id) {
 				from=first;
 				if (last>to && to!==ptk.header.eot) last=to; //trim it
 				else to=last;
 				out.push([first,last]);	
 			} else {
-				out.push([0,0]);
+				return [];
+				//out.push([0,0]);
 			}
 		} else {
 			//try book id first, then artbulk id
@@ -156,7 +157,8 @@ export function rangeOfAddress(address:string|IAddress):ILineRange{
 		return [first,last,from,till,highlightline];
 	} else {
 		const end=(till?till:from+1);
-		return [0,end,from,till,highlightline ]; //數字型不知道終點，預設取一行
+		return [0,0,from,till,highlightline ];//不存在
+		 //數字型不知道終點，預設取一行
 	}
 }
 
@@ -225,6 +227,7 @@ export function tagAtAction(action:string):Array{
 	let parentlinepos=0;
 	for (let i=0;i<arr.length;i++) {
 		const [tagname,id]=arr[i];
+		if (!this.defines[tagname]) continue;
 		const taglinepos=this.defines[tagname].linepos;
 		const tagidarr=this.defines[tagname].fields.id.values;
 		const searchfrom=bsearchNumber(taglinepos,parentlinepos);

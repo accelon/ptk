@@ -52,20 +52,18 @@ export const countFolioChar=linetext=>{
     return count;
 }
 export const folioPosFromAddress=async (ptk,address)=>{
-    const {choff,_lineoff,action}=parseAddress(address);
-
-    const [start]=ptk.rangeOfAddress(action);
+    const {choff,lineoff,action}=parseAddress(address);
+    const [start,end]=ptk.rangeOfAddress(action);
+    if (!end) return {};
     const folio=ptk.defines.folio;
     const folioat=bsearchNumber(ptk.defines.folio.linepos, start+1)-1;
     const ckat=bsearchNumber(ptk.defines.ck.linepos, start+1)-1;
-
     const id=folio.fields.id.values[folioat];
     if (!id) return {};
     
     const ck=ptk.defines.ck.fields.id.values[ckat];
     const ft=new FolioText(ptk);
-    await ft.load(id);
-    let lineoff=start-ptk.defines.ck.linepos[ckat];
+    await ft.load(id);   
     const [pb,line,ch]=ft.toFolioPos(ck ,lineoff,choff);
     return {id,pb,line,ch};
 }

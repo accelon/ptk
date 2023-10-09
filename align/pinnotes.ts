@@ -3,11 +3,14 @@ import { pinPos } from "./pinpos.js";
 export const pinNotes=(lines,notes,opts={})=>{
     const out=[];
     const NoteIdx={};
-    const pat=opts.pat||/⚓(\d+) ?/g;
+    const pat=opts.pat||/⚓(\d+)( ?)/g;
+    const keepmarker=opts.keepmarker;
+    console.log(keepmarker,'keepmarker')
     notes.forEach(note=>NoteIdx[note.id]=note);
+    let nnote=0;
     for (let i=0;i<lines.length;i++) {
         let line=lines[i],accwidth=0;
-        const nline=line.replace(pat,(m,nid,off)=>{
+        const nline=line.replace(pat,(m,nid,space,off)=>{
             const note=NoteIdx[nid];
             if (note) {
                 note.y=i;    
@@ -17,17 +20,26 @@ export const pinNotes=(lines,notes,opts={})=>{
                 console.log('note not found',nid)
             }
             accwidth+=m.length;
-            return '';
+            nnote++;
+            return keepmarker?('^f'+nnote+space) :'';
         })
         if (nline!==line) lines[i]=nline;
     }
 
+    nnote=0;
     for (let nid in notes) {
         const note=notes[nid];
+        nnote++;
         if (typeof note.y=='undefined') continue;
-        const pin=pinPos(lines[note.y], note.pin, {wholeword:true,backward:true,offtext:true});
-        const item=[note.y,pin, note.val.replace(/\n/g,'\\n')]; //bb has multi line notes 
-        if (!opts.removeId) item.push(note.id);
+        let item=[];
+        if (keepmarker) {
+            item=nnote+'\t'+note.val.replace(/\n/g,'\\n');
+        } else {
+            const pin=pinPos(lines[note.y], note.pin, {wholeword:true,backward:true,offtext:true});
+            item=[note.y,pin, note.val.replace(/\n/g,'\\n')]; //bb has multi line notes 
+            if (!opts.removeId) item.push(note.id);
+        }
+
         out.push(item)
     }
     return out;

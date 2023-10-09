@@ -67,7 +67,7 @@ export function getChunk(at:number){
     if (at>=chunktag.fields.id.values.length) return null;
 
     const line=chunktag.linepos[at];
-    const bkat=this.nearestTag(line,booktag);
+    const bkat=this.nearestTag(line+1,booktag);
     const bk=getBookInfo.call(this,bkat);
     const bkid=bk.id; //legacy
     const id=chunktag.fields.id.values[at];

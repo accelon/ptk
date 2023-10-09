@@ -129,11 +129,15 @@ export const deepReadDir = async (dirPath) => await Promise.all(
 export const  fetchFile=async (url,fn)=>{
     const at=url.lastIndexOf('/')
     fn=fn||url.slice(at+1);
+    let content;
     if (!fs.existsSync(fn)) {
         console.log('fetching',url);
         const k=await fetch(url);
-        const content=await k.arrayBuffer();
-        writeChanged(fn,Buffer.from(content,'utf8'),true);
-    }    
+        content=Buffer.from(await k.arrayBuffer(),'utf8').toString();
+        writeChanged(fn,content,true);
+    }  else {
+        content=readTextContent(fn);
+    }
+    return content;
 }
 export {nodefs};

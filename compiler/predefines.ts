@@ -15,7 +15,8 @@ generic:
 ^:f<id=text>
 ^:sponsor<savelinepos=true>
 ^:https<bracket=false onclick=gourl>
-^:fn<id=number>`,
+^:fn<id=number>
+^:t`,
 cbeta:
 `^:ak<id=unique bracket=false>
 ^:bk<id=unique heading=text bracket=false reset=ck,p>
@@ -42,7 +43,7 @@ cs:
 ^:ckan
 ^:cksn
 ^:https<bracket=false onclick=gourl>
-`,
+^:t`,
 zidian:
 `^:ak<id=unique bracket=false reset=ck>
 ^:bk<id=unique heading=text bracket=false reset=n>
