@@ -13,10 +13,8 @@ export const align=(arg,arg2)=>{
         }
         console.log('guided by',f2)
     }
-    const F1=readTextLines(f1);
-    
+    const F1=readTextLines(f1);   
     const F2=readTextLines(f2);
-
     const out=autoAlign(F1,F2);
 
     writeChanged(f1+'.aligned',out.join('\n'),true)

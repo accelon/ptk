@@ -18,10 +18,19 @@ export const toParagraphs=(L,opts={})=>{
             }
             pid=(bkpf?bkpf+'.':'')+id[1];
         }
-        lines.push(L[i])
+        lines.push(L[i]);
     }
     out.push([pid,unbreak?removeSentenceBreak(lines):lines]);
     return out;
+}
+const fixLoneN=lines=>{
+    const lonen=lines[0].match(/\^n([\d\-]+)$/);
+    if (lonen){
+        const n=lines.shift();
+        lines[0]=n+lines[0];
+    }
+    
+    return lines;
 }
 export const autoAlign=(f1,guide,fn)=>{
     //prerequisite
@@ -34,7 +43,7 @@ export const autoAlign=(f1,guide,fn)=>{
 
     if (para.length!==gpara.length) {
         console.log(fn,'para.length unmatch,',para.length,'< guided',gpara.length);
-        console.log(diffParanum(para.map(it=>it[0]),gpara.map(it=>it[0])));
+        //console.log(diffParanum(para.map(it=>it[0]),gpara.map(it=>it[0])));
         return f1;
     }
     const res=[];
@@ -49,6 +58,11 @@ export const autoAlign=(f1,guide,fn)=>{
             while (para[i][1].length<rgpara.length) {
                 para[i][1].push(''); //inserted line
             }
+            fixLoneN(para[i][1]);
+            while (para[i][1].length<gpara[i][1].length) {
+                para[i][1].push('');
+            }
+
             res.push(...para[i][1] );
             continue;
         }
@@ -58,6 +72,8 @@ export const autoAlign=(f1,guide,fn)=>{
             if (t) para[i][1][aligned[j]]='\n'+t;
         }
         const newpara=para[i][1].join('').split('\n');
+        fixLoneN(newpara);
+
         while (newpara.length<gpara[i][1].length) {
             newpara.push('');
         }
