@@ -43,7 +43,7 @@ export const autoAlign=(f1,guide,fn)=>{
 
     if (para.length!==gpara.length) {
         console.log(fn,'para.length unmatch,',para.length,'< guided',gpara.length);
-        //console.log(diffParanum(para.map(it=>it[0]),gpara.map(it=>it[0])));
+        console.log(diffParanum(para.map(it=>it[0]),gpara.map(it=>it[0])));
         return f1;
     }
     const res=[];

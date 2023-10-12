@@ -330,11 +330,11 @@ export const ensurefirstLineHasPN=str=>{
 export const diffParanum=(para,gpara)=>{
     const GPN={},PN={};
     gpara.map(id=>{
-        if (GPN[id]) throw "repeated id "+id
+        if (GPN[id]) console.log("guided repeated id "+id);
         GPN[id]=true;
     });
     para.map(id=>{
-        if (PN[id]) throw "repeated id "+id
+        if (PN[id]) console.log("repeated id "+id)
         PN[id]=true
     });
     const missing=gpara.filter(pn=>!PN[pn]);
