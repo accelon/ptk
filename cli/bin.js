@@ -1,7 +1,7 @@
 ﻿#!/usr/bin/env node
 import * as colors from './colors.cjs'; // lukeed/kleur
 const {blue,yellow,red,cyan,underline,magenta,green} = colors;
-import {dobuild} from './build.js';
+
 import * as PTK from '../nodebundle.cjs';
 import {onelexicon, text_lexicon, lexicons} from './textutils.js'
 import nGram from './ngram.js';
@@ -15,77 +15,23 @@ import {ts} from './subtitle.js'
 import {cbeta} from './cbeta.js'
 import {addn} from './addn.js'
 import {align} from './align.js'
+import {sentbuilder} from './sent.js'
 import Path from 'path';
+import {js,ptk,com,builder} from './builder.js'
 //import {brk} from './brk.js';
 await PTK.nodefs;
 
 const cmd=process.argv[2] || '-h';
 const arg=process.argv[3];
 const arg2=process.argv[4];
-const foldername=process.cwd();
 
 export const getModulePath=name=>{
     let dir=decodeURI(new URL(import.meta.url).pathname);
     if(import.meta.url.slice(0,5)==='file:' && Path.sep==='\\') dir=dir.slice(1);
     return Path.resolve(dir ,"..")+Path.sep+name;
 }
-const isSourceFile=fn=>{
-    return fn.endsWith('.off')||fn.endsWith('.tsv')||fn.endsWith('.num')
-}
-const build=opts=>{
-    let files;
-    let ptkname=arg;
-    
-    if (!ptkname) { //pack all files in cwd
-        if (fs.existsSync("off")) {
-            opts.ptkname=Path.basename(process.cwd()).replace(/\..+$/,'');    
-            opts.indir='off/'
-            const listfilename=opts.ptkname+'.lst';
-            files=fs.existsSync(listfilename)?PTK.readTextLines(listfilename):fs.readdirSync(opts.indir);
-        } else {
-            opts.ptkname=Path.basename(process.cwd()).replace(/\..+$/,'');    
-            const listfilename=opts.ptkname+'.lst';
-            files=fs.existsSync(listfilename)?PTK.readTextLines(listfilename):fs.readdirSync('.')
-            opts.outdir='../';
-            
-        }
-    } else { //pack all files in off
-        opts.ptkname=ptkname;
-        opts.indir=ptkname+'.offtext/'
-        const listfilename=ptkname+'.lst';  //readdir if listfile is missing
-        files=fs.existsSync(opts.indir+listfilename)?PTK.readTextLines(opts.indir+listfilename):fs.readdirSync(opts.indir);
-        if (!files.length) {
-            opts.indir=ptkname+'.src/'
-            files=fs.readdirSync(opts.indir).filter(isSourceFile);
-        }
-    }
-    files=files.filter(isSourceFile);
-    if (fs.existsSync(opts.indir+'accelon22.css')) {
-        files.push('accelon22.css')
-    }
-    if (!PTK.validPtkName(opts.ptkname)) {
-        console.log(cyan(opts.ptkname),'does not match',PTK.regPtkName);
-        return;
-    }
-    console.log('indir',opts.indir);
-	if (files.length) {
-		dobuild(files,opts);
-	} else {
-		console.log(red("no source in current working directory"));
-	}
-}
-
-const js=()=>build({jsonp:true});
-const com=()=>{
-	let acceloncom=getModulePath('accelon22.com');
-	if (!fs.existsSync(acceloncom)) {
-		console.log('com image not found ',blue(acceloncom))
-		return 
-	}
-	build({com:true,comfilename:acceloncom});
-}
-const ptk=()=>{
-    build({jsonp:false,com:false})
+const sent=()=>{
+    builder({jsonp:false,com:false,builder:sentbuilder})
 }
 export const unique=()=>onelexicon('unique', PTK.unique);
 export const dedup=()=>onelexicon('dedup', PTK.dedup);
@@ -161,9 +107,11 @@ const help=()=>{
 }
 
 try {
-    await ({'--help':help,'-h':help,ptk,js,com,dedup,unique,listwords,cbeta,align,
+    console.time('elapsed')
+    await ({'--help':help,'-h':help,ptk,js,com,dedup,unique,listwords,cbeta,align,sent,
     union,ngram,intersect,xor,xmltag,tei,dumpxml,dump,markj,markid,adb2zip,ts,addn})[cmd](arg,arg2);
-
+    console.log('\n')
+    console.timeEnd('elapsed')
 } catch(e) {
     console.log( red('error running command'),cmd)
     console.log(e)

@@ -29,6 +29,7 @@ export const makeLineBaser=async (sourcebuffers,compiler:ICompiler,contentGetter
 		const ext=buf.name.match(/(.[a-z]+)/)[1]||'';
 		if (buf.name.endsWith('.css')) continue; // todo , should check sourcetype
 		compiler.compileBuffer(text,buf.name);
+		
 		const {name,caption,errors,processed,samepage,lazy,tagdefs,textstart,sourcetype}=compiler.compiledFiles[buf.name];
 		alltagdefs.push(...tagdefs);
 		if (!lazy) lbaser.header.preload.push(name);

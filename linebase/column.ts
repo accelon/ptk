@@ -32,12 +32,12 @@ export class Column {
 			}
 		}
 	}
-	addRow(fields:string[], nrow:number , skipFirstField){
+	addRow(fields:string[], nrow:number , skipFirstField,compiledFiles){
 		let i=0;
 		if (skipFirstField) i++;
 		for (;i<this.fieldsdef.length;i++) { //fields.length might be less than this.fieldsdef
 			const F=this.fieldsdef[i];
-			const [err,value]=F.validate(fields[i], nrow);
+			const [err,value]=F.validate(fields[i], nrow, compiledFiles);
 			if (err) {
 				this.onError&&this.onError(err,this.fieldnames[i]+' '+fields[i],-1, nrow);
 			}
@@ -85,6 +85,8 @@ export class Column {
 				this.fieldvalues[idx]=unpackInt(section.shift());
 			} else if (field.type==='numbers') {
 				this.fieldvalues[idx]=unpackIntDelta2d(section.shift());
+			} else if (field.type==='filelinepos') {
+				this.fieldvalues[idx]=unpackIntDelta2d(section.shift());
 			} else if (field.type==='keys') {
 				this.fieldvalues[idx]=unpackIntDelta2d(section.shift());
 			} else if (field.type==='key') {
@@ -109,7 +111,7 @@ export class Column {
 			console.log('section not consumed');
 		}
 	}
-	fromStringArray(sa:StringArray, attrs={},from=1):string[]{
+	fromStringArray(sa:StringArray, attrs={},from=1,compiledFiles):string[]{
 		const allfields=[];
 		let line=sa.first();
 		let textstart=0;// starting of indexable text
@@ -139,10 +141,9 @@ export class Column {
 
 		if (!this.fieldnames.length)  {
 			throw "missing typedef"
-			return; // no type def
 		}
 		for (let i=0;i<allfields.length;i++) {
-			this.addRow(allfields[i], i+1 , skipFirstField) ; //one base
+			this.addRow(allfields[i], i+1 , skipFirstField,compiledFiles) ; //one base
 		}
 		const out=[]; 
 		if (this.keys) out.push(this.keys.join(LEMMA_DELIMITER))
@@ -155,11 +156,12 @@ export class Column {
 				const numbers=this.fieldvalues[i].map(it=>parseInt(it)||0)||[];
 				//convert line to text line at runtime
 				out.push(packInt( numbers));
-			} else if (V.type=='numbers') {
+			} else if (V.type=='numbers' || V.type=='filelinepos') {
 				const numbers=(this.fieldvalues[i])||[];
 				if (numbers.length==1) {
 					throw "must have more than one array"
 				}
+				// console.log(numbers)
 				out.push(packIntDelta2d(numbers));
 			} else if (V.type=='keys') {
 				const numnums=(this.fieldvalues[i])||[];
@@ -189,7 +191,7 @@ export class Column {
 	}
 	fromTSV(buffer:string, attrs,from=1):string[]{
 		const sa=new StringArray(buffer,{sequencial:true});
-		return this.fromStringArray(sa,attrs,from);
+		return this.fromStringArray(sa,attrs,from,this.compiledFiles);
 	}
 	findKey(key:string){
 		if (this.keys) {

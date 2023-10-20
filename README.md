@@ -65,3 +65,7 @@ Accelon 的 backend
 ## build scripts
 
     npm run build-browser  // load with script tag , window.PTK available
+
+## ptk sent
+
+    產生 sent.tsv ，常用句表

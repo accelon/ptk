@@ -129,6 +129,9 @@ export const packInt=(arr:NumArray, delta=false):Uint8Array=>{
 			throw new Error('exist max int boundary '+BYTE5_MAX+ ' i'+i+',val:'+arr[i]+' int'+int);
 		}
 		int=(delta? arr[i]-prev: arr[i] ) +1 ;
+		if (int<0 && delta) {
+			throw new Error('negative delta', arr[i],'prev',prev);
+		}
 		prev=arr[i]||0;
 	}
 	//new TextDecoder is quite fast

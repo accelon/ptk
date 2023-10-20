@@ -93,7 +93,7 @@ export class Compiler implements ICompiler {
 						console.error('unknown tag\n',str, tag.name)
 						//this.onError(VError.TypeTagName);
 					} else {
-						const newtag=typedef.validateTag(ot,tag , this.line,this.compiledLine,this.onError.bind(this));
+						const newtag=typedef.validateTag(ot,tag , this.line,this.compiledLine,this.compiledFiles, this.onError.bind(this));
 						if (newtag) {
 							str=updateOfftext(str,tag,newtag);
 						}
@@ -136,16 +136,16 @@ export class Compiler implements ICompiler {
 			}
 			attributes=tag.attrs;
 		}
-
+		const linestart=this.compiledLine;
 		if (sourcetype===SourceType.TSV) {
 			const [text,tags]=parseOfftext(firstline);
 			// if (!tags.length) {
 			// 	throw "invalid tsv, first line must be ^:"
 			// }
-			const attrs=tags[0].attrs;
+			const attrs=tags[0]?.attrs||{};
 			const typedef=text.split('\t') ; // typdef of each field , except field 0
 			const columns=new Column( {typedef, primarykeys:this.primarykeys ,onError:this.onError.bind(this) } );
-			const [serialized,_textstart]=columns.fromStringArray(sa,attrs,1) ; //build from TSV, start from line 1
+			const [serialized,_textstart]=columns.fromStringArray(sa,attrs,1,this.compiledFiles) ; //build from TSV, start from line 1
 			textstart=_textstart;
 			if (serialized) {
 				compiledname = attrs.name || filename;  //use filename if name is not specified
@@ -193,7 +193,7 @@ export class Compiler implements ICompiler {
 			}
 		}
 		this.compiledFiles[filename]={name:compiledname,caption,lazy,sourcetype,processed,textstart,
-			errors:this.errors,samepage,tagdefs, attributes};
+			errors:this.errors,samepage,tagdefs, attributes, linestart };
 		return this.compiledFiles[filename];
 	}
 }

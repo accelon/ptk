@@ -32,9 +32,7 @@ export class Typedef implements ITypedef {
 			if (V && !V.optional && !reservedAttributes[aname]) this.mandatory[aname]=true;
 		}
 
-		
 		this.attrs=attrs;
-
 		this.column='';  //backing column of this tag , see basket/pitaka.ts::init()
 		this.count=0;
 
@@ -74,7 +72,7 @@ export class Typedef implements ITypedef {
 			}
 		} 
 	}	
-	validateFields(tag,line,onError){
+	validateFields(tag,line,onError,compiledFiles){
 		let touched=false,newtag;
 		this.count++;
 		// for (let aname in tag.attrs) {
@@ -83,7 +81,7 @@ export class Typedef implements ITypedef {
 			let value=tag.attrs[aname];
 			if (V&&!V.foreign) V.values.push(tag.attrs[aname]);
 
-			let [err,newvalue,refline]= (V&&V.validate( tag.attrs[aname], line)) ||[0,value,-1];
+			let [err,newvalue,refline]= (V&&V.validate( tag.attrs[aname], line,compiledFiles)) ||[0,value,-1];
 
 			if (err) {
 				onError(err, newvalue , refline);
@@ -101,7 +99,7 @@ export class Typedef implements ITypedef {
 		}
 		return newtag
 	}
-	validateTag(offtext:IOfftext, tag:IOfftag , line:number, compiledLine:number , onError) {
+	validateTag(offtext:IOfftext, tag:IOfftag , line:number, compiledLine:number , compiledFiles, onError) {
 		if (this.fields.id || this.fields['@'] || this.attrs.savelinepos) { //auto save linepos if validating id
 			this.linepos.push(compiledLine+line);
 		}
@@ -119,8 +117,7 @@ export class Typedef implements ITypedef {
 			}
 		}
 		this.resetChildTag();
-		
-		const newtag=this.validateFields(tag,line,onError);
+		const newtag=this.validateFields(tag,line,onError,compiledFiles);
 		return newtag;
 	}
 	deserialize(section,ptk){
