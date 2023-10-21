@@ -1,37 +1,17 @@
-import { alphabetically0, fromObj, readTextContent, tokenizeOfftext,TokenType, writeChanged } from "../nodebundle.cjs"
-
-
+import { alphabetically0, fromObj, readTextContent, sentencize, tokenizeOfftext,TokenType, writeChanged } from "../nodebundle.cjs"
 const sent=(rawcontent,ctx)=>{
     const lines=rawcontent.split(/\r?\n/);
-    const sentences=[];
+    let sentences=[];
     for(let j=0;j<lines.length;j++) {
-        const tokens=tokenizeOfftext(lines[j]);
-        
-        for (let i=0;i<tokens.length;i++) {
-            const tk=tokens[i];
-            if (tk.type>TokenType.SEARCHABLE) { 
-                const prevtk=sentences[sentences.length-1];
-                if (i&& sentences.length &&tk.type&TokenType.CJK && 
-                    prevtk.type&TokenType.CJK) {
-                    prevtk.text+=tk.text;
-                } else {
-                    tk.line=j;
-                    sentences.push(tk);
-                }
-            } else {
-                sentences.push(tk);
-            }
-        }
-            
+        sentences=sentences.concat(sentencize(lines[j],j));
     }
-    
+
     for (let i=0;i<sentences.length;i++) {
         const snt=sentences[i];
         if (!(snt.type&TokenType.CJK)) continue;
         if (!ctx.sents[snt.text]) {
             ctx.sents[snt.text]=[]
         }
-        const arr=ctx.sents[snt.text];
         ctx.sents[snt.text].push(ctx.fn+':'+snt.line);
     }
 }

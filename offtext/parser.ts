@@ -3,7 +3,7 @@ import {OFFTAG_REGEX_G, OFFTAG_REGEX_TOKENIZE,OFFTAG_NAME_ATTR,ALWAYS_EMPTY,OFFT
     OFFTAG_LEADBYTE} from './constants.ts';
 import {IOfftag} from './interfaces.ts';
 import {closeBracketOf,substrUTF32} from '../utils/index.ts'
-import {Token, TokenType, tokenize} from '../fts/tokenize'
+import {Token, TokenType, tokenize} from '../fts/tokenize.js'
 
 const parseCompactAttr=(str:string)=>{  //              序號和長度和標記名 簡寫情形，未來可能有 @ 
     const out={}, arr=str.split(/([@#~])/);
@@ -251,4 +251,27 @@ export const tokenizeOfftext=(str:string)=>{
     addSnippet(str.slice(choff)); //最後一段文字
 
     return out;
+}
+
+
+export const sentencize=(linetext:string,line:number)=>{
+    const tokens=tokenizeOfftext(linetext); 
+    const sentences=[];
+    for (let i=0;i<tokens.length;i++) {
+        const tk=tokens[i];
+        if (tk.type>TokenType.SEARCHABLE) { 
+            const prevtk=sentences[sentences.length-1];
+            if (i&& sentences.length &&tk.type&TokenType.CJK && 
+                prevtk.type&TokenType.CJK) {
+                prevtk.text+=tk.text;
+            } else {
+                tk.line=line;
+                sentences.push(tk);
+            }
+        } else {
+            sentences.push(tk);
+        }
+    }
+    return sentences;
+
 }
