@@ -7,7 +7,6 @@ type NumberArray = number [];
 //arr need to be sorted but allow duplicate items
 export const union=(arr1:NumberArray,arr2:NumberArray,hasdup=false):NumberArray=>{
     if (!arr2||!arr1) return arr1||arr2;
-    let out:NumberArray=[];
     const extra:NumberArray=[];
     let a1=hasdup?unique(arr1):arr1;
     let a2=hasdup?unique(arr2):arr2;

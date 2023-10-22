@@ -160,7 +160,8 @@ export const arrDelta=(arr:NumArray)=>{
 	if (arr.length===1) return [arr[0]];
 	const out=[arr[0]];
 	for (let i=1;i<arr.length;i++) {
-		out.push( arr[i]-arr[i-1]);
+		const v=arr[i]-arr[i-1];
+		out.push( v);
 	}
 	return out;
 }

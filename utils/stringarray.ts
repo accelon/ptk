@@ -100,7 +100,7 @@ export class StringArray {
 		}
 		return -1;
 	}
-	enumMiddle(infix:string,max=100):number[]{
+	enumMiddle(infix:string,max=999):number[]{
 		if (this.middleCache.hasOwnProperty(infix)) {
 			return this.middleCache[infix];
 		}
@@ -119,7 +119,7 @@ export class StringArray {
 		this.middleCache[infix]=out;
 		return out;
 	}
-	enumStart(prefix:string,max=100):number[]{
+	enumStart(prefix:string,max=999):number[]{
 		const getter:StringGetter=this.get.bind(this);
 		let at=bsearchGetter( getter, prefix ); // this.get(0) return len
 		if (at==-1) return [];
@@ -135,7 +135,7 @@ export class StringArray {
 		}
 		return out;
 	}
-	enumEnd(suffix:string,max=100):number[] {
+	enumEnd(suffix:string,max=999):number[] {
 		if (this.endCache.hasOwnProperty(suffix)) {
 			console.log('cache')
 			return this.endCache[suffix];

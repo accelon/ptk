@@ -9,7 +9,7 @@ export class NumbersField extends Field {
         if (typeof value=='undefined') {
             console.log('undefined',line)
         }
-        const items=value.split(',');
+        const items=value.split(',').filter(it=>!!it);
         const out=[];
         for (let i=0;i<items.length;i++) {
             const v=items[i];
