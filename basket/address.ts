@@ -59,7 +59,6 @@ export const makeAddress=(ptkname='',action='',from=0,till=0,lineoff=0,choff=0)=
 		till=obj.till||0;
 		lineoff=obj.highlightline||obj.lineoff||0;
 		choff=obj.choff||0;
-
 	}
 	let linechoff='';
 	if (choff>0) {

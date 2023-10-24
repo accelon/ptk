@@ -5,7 +5,7 @@ import {rangeOfElementId,tagAtAction,rangeOfAddress,innertext,fetchAddress,fetch
 import {columnField,inlineNote,rowOf,scanColumnFields,searchColumnField} from './columns.ts';
 import {Inverted,plContain} from '../fts/index.ts';
 import {TableOfContent,buildTocTag} from '../compiler/toc.ts';
-import {parseQuery,scanText,scoreLine} from '../fts/query.ts';
+import {parseQuery,scanText,scoreLine,hitsOfLine} from '../fts/query.ts';
 import {footNoteAddress,footNoteByAddress} from './footnote.ts';
 import {Templates} from '../compiler/template.ts'
 import {foreignLinksAtTag,getParallelBook,getParallelLine,enumParallelsPtk} from './parallel.ts';
@@ -65,6 +65,7 @@ export class Pitaka extends LineBase {
 		this.neighborChunks=neighborChunks;
 		this.fetchAddress=fetchAddress;
 		this.fetchAddressExtra=fetchAddressExtra;
+		this.hitsOfLine=hitsOfLine;
 	}
 	async init(){
 		if (!this.payload) return;

@@ -37,3 +37,4 @@ export const listExcerpts=async (ptk,tofind,range)=>{
     const chunks=fromObj(chunkobj, (a,b)=>[a,b]).sort((a,b)=>b[1]-a[1]);
     return {lines,chunks,phrases,postings};
 }
+

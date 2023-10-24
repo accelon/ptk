@@ -1,7 +1,7 @@
 import {plAnd,plRanges,plCount} from './posting.ts';
 import {fromSim} from 'lossless-simplified-chinese'
 import {bsearchNumber} from '../utils/bsearch.js'
-
+import { plTrim } from './posting.ts';
 export const TOFIND_MAXLEN=50;
 export const MAX_PHRASE=5;
 
@@ -143,4 +143,15 @@ export async function scanText(tofind:string,opts) {
 export const validateTofind=(str:string)=>{
     return (str||'').replace(/[\[\]&%$#@\/\^]/g,'').trim();
 }
-export default {phraseQuery,scanText,validateTofind,scoreLine,TOFIND_MAXLEN};
+export function hitsOfLine(line,allpostings){
+    const tlp=this.inverted.tokenlinepos;
+    const hits=[];
+    for (let i=0;i<allpostings.length;i++) {
+        const from=tlp[line-1], till=tlp[line];
+        const hit=plTrim(allpostings[i], from,till).map(it=>it-from);
+        hits.push(hit);
+    }
+    return hits;
+}
+
+export default {phraseQuery,scanText,validateTofind,scoreLine,TOFIND_MAXLEN,hitsOfLine};
