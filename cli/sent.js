@@ -32,20 +32,22 @@ const packLineoff=(arr,ctx)=>{
 const makeTSV=(arr,ctx)=>{
     const out=[];
     for (let i=0;i<arr.length;i++) {
-        const [text,lineoff,sim100,sim90]=arr[i];
+        const [text,lineoff,sim100,sim90,sim80]=arr[i];
         sim100&&sim100.sort((a,b)=>a-b)
         sim90&&sim90.sort((a,b)=>a-b)
-        out.push(text+'\t'+ packLineoff(lineoff,ctx).join(',')+'\t'+(sim100||[]).join(',')+'\t'+(sim90||[]).join(','));
+        sim80&&sim80.sort((a,b)=>a-b)
+        out.push(text+'\t'+ packLineoff(lineoff,ctx).join(',')+'\t'+
+        (sim100||[]).join(',')+'\t'+(sim90||[]).join(',')+'\t'+(sim80||[]).join(','));
     }
-    out.unshift('^:<name=sent preload=true>\toccur=filelinepos\tsim100=numbers\tsim90=numbers')
+    out.unshift('^:<name=sent preload=true>\toccur=filelinepos\tsim100=numbers\tsim90=numbers\tsim80=numbers')
     return out.join('\n');
 }
 const statSimilarity=arr=>{
-    let prevpercent=0,sim100=0,sim90=0;
+    let prevpercent=0,sim100=0,sim90=0,sim80=0;
     for (let i=0;i<arr.length;i++) {
         const percent=Math.floor((i/arr.length)*100);
         if (percent>prevpercent) {
-            process.stdout.write('\r'+percent+'%  fullcount:'+sim100+',partial:'+sim90);
+            process.stdout.write('\r'+percent+'%  fullcount:'+sim100+',>90:'+sim90+', >80:'+sim80);
             prevpercent=percent;
         }
         for (let j=i+1;j<arr.length;j++) {
@@ -57,13 +59,19 @@ const statSimilarity=arr=>{
                 arr[i][2].push(j);
 
                 sim100++;
-            } else if (sim>0.9) {
+            } else if (sim>=0.9) {
                 if (!arr[j][3])arr[j][3]=[];
                 arr[j][3].push(i);
                 if (!arr[i][3])arr[i][3]=[];
                 arr[i][3].push(j);
-
                 sim90++;
+            } else if (sim>=0.8) {
+                if (!arr[j][4])arr[j][4]=[];
+                arr[j][4].push(i);
+                if (!arr[i][4])arr[i][4]=[];
+                arr[i][4].push(j);
+
+                sim80++;
                 //console.log(sim,arr[i][0],arr[i][1].length,arr[j][0],arr[j][1].length);
             }
         }

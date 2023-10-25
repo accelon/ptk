@@ -1,11 +1,11 @@
 import {plTrim,plContain} from '../fts/posting.ts';
 import {MAXPHRASELEN} from '../fts/constants.ts';
 import {fromObj,bsearchNumber} from '../utils/index.ts';
-export const listExcerpts=async (ptk,tofind,range)=>{
+export const listExcerpts=async (ptk,tofind,opts={})=>{
     const tlp=ptk.inverted.tokenlinepos;
     let sectionfrom=0,sectionto=0;
-    if (range) {
-        const [first,last]=ptk.rangeOfAddress(range);
+    if (opts.range) {
+        const [first,last]=ptk.rangeOfAddress(opts.range);
         sectionfrom=tlp[first];
         sectionto=tlp[last];
     } else {
@@ -23,6 +23,17 @@ export const listExcerpts=async (ptk,tofind,range)=>{
         hitcount+=pl.length;
         for (let j=0;j<pllines.length;j++) {
             const line=pllines[j];
+            let removed=false;
+            if (opts.includelines) {
+                const at=bsearchNumber(opts.includelines,line);
+                if (opts.includelines[at]!==line)  removed=true;
+            }
+            if (opts.excludelines) {
+                const at=bsearchNumber(opts.excludelines,line);
+                if (opts.excludelines[at]==line)  removed=true;
+            }
+
+            if (removed) continue;
             if (!lineobj[line]) lineobj[line]=[];
             lineobj[line].push( ...lineshits[j].map(it=>it*MAXPHRASELEN + phraselen)  );
             

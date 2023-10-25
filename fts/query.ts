@@ -128,8 +128,16 @@ export async function scanText(tofind:string,opts) {
         for (let i=0;i<groupby.linepos.length;i++) {
             const nextstart=TLP[ groupby.linepos[i+1] ]||TLP[TLP.length-1] ;
             tlp.push([ TLP[ groupby.linepos[i]] , nextstart ]);
-        }       
-        const res= plCount(postings[0], tlp);
+        }   
+        const res=new Array(tlp.length);
+        res.fill(0);
+        
+        for (let i=0;i<postings.length;i++) {
+            const res1= plCount(postings[i], tlp);
+            for (let j=0;j<tlp.length;j++) {
+                res[j]+=res1[j];
+            }
+        }
         const out=res.map((count,idx)=>{
             const id=groupby.fields.id.values[idx];
             return {count, caption: groupby.innertext.get(idx), 

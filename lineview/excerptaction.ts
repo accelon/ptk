@@ -17,7 +17,7 @@ export class ExcerptAction extends Action{
 		const ptk=usePtk(this.ptkname);
 		let {name,tofind}=this.act[0];
 		const section=name.slice(1);
-		const {lines,chunks}=listExcerpts(ptk,tofind,section);
+		const {lines,chunks}=listExcerpts(ptk,tofind,{range:section});
 
 		let till=this.till;
 		let from=this.from;
