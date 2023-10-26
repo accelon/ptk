@@ -6,7 +6,7 @@ import {columnField,inlineNote,rowOf,scanColumnFields,searchColumnField} from '.
 import {Inverted,plContain} from '../fts/index.ts';
 import {TableOfContent,buildTocTag} from '../compiler/toc.ts';
 import {parseQuery,scanText,scoreLine,hitsOfLine} from '../fts/query.ts';
-import {footNoteAddress,footNoteByAddress} from './footnote.ts';
+import {footNoteAddress,footNoteByAddress,footNoteInTSV} from './footnote.ts';
 import {Templates} from '../compiler/template.ts'
 import {foreignLinksAtTag,getParallelBook,getParallelLine,enumParallelsPtk} from './parallel.ts';
 import {addBacklinks, addForeignLinks } from './links.ts';
@@ -44,6 +44,7 @@ export class Pitaka extends LineBase {
 		this.inlineNote=inlineNote;
 		this.footNoteAddress=footNoteAddress;
 		this.footNoteByAddress=footNoteByAddress;
+		this.footNoteInTSV=footNoteInTSV;
 		this.foreignLinksAtTag=foreignLinksAtTag;
 		this.getParallelBook=getParallelBook;
 		this.getParallelLine=getParallelLine;

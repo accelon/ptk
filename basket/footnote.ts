@@ -32,7 +32,13 @@ export function footNoteAddress(id:string,line:number){
     +'.fn'+id;
     return address;
 }
-
+export function footNoteInTSV(id:string,line:number){//assuming footnote=bk
+    const ptk=this;
+    const ck=ptk.nearestChunk(line);
+    const footnotecol=ptk.columns[ck.bkid];
+    if (!footnotecol) return '--no note--';
+    return footnotecol.fieldByKey(id,"note");
+}
 export function footNoteByAddress(id:string,line:number){
     const ptk=this;
     const ck=ptk.nearestChunk(line);
