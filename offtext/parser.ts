@@ -254,7 +254,7 @@ export const tokenizeOfftext=(str:string)=>{
 }
 
 
-export const sentencize=(linetext:string,line:number)=>{
+export const sentencize=(linetext:string='',line:number)=>{
     const tokens=tokenizeOfftext(linetext); 
     const sentences=[];
     for (let i=0;i<tokens.length;i++) {

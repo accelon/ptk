@@ -4,10 +4,14 @@ import {Column} from '../linebase/column.ts'
 import {SourceType,ICompiledFile,ICompiled} from './interfaces.ts'
 import {validate_z} from './fielder.ts'
 import {StringArray} from '../utils/stringarray.ts'
+import {arraydiff} from '../utils/array.ts'
 import {Typedef} from './typedef.ts'
 import {VError,MAX_VERROR} from './error.ts'
 import {predefines} from './predefines.ts'
 import { packInt } from '../utils/packintarray.js';
+import { bsearchNumber } from '../utils/bsearch.js';
+import { alphabetically } from '../utils/sortedarray.js';
+
 
 export const sourceType=(firstline:string,filename:string):SourceType=>{	
 	const at=firstline.indexOf('\n');
@@ -106,6 +110,33 @@ export class Compiler implements ICompiler {
 	clearCompiled(filename:string) {
 		delete this.compiledFiles[filename];
 	}
+	checkFootnote(attrs:Object,notekeys,filename){
+		if (!attrs.footnote) return;
+		const nametag=attrs.footnote||'bk';//default name same with bk
+		const tag=this.typedefs[nametag];
+		const ftag=this.typedefs.f;
+		if (!tag) {
+			console.log('unknown tag',tag,'checkfootnote');
+			return;
+		}
+		if (!ftag) {
+			console.log('no f tag in source');
+			return;
+		}
+
+		const at=tag.fields.id.values.indexOf(attrs.name);
+		const from=tag.linepos[at];
+		const to=tag.linepos[at+1]||this.compiledLine; //assuming foot note just after off
+
+		const start=bsearchNumber(ftag.linepos,from);
+		let end=bsearchNumber(ftag.linepos,to);
+		if (ftag.linepos[end]<to) end++; //fix last item
+		
+		const offtextfootnote=ftag.fields.id.values.slice(start,end).sort(alphabetically);
+		if (offtextfootnote.join()!==notekeys.join()) {
+			console.log(filename,'footnote missing match',arraydiff(notekeys,offtextfootnote))
+		}
+	}
 	compileBuffer(buffer:string,filename:string) {
 		if (!buffer)   return this.onError(VError.Empty);
 		if (!filename) return this.onError(VError.PtkNoName);
@@ -146,6 +177,8 @@ export class Compiler implements ICompiler {
 			const typedef=text.split('\t') ; // typdef of each field , except field 0
 			const columns=new Column( {typedef, primarykeys:this.primarykeys ,onError:this.onError.bind(this) } );
 			const [serialized,_textstart]=columns.fromStringArray(sa,attrs,1,this.compiledFiles) ; //build from TSV, start from line 1
+			this.checkFootnote(attrs,columns.keys,filename);
+
 			textstart=_textstart;
 			if (serialized) {
 				compiledname = attrs.name || filename;  //use filename if name is not specified

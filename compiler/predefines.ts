@@ -38,6 +38,7 @@ cs:
 ^:bk<id=unique heading=text bracket=false>
 ^:ck<id=unique heading=text bracket=false>
 ^:n<id=unique resetby=bk>
+^:f<id=number>
 ^:h
 ^:sz
 ^:ckan

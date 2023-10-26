@@ -116,6 +116,7 @@ export class Column {
 		let line=sa.first();
 		let textstart=0;// starting of indexable text
 		let skipFirstField=false;
+		
 		while (from>0) {
 			line=sa.next();
 			from--;
@@ -131,7 +132,7 @@ export class Column {
 			this.keys=allfields.map(it=>it[0]);
 		}
 		this.createFields(this.typedef);
-
+		
 		if (attrs.tokenfield) {
 			this.tokenfield=parseInt(attrs.tokenfield||-1);
 			//simply build token table without posting
@@ -187,6 +188,7 @@ export class Column {
 			}
   		}
   		if (textstart==0) textstart=out.length;//no indexable text
+
 		return [out,textstart];
 	}
 	fromTSV(buffer:string, attrs,from=1):string[]{
