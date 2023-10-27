@@ -14,7 +14,7 @@ import {adb2zip} from './adb2zip.js';
 import {ts} from './subtitle.js'
 import {cbeta} from './cbeta.js'
 import {addn} from './addn.js'
-import {align} from './align.js'
+import {align,crlf} from './align.js'
 import {sentbuilder} from './sent.js'
 import Path from 'path';
 import {js,ptk,com,builder} from './builder.js'
@@ -90,7 +90,8 @@ const help=()=>{
 
     console.log(underline('Markup 標記处理'));
     //console.log('$',yellow('ptk brk      '),cyan('[pat]'), 'create a pin break file, 產生分句檔 (brk/*.brk)')
-    console.log('$',yellow('ptk align    '),cyan('file1'),cyan('file2'),  'using file2 to align file1, both need ^n marker ，將file2與file1對齊')
+    console.log('$',yellow('ptk align    '),cyan('file1'),cyan('file2'),  'using file2 to align file1, both need ^n marker ，將file2與file1對齊');
+    console.log('$',yellow('ptk crlf     '),cyan('file1'),cyan('file2'),  'make file1 has same crlf of file2 ，讓file1和file2相同換行');
 
     console.log('$',yellow('ptk markj    '),cyan('address'),cyan('txtfile'),cyan('pattern'),'find origtext 找原書出處');
     console.log('$',yellow('ptk markid   '),cyan('address'),cyan('txtfile'),'fill id, 補上 id');
@@ -108,7 +109,7 @@ const help=()=>{
 
 try {
     console.time('elapsed')
-    await ({'--help':help,'-h':help,ptk,js,com,dedup,unique,listwords,cbeta,align,sent,
+    await ({'--help':help,'-h':help,ptk,js,com,dedup,unique,listwords,cbeta,align,crlf,sent,
     union,ngram,intersect,xor,xmltag,tei,dumpxml,dump,markj,markid,adb2zip,ts,addn})[cmd](arg,arg2);
     console.log('\n')
     console.timeEnd('elapsed')

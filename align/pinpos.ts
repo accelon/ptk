@@ -35,10 +35,11 @@ export const pinPos=(_linetext,x,opts={})=>{
     const wholeword=opts.wholeword;
     const offtext=opts.offtext;
     let linetext=_linetext;
+    const marker=opts.marker||'⚓'
     if (offtext) {
-        linetext=linetext.substring(0,x)+'⚓'+linetext.substring(x);
+        linetext=linetext.substring(0,x)+marker+linetext.substring(x);
         linetext=parseOfftext(linetext)[0];
-        x=linetext.indexOf('⚓');
+        x=linetext.indexOf(marker);
         linetext=linetext.substring(0,x)+linetext.substring(x+1);
     }
     const cjk=opts.cjk;

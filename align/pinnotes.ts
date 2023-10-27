@@ -44,12 +44,16 @@ export const pinNotes=(lines,notes,opts={})=>{
     }
     return out;
 }
-export const stripLinesNote=(lines,notes,marker='⚓')=>{
+export const stripLinesNote=(lines,notes,opts={})=>{
+    const marker=opts.marker||'⚓';
     const regex=new RegExp(marker+'([0-9]+)','g');
-
+    
+    const notemark=opts.notemark;
+    let counter=opts.counter||0;
     lines=lines.map((line,y)=>{
         let accwidth=0;
         let nline=line.replace(regex,(m,m1,offset)=>{
+            counter++;
             const note=notes[m1];
             if (note) {
                 note[0]=y;
@@ -59,9 +63,12 @@ export const stripLinesNote=(lines,notes,marker='⚓')=>{
                 if (y) console.log('note not found',m1,y,line)
             }
             accwidth+=m.length;
-            return '';
+            return notemark?('^'+notemark+counter+'<>'):'';
         })
+        //^f 後面有字母才需要空白
+        nline=nline.replace(/<>[ \da-zA-Z#_@~]/g,' ').replace(/<>/g,'');
         return nline;
     })
+    opts.counter=counter;
     return lines;
 }

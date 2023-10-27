@@ -91,8 +91,9 @@ const p=(el,ctx)=>{
 const g=(el,ctx)=>{
     if (ctx.hide)return;
     const uni=ctx.charmap[ el.attrs.ref.slice(1)];
-    if (uni) return uni;
-    else {
+    if (uni) {
+        return uni;
+    }  else {
         ctx.compact=true;
         return '^mc'+el.attrs.ref.substr(3); //remove #CB
     }
