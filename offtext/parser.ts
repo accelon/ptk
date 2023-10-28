@@ -1,4 +1,4 @@
-import {OFFTAG_REGEX_G, OFFTAG_REGEX_TOKENIZE,OFFTAG_NAME_ATTR,ALWAYS_EMPTY,OFFTAG_COMPACT_ID,
+import {OFFTAG_REGEX_G, OFFTAG_REGEX,OFFTAG_REGEX_TOKENIZE,OFFTAG_NAME_ATTR,ALWAYS_EMPTY,OFFTAG_COMPACT_ID,
     QUOTEPAT,QUOTEPREFIX,QSTRING_REGEX_G,QSTRING_REGEX_GQUOTEPAT,
     OFFTAG_LEADBYTE} from './constants.ts';
 import {IOfftag} from './interfaces.ts';
@@ -252,23 +252,26 @@ export const tokenizeOfftext=(str:string)=>{
 
     return out;
 }
-
+//這是一個^f1句子   
+//這是兩個^f2【二】句子 
 
 export const sentencize=(linetext:string='',line:number)=>{
     const tokens=tokenizeOfftext(linetext); 
     const sentences=[];
+    let prevcjk=-1;//避免被短標記破開
     for (let i=0;i<tokens.length;i++) {
         const tk=tokens[i];
-        if (tk.type>TokenType.SEARCHABLE) { 
-            const prevtk=sentences[sentences.length-1];
-            if (i&& sentences.length &&tk.type&TokenType.CJK && 
-                prevtk.type&TokenType.CJK) {
-                prevtk.text+=tk.text;
+        if (tk.type>TokenType.SEARCHABLE) {
+            if (i&& sentences.length &&tk.type&TokenType.CJK && prevcjk>-1 ) {
+                tokens[prevcjk].text+=tk.text;
             } else {
                 tk.line=line;
                 sentences.push(tk);
+                if (tk.type&TokenType.CJK) prevcjk=i;
+                else prevcjk=-1;
             }
         } else {
+            if ( !tk.text.match(OFFTAG_REGEX) ) prevcjk=-1; //如果被破開，就不會接繼到最後一個 cjk token
             sentences.push(tk);
         }
     }

@@ -106,10 +106,12 @@ const help=()=>{
 
     console.log('PTK-CLI ver',green('2023.5.15'));
 }
-
+const test=()=>{
+    console.log(PTK.sentencize('我是一^f#4<xxx>，個句子'));
+}
 try {
     console.time('elapsed')
-    await ({'--help':help,'-h':help,ptk,js,com,dedup,unique,listwords,cbeta,align,crlf,sent,
+    await ({'--help':help,'-h':help,ptk,js,com,dedup,unique,listwords,cbeta,align,crlf,sent,test,
     union,ngram,intersect,xor,xmltag,tei,dumpxml,dump,markj,markid,adb2zip,ts,addn})[cmd](arg,arg2);
     console.log('\n')
     console.timeEnd('elapsed')

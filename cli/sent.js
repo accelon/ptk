@@ -3,6 +3,7 @@ const sent=(rawcontent,ctx)=>{
     const lines=rawcontent.split(/\r?\n/);
     let sentences=[];
     for(let j=0;j<lines.length;j++) {
+
         sentences.push(...sentencize(lines[j],j));
     }
     for (let i=0;i<sentences.length;i++) {

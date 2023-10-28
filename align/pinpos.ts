@@ -117,7 +117,7 @@ export const posPin=(linetext,pin)=>{
 
     let at=linetext.indexOf(pin);
     while (occur) {
-        at=linetext.indexOf(pin,at+pin.length-1); //see line 77
+        at=linetext.indexOf(pin,at+pin.length-1); //see line 77 , 至少要2個中文字。
         occur--;
     }
     if (at==-1) return -1;//console.error("cannot pospin",pin,linetext);
