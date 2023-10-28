@@ -1,5 +1,6 @@
 export * from './compare.ts'
 export * from './align.ts'
+export * from './crlf.ts'
 export * from './pinpos.ts'
 export * from './breaker.ts'
 export * from './pinnotes.ts'
