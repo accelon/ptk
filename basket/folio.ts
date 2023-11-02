@@ -2,7 +2,7 @@
 
 import {bsearchNumber,splitUTF32Char,CJKRangeName ,styledNumber,toVerticalPunc} from '../utils/index.ts';
 import {parseOfftext ,OFFTAG_REGEX_G} from '../offtext/index.ts';
-import { parseAddress } from './address.js';
+import { parseAddress } from './address.ts';
 
 
 export const MAXFOLIOLINE=8, MAXFOLIOCHAR=32;

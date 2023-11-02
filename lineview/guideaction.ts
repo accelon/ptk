@@ -1,6 +1,6 @@
 import {Action,GUIDEACTIONPREFIX} from "./baseaction.ts";
 import {IAddress,usePtk} from '../basket/index.ts';
-import {bsearchNumber} from '../utils/bsearch';
+import {bsearchNumber} from '../utils/bsearch.ts';
 
 export class GuideAction extends Action{
 	constructor(addr:IAddress,depth=0){

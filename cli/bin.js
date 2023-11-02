@@ -18,6 +18,7 @@ import {align,crlf} from './align.js'
 import {sentbuilder} from './sent.js'
 import Path from 'path';
 import {js,ptk,com,builder} from './builder.js'
+import {ui23} from './ui23.js';
 //import {brk} from './brk.js';
 await PTK.nodefs;
 
@@ -101,8 +102,9 @@ const help=()=>{
     console.log('$',yellow('ptk ts       '),cyan('filename'),'parse subtitle (*.srt) 字幕轉標記');
 
     console.log('$',yellow('ptk cbeta    '),cyan('filename|string'),'convert cbeta address');
-    console.log('$',yellow('ptk addn    '),cyan('filename'),'add ^n');
+    console.log('$',yellow('ptk addn     '),cyan('filename'),'add ^n');
 
+    console.log('$',yellow('ptk ui23     '),cyan('name'),cyan('dev-port=5001'),'create scaffold ui32 in cwd');
 
     console.log('PTK-CLI ver',green('2023.5.15'));
 }
@@ -111,7 +113,7 @@ const test=()=>{
 }
 try {
     console.time('elapsed')
-    await ({'--help':help,'-h':help,ptk,js,com,dedup,unique,listwords,cbeta,align,crlf,sent,test,
+    await ({'--help':help,'-h':help,ptk,js,com,dedup,unique,listwords,cbeta,align,crlf,sent,test,ui23,
     union,ngram,intersect,xor,xmltag,tei,dumpxml,dump,markj,markid,adb2zip,ts,addn})[cmd](arg,arg2);
     console.log('\n')
     console.timeEnd('elapsed')

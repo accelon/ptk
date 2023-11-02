@@ -11,7 +11,7 @@ import {Templates} from '../compiler/template.ts'
 import {foreignLinksAtTag,getParallelBook,getParallelLine,enumParallelsPtk} from './parallel.ts';
 import {addBacklinks, addForeignLinks } from './links.ts';
 import {getCaption,getBookInfo,caption,nearestChunk,getChunk,neighborChunks} from './chunk.ts'
-import { parseOfftext } from '../offtext/parser.js';
+import { parseOfftext } from '../offtext/parser.ts';
 
 export const regPtkName =  /^[a-z\-_]{2,16}$/
 export const validPtkName=(name:string):boolean=>!!name.match(regPtkName);

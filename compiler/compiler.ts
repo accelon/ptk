@@ -1,16 +1,15 @@
-import {Compiler} from './compiled.ts'
 import {parseOfftext,Offtext,updateOfftext}  from '../offtext/parser.ts';
 import {Column} from '../linebase/column.ts'
-import {SourceType,ICompiledFile,ICompiled} from './interfaces.ts'
+import {SourceType,ICompiledFile} from './interfaces.ts'
 import {validate_z} from './fielder.ts'
 import {StringArray} from '../utils/stringarray.ts'
 import {arraydiff} from '../utils/array.ts'
 import {Typedef} from './typedef.ts'
 import {VError,MAX_VERROR} from './error.ts'
 import {predefines} from './predefines.ts'
-import { packInt } from '../utils/packintarray.js';
-import { bsearchNumber } from '../utils/bsearch.js';
-import { alphabetically } from '../utils/sortedarray.js';
+import { packInt } from '../utils/packintarray.ts';
+import { bsearchNumber } from '../utils/bsearch.ts';
+import { alphabetically } from '../utils/sortedarray.ts';
 
 
 export const sourceType=(firstline:string,filename:string):SourceType=>{	
@@ -134,7 +133,7 @@ export class Compiler implements ICompiler {
 		
 		const offtextfootnote=ftag.fields.id.values.slice(start,end).sort(alphabetically);
 		if (offtextfootnote.join()!==notekeys.join()) {
-			console.log(filename,'footnote missing match',arraydiff(notekeys,offtextfootnote))
+			console.log(filename,'footnote missing match',arraydiff(notekeys,offtextfootnote),notekeys.join())
 		}
 	}
 	compileBuffer(buffer:string,filename:string) {

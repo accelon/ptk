@@ -1,0 +1,76 @@
+body{
+  overflow:hidden;
+  font-family:"Tahoma","San-Serif" , "Microsoft Yahei UI Light";
+  margin: 0px;
+  width:100%;
+  height:100%;
+  background:black;
+  color:silver;
+}
+:root{
+  --textsize : 2em;
+  --depthcolor0 : silver;
+  --depthcolor1 : hsl(40,70%,50%);
+  --depthcolor2 : hsl(80,70%,50%);
+  --depthcolor3 : hsl(130,70%,50%);
+  --depthcolor4  : hsl(170,70%,50%);
+  --depthcolor5  : hsl(210,70%,50%);
+  --depthcolor6 : hsl(250,70%,60%);
+  --depthcolor7  : hsl(290,70%,50%);
+  --depthcolor8  : hsl(330,70%,50%);
+  --depthcolor9  : hsl(360,70%,50%); 
+  --selected : rgb(96, 96, 96);
+  --highlightline : rgba(30,30,30);
+  --track-bg:gray;
+  --hyperlink: greenyellow;
+}
+@media (orientation: portrait) {
+  body {
+    font-size:12px;
+  }
+  button {font-size:1em}
+}
+
+@media (orientation: landscape) {
+  body {
+    font-size:12px;
+  }
+}
+.bodytext {font-size:var(--textsize)}
+.bodytextarea  {overflow-y:auto;height:100%}
+
+.app{
+  width:100%;
+  height:100%;
+}
+
+.tabs {--webkit-user-select: none;overflow:hidden  ; font-size:var(--textsize);
+  user-select: none;padding-left: 0.05em; background:var(--menubar-color);}
+  .tab-content {
+    display: none;
+    pointer-events: none;
+    /* overflow-y:auto; */
+  }
+  
+.selected {background: var(--selected);border-radius: 0.25em}
+.visible {display:inline;pointer-events:all;}
+.clickable {cursor:pointer;}
+
+.hr {background-color:gray;height: 1px;}
+.centernav {width:100%;text-align: center;display:block}
+
+.statebutton{ user-select: none; cursor:pointer;fill:var(--button-selected);padding-right:0.2em}
+.statebutton.disabled {cursor:auto;fill:none;stroke:var(--button-unselected) }
+.statebutton.unselected {color:gray}
+.statebutton.disabled:hover {fill:none; stroke: var(--button-unselected)}
+@font-face {
+	font-family:"ProvidentPali";
+	src: local("ProvidentPali"), url("ProvidentPaliSegoe.otf") 
+}
+.lang-pp- {font-family: "ProvidentPali" ;}
+.lang-pp-iast {font-family: "Segoe UI",Tahoma}
+.lang-pp-tb {font-size:120%}
+.lang-en {font-family: "Times New Roman", Georgia;}
+.logo {color:goldenrod;font-size:125%}
+a {color:var(--hyperlink)}
+.hyperlink {color:var(--hyperlink)}

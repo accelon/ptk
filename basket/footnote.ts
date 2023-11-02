@@ -35,6 +35,7 @@ export function footNoteAddress(id:string,line:number){
 export function footNoteInTSV(id:string,line:number){//assuming footnote=bk
     const ptk=this;
     const ck=ptk.nearestChunk(line);
+    if (!ck) return '';
     const footnotecol=ptk.columns[ck.bkid];
     if (!footnotecol) return '--no note--';
     return footnotecol.fieldByKey(id,"note");

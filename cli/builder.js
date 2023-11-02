@@ -9,7 +9,7 @@ const isSourceFile=fn=>{
     return fn.endsWith('.off')||fn.endsWith('.tsv')||fn.endsWith('.num')
 }
 
-export const builder=opts=>{
+export const builder=async opts=>{
     let files;
     let ptkname=arg;
     
@@ -46,7 +46,14 @@ export const builder=opts=>{
     console.log('indir',opts.indir);
 	if (files.length) {
         const thebuilder=opts.builder||dobuild
-		thebuilder(files,opts);
+		await thebuilder(files,opts);
+        if (fs.existsSync('dist')) {
+            const existingptk='dist'+Path.sep+opts.ptkname+'.ptk';
+            if (fs.existsSync(existingptk)) {
+                fs.unlinkSync(existingptk);
+            }
+            fs.renameSync(opts.ptkname+'.ptk',existingptk);
+        }
 	} else {
 		console.log(red("no source in current working directory"));
 	}

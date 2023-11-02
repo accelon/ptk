@@ -1,4 +1,4 @@
-import { parallelWithDiff } from '../align/parallels.js';
+import { parallelWithDiff } from '../align/parallels.ts';
 import {IAddress,usePtk} from '../basket/index.ts';
 import {parseCriteria} from '../fts/criteria.ts';
 import {IAction} from './interfaces.ts';

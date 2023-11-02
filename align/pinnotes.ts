@@ -1,4 +1,4 @@
-import { pinPos } from "./pinpos.js";
+import { pinPos } from "./pinpos.ts";
 
 export const pinNotes=(lines,notes,opts={})=>{
     const out=[];

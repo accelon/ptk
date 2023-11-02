@@ -1,4 +1,4 @@
-import {removeHeader,removeBold,spacify} from './breaker.js';
+import {removeHeader,removeBold,spacify} from './breaker.ts';
 import {diffSim} from '../utils/diff.ts';
 import {diffChars, diffWords} from 'diff'
 

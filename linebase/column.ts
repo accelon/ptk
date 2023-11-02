@@ -1,7 +1,8 @@
 /* store in column oriented */ 
 import {LEMMA_DELIMITER,StringArray,alphabetically0,alphabetically,
 	packIntDelta2d,	unpackIntDelta2d,packInt,unpackInt} from "../utils/index.ts"
-import {createField,VError} from  "../compiler/index.ts"
+import {createField} from  "../compiler/fielder.ts"
+import {VError} from  "../compiler/error.ts"
 import {tokenize,TokenType} from "../fts/tokenize.ts"
 import {parseOfftext} from '../offtext/index.ts'
 export class Column {

@@ -3,12 +3,14 @@ export enum TokenType {
     OFFTAG=0x3,
     SEARCHABLE=0x10,
     ROMANIZE=0x20,
+    MYANMAR=0x21,
     CJK=0x30,
     CJK_BMP=0x31,
     CJK_SURROGATE=0x32
 }
 
-import {Word_tailspace_Reg} from './constants'
+
+import {Word_tailspace_Reg} from './constants.ts'
 
 export function Token(text:string, choff:number, tkoff:number, type:TokenType){
     return {text,choff,tkoff,type}
@@ -50,6 +52,7 @@ export const tokenize=(text:string)=>{
                 out.push(Token(s.substring(prev,offset) , prev+i,tkoff,TokenType.UNSEARCHABLE));
             }
             while (s[offset]==' ') offset++;
+
             out.push(Token(m1,i+offset,tkoff,TokenType.ROMANIZE));
             tkoff++;
             prev=offset+m.length;

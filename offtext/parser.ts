@@ -3,7 +3,7 @@ import {OFFTAG_REGEX_G, OFFTAG_REGEX,OFFTAG_REGEX_TOKENIZE,OFFTAG_NAME_ATTR,ALWA
     OFFTAG_LEADBYTE} from './constants.ts';
 import {IOfftag} from './interfaces.ts';
 import {closeBracketOf,substrUTF32} from '../utils/index.ts'
-import {Token, TokenType, tokenize} from '../fts/tokenize.js'
+import {Token, TokenType, tokenize} from '../fts/tokenize.ts'
 
 const parseCompactAttr=(str:string)=>{  //              序號和長度和標記名 簡寫情形，未來可能有 @ 
     const out={}, arr=str.split(/([@#~])/);

@@ -1,6 +1,6 @@
 import {plAnd,plRanges,plCount} from './posting.ts';
 import {fromSim} from 'lossless-simplified-chinese'
-import {bsearchNumber} from '../utils/bsearch.js'
+import {bsearchNumber} from '../utils/bsearch.ts'
 import { plTrim } from './posting.ts';
 export const TOFIND_MAXLEN=50;
 export const MAX_PHRASE=5;
