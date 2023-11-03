@@ -5,14 +5,11 @@ import { readTextContent, writeChanged } from '../nodebundle.cjs';
 import * as colors from './colors.cjs'; // lukeed/kleur
 const {blue,yellow,red,cyan,underline,magenta,green} = colors;
 
-
 const __filename = fileURLToPath(import.meta.url);
 const __dirname=dirname(__filename)+sep+'ui23'+sep;
 const distdir='dist'+sep;
 const srcdir='src'+sep;
 const offdir='off'+sep;
-
-
 
 const dev=`import esbuild from "esbuild";
 import sveltePlugin from "esbuild-svelte";
