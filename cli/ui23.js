@@ -89,7 +89,7 @@ export const ui23=(appname,devport=5001)=>{
     
     writeTemplateContent("package.json");
     writeTemplateFile("tsconfig.json");
-    writeTemplateFile("rollup.config.ts");
+    writeTemplateFile("rollup.config.js");
 
     writeTemplateContent('index.ts', srcdir);
     writeTemplateContent('app.svelte', srcdir);
