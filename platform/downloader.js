@@ -1,5 +1,7 @@
 // Step 1: start the fetch and obtain a reader
 import {humanBytes} from '../utils/misc.ts'
+import {unique} from '../utils/sortedarray.ts'
+
 export const isLatest=async(url,cachename)=>{
     const cachefn=url.replace(/\?.+/,'');
     const fetchurl=cachefn+'?'+(new Date()).toISOString();
@@ -91,4 +93,15 @@ export const downloadToCache=async(cachename,url,cb)=>{
         cb&&cb('cached');
         return response;
     }
+}
+
+
+export const fileInCache=async (pat,cacheName)=>{
+    const cache=await caches.open(cacheName);
+    const keys=await cache.keys();
+    const incaches=keys.filter(it=>it.url.endsWith(".ptk")).map(it=>it.url.match(pat)[1])
+    return unique(incaches);
+}
+export const ptkInCache=async (cacheName)=> {
+    return await fileInCache(/([a-z_\-]+)\.ptk/,cacheName);
 }

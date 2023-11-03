@@ -1,13 +1,13 @@
 <script>
 import {openPtk} from 'ptk'
-import {downloadToCache} from 'ptk/platform/downloader.js'
+import {downloadToCache,ptkInCache} from 'ptk/platform/downloader.js'
 import {registerServiceWorker} from 'ptk/platform/pwa.js'
 import Main from './main.svelte'
-import {ptks,landscape,welcoming,ptkInCache,selectedptks,availableptks} from './appstore.js'
-
+import {landscape,welcoming,selectedptks,availableptks} from './appstore.js'
+import {ACC23} from 'accelon23/src/appconst.js'
 let loaded=false,app,bootmessage='';
 registerServiceWorker();
-
+const allptks=ACC23.allptks;
 const openptk=async name=>{
     bootmessage='try to download '+name+'.ptk'
     const res=await downloadToCache(Window.CacheName,name+'.ptk',msg=>{
@@ -19,7 +19,7 @@ const openptk=async name=>{
     return ptk;
 }
 const init=async ()=>{
-    const toload=await ptkInCache();
+    const toload=await ptkInCache(ACC23.CacheName);
     const ptkss=$selectedptks;
     
     for (let i=0;i<ptkss.length;i++) {
@@ -28,7 +28,8 @@ const init=async ()=>{
         }
     }
     
-    availableptks.set(  ptks.filter(it=>~toload.indexOf(it))); // keep the order
+    availableptks.set( allptks.filter(it=>~toload.indexOf(it))); // keep the order
+   
     app.style.height=window.innerHeight+'px';
     app.style.width=window.innerWidth+'px';   
     for (let i=0;i<toload.length;i++) {
@@ -61,7 +62,7 @@ Welcome
 {:else}
 <span class="bodytext">
 {bootmessage}
-<br/>系統版本：{Window.APPVER} <a href="https://nissaya.cn/" target="_new">官網</a>
+<br/>系統版本：{Window.AppVer} <a href="https://nissaya.cn/" target="_new">官網</a>
 <br/>如果卡在此畫面沒有進度，表示瀏覽器不直持 ECMAScript 2015，無法運行本軟件。
 <br/>PC及安卓請改用 Chrome 訪問本頁面。
 <br/>iOS須13版以上，並使用內建的Safari。
