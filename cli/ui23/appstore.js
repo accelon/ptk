@@ -1,5 +1,7 @@
 export * from 'accelon23/src/store.js';
 import {ACC23 as _ACC23} from 'accelon23/src/appconst.js'
+
+console.log('appstore')
 _ACC23.CacheName='v1::$APPNAME$',
 _ACC23.AppVer='23.10.31';
 _ACC23.AppName='$APPNAME$'

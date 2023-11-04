@@ -94,9 +94,7 @@ export const ui23=(appname,devport=5001)=>{
     writeTemplateFile("rollup.config.js");
 
     writeTemplateContent('index.ts', srcdir);
-    writeTemplateContent('app.svelte', srcdir);
     writeTemplateContent('appstore.js',srcdir);
-    writeTemplateContent('main.svelte',srcdir);
 
     writeChanged(offdir+'/0.off','^:<ptk='+appname+' zh=中文名 lang=zh>');
     writeTemplateContent('appname.off',offdir);
