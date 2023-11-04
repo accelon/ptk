@@ -48,14 +48,11 @@ export const ui23=(appname,devport=5001)=>{
         fs.writeFileSync(outdir+fn.replace('appname',appname),content);
     }
     if (!existsSync('.git')) {
-        console.log('not a github repo')
-        return;
+        console.log(red('warning ! not a github repo'))
     }
 
     //make dist folder
-    if (!existsSync('dist')) {
-        mkdirSync('dist');
-    }
+    if (!existsSync('dist')) mkdirSync('dist');
 
     //make dist folder
     if (!existsSync('src')) {
@@ -63,22 +60,21 @@ export const ui23=(appname,devport=5001)=>{
     } else {
         console.log(red('existing src'))
         // return
-    }    
-
+    }
     if (!existsSync('off')) {
         mkdirSync('off');
     } else {
         console.log(red('existing off/*'))
         // return
-    }    
-    const transdir=appname+'-en.offtext'
-    if (!existsSync(transdir)) {
-        mkdirSync(transdir);
-    } else {
-        console.log(red('exiting '+transdir+'/*'))
-        // return
-    }    
-
+    }
+    const engdir=appname+'-en.offtext'
+    if (!existsSync(engdir)) {
+        mkdirSync(engdir);
+    }
+    const rudir=appname+'-ru.offtext'
+    if (!existsSync(rudir)) {
+        mkdirSync(rudir);
+    }
 
     writeTemplateContent('appname.manifest',distdir);
     writeTemplateContent('sw.js',distdir);
@@ -105,14 +101,17 @@ export const ui23=(appname,devport=5001)=>{
     writeChanged(offdir+'/0.off','^:<ptk='+appname+' zh=中文名 lang=zh>');
     writeTemplateContent('appname.off',offdir);
   
-    writeChanged(transdir+'/0.off','^:<ptk='+appname+'-en zh=英文名 en=Name lang=en>');
-    writeTemplateContent('appname.en.off',transdir+'/');
+    writeChanged(engdir+'/0.off','^:<ptk='+appname+'-en zh=英文名 en=Name lang=en>');
+    writeTemplateContent('appname.en.off',engdir+'/');
+
+    writeChanged(rudir+'/0.off','^:<ptk='+appname+'-ru zh=俄文名 ru=Русский en=Name lang=ru>');
+    writeTemplateContent('appname.ru.off',rudir+'/');
 
     console.log(cyan('install dependencies(take few minutes)'))
     console.log('npm i');
     console.log(cyan('rebuild database'),yellow('off/*.off'))
     console.log('ptk ptk');
-    console.log(cyan('rebuild translation'),yellow(appname+'-en.offtext/*.off'))
+    console.log(cyan('rebuild english'),yellow(appname+'-en.offtext/*.off'))
     console.log('ptk ptk '+appname+'-en');
     console.log(cyan('dev mode'))
     console.log('npm run dev');

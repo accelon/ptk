@@ -11,7 +11,7 @@ registerServiceWorker();
 const allptks=ACC23.allptks;
 const openptk=async name=>{
     bootmessage='try to download '+name+'.ptk'
-    const res=await downloadToCache(Window.CacheName,name+'.ptk',msg=>{
+    const res=await downloadToCache(ACC23.CacheName,name+'.ptk',msg=>{
         bootmessage=name+'.ptk '+msg;
     })
     
