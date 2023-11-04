@@ -111,13 +111,16 @@ const help=()=>{
 const test=()=>{
     console.log(PTK.sentencize('我是一^f#4<xxx>，個句子'));
 }
+const elapses=['ptk','js','sent','adb2zip','dumpxml','dump']
 try {
     console.time('elapsed')
     await ({'--help':help,'-h':help,ptk,js,com,dedup,unique,listwords,cbeta,align,crlf,sent,test,ui23,
     union,ngram,intersect,xor,xmltag,tei,dumpxml,dump,markj,markid,adb2zip,ts,addn})[cmd](arg,arg2);
-    console.log('\n')
-    console.timeEnd('elapsed')
+    if (~elapses.indexOf(cmd)  ) {
+        console.log('\n')
+        console.timeEnd('elapsed')
+    }
 } catch(e) {
-    console.log( red('error running command'),cmd)
+    console.log( red('error running command'),cmd);
     console.log(e)
 }

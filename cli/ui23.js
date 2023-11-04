@@ -34,11 +34,14 @@ let ctx=await esbuild
 
 
 export const ui23=(appname,devport=5001)=>{
+    let cwd=process.cwd().slice(process.cwd().lastIndexOf(sep)+1);
+    
+    if (!appname) appname=cwd;
     const writeTemplateContent=(fn,outdir='')=>{
         const content=readTextContent(__dirname+fn)
         .replace(/\$APPNAME\$/g,appname)
         .replace(/\$PORT\$/g,devport);
-        writeChanged(outdir+fn.replace('appname',appname),content,true);    
+        writeChanged(outdir+fn.replace('appname',appname),content);    
     }
     const writeTemplateFile=(fn,outdir='')=>{
         const content=fs.readFileSync(__dirname+fn);
@@ -58,16 +61,24 @@ export const ui23=(appname,devport=5001)=>{
     if (!existsSync('src')) {
         mkdirSync('src');
     } else {
-        console.log('cannot overwrite existing ui')
+        console.log(red('existing src'))
         // return
     }    
 
     if (!existsSync('off')) {
         mkdirSync('off');
     } else {
-        console.log('cannot overwrite existing off text files')
+        console.log(red('existing off/*'))
         // return
     }    
+    const transdir=appname+'-en.offtext'
+    if (!existsSync(transdir)) {
+        mkdirSync(transdir);
+    } else {
+        console.log(red('exiting '+transdir+'/*'))
+        // return
+    }    
+
 
     writeTemplateContent('appname.manifest',distdir);
     writeTemplateContent('sw.js',distdir);
@@ -80,10 +91,8 @@ export const ui23=(appname,devport=5001)=>{
     writeTemplateFile('global.css',distdir);
     writeTemplateFile('ProvidentPaliSegoe.otf',distdir);
 
-    writeChanged('dev.cmd','npm run dev',true);
-
-    writeChanged('dev.js', dev.replace('5001',devport),true);
-    
+    writeChanged('dev.cmd','npm run dev');
+  
     writeTemplateContent("package.json");
     writeTemplateFile("tsconfig.json");
     writeTemplateFile("rollup.config.js");
@@ -93,13 +102,22 @@ export const ui23=(appname,devport=5001)=>{
     writeTemplateContent('appstore.js',srcdir);
     writeTemplateContent('main.svelte',srcdir);
 
-    writeTemplateContent('0.off',offdir);
+    writeChanged(offdir+'/0.off','^:<ptk='+appname+' zh=中文名 lang=zh>');
     writeTemplateContent('appname.off',offdir);
-    
-    console.log(blue('install dependencies'))
+  
+    writeChanged(transdir+'/0.off','^:<ptk='+appname+'-en zh=英文名 en=Name lang=en>');
+    writeTemplateContent('appname.en.off',transdir+'/');
+
+    console.log(cyan('install dependencies(take few minutes)'))
     console.log('npm i');
-    console.log(blue('rebuild database'))
+    console.log(cyan('rebuild database'),yellow('off/*.off'))
     console.log('ptk ptk');
-    console.log(blue('dev mode'))
-    console.log('npm run dev')
+    console.log(cyan('rebuild translation'),yellow(appname+'-en.offtext/*.off'))
+    console.log('ptk ptk '+appname+'-en');
+    console.log(cyan('dev mode'))
+    console.log('npm run dev');
+
+    console.log(cyan('build release'))
+    console.log('npm run build')
+    
 }

@@ -269,7 +269,8 @@ not suitable for dictionary wordheads
 		const linepos=this.defines[ele]?.linepos;
 		if (!linepos) return [];
 		const at=bsearchNumber(linepos, from);
-		const at2=bsearchNumber(linepos, to)-1;
+		let at2=bsearchNumber(linepos, to);
+		if (linepos[at2]>to) at2--;
 		return [at,at2];
 	}
 }

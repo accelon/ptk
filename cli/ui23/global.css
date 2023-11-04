@@ -53,8 +53,25 @@ body{
   }
   
 .selected {background: var(--selected);border-radius: 0.25em}
+.rootptk {font-weight: bold; }  
 .visible {display:inline;pointer-events:all;}
 .clickable {cursor:pointer;}
+
+
+.slidercaption {color:black;pointer-events: none;user-select: none;}
+.partext{border-left:3px solid black;}
+.parselected {border-left:3px solid gray}
+.partext0 {color:var(--depthcolor0)}
+.partext1 {color:var(--depthcolor1)}
+.partext2 {color:var(--depthcolor2)}
+.partext3 {color:var(--depthcolor3)}
+.partext4 {color:var(--depthcolor4)}
+.partext5 {color:var(--depthcolor5)}
+.partext6 {color:var(--depthcolor6)}
+.partext7 {color:var(--depthcolor7)}
+.partext8 {color:var(--depthcolor8)}
+.partext9 {color:var(--depthcolor9)}
+
 
 .hr {background-color:gray;height: 1px;}
 .centernav {width:100%;text-align: center;display:block}

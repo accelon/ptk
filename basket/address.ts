@@ -225,11 +225,12 @@ export function tagAtAction(action:string):Array{
 	const out=[];
 	let parentlinepos=0;
 	for (let i=0;i<arr.length;i++) {
-		const [tagname,id]=arr[i];
+		let [tagname,id]=arr[i];
 		if (!this.defines[tagname]) continue;
 		const taglinepos=this.defines[tagname].linepos;
 		const tagidarr=this.defines[tagname].fields.id.values;
 		const searchfrom=bsearchNumber(taglinepos,parentlinepos);
+		if (typeof tagidarr[0]=='number') id=parseInt(id);
 		let at=tagidarr.indexOf(id, searchfrom);
 		let rel=at-searchfrom;
 		if (at<0) at=0;
