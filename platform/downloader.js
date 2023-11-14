@@ -105,3 +105,8 @@ export const fileInCache=async (pat,cacheName)=>{
 export const ptkInCache=async (cacheName)=> {
     return await fileInCache(/([a-z_\-]+)\.ptk/,cacheName);
 }
+
+export const isMobile=()=>{
+    const ua=navigator?.userAgent;
+    return ~ua.indexOf('iPhone')||~ua.indexOf('iPad')||~ua.indexOf('Android')||~ua.indexOf('Mobile')
+}

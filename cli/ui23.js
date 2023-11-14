@@ -59,13 +59,13 @@ export const ui23=(appname,devport=5001)=>{
         mkdirSync('src');
     } else {
         console.log(red('existing src'))
-        // return
+        return
     }
     if (!existsSync('off')) {
         mkdirSync('off');
     } else {
         console.log(red('existing off/*'))
-        // return
+        return
     }
     const engdir=appname+'-en.offtext'
     if (!existsSync(engdir)) {

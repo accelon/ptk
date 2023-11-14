@@ -23,6 +23,7 @@ body{
   --highlightline : rgba(30,30,30);
   --track-bg:gray;
   --hyperlink: greenyellow;
+  --hit : rgb(255, 173, 42);
 }
 @media (orientation: portrait) {
   body {
@@ -91,3 +92,27 @@ body{
 .logo {color:goldenrod;font-size:125%}
 a {color:var(--hyperlink)}
 .hyperlink {color:var(--hyperlink)}
+
+@keyframes favorblinker {
+  50% { opacity: 0;  }
+}
+
+.needupdate{
+  animation: favorblinker 2s linear infinite;
+}
+
+.diminput {color:silver}
+.selectedsearchable {background: var(--hit);color:white;cursor: pointer;user-select: none;}
+.tofind {font-size:1em}
+.hide{display:none}
+.userselectnone{user-select:none}
+
+.hl0{color:var(--hit)}
+.hl1{color:rgb(255, 86, 86)}
+.hl2{color:rgb(238, 105, 255)}
+.hl2{color:rgb(90, 181, 255)}
+.excerptseq {padding-left:0.3em;padding-right:0.3em;font-size:90%;color:gray}
+.hitbtn{color:var(--hit);font-size:90%;}
+.abridged {font-size:85%;color:gray}
+.offtag_f {font-size:85%}
+.footnote {font-size:90%;color:aqua}
