@@ -88,6 +88,9 @@ export const ui23=(appname,devport=5001)=>{
     writeTemplateFile('ProvidentPaliSegoe.otf',distdir);
 
     writeChanged('dev.cmd','npm run dev');
+    writeChanged('.gitignore',`*.ptk
+    node_modules
+    dist`);
   
     writeTemplateContent("package.json");
     writeTemplateFile("tsconfig.json");
