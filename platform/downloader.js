@@ -96,16 +96,18 @@ export const downloadToCache=async(cachename,url,cb)=>{
 }
 
 
-export const fileInCache=async (pat,cacheName)=>{
+export const fileInCache=async (pat,cacheName,ext='.ptk')=>{
     const cache=await caches.open(cacheName);
     const keys=await cache.keys();
-    const incaches=keys.filter(it=>it.url.endsWith(".ptk")).map(it=>it.url.match(pat)[1])
+    const incaches=keys.filter(it=>it.url.endsWith(ext)).map(it=>it.url.match(pat)[1])
     return unique(incaches);
 }
 export const ptkInCache=async (cacheName)=> {
     return await fileInCache(/([a-z_\-]+)\.ptk/,cacheName);
 }
-
+export const mp3InCache=async (cacheName)=> {
+    return await fileInCache(/([a-z_\-]+)\.mp3/,cacheName,'.mp3');
+}
 export const isMobile=()=>{
     const ua=navigator?.userAgent;
     return ~ua.indexOf('iPhone')||~ua.indexOf('iPad')||~ua.indexOf('Android')||~ua.indexOf('Mobile')

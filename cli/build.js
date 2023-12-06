@@ -46,7 +46,7 @@ export const dobuild=async (files, opts={})=>{
 	let written=0,outfn='';
 	process.stdout.write('\r');
 	const folder=outdir+lbaser.name+'/';
-	if (!fs.existsSync(folder)) fs.mkdirSync(folder);
+	if (!fs.existsSync(folder) && opts.jsonp) fs.mkdirSync(folder);
 
 	if (typeof lbaser=='string') { //fatal
 		console.log(red(lbaser))
