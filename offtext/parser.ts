@@ -9,8 +9,8 @@ const parseCompactAttr=(str:string)=>{  //              序號和長度和標記
     const out={}, arr=str.split(/([@#~])/);
     while (arr.length) {
         let v=arr.shift();
-        if      (v==='~') out['~']=arr.shift();  
-        else if (v==='@') out['@']=arr.shift();  // a pointer
+        if      (v==='~') out['to']=arr.shift();  
+        else if (v==='@') out['ln']=arr.shift();  // a pointer
         else if (v==='#') {
                 v=arr.shift();
                 const m=v.match(OFFTAG_COMPACT_ID); //id with numeric leading may omit #
@@ -41,6 +41,8 @@ export const parseAttributes=(rawAttrs:string,compactAttr:string)=>{
         if (it[0]=='~' || it[0]=='#' || it[0]=='@')  { //short form
            key=it[0];
            if (key=='#') key='id';
+           if (key=='@') key='ln';
+           if (key=='~') key='to';
            eq=(it[1]=='=')?1:0;
         } else {
            eq=it.indexOf('=');

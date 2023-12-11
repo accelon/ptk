@@ -38,6 +38,7 @@ export const sortFilenames=filenames=>{
 export const getFilesOfBook=(pat,filesFolders,rootfolder)=>{
     let folders=filesFolders[pat];
     if (!folders) return [];
+
     if (typeof folders==='string') {
         const out=[];
         folders.split(',').forEach(f=>{
