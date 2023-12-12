@@ -176,7 +176,10 @@ export class Compiler implements ICompiler {
 			const typedef=text.split('\t') ; // typdef of each field , except field 0
 			const columns=new Column( {typedef, primarykeys:this.primarykeys ,onError:this.onError.bind(this) } );
 			const [serialized,_textstart]=columns.fromStringArray(sa,attrs,1,this.compiledFiles) ; //build from TSV, start from line 1
-			this.checkFootnote(attrs,columns.keys,filename);
+			console.log(attrs)
+			if (!attrs.nocheck) {
+				this.checkFootnote(attrs,columns.keys,filename);
+			}
 
 			textstart=_textstart;
 			if (serialized) {
