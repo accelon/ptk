@@ -13,7 +13,7 @@ import {dump} from './dumpptk.js';
 import {adb2zip} from './adb2zip.js';
 import {ts} from './subtitle.js'
 import {cbeta} from './cbeta.js'
-import {addn} from './addn.js'
+import {addn,copyn} from './addn.js'
 import {align,crlf} from './align.js'
 import {sentbuilder} from './sent.js'
 import Path from 'path';
@@ -103,6 +103,7 @@ const help=()=>{
 
     console.log('$',yellow('ptk cbeta    '),cyan('filename|string'),'convert cbeta address');
     console.log('$',yellow('ptk addn     '),cyan('filename'),'add ^n');
+    console.log('$',yellow('ptk copyn  '),cyan('filename'),cyan('targetfile'),'migrate n ');
 
     console.log('$',yellow('ptk ui23     '),cyan('name'),cyan('dev-port=5001'),'create scaffold ui32 in cwd');
 
@@ -115,7 +116,7 @@ const elapses=['ptk','js','sent','adb2zip','dumpxml','dump']
 try {
     console.time('elapsed')
     await ({'--help':help,'-h':help,ptk,js,com,dedup,unique,listwords,cbeta,align,crlf,sent,test,ui23,
-    union,ngram,intersect,xor,xmltag,tei,dumpxml,dump,markj,markid,adb2zip,ts,addn})[cmd](arg,arg2);
+    union,ngram,intersect,xor,xmltag,tei,dumpxml,dump,markj,markid,adb2zip,ts,addn,copyn})[cmd](arg,arg2);
     if (~elapses.indexOf(cmd)  ) {
         console.log('\n')
         console.timeEnd('elapsed')
