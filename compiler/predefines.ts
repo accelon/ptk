@@ -12,10 +12,10 @@ generic:
 ^:ad
 ^:bc
 ^:ver<savelinepos=true>
-^:f<id=text>
+^:f<id=text bracket=false @=text savelinepos=true>
 ^:sponsor<savelinepos=true>
 ^:https<bracket=false onclick=gourl>
-^:fn<id=number>
+^:fn<id=text>
 ^:t`,
 cbeta:
 `^:ak<id=unique bracket=false>

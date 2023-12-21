@@ -100,7 +100,7 @@ export class Typedef implements ITypedef {
 		return newtag
 	}
 	validateTag(offtext:IOfftext, tag:IOfftag , line:number, compiledLine:number , compiledFiles, onError) {
-		if (this.fields.id || this.fields['@'] || this.attrs.savelinepos) { //auto save linepos if validating id
+		if (this.fields.id || this.fields['@'] ||this.fields.ln || this.attrs.savelinepos) { //auto save linepos if validating id
 			this.linepos.push(compiledLine+line);
 		}
 		if (this.attrs.bracket) { // false to keep the bracket

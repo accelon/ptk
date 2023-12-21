@@ -26,6 +26,7 @@ export const builder=async opts=>{
             opts.outdir='../';
         }
     } else { //pack all files in off
+        ptkname=ptkname.replace('.offtext',''); //allow input offtext foldername
         opts.ptkname=ptkname;
         opts.indir=ptkname+'.offtext/'
         const listfilename=ptkname+'.lst';  //readdir if listfile is missing
