@@ -14,7 +14,8 @@ export const copyn=(arg,arg2)=>{
             if (m2) { //overwrite the existing
                 tolines[i]=tolines[i].replace(/\^n(\d*)/,'^n'+m[1]);
             } else {
-                tolines[i]='^n'+m[1]+tolines[i];
+                const extra=(tolines[i]=='^'||tolines[i]==' ')?'':' ';
+                tolines[i]='^n'+m[1]+extra+tolines[i];
             }
         }
     }

@@ -10,8 +10,7 @@ tsv footnote=ck
 
 兩種不能混用
 */
-export function checkFootnoteInnertext(attrs:Object,notekeys,filename){
-    //group notekeys
+const groupnotes=notekeys=>{
     const Notes={};
     for (let i=0;i<notekeys.length;i++) {
         const m=notekeys[i].match(/(\d+)\.(.+)/);
@@ -22,11 +21,10 @@ export function checkFootnoteInnertext(attrs:Object,notekeys,filename){
         }
         Notes[m[1]][m[2]]=0;
     }
-    const tagname=attrs.footnote||'bk';
-    const tag=this.typedefs[tagname];
-    const ftag=this.typedefs.f;
-
-    
+    return Notes;
+}
+//檢查每個內文及 tsv 是否能對映
+const mapFootnoteId=(tag,ftag,Notes,tagname)=>{
     for (let i=0;i<tag.fields.id.values.length;i++) {
         const groupid=tag.fields.id.values[i];
         const from=tag.linepos[i];
@@ -44,7 +42,7 @@ export function checkFootnoteInnertext(attrs:Object,notekeys,filename){
         for (let j=0;j<offtextfootnote.length;j++) {
             const f=offtextfootnote[j];
             if (!Notes[groupid]) {
-                console.log('not such id',groupid)
+                console.log('no such id',groupid)
                 continue;
             }
             if (Notes[groupid].hasOwnProperty(f)) Notes[groupid][f]++;
@@ -53,8 +51,15 @@ export function checkFootnoteInnertext(attrs:Object,notekeys,filename){
             }
         }
         // console.log(groupid,start,end,offtextfootnote);
-    }
-    
+    }   
+}
+export function checkFootnoteInnertext(attrs:Object,notekeys,filename){
+    //group notekeys
+    const Notes=groupnotes(notekeys);
+    const tagname=attrs.footnote||'bk';
+    const tag=this.typedefs[tagname];
+    const ftag=this.typedefs.i;
+    mapFootnoteId(tag,ftag,Notes,tagname);
 }
 
 /*以id連結注釋
@@ -62,22 +67,22 @@ export function checkFootnoteInnertext(attrs:Object,notekeys,filename){
 tsv footnote=bk
 11   解釋
 */
+
 export function checkFootnote(attrs:Object,notekeys,filename){
     if (!attrs.footnote) return;
-    const nametag=attrs.footnote||'bk';//default name same with bk
-    const tag=this.typedefs[nametag];
+    const tagname=attrs.footnote||'bk';//default name same with bk
+    const tag=this.typedefs[tagname];
     const ftag=this.typedefs.f;
     if (!tag) {
         console.log('unknown tag',tag,'checkfootnote');
         return;
     }
-    if (!ftag) {
-        console.log('no f tag in source');
-        return;
+    if (!ftag && this.typedefs.i) {//try inline footnote
+        return checkFootnoteInnertext.call(this,attrs,notekeys,filename);
     }
-
-    if (ftag.innertext.length) return checkFootnoteInnertext.call(this,attrs,notekeys,filename);
-
+    if (!ftag ) { 
+        console.log('no f tag in source');        
+    }
     //note tsv name == bk name
     const at=tag.fields.id.values.indexOf(attrs.name);
     const from=tag.linepos[at];
@@ -87,8 +92,13 @@ export function checkFootnote(attrs:Object,notekeys,filename){
     let end=bsearchNumber(ftag.linepos,to);
     if (!end||ftag.linepos[end]<to) end=ftag.linepos.length //fix last item
     
-    const offtextfootnote=ftag.fields.id.values.slice(start,end).sort(alphabetically);
-    if (offtextfootnote.join()!==notekeys.join()) {
-        console.log(filename,'footnote missing match',arraydiff(notekeys,offtextfootnote),notekeys.join())
+    if (tagname=='bk') { //id is simple number
+        const offtextfootnote=ftag.fields.id.values.slice(start,end).sort(alphabetically);
+        if (offtextfootnote.join()!==notekeys.join()) {
+            console.log(filename,'footnote missing match',arraydiff(notekeys,offtextfootnote),notekeys.join())
+        }
+    } else { //id prefix with chunk or other tag
+        const Notes=groupnotes(notekeys);
+        mapFootnoteId(tag,ftag,Notes,tagname);
     }
 }

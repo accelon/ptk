@@ -12,7 +12,8 @@ generic:
 ^:ad
 ^:bc
 ^:ver<savelinepos=true>
-^:f<id=text bracket=false @=text savelinepos=true>
+^:f<id=number>
+^:i<bracket=false @=text savelinepos=true>
 ^:sponsor<savelinepos=true>
 ^:https<bracket=false onclick=gourl>
 ^:fn<id=text>
