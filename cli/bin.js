@@ -70,6 +70,7 @@ const help=()=>{
     console.log(underline('Making Pitaka 制作'));
     console.log('$',yellow('ptk ptk '),magenta('ptkname'), 'pack into a ptk file(zip)   打包成ptk(zip)文件',cyan('ptkname.ptk'))
     console.log('$',yellow('ptk js  '),magenta('ptkname'), '*.js files output to   输出js文件到 ',cyan('ptkname'));
+   console.log('$',yellow('ptk sent     '),magenta('ptkname'),'read offtext and generate sent.tsv, 從 off 產生 sent.tsv');
     console.log('$',yellow('ptk dump'),magenta('ptkname'),'倒出 ptk 內容');
 
     //console.log('$',yellow('ptk com [lstfile]'),magenta('ptkname'),  'stand-alone executable 制造自足程序 ',cyan('ptkname.com'))
@@ -96,6 +97,7 @@ const help=()=>{
 
     console.log('$',yellow('ptk markj    '),cyan('address'),cyan('txtfile'),cyan('pattern'),'find origtext 找原書出處');
     console.log('$',yellow('ptk markid   '),cyan('address'),cyan('txtfile'),'fill id, 補上 id');
+    
 
     console.log('$',yellow('ptk adb2zip  '),cyan('filename'),'adb to zip ');
 

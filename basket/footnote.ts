@@ -35,12 +35,14 @@ export function footNoteAddress(id:string,line:number){
 export function footNoteInTSV(id:string,line:number){//assuming footnote=bk
     const ptk=this;
     let ck='',hasck=false;
-    if (~id.indexOf('.')) {//given a chunk
+    if (!id) return '';
+    if (id && ~id.indexOf('.')) {//given a chunk
         ck=ptk.getChunk(id.slice(0,id.indexOf('.')));
         hasck=true;   
     } else {
         ck=ptk.nearestChunk(line);
-    }    
+    }
+    if (!ck) return '';
     const footnotecol=ptk.columns[ck.bkid];//each tsv has one book
     if (!footnotecol) return '--no note--';
     if (footnotecol.attrs.footnote=='ck' && !hasck) {
