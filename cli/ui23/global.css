@@ -122,3 +122,4 @@ a {color:var(--hyperlink)}
 .transclusion_opened{text-decoration-line:underline;text-decoration-style:wavy}
 .offtag_ck{color:var(--depthcolor2)}
 .offtag_ak{color:var(--depthcolor3)}
+.offtag_l {text-decoration-line:underline;text-decoration-style:solid;}

@@ -22,7 +22,7 @@
     "rollup-plugin-livereload": "^2.0.5",
     "rollup-plugin-svelte": "^7.1.5",
     "rollup-plugin-swc": "^0.2.1",
-    "svelte": "^4.0.0",
+    "svelte": "^4.2.0",
     "svelte-check": "^3.4.3",
     "svelte-preprocess": "^5.0.3",
     "tslib": "^2.5.3",

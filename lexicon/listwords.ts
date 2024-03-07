@@ -10,6 +10,7 @@ export const listwords=(text:StringArray, lexicon:StringArray)=>{
 			if (cp>=0xdc800 && cp<=0xdfff) i++;
 			const matches=lexicon.matchLongest(line.slice(i));
 			if (matches.length) {
+				
 				matches.forEach(m=>incObj(patterns,m[0]) )
 				// console.log( matches )
 			}

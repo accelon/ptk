@@ -56,7 +56,8 @@ export const folioPosFromAddress=async (ptk,address)=>{
     const [start,end]=ptk.rangeOfAddress(action);
     if (!end) return {};
     const folio=ptk.defines.folio;
-    const folioat=bsearchNumber(ptk.defines.folio.linepos, start+1)-1;
+    let folioat=bsearchNumber(ptk.defines.folio.linepos, start+1)-1;
+    if (folioat==-1) folioat=0; 
     const ckat=bsearchNumber(ptk.defines.ck.linepos, start+1)-1;
     const id=folio.fields.id.values[folioat];
     if (!id) return {};

@@ -59,7 +59,7 @@ export function checkInlineFootnote(attrs:Object,notekeys){
                 }
             }
             if (!Notes[gid]) {
-                console.log('no such id',gid)
+                console.log('no such id',gid, f, tagname,tag.fields.id.values)
                 continue;
             }
             if (Notes[gid].hasOwnProperty(f)) {
