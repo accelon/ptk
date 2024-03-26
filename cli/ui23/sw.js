@@ -59,7 +59,7 @@
         
         if (~accept.indexOf('text/') || request.url.endsWith('.js')|| request.url.endsWith('.css')) { //html, css , js, try to fetch updates
             // Fix for Chrome bug: https://code.google.com/p/chromium/issues/detail?id=573937
-            if (request.mode != 'navigate') {
+          /*  if (request.mode != 'navigate') {
                 request = new Request(request.url, {
                     method: 'GET',
                     headers: request.headers,
@@ -67,7 +67,7 @@
                     credentials: request.credentials,
                     redirect: request.redirect
                 });
-            }
+            }*/
             event.respondWith(
                 fetch(request) //try online first
                     .then(function (response) {
