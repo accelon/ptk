@@ -83,14 +83,7 @@ body{
 .statebutton.disabled {cursor:auto;fill:none;stroke:var(--button-unselected) }
 .statebutton.unselected {color:gray}
 .statebutton.disabled:hover {fill:none; stroke: var(--button-unselected)}
-@font-face {
-	font-family:"ProvidentPali";
-	src: local("ProvidentPali"), url("ProvidentPaliSegoe.otf") 
-}
-.lang-pp- {font-family: "ProvidentPali" ;}
-.lang-pp-iast {font-family: "Segoe UI",Tahoma}
-.lang-pp-tb {font-size:120%}
-.lang-en {font-family: "Times New Roman", Georgia;}
+
 .logo {color:goldenrod;font-size:125%}
 a {color:var(--hyperlink)}
 .hyperlink {color:var(--hyperlink)}

@@ -71,10 +71,10 @@ export const ui23=(appname,devport=5001)=>{
     if (!existsSync(engdir)) {
         mkdirSync(engdir);
     }
-    const rudir=appname+'-ru.offtext'
-    if (!existsSync(rudir)) {
-        mkdirSync(rudir);
-    }
+    // const rudir=appname+'-ru.offtext'
+    // if (!existsSync(rudir)) {
+    //     mkdirSync(rudir);
+    // }
 
     writeTemplateContent('appname.manifest',distdir);
     writeTemplateContent('sw.js',distdir);
@@ -85,7 +85,6 @@ export const ui23=(appname,devport=5001)=>{
     writeTemplateFile('appname.png',distdir);
     writeTemplateFile('appname512.png',distdir);
     writeTemplateFile('global.css',distdir);
-    writeTemplateFile('ProvidentPaliSegoe.otf',distdir);
 
     writeChanged('dev.cmd','npm run dev');
     writeChanged('.gitignore',`*.ptk\nnode_modules\ndist`);
@@ -97,14 +96,15 @@ export const ui23=(appname,devport=5001)=>{
     writeTemplateContent('index.ts', srcdir);
     writeTemplateContent('appstore.js',srcdir);
 
-    writeChanged(offdir+'/0.off','^:<ptk='+appname+' zh=中文名 lang=zh>');
+    writeChanged(offdir+'/0.off','^:<ptk='+appname+' zh=中文名 lang=zh  quickhome=1>\n^:l\n^:audio\n^:img');
     writeTemplateContent('appname.off',offdir);
+    writeTemplateContent('appname.tsv',offdir);
   
-    writeChanged(engdir+'/0.off','^:<ptk='+appname+'-en zh=英文名 en=Name lang=en>');
+    writeChanged(engdir+'/0.off','^:<ptk='+appname+'-en zh=英文名 en=Name lang=en  quickhome=1>\n^:l\n^"audio\n^"img');
     writeTemplateContent('appname.en.off',engdir+'/');
 
-    writeChanged(rudir+'/0.off','^:<ptk='+appname+'-ru zh=俄文名 ru=Русский en=Name lang=ru>');
-    writeTemplateContent('appname.ru.off',rudir+'/');
+    //writeChanged(rudir+'/0.off','^:<ptk='+appname+'-ru zh=俄文名 ru=Русский en=Name lang=ru>');
+    //writeTemplateContent('appname.ru.off',rudir+'/');
 
     console.log(cyan('install dependencies(take few minutes)'))
     console.log('npm i');
