@@ -96,11 +96,11 @@ export const ui23=(appname,devport=5001)=>{
     writeTemplateContent('index.ts', srcdir);
     writeTemplateContent('appstore.js',srcdir);
 
-    writeChanged(offdir+'/0.off','^:<ptk='+appname+' zh=中文名 lang=zh  quickhome=1>\n^:l\n^:audio\n^:img');
+    writeChanged(offdir+'/0.off','^:<ptk='+appname+' zh=中 lang=zh  quickhome=1>\n^:l\n^:audio\n^:img');
     writeTemplateContent('appname.off',offdir);
     writeTemplateContent('appname.tsv',offdir);
   
-    writeChanged(engdir+'/0.off','^:<ptk='+appname+'-en zh=英文名 en=Name lang=en  quickhome=1>\n^:l\n^"audio\n^"img');
+    writeChanged(engdir+'/0.off','^:<ptk='+appname+'-en zh=英 en=Name lang=en  quickhome=1>\n^:l\n^"audio\n^"img');
     writeTemplateContent('appname.en.off',engdir+'/');
 
     //writeChanged(rudir+'/0.off','^:<ptk='+appname+'-ru zh=俄文名 ru=Русский en=Name lang=ru>');
@@ -114,8 +114,9 @@ export const ui23=(appname,devport=5001)=>{
     console.log('ptk ptk '+appname+'-en');
     console.log(cyan('dev mode'))
     console.log('npm run dev');
-
+    console.log(cyan('rename app'))
+    console.log('code src/appstore.js')
     console.log(cyan('build release'))
     console.log('npm run build')
-    
+
 }
