@@ -92,7 +92,7 @@ export const ui23=(appname,devport=5001)=>{
     writeTemplateContent("package.json");
     writeTemplateFile("tsconfig.json");
     writeTemplateFile("rollup.config.js");
-    writeTemplateFile("buddha.jpg");
+    //writeTemplateFile("buddha.jpg");
 
     writeTemplateContent('index.ts', srcdir);
     writeTemplateContent('appstore.js',srcdir);
