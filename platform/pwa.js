@@ -9,12 +9,14 @@ export function getPWADisplayMode() {
     return 'browser';
 }
 export function registerServiceWorker(swfn="./sw.js"){
-  const p=document.location.protocol;
-  const h=document.location.hostname;
-  const localhost= p=='http:' && (h=='127.0.0.1' || h=='localhost');
 
+  const localhost=isLocalhost();
   if ("serviceWorker" in navigator && (localhost||p=='https:') ) {
     navigator.serviceWorker.register(swfn);
   }
 }
-
+export function isLocalhost(){
+  const p=document.location.protocol;
+  const h=document.location.hostname;
+  return p=='http:' && (h=='127.0.0.1' || h=='localhost');
+}
