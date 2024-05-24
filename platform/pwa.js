@@ -9,8 +9,8 @@ export function getPWADisplayMode() {
     return 'browser';
 }
 export function registerServiceWorker(swfn="./sw.js"){
-
   const localhost=isLocalhost();
+  const p=document.location.protocol;
   if ("serviceWorker" in navigator && (localhost||p=='https:') ) {
     navigator.serviceWorker.register(swfn);
   }

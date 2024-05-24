@@ -28,7 +28,7 @@ export const downloadToCache=async(cacheName,url,cb)=>{
     const cache=await caches.open(cacheName);
     const cached=await cache.match(cachefn);
 
-    if (!navigator.onLine || !isLocalhost()) {
+    if (!navigator.onLine && !isLocalhost()) {
         return cached || cache.match('/offline.html');;
     }
     
