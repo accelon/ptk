@@ -1,4 +1,4 @@
-export const forEachUTF32=(str:string,cb:Function) :void=>{
+export const forEachUTF32=(str,cb)=>{
     let i=0;
     while (i<str.length) {
         const code=str.codePointAt(i)||0;
@@ -8,7 +8,7 @@ export const forEachUTF32=(str:string,cb:Function) :void=>{
         if (code>0xffff) i++;
     }
 }
-export const substrUTF32=(str:string,from, n:number):string=>{
+export const substrUTF32=(str,from, n)=>{
     if (!str || !n || n<0) return '';
     let i=from;
     while (n>0 && i<str.length) {
@@ -20,13 +20,13 @@ export const substrUTF32=(str:string,from, n:number):string=>{
     }
     return str.slice(from,i);
 }
-export const splitUTF32=(str:string):number[]=>{
+export const splitUTF32=(str)=>{
     if (!str) {
-        const empty:number[]=[];
+        const empty=[];
         return empty
     }
     let i=0;
-    const out:number[]=[];
+    const out=[];
     while (i<str.length) {
         const code=str.codePointAt(i)||0;
         out.push(code);
@@ -35,10 +35,10 @@ export const splitUTF32=(str:string):number[]=>{
     }
     return out;
 }
-export const splitUTF32Char=(str:string)=>splitUTF32(str).map( cp=>String.fromCodePoint(cp));
-export const codePointLength=(str:string)=>splitUTF32(str).length;
-export const StringByteLength=(str:string)=>new Blob([str]).size;
-export const UnicodeBlock=(n:number|string)=>{
+export const splitUTF32Char=(str)=>splitUTF32(str).map( cp=>String.fromCodePoint(cp));
+export const codePointLength=(str)=>splitUTF32(str).length;
+export const StringByteLength=(str)=>new Blob([str]).size;
+export const UnicodeBlock=(n)=>{
     if (!n) return '';
     const cp=(typeof n=='string') ?n.codePointAt(0):n;
     if (cp<0x80) return '半形 ascii';

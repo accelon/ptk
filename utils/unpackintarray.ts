@@ -16,9 +16,9 @@ export const BYTE4_MAX=6 *BYTE_MAX*BYTE_MAX*BYTE_MAX+BYTE3_MAX            // ~10
 export const BYTE5_MAX=2 *BYTE_MAX*BYTE_MAX*BYTE_MAX*BYTE_MAX+BYTE4_MAX  // 326094722
 export const SEP2DITEM=0x7f
 export const SEPARATOR2D="\u007f"
-type NumArray=number[];
-export const unpack3=(str:string)=>{
-	const arr:NumArray=[];
+
+export const unpack3=(str)=>{
+	const arr=[];
 	let i1,i2,i3;
 	const count=Math.floor(str.length/3);
 	for (let i=0;i<count;i++) {
@@ -29,7 +29,7 @@ export const unpack3=(str:string)=>{
 	}
 	return arr;
 }
-export const unpack2=(str:string)=>{
+export const unpack2=(str)=>{
 	const arr=[];
 	let i1,i2;
 	const count=Math.floor(str.length/2);
@@ -40,8 +40,8 @@ export const unpack2=(str:string)=>{
 	}
 	return arr;
 }
-export const unpack1=(str:string)=>{
-	const arr:NumArray=[];
+export const unpack1=(str)=>{
+	const arr=[];
 	let i1;
 	const count=Math.floor(str.length);
 	for (let i=0;i<count;i++) {
@@ -50,8 +50,8 @@ export const unpack1=(str:string)=>{
 	}
 	return arr;
 }
-export const unpackInt=(s:string,delta=false):NumArray=>{
-	let arr:number[]=[];
+export const unpackInt=(s,delta=false)=>{
+	let arr=[];
 	//let started=false;
 	if (!s) return [];
 	let o,i=0,c=0,prev=0;
@@ -94,29 +94,29 @@ export const unpackInt=(s:string,delta=false):NumArray=>{
 	}
 	return arr; // return normal array , easier for consequence operation (intersect, union)
 }
-export const unpackIntDelta=(str:string)=>{
+export const unpackIntDelta=(str)=>{
 	return unpackInt(str,true);
 }
 
-export const unpackIntDelta2d=(str:string)=>{
+export const unpackIntDelta2d=(str)=>{
 	if (!str)return [];
 	return unpackInt2d(str,true);
 }
 
-export const unpackInt2d=(str:string,delta=false)=>{
+export const unpackInt2d=(str,delta=false)=>{
 	if (!str)return [];
 	const arr=str.split(SEPARATOR2D);
 	if (arr.length==1) return [unpackInt(arr[0])];
 	return arr.map(it=>unpackInt(it,delta));
 }
-export const unpack3_2d=(str:string)=>{
+export const unpack3_2d=(str)=>{
 	if (!str)return [];
 	const arr=str.split(SEPARATOR2D);
 	if (arr.length==1) return [unpack3(arr[0])];
 	return arr.map(it=>unpack3(it));
 }
 
-export const unpackBoolean=(str:string,index=false)=>{
+export const unpackBoolean=(str,index=false)=>{
 	const barr=unpackInt(str);
 	const out=[];
 	let idx=0; // 1-base is natural as payload follow right after packed_boolean ( 1 line)

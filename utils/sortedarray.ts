@@ -1,4 +1,4 @@
-export const alphabetically=(a:string,b:string)=>a>b?1: ((a<b)?-1:0);
+export const alphabetically=(a,b)=>a>b?1: ((a<b)?-1:0);
 export const alphabetically0=(a:string,b:string)=>a[0]>b[0]?1: ((a[0]<b[0])?-1:0);
 export const alphabetically1=(a:string,b:string)=>a[1]>b[1]?1: ((a[1]<b[1])?-1:0);
 export const alphabetically2=(a:string,b:string)=>a[2]>b[2]?1: ((a[2]<b[2])?-1:0); 

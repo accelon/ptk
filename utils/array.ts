@@ -2,10 +2,10 @@ import {bsearchNumber,bsearch} from "./bsearch.ts";
 import {unique} from './sortedarray.ts';
 
 
-type NumberArray = number [];
+//type NumberArray = number [];
 
 //arr need to be sorted but allow duplicate items
-export const union=(arr1:NumberArray,arr2:NumberArray,hasdup=false):NumberArray=>{
+export const union=(arr1,arr2,hasdup=false):NumberArray=>{
     if (!arr2||!arr1) return arr1||arr2;
     const extra:NumberArray=[];
     let a1=hasdup?unique(arr1):arr1;

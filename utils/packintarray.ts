@@ -2,8 +2,8 @@ import {maxlen1,maxlen2,maxlen3,CodeStart, SEPARATOR2D,
 	BYTE_MAX,BYTE1_MAX, BYTE2_MAX,BYTE3_MAX, BYTE4_MAX,BYTE5_MAX,
 	BYTE2_START,BYTE3_START,BYTE4_START,BYTE5_START} from './unpackintarray.ts';
 //壓縮二維以下的自然數陣列為 ascii string ，只用0x0E 以上。
-type NumArray = number [] ;
-export const pack1=(arr:NumArray)=>{
+//type NumArray = number [] ;
+export const pack1=(arr)=>{
 	let s=new Uint8Array(arr.length);
 	let idx=0;
 	for (let i=0;i<arr.length;i++) {
@@ -14,7 +14,7 @@ export const pack1=(arr:NumArray)=>{
 	}
 	return new TextDecoder().decode(s);
 }
-export const pack2=(arr:NumArray)=>{
+export const pack2=(arr)=>{
 	let s=Uint8Array(arr.length*2);
 	for (let i=0;i<arr.length;i++) {
 		if (arr[i]>=maxlen2) {
@@ -31,7 +31,7 @@ export const pack2=(arr:NumArray)=>{
 	}
 	return new TextDecoder().decode(s);
 }
-export const pack3=(arr:NumArray)=>{
+export const pack3=(arr)=>{
 	let s=Uint8Array(arr.length*3);
 	for (let i=0;i<arr.length;i++) {
 		if (arr[i]>=maxlen3) throw "exit boundary "+arr[i]
@@ -51,21 +51,21 @@ export const pack3=(arr:NumArray)=>{
 
 
 //might be two dimensional,separated by | 
-export const packInt2d=(arr:NumArray[],delta=false)=>{
+export const packInt2d=(arr,delta=false)=>{
 	const o=[];
 	for (let i=0;i<arr.length;i++) {
 		o.push(packInt(arr[i],delta));
 	}
 	return o.join(SEPARATOR2D);
 }
-export const pack3_2d=(arr:NumArray[],esc=false)=>{
+export const pack3_2d=(arr,esc=false)=>{
 	const o=[];
 	for (let i=0;i<arr.length;i++) {
 		o.push(pack3(arr[i],esc));
 	}
 	return o.join(SEPARATOR2D);
 }
-export const packInt=(arr:NumArray, delta=false):Uint8Array=>{
+export const packInt=(arr, delta=false)=>{
 	if (arr.length==0) return '';
 	const sz=arr.length*5;  
 	let s=new Uint8Array(sz), int=arr[0]+1, prev=arr[0] , idx=0;
@@ -137,7 +137,7 @@ export const packInt=(arr:NumArray, delta=false):Uint8Array=>{
 	//new TextDecoder is quite fast
 	return new TextDecoder().decode(s.subarray(0,idx)); //slice will make new copy
 }
-export const packBoolean=(arr:boolean[])=>{
+export const packBoolean=(arr)=>{
 	const out=[];
 	let prev=false, count=0;
 	for (let i=0;i<arr.length;i++) {
@@ -152,10 +152,10 @@ export const packBoolean=(arr:boolean[])=>{
 	out.push(count);
 	return packInt(out);
 }
-export const packIntDelta=(arr:NumArray)=>packInt(arr,true);
+export const packIntDelta=(arr)=>packInt(arr,true);
 
-export const packIntDelta2d=(arr2d:NumArray[])=>packInt2d(arr2d,true);
-export const arrDelta=(arr:NumArray)=>{
+export const packIntDelta2d=(arr2d)=>packInt2d(arr2d,true);
+export const arrDelta=(arr)=>{
 	if (!arr)return [];
 	if (arr.length===1) return [arr[0]];
 	const out=[arr[0]];
@@ -165,5 +165,5 @@ export const arrDelta=(arr:NumArray)=>{
 	}
 	return out;
 }
-export const escapeStrWithQuote=(str:string)=>str.replace(/"/g,'\\"');
-export const escapePackedStr=(str:string)=>str.replace(/\\/g,"\\\\").replace(/`/g,"\\`").replace(/\$\{/g,'$\\{');
+export const escapeStrWithQuote=(str)=>str.replace(/"/g,'\\"');
+export const escapePackedStr=(str)=>str.replace(/\\/g,"\\\\").replace(/`/g,"\\`").replace(/\$\{/g,'$\\{');
