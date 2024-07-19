@@ -2,6 +2,8 @@ export const isSurrogate=(s)=>(s.codePointAt(0)||0)>0xffff;
 
 export const CJKRanges={
     'BMP': [0x4e00,0x9fa5],
+    'SurrogageLeft': [0xD800,0xDBFF],
+    'SurrogageRight': [0xDC00,0xDFFF],
     'ExtA':[0x3400,0x4dff],
     'ExtB':[0x20000,0x2A6FF],
     'ExtC':[0x2A700,0x2B73F],
@@ -56,12 +58,14 @@ export const removePunc=(str)=>{
     return str.replace(/[！。、：；，？！（）《》｛｝〔〕『』「」]/g,'');
 }
 //EMEDITOR highlight \^([#@\/\.\:a-z_\-\d~]+)([<\(「『〔（︹︵︷【︻《〈︽︿﹁﹃﹙﹝‘“〝](?:\\.|.)*?[>\)」』〕）︺︶︸】︼》〉︾﹀﹂』﹚﹞’”〞])?
-const openBrackets="(「『〔（︹︵︷【︻《〈︽︿﹁﹃﹙﹝‘“〝"; //closeBrackets are codepoint+1
+const openBrackets ="<{[(「『〔（︹︵︷【︻《〈︽︿﹁﹃﹙﹝﹛‘“〝‵";
+const closeBrackets=">}])」』〕）︺︶︸】︼》〉︾﹀﹂﹄﹚﹞﹜’”〞′"; 
 
-export const closeBracketOf=(ch)=>{
-    if (!ch)return;
+export const closeBracketOf=(ch:string)=>{
+    if (!ch)return '';
     const at=openBrackets.indexOf(ch.slice(0,1));
-    return ~at?String.fromCodePoint(1+(openBrackets.codePointAt(at)||0)):'';
+    if (~at) return closeBrackets[at];
+    return '';
 }
 export const removeBracket=(str)=>{
     const closebracket = closeBracketOf(str);

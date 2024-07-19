@@ -278,5 +278,40 @@ export const sentencize=(linetext:string='',line:number)=>{
         }
     }
     return sentences;
+}
 
+export const unitize=(str:string, splitPinx=null)=>{
+    const out=''.split('');
+    let prev=0;
+    let at=str.indexOf('^',prev)
+    // make sure sum of items' length == str.length
+    while (~at) {
+        const firstch=str.charAt(at+1);
+        let prevtext='';
+        const closebracket=closeBracketOf(firstch);
+        if (closebracket) {
+            const at2=str.indexOf(closebracket, prev+2);
+            if (at2==-1) { // no matching , wrong tag, quit
+                break;
+            }
+            prevtext=str.slice(prev,at);
+            if (prevtext) out.push(prevtext);
+            out.push( str.slice(at, at2+1));
+            
+            prev=at2+1;
+        } else {
+            prevtext=str.slice(prev,at);
+            if (prevtext) out.push(prevtext);
+            prev=at+1;
+        }
+        
+
+        at=str.indexOf('^',prev);
+    }
+
+    if (str.length>prev) {
+        let s=str.slice(prev);
+        if (s) out.push(s);
+    }
+    return out;
 }
