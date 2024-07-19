@@ -299,13 +299,22 @@ export const unitize=(str:string, splitPinx=null)=>{
             out.push( str.slice(at, at2+1));
             
             prev=at2+1;
-        } else {
+        } else {            
             prevtext=str.slice(prev,at);
             if (prevtext) out.push(prevtext);
-            prev=at+1;
+            if (splitPinx) {
+                const pinx=splitPinx(str.slice(at+1));
+                if (pinx.length && pinx[0].length>1) {
+                    out.push('^'+pinx[0]);
+                    prev=at+1+pinx[0].length;
+                } else {
+                    prev=at+1;
+                }
+            } else {
+                prev=at+1;
+            }
         }
         
-
         at=str.indexOf('^',prev);
     }
 
