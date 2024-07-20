@@ -2,7 +2,7 @@ import {OFFTAG_REGEX_G, OFFTAG_REGEX,OFFTAG_REGEX_TOKENIZE,OFFTAG_NAME_ATTR,ALWA
     QUOTEPAT,QUOTEPREFIX,QSTRING_REGEX_G,QSTRING_REGEX_GQUOTEPAT,
     OFFTAG_LEADBYTE} from './constants.ts';
 import {IOfftag} from './interfaces.ts';
-import {closeBracketOf,substrUTF32} from '../utils/index.ts'
+import {CJKRangeName, closeBracketOf,substrUTF32} from '../utils/index.ts'
 import {Token, TokenType, tokenize} from '../fts/tokenize.ts'
 
 const parseCompactAttr=(str:string)=>{  //              序號和長度和標記名 簡寫情形，未來可能有 @ 
@@ -279,6 +279,39 @@ export const sentencize=(linetext:string='',line:number)=>{
     }
     return sentences;
 }
+export const eatofftag=(str:string)=>{ 
+    let thetag='',p=0;
+    let ch=str.charAt(0);
+    while (thetag.length<16 && ch && p<str.length) {
+        const cp=str.charCodeAt(p)||0;
+        if ( (cp>0x2d&&cp<=0x3b)|| (cp>=0x61&&cp<=0x7a)||cp==0x5f||cp==0x7e){ // -./0123456789:;_   a-z ~  
+            thetag+=ch;
+            p++
+        } else {
+            break;
+        }
+        ch=str.charAt(p);
+    }
+    return thetag;
+}
+export const eatbracket=(str:string,breaker='\t',stop=[])=>{ //consume continous brackets
+    let out='',p=0;
+    let ch=str.charAt(p);
+    let closebracket=closeBracketOf(ch);
+    while (closebracket) {
+        const at2=str.indexOf(closebracket, p+1);
+        if (at2==-1) { // no matching , wrong tag, quit
+            break;
+        }
+        out+=str.slice(p,at2+1);
+        if(breaker) out+=breaker;
+        p=at2+1;
+        if (~stop.indexOf(ch)) break;
+        ch=str.charAt(p);
+        closebracket=closeBracketOf(ch);
+    }
+    return out.slice(0,out.length-breaker.length);
+}
 
 export const unitize=(str:string, splitPinx=null)=>{
     const out=''.split('');
@@ -286,20 +319,15 @@ export const unitize=(str:string, splitPinx=null)=>{
     let at=str.indexOf('^',prev)
     // make sure sum of items' length == str.length
     while (~at) {
-        const firstch=str.charAt(at+1);
+        let p=at+1; //temporary pointer 
+        let ch=str.charAt(p);
+        if (ch=='^') { //escaping
+            at=str.indexOf('^',p+1);
+            continue;
+        }
         let prevtext='';
-        const closebracket=closeBracketOf(firstch);
-        if (closebracket) {
-            const at2=str.indexOf(closebracket, prev+2);
-            if (at2==-1) { // no matching , wrong tag, quit
-                break;
-            }
-            prevtext=str.slice(prev,at);
-            if (prevtext) out.push(prevtext);
-            out.push( str.slice(at, at2+1));
-            
-            prev=at2+1;
-        } else {            
+
+        if (CJKRangeName(str.slice(p))) { //pure chinese, maybe hzpx
             prevtext=str.slice(prev,at);
             if (prevtext) out.push(prevtext);
             if (splitPinx) {
@@ -313,8 +341,15 @@ export const unitize=(str:string, splitPinx=null)=>{
             } else {
                 prev=at+1;
             }
+        } else { 
+            const offtag=eatofftag(str.slice(p));
+            prevtext=str.slice(prev,p-1);
+            if (prevtext) out.push(prevtext);            
+            const brackets=eatbracket(str.slice(p+offtag.length),'', ['[']);
+            out.push( '^'+str.slice(p,p+brackets.length+offtag.length));
+            p+=offtag.length;
+            prev = brackets.length+ p;
         }
-        
         at=str.indexOf('^',prev);
     }
 

@@ -58,14 +58,14 @@ export const removePunc=(str)=>{
     return str.replace(/[！。、：；，？！（）《》｛｝〔〕『』「」]/g,'');
 }
 //EMEDITOR highlight \^([#@\/\.\:a-z_\-\d~]+)([<\(「『〔（︹︵︷【︻《〈︽︿﹁﹃﹙﹝‘“〝](?:\\.|.)*?[>\)」』〕）︺︶︸】︼》〉︾﹀﹂』﹚﹞’”〞])?
-const openBrackets ="<{[(「『〔（︹︵︷【︻《〈︽︿﹁﹃﹙﹝﹛‘“〝‵";
-const closeBrackets=">}])」』〕）︺︶︸】︼》〉︾﹀﹂﹄﹚﹞﹜’”〞′"; 
+const openBrackets ="<{[(｛「『〔（︹︵︷【︻《〈︽︿﹁﹃﹙﹝﹛‘“〝‵";
+const closeBrackets=">}])｝」』〕）︺︶︸】︼》〉︾﹀﹂﹄﹚﹞﹜’”〞′"; 
 
 export const closeBracketOf=(ch:string)=>{
     if (!ch)return '';
     const at=openBrackets.indexOf(ch.slice(0,1));
     if (~at) return closeBrackets[at];
-    return '';
+    return 'x';
 }
 export const removeBracket=(str)=>{
     const closebracket = closeBracketOf(str);
