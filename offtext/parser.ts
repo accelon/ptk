@@ -359,3 +359,24 @@ export const unitize=(str:string, splitPinx=null)=>{
     }
     return out;
 }
+
+export const offTagType=str=>{
+    const offtag=eatofftag(str);
+    str=str.slice(offtag.length);
+    const ch=str.charAt(0)
+    if (closeBracketOf(ch)) {
+        if (ch==='['){
+            return [str.slice(1,str.length-1), "transclusion", offtag]
+        } else if (ch==='<') {
+            return [str, "html", offtag]
+        } else {
+            return [str, "offtext", offtag]//just remove ^, keep bracket
+        }
+    } else { // see if 
+        if (CJKRangeName(str)) {
+            return [str , 'hzpx', offtag]
+        } else {
+            return [str , 'unknown',offtag]
+        }
+    }
+}
