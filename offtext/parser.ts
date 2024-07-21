@@ -2,9 +2,9 @@ import {OFFTAG_REGEX_G, OFFTAG_REGEX,OFFTAG_REGEX_TOKENIZE,OFFTAG_NAME_ATTR,ALWA
     QUOTEPAT,QUOTEPREFIX,QSTRING_REGEX_G,QSTRING_REGEX_GQUOTEPAT,
     OFFTAG_LEADBYTE} from './constants.ts';
 import {IOfftag} from './interfaces.ts';
-import {CJKRangeName, closeBracketOf,substrUTF32} from '../utils/index.ts'
+import {CJKRangeName, closeBracketOf,JSONParse,substrUTF32} from '../utils/index.ts'
 import {Token, TokenType, tokenize} from '../fts/tokenize.ts'
-
+import {jsonify, extractObject } from '../utils/json.ts';
 const parseCompactAttr=(str:string)=>{  //              序號和長度和標記名 簡寫情形，未來可能有 @ 
     const out={}, arr=str.split(/([@#~])/);
     while (arr.length) {
@@ -282,7 +282,11 @@ export const sentencize=(linetext:string='',line:number)=>{
 export const eatofftag=(str:string)=>{ 
     let thetag='',p=0;
     let ch=str.charAt(0);
-    while (thetag.length<16 && ch && p<str.length) {
+    if (ch=='{') {
+        const [obj,len]=extractObject(str);
+        return str.slice(0,len);
+    }
+    while (thetag.length<128 && ch && p<str.length) {
         const cp=str.charCodeAt(p)||0;
         if ( (cp>0x2d&&cp<=0x3b)|| (cp>=0x61&&cp<=0x7a)||cp==0x5f||cp==0x7e){ // -./0123456789:;_   a-z ~  
             thetag+=ch;
@@ -359,24 +363,37 @@ export const unitize=(str:string, splitPinx=null)=>{
     }
     return out;
 }
-
 export const offTagType=str=>{
     const offtag=eatofftag(str);
     str=str.slice(offtag.length);
     const ch=str.charAt(0)
+    
     if (closeBracketOf(ch)) {
         if (ch==='['){
             return [str.slice(1,str.length-1), "transclusion", offtag]
         } else if (ch==='<') {
             return [str, "html", offtag]
         } else {
+            if (offtag.charAt(0)=='{') { //json as offtag
+                try{
+                    const r=jsonify(offtag);
+                    return [str , 'offtext',offtag]
+                } catch(e) {
+                    return [str , 'unknown',offtag]
+                }    
+            }
             return [str, "offtext", offtag]//just remove ^, keep bracket
         }
     } else { // see if 
         if (CJKRangeName(str)) {
             return [str , 'hzpx', offtag]
         } else {
-            return [str , 'unknown',offtag]
+            try{
+                const r=jsonify(offtag);
+                return [str , 'offtext',offtag]
+            } catch(e) {
+                return [str , 'unknown',offtag]
+            }
         }
     }
 }

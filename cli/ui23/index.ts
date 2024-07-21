@@ -11,10 +11,14 @@ portrait.addEventListener("change", function(e) {
     landscape.set(!e.matches)
 })
 
+
 window.addEventListener("deviceorientation", ()=>{
-    landscape.set(screen.availWidth>screen.availHeight)
+    landscape.set(screen.availWidth>screen.availHeight);
+    //console.log(get(landscape))
 }, true);
 landscape.set(screen.availWidth>screen.availHeight);
+
+
 
 const app = new App({target: document.body});
 document.querySelector("#bootmessage").innerHTML='';
