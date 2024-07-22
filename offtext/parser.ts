@@ -2,7 +2,8 @@ import {OFFTAG_REGEX_G, OFFTAG_REGEX,OFFTAG_REGEX_TOKENIZE,OFFTAG_NAME_ATTR,ALWA
     QUOTEPAT,QUOTEPREFIX,QSTRING_REGEX_G,QSTRING_REGEX_GQUOTEPAT,
     OFFTAG_LEADBYTE} from './constants.ts';
 import {IOfftag} from './interfaces.ts';
-import {CJKRangeName, closeBracketOf,JSONParse,substrUTF32} from '../utils/index.ts'
+import {CJKRangeName, closeBracketOf} from '../utils/cjk.ts'
+import {substrUTF32} from '../utils/unicode.ts'
 import {Token, TokenType, tokenize} from '../fts/tokenize.ts'
 import {jsonify, extractObject } from '../utils/json.ts';
 const parseCompactAttr=(str:string)=>{  //              序號和長度和標記名 簡寫情形，未來可能有 @ 
