@@ -41,7 +41,6 @@ export const tei=()=>{
     const fn=process.argv[3];
     const workingdir=process.argv[4];
     const pintag=process.argv[5]||'p';
-    const checktag=[];
     let content=readTextContent(fn);
     content=meta_cbeta.nullify(content)
     const [txt,tags,stat]=meta_cbeta.parseBuffer(content,pintag);
@@ -51,7 +50,5 @@ export const tei=()=>{
     }
     writeChanged(outfn+'.txt', txt,true);
     writeChanged(outfn+'.tsv', tags.map(it=>it.join('\t')).join('\n'),true);
-    console.table(stat);
-    console.log(nested)
 }
 
