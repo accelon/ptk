@@ -13,7 +13,7 @@ import {dump} from './dumpptk.js';
 import {adb2zip} from './adb2zip.js';
 import {ts} from './subtitle.js'
 import {cbeta} from './cbeta.js'
-import {addn,copyn} from './addn.js'
+import {addn,copyn,copytag} from './addn.js'
 import {align,crlf} from './align.js'
 import {sentbuilder} from './sent.js'
 import Path from 'path';
@@ -25,6 +25,7 @@ await PTK.nodefs;
 const cmd=process.argv[2] || '-h';
 const arg=process.argv[3];
 const arg2=process.argv[4];
+const arg3=process.argv[5];
 
 export const getModulePath=name=>{
     let dir=decodeURI(new URL(import.meta.url).pathname);
@@ -97,6 +98,7 @@ const help=()=>{
 
     console.log('$',yellow('ptk markj    '),cyan('address'),cyan('txtfile'),cyan('pattern'),'find origtext 找原書出處');
     console.log('$',yellow('ptk markid   '),cyan('address'),cyan('txtfile'),'fill id, 補上 id');
+    console.log('$',yellow('ptk copytag   '),cyan('from'),cyan('to'), magenta('tag'), '將 from 的 tag 複製到 to ');
     
 
     console.log('$',yellow('ptk adb2zip  '),cyan('filename'),'adb to zip ');
@@ -117,8 +119,8 @@ const test=()=>{
 const elapses=['ptk','js','sent','adb2zip','dumpxml','dump']
 try {
     console.time('elapsed')
-    await ({'--help':help,'-h':help,ptk,js,com,dedup,unique,listwords,cbeta,align,crlf,sent,test,ui23,
-    union,ngram,intersect,xor,xmltag,tei,dumpxml,dump,markj,markid,adb2zip,ts,addn,copyn})[cmd](arg,arg2);
+    await ({'--help':help,'-h':help,ptk,js,com,dedup,unique,listwords,cbeta,align,crlf,sent,test,ui23,copytag,
+    union,ngram,intersect,xor,xmltag,tei,dumpxml,dump,markj,markid,adb2zip,ts,addn,copyn})[cmd](arg,arg2,arg3);
     if (~elapses.indexOf(cmd)  ) {
         console.log('\n')
         console.timeEnd('elapsed')

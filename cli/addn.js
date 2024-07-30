@@ -1,4 +1,5 @@
-import {parseOfftext, readTextLines,writeChanged} from '../nodebundle.cjs'
+import {OFFTAG_REGEX,parseOfftext, readTextContent,readTextLines,writeChanged} from '../nodebundle.cjs'
+
 export const copyn=(arg,arg2)=>{
     const fromlines=readTextLines(arg);
     const tolines=readTextLines(arg2);
@@ -56,4 +57,27 @@ export const addn=(arg,arg2)=>{
         }
         writeChanged( fn+'.ok',lines.join('\n'),true);
     })
+}
+export const copytag=(arg,arg2,arg3)=>{
+    if (!fs.existsSync(arg)) throw "missing file "+arg;
+    if (!fs.existsSync(arg2)) throw "missing file "+arg2;
+    if (!arg3) throw "missing tagname "+arg3;
+    const fromlines=readTextContent(arg).split("\n");
+    const tolines=readTextContent(arg2).split("\n");
+    if (fromlines.length!==tolines.length) {
+        throw "file1 linecount!==file2 linecount"
+    }
+    const tagname=arg3;
+    for (let i=0;i<fromlines.length;i++) {
+        const from=fromlines[i];
+        const m=from.match(OFFTAG_REGEX);
+        if (m && ~from.indexOf('^'+tagname)) {
+            if (!~tolines.indexOf('^'+tagname)) {
+                const cp=tolines[i].charCodeAt(0);
+                const notrequirespace=cp>129 || cp==0x5e;
+                tolines[i]='^'+m[1]+(m[2]||'')+ (notrequirespace?'':' ')+tolines[i];
+            }
+        }
+    }
+    writeChanged(arg2+'.ok',tolines.join('\n'),true);
 }
