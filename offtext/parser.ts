@@ -289,7 +289,7 @@ export const eatofftag=(str:string)=>{
     }
     while (thetag.length<128 && ch && p<str.length) {
         const cp=str.charCodeAt(p)||0;
-        if ( (cp>0x2d&&cp<=0x3b)|| (cp>=0x61&&cp<=0x7a)||cp==0x5f||cp==0x7e){ // -./0123456789:;_   a-z ~  
+        if ( (cp>0x2d&&cp<=0x3b)|| (cp>=0x61&&cp<=0x7a)||cp==0x23 ||cp==0x5f||cp==0x7e){ // -./0123456789:;_#   a-z ~  
             thetag+=ch;
             p++
         } else {

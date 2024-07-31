@@ -5,9 +5,9 @@ let instancecount=0;
 const combineRange=range=>{
 	const combined=[];
 	let from=0;
-	range=range.filter(it=>!!it);
+	range=range.filter((it: any)=>!!it);
 	if (Array.isArray(range[0]) && range.length) {
-		range.sort((a,b)=>a-b);
+		range.sort((a: number,b: number)=>a-b);
 		from = range[0][0];
 		for (let i=1;i<range.length;i++) {
 			if (range[i][0]>range[i-1][1]) {
@@ -23,6 +23,18 @@ const combineRange=range=>{
 	return combined
 }
 export class LineBase{
+	private _pages: never[];
+	private _lineoffsets: never[];
+	stamp: number;
+	pagestarts: never[];
+	header: { starts: never[]; sectionnames: never[]; sectionstarts: never[]; sectiontypes: never[]; };
+	name: any;
+	zip: any;
+	zipstore: any;
+	payload: any;
+	private _loader: (page:any) => Promise<void>;
+	failed: boolean;
+	inmemory:boolean;
 	constructor (opts={}) {
 		this.stamp=++instancecount;
 		this._pages=[];     // read time,   line not split
@@ -34,7 +46,7 @@ export class LineBase{
 		this.zipstore=opts.zipstore;
 		this.payload;   //payload in 000.js
     	let protocol=typeof chrome!=='undefined'?'chrome-extension:':'';
-    	this._loader=()=>{};
+    	//this._loader=()=>{};
         if (typeof window!=='undefined') {
             protocol=window.location.protocol;
         }
@@ -59,16 +71,16 @@ export class LineBase{
 	inMem(){
 		return this.inmemory||this.zipstore;
 	}
-	pageOfLine=(line)=>{
+	pageOfLine=(line:number):number=>{
     	if (line>=this.pagestarts[this.pagestarts.length-1]) return this.pagestarts.length-1;
-    	return bsearchNumber(this.pagestarts,line,true);
+    	return bsearchNumber(this.pagestarts,line);
     }
 	pageOfRange([from,to]){
 	    if (from<0) return [];
 	    if (from>to) to+=from;
 	    let cstart=this.pageOfLine(from);
 	    const cend=this.pageOfLine(to);
-	    const notloaded=[];
+	    const notloaded=Array<number>();
 		if (cstart>1) cstart--; //fetch previous page
 	    for (let i=cstart;i<cend+1;i++) {
 	        if (!this._pages[i]) notloaded.push(i);
@@ -180,9 +192,8 @@ export class LineBase{
 		return this.slice(from,to);
 	}	
 	sectionRange(sname:string):ILineRange {
-		const notfound=[0,0];
 		const {sectionnames,sectionstarts}=this.header;
-		if (!sectionnames || !sectionnames.length) return notfound;
+		if (!sectionnames || !sectionnames.length) return [0,0];
 		for (let i=0;i<sectionnames.length;i++) {
 			const name=sectionnames[i];
 			if ( (sname && name==sname) ) {
@@ -192,6 +203,6 @@ export class LineBase{
 				return [sectionstarts[i], endoflastsection]				
 			}
 		}
-		return notfound;
+		return [0,0];
 	}
 }

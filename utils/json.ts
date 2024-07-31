@@ -47,7 +47,7 @@ export const extractObject = (str:string) => {
   });
 
   if (endIndex === -1) {
-    return null;
+    return [null,0];
   }
 
   let obj = str.substring(0, endIndex + 1);
