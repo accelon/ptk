@@ -6,15 +6,19 @@ import {verifyPermission} from '../platform/chromefs.ts'
 
 export class Paged{
     private handle:FileSystemHandle;
-    data:{};
+    private pagetexts:Array<string>;
+    private entrytexts:{};
     dirty:number;
-    private pagecount:number;
+    private rawheader:string;//keep the comment #
+    header:{};
 	constructor () {
-        this.data={};
+        this.pagetexts= Array<string>();
+        this.entrytexts={};
+        this.header={};
+        this.rawheader='';
         this.dirty=0;
-        this.pagecount=0;
     }
-    get lastpage() {return this.pagecount}
+    get lastpage() {return this.pagetexts.length}
     get filehandle() {return this.handle}
     async loadFromHandle(h:FileSystemHandle){
         const workingfile=await h.getFile();
@@ -32,40 +36,44 @@ export class Paged{
     loadFromString(str:string){
         const obj={};
         const lines=str.split(/\r?\n/);
-        let key='', page=0,autopage=false;
+        let key='', isEntry=false;
         const header=Array<string>();
         for (let i=0;i<lines.length;i++) {
             const line=lines[i]
             const at=lines[i].indexOf('\t');
             if (at==0) {
-                autopage=true;
-                page++;
-                obj[page.toString()]=line.slice(1);
-                key=page.toString();
+                isEntry=false;
+                this.pagetexts.push(line.slice(1));
             } else if (at>0) {
+                isEntry=true;
                 key=line.substring(0,at);
                 if (parseInt(key).toString()==key) throw "cannot be pure number"
                 const payload=line.substring(at+1);
                 if (obj.hasOwnProperty(key)) {
                 } else {
-                    obj[key]=payload;
+                    this.entrytexts[key]=payload;
                 }    
-            } else if (key) {
-                obj[key]+='\n'+line;
             } else {
-                header.push(line);
+                if (isEntry) {
+                    this.entrytexts[key]+='\n'+line;
+                } else if (this.pagetexts.length) {//text section starts
+                    this.pagetexts[this.pagetexts.length-1]+='\n'+line;
+                } else {
+                    header.push(line);
+                }
             }
         }
-        obj[""]=header.join('\n');
-        if (!obj.hasOwnProperty("1")) {
-            obj["1"]='Blank Page';
+        if (!this.pagetexts.length) {
+            this.pagetexts.push('blank page')
         }
-        this.data=obj;
-        this.pagecount=this.countLastPage();
+        this.rawheader=header.join('\n');
+        this.header=this.parseHeader(header);
+        console.log(this.pagetexts)
+        console.log(this.entrytexts)
+        console.log(this.rawheader)
         return this;
     }
-    parseHeader(str:string){
-        const lines=str.split('\n');
+    parseHeader(lines:string[]){
         const out={};
         for (let i=0;i<lines.length;i++) {
             const line=lines[i];
@@ -85,57 +93,24 @@ export class Paged{
         }
         return out
     }
-    countLastPage(){
-        let last=1;
-        if (!this.data) return 0;
-        for (let i in this.data) {
-            const int=parseInt(i)
-            if (int>last && int.toString()==i) {
-                last=int;
-            }
-        }
-        return last;
-    }
     dump(escape=false){
-        const out=(this.data[""]||"").split('\n');
-        const lastpage=this.countLastPage();
-        for (let i=1;i<=lastpage;i++) {
-            out.push('\t'+(escape?escapeTemplateString(this.data[i]):this.data[i]));
+        const out=[this.rawheader]; //TODO , sync from this.header
+        for (let i=1;i<=this.pagetexts.length;i++) {
+            const t=this.pagetexts[i];
+            out.push('\t'+(escape?escapeTemplateString(t):t));
         }
-        for (let key in this.data) {
-            if (key=="" || parseInt(key).toString()==key) continue;
-            out.push(key+'\t'+(escape?escapeTemplateString(this.data[key]):this.data[key]));
+        for (let key in this.entrytexts) {
+            const t=this.entrytexts[i];
+            out.push(key+'\t'+(escape?escapeTemplateString(t):t));
         }
         return out.join('\n');
     }
-    insertPage(thispage:number, newcontent=''){
-        const newobj={};
-        for (let key in this.data) {
-            const page=parseInt(key)
-            if (page.toString()==key && page>thispage) {
-                newobj[page+1]=this.data[page];
-            } else {
-                newobj[page]=this.data[page];
-            }    
-        }
-        newobj[thispage+1]=newcontent;
-        this.data=newobj;
-        this.pagecount++;
-        return this;
+    insertPage(thispage:number, newcontent=''){        
+        this.pagetexts.splice(thispage,0,newcontent);
+        return thispage+1;
     }
     deletePage(thispage:number){
-        const newobj={}
-        if (thispage>this.pagecount) return;
-        for (let key in this.data){
-            const page=parseInt(key);
-            if (page.toString()==key && page>thispage) {
-                newobj[page-1]=this.data[page];
-            } else {
-                newobj[page]=this.data[page];
-            }
-        }
-        this.data=newobj;
-        if (this.pagecount>0) this.pagecount--;
+        this.pagetexts.splice(thispage,1);
         return this;
     }
     async browserSave(opts){
@@ -154,5 +129,19 @@ export class Paged{
             return true;
         }
         return false;
+    }
+    entryText(entry:string){
+        return this.entrytexts[entry];
+    }
+    pageText(n:number){
+        return this.pagetexts[n-1];
+    }
+    setPageText(n:number,value:string){
+        if (n>0&&n<=this.pagetexts.length) {
+            this.pagetexts[n-1]=value;
+        }
+    }
+    setEntryText(entry:string,value:string){
+        this.entrytexts[entry]=value;
     }
 }

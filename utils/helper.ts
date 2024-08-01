@@ -11,7 +11,7 @@ export const addressFromUrl=()=>{
     if (!~address.indexOf('bk')&&!~address.indexOf('ak')) address='';//invalid adress
     return address; 
 }
-export const loadUrl=async (url:URL)=>{
+export const loadUrl=async (url:string)=>{
     let text='';
     const response=await fetch(url);
     if (response.status>=200 && response.status<300) {
