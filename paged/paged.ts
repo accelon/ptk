@@ -30,7 +30,7 @@ export class Paged{
         if (~url.indexOf('/')) url='https://'+url
         else if (url.indexOf(PGDEXT)==-1) url+=PGDEXT
         url=url.replace('/jsbin/','/output.jsbin.com/')
-        const text=loadUrl(url);
+        const text=await loadUrl(url);
         return this.loadFromString(text);
     }
     loadFromString(str:string){
@@ -68,9 +68,6 @@ export class Paged{
         }
         this.rawheader=header.join('\n');
         this.header=this.parseHeader(header);
-        console.log(this.pagetexts)
-        console.log(this.entrytexts)
-        console.log(this.rawheader)
         return this;
     }
     parseHeader(lines:string[]){
@@ -93,14 +90,30 @@ export class Paged{
         }
         return out
     }
+    dumpOffTsv(name:string){//create .off and .tsv from .pdg
+        let offtext=Array<string>();
+        let tsv=Array<string>();
+
+        for (let i=0;i<=this.pagetexts.length-1;i++) {
+            const t=this.pagetexts[i];
+            offtext.push('\t'+t);
+        }
+
+        tsv.push('^:<name="'+ name+'.tsv'+'">\tdef');
+        for (let key in this.entrytexts) {
+            const t=this.entrytexts[key];
+            tsv.push(key+'\t'+t.replace(/\n/g,'^p '));
+        }
+        return [offtext.join('\n'),tsv.join('\n')];
+    }
     dump(escape=false){
         const out=[this.rawheader]; //TODO , sync from this.header
-        for (let i=1;i<=this.pagetexts.length;i++) {
+        for (let i=0;i<=this.pagetexts.length-1;i++) {
             const t=this.pagetexts[i];
             out.push('\t'+(escape?escapeTemplateString(t):t));
         }
         for (let key in this.entrytexts) {
-            const t=this.entrytexts[i];
+            const t=this.entrytexts[key];
             out.push(key+'\t'+(escape?escapeTemplateString(t):t));
         }
         return out.join('\n');

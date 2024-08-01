@@ -33,7 +33,11 @@ export const openInMemoryPtk=async(name:string, ptkimage:UInt8Array)=>{
 		return ptk;
 	}
 }
-
+export const ptkFromString=(name:string,contentString:string)=>{
+	const ptk=new Pitaka({name,contentString});
+	poolAdd(name,ptk)
+	return ptk;
+}
 export const usePtk=(name:string)=>{
 	return poolGet(name);
 }

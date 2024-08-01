@@ -52,7 +52,7 @@ export const dobuild=async (files, opts={})=>{
 		console.log(red(lbaser))
 	} else {
 		if (opts.jsonp) {
-			lbaser.dump((fn,buf)=>{
+			lbaser.dumpJs((fn,buf)=>{
 				if (writeChanged(folder+fn,buf)) {
 					written+=buf.length;
 				}

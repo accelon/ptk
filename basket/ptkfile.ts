@@ -8,23 +8,23 @@ const move000js=(sources)=>{ //make them close to central directory
 	return out;
 }
 
-export const makeInMemoryPtk=(lbaser:ILineBaser,css:string,comimage)=> {
+export const makeInMemoryPtk=(lbaser:ILineBaser,css:string='',comimage)=> {
 	let sources=[] , locals=[];
 	let zip,redbeanbuf;
 
-	lbaser.dump((pagefn,buf)=>{
+	lbaser.dumpJs((pagefn,buf)=>{
 		sources.push({name:lbaser.name+'/'+pagefn, content:new TextEncoder().encode(buf)});
 	})
-	sources.push({name: lbaser.name+'/accelon22.css',content: new TextEncoder().encode(css)});
+	if (css) sources.push({name: lbaser.name+'/accelon22.css',content: new TextEncoder().encode(css)});
 	
 	if (comimage) { //copy all files from image, except the new ptk in lbase and config.js
 		zip=new ZipStore(comimage); 
 		redbeanbuf=new Uint8Array(comimage.subarray(0,zip.zipStart||0));
 		for (let i=0;i<zip.files.length;i++) {
 			const item=zip.files[i];
-			if (sources.indexOf(item.name)==-1 && item.name!=='config.js') {
-				sources.push(item);
-			}
+			// if (sources.indexOf(item.name)==-1 && item.name!=='config.js') {
+			// 	sources.push(item);
+			// }
 		}
 	}
 	//find out all ptk
@@ -37,8 +37,10 @@ export const makeInMemoryPtk=(lbaser:ILineBaser,css:string,comimage)=> {
 
 	//move 000.js close to central directory, better chance to be loaded when open
 	sources=move000js(sources);
-	sources.push({name:'config.js',
-		content:new TextEncoder().encode(`window.accelon22={locals:"`+locals.join(',')+'"}')});
+
+	//obsolete
+	// sources.push({name:'config.js',
+	// 	content:new TextEncoder().encode(`window.accelon22={locals:"`+locals.join(',')+'"}')});
 
 	const newzipbuf = storeZip(sources, {reserve:zip?.zipStart||0});
 	if (redbeanbuf) newzipbuf.set(redbeanbuf);

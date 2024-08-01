@@ -1,6 +1,9 @@
 export type ILineRange = [number,number];
 export interface ILineBaser {
-	dump:Function,
+	dumpJs:Function,
+	dumpSingle:Function,
+	name:string,
+	setName:Function
 }
 
 export interface ILineBase {

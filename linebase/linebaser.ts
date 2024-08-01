@@ -2,19 +2,30 @@ import {escapeTemplateString,pagejsonpfn} from '../utils/index.ts'
 const makePageJsonp=(name,page,start,payload)=>{
 	return 'jsonp('+page+',{"name":"'+name+'","start":'+start+'},`'+payload+'`)';
 }
-const makeHeader=(name,header,pagestarts,payload)=>{
+const makeHeader=(name,header,pagestarts)=>{
 	const meta=Object.assign( {} , header,{name,starts:pagestarts,buildtime:new Date()})
-	return 'jsonp(0,'+JSON.stringify(meta)+',`'+escapeTemplateString(payload)+'`)';
+	return JSON.stringify(meta);
 }
 
 export class LineBaser {
+	private _data:Array<string>;
+	private _accsize:number;
+	pagesize:number;
+	pagestarts:Array<number>;
+	payload:string;
+	header:{starts:Array<number>,sectionnames:Array<string>
+		,sectionstarts:Array<string>,sectiontypes:Array<string>,preload:Array<string>,
+	};
+	name:string;
+	onAddLine:Function;
+	sealed:Boolean;
 	constructor (opts={}) {
 		this._data=[];      // write time, line splited
-		this._lineoffsets=[]; // lineoffsets of each page
 		this._accsize=0;
 		this.pagesize=opts.pagesize||1024*64;
 		this.pagestarts=[];
 		this.payload=''
+		this.sealed=false;
 		this.header={starts:[],sectionnames:[],sectionstarts:[],sectiontypes:[],preload:[]
 			,fulltext:[],fulltextcaption:[],eot:0};
 		this.name=opts.name||'';
@@ -24,14 +35,20 @@ export class LineBaser {
 	setName(name) {
 		this.name=name;
 	}
-	dump(cb) {
+	asString(){
+		const header=makeHeader(this.name,this.header||{},this.pagestarts)
+		//payload right after header json object, a single string
+		return header+this.payload.replace(/\n/g,'\\n')+'\n'+escapeTemplateString(this._data.join('\n'));
+	}
+	dumpJs(cb:Function) {
 		if (!this.name) {
 			throw "need a name before dumping"
 		}
-		this.newPage();
+		this.newPage();//finalize last page;
 		let start=0;
 		const jsonpfn=pagejsonpfn(0);
-		cb(jsonpfn, makeHeader(this.name,this.header||{},this.pagestarts,this.payload) ,0);
+		const headerstring='jsonp(0,'+makeHeader(this.name,this.header||{},this.pagestarts)+',`'+escapeTemplateString(this.payload)+'`';
+		cb(jsonpfn, headerstring ,0);
 		for (let i=0;i<this.pagestarts.length;i++) {
 			const lines=this._data.slice(start,this.pagestarts[i]);
 			const towrite=makePageJsonp(this.name,i+1,start,escapeTemplateString(lines.join('\n')));
@@ -41,20 +58,12 @@ export class LineBaser {
 		}
 		this._data=[];
 		this._accsize=0;
-		this._pagestart=[];
+		this.pagestarts=[];
 	}
 	private newPage(){
 		this.pagestarts.push(this._data.length);
 		this._accsize=0;
 	}
-	async loadSection(name,type){
-		const [from,to]=this.sectionRange(name,type);
-		if (to>from) {
-			await this.loadLines(from,to);
-			return this.slice(from,to)
-		}
-		return [];
-	}	
 	addLine (line:string, samepage=false){
 		if (this.sealed) throw ('sealed');
 		this._data.push(line);

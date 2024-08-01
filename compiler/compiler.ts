@@ -8,14 +8,19 @@ import {VError,MAX_VERROR} from './error.ts'
 import {predefines} from './predefines.ts'
 import { packInt } from '../utils/packintarray.ts';
 import {checkFootnote} from './footnotes.ts';
-export const sourceType=(firstline:string,filename:string):SourceType=>{	
+
+export const sourceType=(firstline:string,filename:string)=>{	
 	const at=firstline.indexOf('\n');
-	firstline=at>-1? firstline.slice(0,at):firstline;
-	const [text,tags]=parseOfftext(firstline);
-	let lazy=true ,sourcetype, name,caption;
+	let lazy=true , name,caption,tag;
 	let consumed=false;
-	sourcetype=filename?.endsWith('.tsv') ?SourceType.TSV:  (filename?.endsWith('.off')?SourceType.Offtext:SourceType.Unknown);
-	
+	let sourcetype=SourceType.Unknown;
+	if (filename) {
+		if (filename.endsWith('.tsv'))  sourcetype=SourceType.TSV;
+		if (filename.endsWith('.off'))  sourcetype=SourceType.Offtext;
+	}
+
+	firstline=at>-1? firstline.slice(0,at):firstline;
+	const [text,tags]=parseOfftext(firstline);	
 	if (tags.length && tags[0].name==':') { //directive
 		const attrs=tags[0].attrs;
 		if (attrs.hasOwnProperty(lazy)) lazy=!!attrs.lazy;
@@ -27,9 +32,12 @@ export const sourceType=(firstline:string,filename:string):SourceType=>{
 			consumed=false;
 			lazy=false;
 		}
-	}
+		tag=tags[0]
+	}		
+
+
 	// console.log(filename,sourcetype);
-	return {sourcetype,tag:tags[0],lazy,name,caption,consumed};
+	return {sourcetype,tag,lazy,name,caption,consumed};
 }
 export class CompiledFile implements ICompiledFile {
 	constructor (){
@@ -178,6 +186,11 @@ export class Compiler implements ICompiler {
 			}
 			this.compiledLine += out.length;
 			processed=out;
+		} else if (sourcetype===SourceType.Paged){
+			const paged=new Paged();
+			paged.loadFromString(buffer);
+			
+			console.log('compile pgd',paged)
 		} else { // unknown type
 			if (compiledname.endsWith('.num')) {
 				let linetext=sa.first();

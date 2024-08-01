@@ -1,5 +1,5 @@
 export const escapeTemplateString=str=>str.replace(/\\/g,"\\\\").replace(/`/g,"\\`").replace(/\$\{/g,'$\\{');
-export function pagejsonpfn(nchunk,folder){
+export function pagejsonpfn(nchunk:number,folder:string=''){
     const jsfn=nchunk.toString().padStart(3,'0')+'.js'
     return folder?folder+'/'+jsfn:jsfn;
 }

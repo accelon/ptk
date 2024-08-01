@@ -1,4 +1,4 @@
-export const parseJsonp=str=>{
+export const parseJsonp=(str:string)=>{
     const start=str.indexOf('{');
     const end=str.indexOf('},`')+1;
     let payload=str.substring(end+2,str.length-2);

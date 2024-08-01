@@ -1,6 +1,7 @@
 import {loadJSONP,loadFetch,loadNodeJs,loadRemoteZip,loadInMemoryZipStore} from './loadpage.ts'
-import {bsearchNumber,lineBreaksOffset,unique} from '../utils/index.ts';
+import {bsearchNumber,lineBreaksOffset,extractObject,unique} from '../utils/index.ts';
 import {ILineRange} from './interfaces.ts'
+
 let instancecount=0;
 const combineRange=range=>{
 	const combined=[];
@@ -35,7 +36,7 @@ export class LineBase{
 	private _loader: (page:any) => Promise<void>;
 	failed: boolean;
 	inmemory:boolean;
-	constructor (opts={}) {
+	constructor (opts={name:String,contentString:String,inmemory:Boolean}) {
 		this.stamp=++instancecount;
 		this._pages=[];     // read time,   line not split
 		this._lineoffsets=[]; // lineoffsets of each page
@@ -60,7 +61,17 @@ export class LineBase{
         	this._loader=this.zip?loadRemoteZip:loadNodeJs;
         }
         this.failed=false;
-        if (!opts.inmemory) {
+		if (opts.contentString) {
+			const [headerstr,len]=extractObject(opts.contentString);
+			const header=JSON.parse(headerstr);
+			const lines=opts.contentString.slice(len).split('\n');
+			const payload=lines.shift().replace(/\\n/g,'\n');
+			this.setPage(0,header,payload)
+			for (let i=0;i<header.starts.length;i++) {
+				const pagedata=lines.slice( (i>0?header.starts[i-1]:0) , header.starts[i]);
+				this.setPage(i+1,{},pagedata.join('\n'));
+			}
+		} else if (!opts.inmemory) {
         	this._loader.call(this,0);
         }
 	}

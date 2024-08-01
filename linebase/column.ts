@@ -196,6 +196,21 @@ export class Column {
 		const sa=new StringArray(buffer,{sequencial:true});
 		return this.fromStringArray(sa,attrs,from,this.compiledFiles);
 	}
+	toTSV(){
+		let key=this.keys.first();
+		let at=0;
+		const out=Array<string>();
+		while (key) {
+			const rows=[key];
+			for (let i=1;i<this.fieldvalues.length;i++) {
+				rows.push(this.fieldvalues[i][at]);
+			}
+			key=this.keys.next();
+			at++;
+			out.push(rows.join('\t'))
+		}
+		return out.join('\n');
+	}
 	findKey(key:string){
 		if (this.keys) {
 			return this.keys.find(key.toString());

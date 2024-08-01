@@ -99,7 +99,7 @@ export const writePitaka=async (lbase,opts={})=>{
                 console.log('cannot create folder',name);
             }
         }
-        lbase.dump((pagefn,buf)=>{
+        lbase.dumpJs((pagefn,buf)=>{
             const outfn=folder+'/'+pagefn;
             writeChanged(outfn,buf,true);
         }); 

@@ -5,4 +5,4 @@ export * from './address.ts'
 export * from './inmemory.ts'
 export * from './ptkfile.ts'
 export * from './folio.ts'
-
+export * from './topaged.ts'

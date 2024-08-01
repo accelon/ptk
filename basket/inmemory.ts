@@ -6,7 +6,7 @@ import {poolAdd}  from './pool.ts';
 export const inMemory=(lbaser:ILineBaser)=> {
 	if (!lbaser.name) lbaser.setName('inmemory');
 	const ptk = new Pitaka({inmemory:true});
-	lbaser.dump((fn,buf,page)=>ptk.setPage(page ,... parseJsonp(buf)));
+	lbaser.dumpJs((fn,buf,page)=>ptk.setPage(page ,... parseJsonp(buf)));
 	poolAdd(lbaser.name,ptk);
 	return ptk;
 }

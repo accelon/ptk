@@ -1,5 +1,5 @@
 import {LineBaser} from '../linebase/index.ts';
-import {ICompiler} from './compiler.ts';
+import {Compiler} from './compiler.ts';
 import {Indexer} from '../fts/index.ts';
 import {parseOfftext} from '../offtext/index.ts';
 import {serializeToc} from './toc.ts';
@@ -16,7 +16,7 @@ const writeTypedefs=(lbaser:LineBaser, typedefs)=>{
 		}
 	}
 }
-export const makeLineBaser=async (sourcebuffers,compiler:ICompiler,contentGetter)=>{
+export const makeLineBaser=async (sourcebuffers,compiler:Compiler,contentGetter)=>{
 	const lbaser=new LineBaser();
 	if (compiler) compiler.reset();
 	else compiler=new Compiler();
@@ -25,7 +25,11 @@ export const makeLineBaser=async (sourcebuffers,compiler:ICompiler,contentGetter
 
 	for (let i=0;i<sourcebuffers.length;i++) {
 		const buf=sourcebuffers[i];
-		const {text}=await contentGetter(i);
+		let text=buf.text||'';
+		if (!text && contentGetter) {
+			const content=await contentGetter(i);
+			text=content.text||'';
+		}
 		const ext=buf.name.match(/(.[a-z]+)/)[1]||'';
 		if (buf.name.endsWith('.css')) continue; // todo , should check sourcetype
 		compiler.compileBuffer(text,buf.name);
