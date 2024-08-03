@@ -33,9 +33,7 @@ export const sourceType=(firstline:string,filename:string)=>{
 			lazy=false;
 		}
 		tag=tags[0]
-	}		
-
-
+	}
 	// console.log(filename,sourcetype);
 	return {sourcetype,tag,lazy,name,caption,consumed};
 }
@@ -78,19 +76,20 @@ export class Compiler implements ICompiler {
 	}
 	compileOfftext(str:string, tagdefs:string[]){
 		const at=str.indexOf('^');
-		if (at==-1) return str;
+		if (at==-1) return str; //nothing to do
 		const ot=new Offtext(str);
 		for (let i=0;i<ot.tags.length;i++) {
 			const tag=ot.tags[i];
+			let tagstr=str.slice(tag.offset,tag.end);
 			if (tag.name[0]==':' && tag.name.length>1) {
 				const newtagname=tag.name.slice(1);
-				if (this.typedefs[newtagname]) {
-					this.onError(VError.TypeRedef, newtagname)
-				} else {
+				//if (this.typedefs[newtagname]) {
+					//this.onError(VError.TypeRedef, newtagname);
+				//} else {
+				//just redefine without warning
 					this.typedefs[newtagname]= new Typedef(tag.attrs,newtagname,this.primarykeys, this.typedefs);
-				}
-				tagdefs.push(str);
-				str=null;  //no in source tag
+				//}
+				tagdefs.push(tagstr);
 			} else {
 				if (tag.name[0]=='z') {
 					validate_z.call(this,ot,tag);

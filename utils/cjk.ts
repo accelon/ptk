@@ -67,7 +67,7 @@ export const closeBracketOf=(ch:string)=>{
     if (~at) return closeBrackets[at];
     return '';
 }
-export const removeBracket=(str)=>{
+export const removeBracket=(str:string)=>{
     const closebracket = closeBracketOf(str);
     if (closebracket && str.slice(str.length-1)==closebracket) {
         return str.slice(1,str.length-1);

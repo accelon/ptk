@@ -1,7 +1,7 @@
 export enum SourceType { Offtext='txt', TSV='tsv' ,Unknown='unknown' };
 
 export interface ICompileError {
-	fatality:boonlean;
+	fatality:boolean;
 	msg:string;
 	line:number;
 	refline:number;

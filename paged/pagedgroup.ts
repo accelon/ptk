@@ -11,9 +11,9 @@ export class PagedGroup {
         this._pageds[name]=paged;
         return paged;
     }
-    addHandle(name:string,handle:FileSystemHandle){
+    async addHandle(name:string,handle:FileSystemHandle){
         const paged=new Paged();
-        paged.loadFromHandle(handle);
+        await paged.loadFromHandle(handle);
         this._pageds[name]=paged;
         return paged;
     }
@@ -49,7 +49,7 @@ export class PagedGroup {
 
         for (let key in this._pageds) {
             if (key==name) continue;
-            if ( this._pageds[key].lastpage== lastpage) {
+            if ( this._pageds[key].lastpage==paged.lastpage) {
                 out.push( key )
             }
         }

@@ -318,10 +318,11 @@ export const eatbracket=(str:string,breaker='\t',stop=[])=>{ //consume continous
     return out.slice(0,out.length-breaker.length);
 }
 
-export const unitize=(str:string, splitPinx=null)=>{
+export const unitize=(str:string)=>{
     const out=''.split('');
     let prev=0;
-    let at=str.indexOf('^',prev)
+    let at=str.indexOf('^',prev);
+
     // make sure sum of items' length == str.length
     while (~at) {
         let p=at+1; //temporary pointer 
@@ -331,30 +332,13 @@ export const unitize=(str:string, splitPinx=null)=>{
             continue;
         }
         let prevtext='';
-
-        if (CJKRangeName(str.slice(p))) { //pure chinese, maybe hzpx
-            prevtext=str.slice(prev,at);
-            if (prevtext) out.push(prevtext);
-            if (splitPinx) {
-                const pinx=splitPinx(str.slice(at+1));
-                if (pinx.length && pinx[0].length>1) {
-                    out.push('^'+pinx[0]);
-                    prev=at+1+pinx[0].length;
-                } else {
-                    prev=at+1;
-                }
-            } else {
-                prev=at+1;
-            }
-        } else { 
-            const offtag=eatofftag(str.slice(p));
-            prevtext=str.slice(prev,p-1);
-            if (prevtext) out.push(prevtext);            
-            const brackets=eatbracket(str.slice(p+offtag.length),'', ['[']);
-            out.push( '^'+str.slice(p,p+brackets.length+offtag.length));
-            p+=offtag.length;
-            prev = brackets.length+ p;
-        }
+        const offtag=eatofftag(str.slice(p));
+        prevtext=str.slice(prev,p-1);
+        if (prevtext) out.push(prevtext);            
+        const brackets=eatbracket(str.slice(p+offtag.length),'', ['[','{','<']);
+        out.push( '^'+str.slice(p,p+brackets.length+offtag.length));
+        p+=offtag.length;
+        prev = brackets.length+ p;
         at=str.indexOf('^',prev);
     }
 
@@ -386,15 +370,11 @@ export const offTagType=str=>{
             return [str, "offtext", offtag]//just remove ^, keep bracket
         }
     } else { // see if 
-        if (CJKRangeName(str)) {
-            return [str , 'hzpx', offtag]
-        } else {
-            try{
-                const r=jsonify(offtag);
-                return [str , 'offtext',offtag]
-            } catch(e) {
-                return [str , 'unknown',offtag]
-            }
+        try{
+            const r=jsonify(offtag);
+            return [str , 'offtext',offtag]
+        } catch(e) {
+            return [str , 'unknown',offtag]
         }
     }
 }

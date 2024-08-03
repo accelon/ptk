@@ -3,20 +3,25 @@ import {escapeTemplateString} from '../utils/misc.ts'
 import {loadUrl} from '../utils/helper.ts'
 import {PGDEXT} from './constants.ts'
 import {verifyPermission} from '../platform/chromefs.ts'
+import { unitize } from '../offtext/parser.ts'
 
 export class Paged{
     private handle:FileSystemHandle;
     private pagetexts:Array<string>;
     private entrytexts:{};
     dirty:number;
+    private tocdirty:boolean;
     private rawheader:string;//keep the comment #
     header:{};
+    private _toc:[];
 	constructor () {
         this.pagetexts= Array<string>();
         this.entrytexts={};
         this.header={};
         this.rawheader='';
         this.dirty=0;
+        this.tocdirty=true;
+        this._toc=[];
     }
     get lastpage() {return this.pagetexts.length}
     get filehandle() {return this.handle}
@@ -153,8 +158,29 @@ export class Paged{
         if (n>0&&n<=this.pagetexts.length) {
             this.pagetexts[n-1]=value;
         }
+        this.tocdirty=true;
     }
     setEntryText(entry:string,value:string){
         this.entrytexts[entry]=value;
+    }
+    rebuildToc(){
+        this.tocdirty=false;
+        const out=[];
+        for (let i=0;i<this.pagetexts.length;i++) {
+            const lines=this.pagetexts[i].split('\n');
+            for (let j=0;j<lines.length;j++){
+                const units=unitize(lines[j]);
+                for (let k=0;k<units.length;k++) {
+                    if (units[k].startsWith('^z')) {
+                        out.push({caption:units[k], page:i+1, line:j})
+                    }
+                }
+            }
+        }
+        this._toc=out;
+    }
+    get toc(){
+        if (this.tocdirty) this.rebuildToc();
+        return this._toc;
     }
 }
