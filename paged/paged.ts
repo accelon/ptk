@@ -3,7 +3,7 @@ import {escapeTemplateString} from '../utils/misc.ts'
 import {loadUrl} from '../utils/helper.ts'
 import {PGDEXT} from './constants.ts'
 import {verifyPermission} from '../platform/chromefs.ts'
-import { unitize } from '../offtext/parser.ts'
+import { eatofftag, unitize } from '../offtext/parser.ts'
 
 export class Paged{
     private handle:FileSystemHandle;
@@ -171,7 +171,7 @@ export class Paged{
             for (let j=0;j<lines.length;j++){
                 const units=unitize(lines[j]);
                 for (let k=0;k<units.length;k++) {
-                    if (units[k].startsWith('^z')) {
+                    if (units[k].startsWith('^z')||units[k].startsWith('^y')) {
                         out.push({caption:units[k], page:i+1, line:j})
                     }
                 }

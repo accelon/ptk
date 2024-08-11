@@ -61,13 +61,13 @@ export const removePunc=(str)=>{
 const openBrackets ="<{[(｛「『〔（︹︵︷【︻《〈︽︿﹁﹃﹙﹝﹛‘“〝‵";
 const closeBrackets=">}])｝」』〕）︺︶︸】︼》〉︾﹀﹂﹄﹚﹞﹜’”〞′"; 
 
-export const closeBracketOf=(ch:string)=>{
+export const closeBracketOf=(ch)=>{
     if (!ch)return '';
     const at=openBrackets.indexOf(ch.slice(0,1));
     if (~at) return closeBrackets[at];
     return '';
 }
-export const removeBracket=(str:string)=>{
+export const removeBracket=(str)=>{
     const closebracket = closeBracketOf(str);
     if (closebracket && str.slice(str.length-1)==closebracket) {
         return str.slice(1,str.length-1);
@@ -162,4 +162,11 @@ export const breakChineseSentence=(line,opts={})=>{
     return out2.join('\n')
     .replace(/\n(\^[jkf][#a-z\d@:\-]+)([：；，、。！？」』）〕】》]*)/g,(m,m1,punc)=>m1+(punc||'')+'\n')
     .replace(/\n+/g,'\n').trimEnd(); //remove tailing \n and blanks
+}
+export const extractIDS=line=>{
+    const out=[];
+    line.replace(/([\u2ff0-\u2fff][\u2ff0-\u2fff\u3400-\u9fff\ud800-\udfff]{2,7})/g,(m,m1)=>{
+        out.push(m1)
+    })
+    return out;
 }

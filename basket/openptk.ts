@@ -1,7 +1,7 @@
 import {poolAdd,poolGet,poolDel,poolGetAll}  from './pool.ts';
 import {Pitaka} from './pitaka.ts';
 import {ZipStore} from '../zip/index.ts';
-export const openPtk=async (name:string,cachedimage)=>{
+export const openPtk=async (name,cachedimage)=>{
 	let ptk=usePtk(name);
 	if (ptk) return ptk;
 	if (!name) return null;

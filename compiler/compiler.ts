@@ -1,7 +1,7 @@
 import {parseOfftext,Offtext,updateOfftext}  from '../offtext/parser.ts';
 import {Column} from '../linebase/column.ts'
 import {SourceType,ICompiledFile} from './interfaces.ts'
-import {validate_z} from './fielder.ts'
+import {validate_z,validate_x,validate_y} from './fielder.ts'
 import {StringArray} from '../utils/stringarray.ts'
 import {Typedef} from './typedef.ts'
 import {VError,MAX_VERROR} from './error.ts'
@@ -93,6 +93,10 @@ export class Compiler implements ICompiler {
 			} else {
 				if (tag.name[0]=='z') {
 					validate_z.call(this,ot,tag);
+				} else if (tag.name[0]=='y') {
+					validate_y.call(this,ot,tag);
+				} else if (tag.name[0]=='x') {
+					validate_x.call(this,ot,tag);
 				} else {
 					const typedef=this.typedefs[tag.name];
 					if (!typedef) {

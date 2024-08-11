@@ -362,7 +362,7 @@ export const offTagType=str=>{
             if (offtag.charAt(0)=='{') { //json as offtag
                 try{
                     const r=jsonify(offtag);
-                    return [str , 'offtext',offtag]
+                    return [offtag , 'offtext', ""]
                 } catch(e) {
                     return [str , 'unknown',offtag]
                 }    
@@ -370,6 +370,7 @@ export const offTagType=str=>{
             return [str, "offtext", offtag]//just remove ^, keep bracket
         }
     } else { // see if 
+        if (!str) return [offtag,'offtext',""]
         try{
             const r=jsonify(offtag);
             return [str , 'offtext',offtag]
