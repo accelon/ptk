@@ -27,7 +27,7 @@ export const openPtk=async (name,cachedimage)=>{
 export const openInMemoryPtk=async(name:string, ptkimage:UInt8Array)=>{
 	const zipstore=new ZipStore(ptkimage);
 	const ptk=new Pitaka({name,zipstore});
-	if (await ptk.isReady()) {
+	if (ptk.isReady()) {
 		await ptk.init();
 		poolAdd(name,ptk);
 		return ptk;

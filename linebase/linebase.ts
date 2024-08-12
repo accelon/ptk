@@ -71,6 +71,7 @@ export class LineBase{
 				const pagedata=lines.slice( (i>0?header.starts[i-1]:0) , header.starts[i]);
 				this.setPage(i+1,{},pagedata.join('\n'));
 			}
+			this.inmemory=true;
 		} else if (!opts.inmemory) {
         	this._loader.call(this,0);
         }

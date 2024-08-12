@@ -34,7 +34,9 @@ export const makeLineBaser=async (sourcebuffers,compiler:Compiler,contentGetter)
 		if (buf.name.endsWith('.css')) continue; // todo , should check sourcetype
 		compiler.compileBuffer(text,buf.name);
 		
-		const {name,caption,errors,processed,samepage,lazy,tagdefs,textstart,sourcetype}=compiler.compiledFiles[buf.name];
+		const {name,caption,errors,processed,samepage,
+			lazy,tagdefs,textstart,sourcetype}=compiler.compiledFiles[buf.name];
+
 		alltagdefs.push(...tagdefs);
 		if (!lazy) lbaser.header.preload.push(name);
 		lbaser.append(processed,{name:name.replace('*',''),samepage,sourcetype});
@@ -75,5 +77,6 @@ export const makeLineBaser=async (sourcebuffers,compiler:Compiler,contentGetter)
 	writeTypedefs(lbaser,compiler.typedefs)
 
 	lbaser.setName(compiler.ptkname);
+	lbaser.newPage();//finalize
 	return lbaser;
 }

@@ -120,7 +120,7 @@ export class Compiler implements ICompiler {
 	compileBuffer(buffer:string,filename:string) {
 		if (!buffer)   return this.onError(VError.Empty);
 		if (!filename) return this.onError(VError.PtkNoName);
-		let processed,samepage=false, tagdefs=[] , attributes={};
+		let samepage=false, tagdefs=[] , attributes={};
 		const sa=new StringArray(buffer,{sequencial:true});
 		const firstline=sa.first();
 		const {sourcetype,tag,lazy,name,caption,consumed}=sourceType(firstline,filename); //only first tag on first line
@@ -130,7 +130,7 @@ export class Compiler implements ICompiler {
 		let textstart=0;//starting line of indexable text
 		this.compilingname=filename;
 		this.stopcompile=false;
-		
+		let processed=[];
 		// if (!tag) console.log(firstline,filename);
 
 		if (tag?.name==':') { // system directive
@@ -189,11 +189,6 @@ export class Compiler implements ICompiler {
 			}
 			this.compiledLine += out.length;
 			processed=out;
-		} else if (sourcetype===SourceType.Paged){
-			const paged=new Paged();
-			paged.loadFromString(buffer);
-			
-			console.log('compile pgd',paged)
 		} else { // unknown type
 			if (compiledname.endsWith('.num')) {
 				let linetext=sa.first();

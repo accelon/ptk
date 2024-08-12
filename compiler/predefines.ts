@@ -17,7 +17,9 @@ generic:
 ^:sponsor<savelinepos=true>
 ^:https<bracket=false onclick=gourl>
 ^:fn<id=text>
-^:t`,
+^:t
+^:connect<source=text target=text book=text>
+^:ln<id=text key=text pin=text>`,
 cbeta:
 `^:ak<id=unique bracket=false>
 ^:bk<id=unique heading=text bracket=false reset=ck,p>

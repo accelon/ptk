@@ -2,7 +2,7 @@ import {OFFTAG_REGEX_G, OFFTAG_REGEX,OFFTAG_REGEX_TOKENIZE,OFFTAG_NAME_ATTR,ALWA
     QUOTEPAT,QUOTEPREFIX,QSTRING_REGEX_G,QSTRING_REGEX_GQUOTEPAT,
     OFFTAG_LEADBYTE} from './constants.ts';
 import {IOfftag} from './interfaces.ts';
-import {CJKRangeName, closeBracketOf} from '../utils/cjk.ts'
+import { closeBracketOf} from '../utils/cjk.ts'
 import {substrUTF32} from '../utils/unicode.ts'
 import {Token, TokenType, tokenize} from '../fts/tokenize.ts'
 import {jsonify, extractObject } from '../utils/json.ts';
@@ -60,11 +60,17 @@ export const parseAttributes=(rawAttrs:string,compactAttr:string)=>{
 
     return attrs;
 }
-export const parseOfftag=(raw:string,rawAttrs:string)=>{ // 剖析一個offtag,  ('a7[k=1]') 等效於 ('a7','[k=1]')
+// 剖析一個offtag,  ('a7[k=1]') 等效於 ('a7','[k=1]')
+// 接受 <a=33 b=44>(舊格式) 或 {a:33,b:44}
+export const parseOfftag=(raw:string,rawAttrs:string)=>{ 
     if (raw[0]==OFFTAG_LEADBYTE) raw=raw.slice(1);
     if (!rawAttrs){
         const at=raw.indexOf('<');
-        if (at>0) {
+        const at2=raw.indexOf('{');
+        if (at2>0) {
+            rawAttrs=raw.slice(at);
+            raw=raw.slice(0,at);
+        } else if (at>0) {
             rawAttrs=raw.slice(at);
             raw=raw.slice(0,at);
         }
@@ -75,8 +81,17 @@ export const parseOfftag=(raw:string,rawAttrs:string)=>{ // 剖析一個offtag, 
         return [raw,{}];
     } else {
         let [m2, tagName, compactAttr]=o;
-        let attrs=parseAttributes(rawAttrs,compactAttr);
-        return [tagName,attrs];        
+        let attrs={};
+        if (rawAttrs&&rawAttrs.charAt(0)=='{') {
+            const attrs2=jsonify(rawAttrs);
+            attrs=parseAttributes('',compactAttr);
+            for (let key in attrs2) {
+                attrs[key]=attrs2[key];
+            }
+        } else {
+            attrs=parseAttributes(rawAttrs,compactAttr);
+        }        
+        return [tagName,attrs];            
     }
 }
 
