@@ -35,6 +35,7 @@ export const openInMemoryPtk=async(name:string, ptkimage:UInt8Array)=>{
 }
 export const ptkFromString=(name:string,contentString:string)=>{
 	const ptk=new Pitaka({name,contentString});
+	ptk.init();
 	poolAdd(name,ptk)
 	return ptk;
 }

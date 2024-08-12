@@ -89,8 +89,7 @@ export class Pitaka extends LineBase {
 				if (r&&r[1]>r[0]) ranges.push(r);
 			}
 		}
-		
-		await this.loadLines(ranges);	
+		if (!this.inmemory) await this.loadLines(ranges);	
 		
 		for (let i=0;i<this.header.preload.length;i++) {
 			const section=this.getSection(this.header.preload[i]);
