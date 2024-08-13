@@ -16,7 +16,7 @@ const writeTypedefs=(lbaser:LineBaser, typedefs)=>{
 		}
 	}
 }
-export const makeLineBaser=async (sourcebuffers,compiler:Compiler,contentGetter)=>{
+export const makeLineBaser=async (sourcebuffers,compiler:Compiler,contentGetter:any=null)=>{
 	const lbaser=new LineBaser();
 	if (compiler) compiler.reset();
 	else compiler=new Compiler();
@@ -70,9 +70,11 @@ export const makeLineBaser=async (sourcebuffers,compiler:Compiler,contentGetter)
 	if (compiler.toc.length) lbaser.append(serializeToc(compiler.toc), {newpage:true,name:'_toc'});
 
 	lbaser.payload=alltagdefs.filter(it=>!!it).join('\n');
+
 	if (!compiler.ptkname) {
-		return "missing ptk name";	
-	}
+		compiler.ptkname=new Date();
+	 	return {err:"missing ptk name"};	
+	 }
 
 	writeTypedefs(lbaser,compiler.typedefs)
 

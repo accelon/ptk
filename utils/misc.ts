@@ -3,9 +3,9 @@ export function pagejsonpfn(nchunk:number,folder:string=''){
     const jsfn=nchunk.toString().padStart(3,'0')+'.js'
     return folder?folder+'/'+jsfn:jsfn;
 }
-export const lineBreaksOffset=str=>{
-    let i=0,at=0;
-    const out=[];
+export const lineBreaksOffset=(str:string)=>{
+    let i=0;
+    const out=Array<number>();
     while (i<str.length) {
         const at=str.indexOf('\n',i);
         if (at==-1) break;
@@ -24,7 +24,7 @@ export const JSONParse=(str:string)=>{ //parse a loss json
     return JSON.parse(str);
 }
 
-export const humanBytes=(n:number):string=>{
+export const humanBytes=(n:number):[number,string]=>{
     if (n<1024) {
         return [n,'b'];
     }

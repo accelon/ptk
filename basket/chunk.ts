@@ -1,6 +1,7 @@
+import {bsearchNumber} from '../utils/index.ts';
 export function getCaption(at:number,short=false){
     const chunktag=this.defines.ck;
-    let caption=chunktag?.innertext.get(at);
+    let caption=chunktag?.getInnertext(at);
     const id=chunktag?.fields?.id?.values[at];
     const onChunkCaption=this.template.onChunkCaption;
     if (!caption) {
@@ -45,10 +46,30 @@ export function nearestChunk( line:number) {
     const at=this.nearestTag(line,chunktag);
     return this.getChunk(at);
 }
+export function getHeading(line:number) {
+    if (!line) return '';
+    const chunktag=this.defines.ck;
+    const booktag=this.defines.bk;
+    const linepos=chunktag?.linepos||[];
+    const at=bsearchNumber(linepos, line+1)-1;
+    const lineoff=line-linepos[at];
+    const id=chunktag?.fields?.id?.values[at];
+    const bkat=this.nearestTag(line+1,booktag);
+    const bk=getBookInfo.call(this,bkat);
+    const bkid=bk?.id ;
+/* TODO
+if caption has leading - , trace back to fetch ancestor node,
+this is suitable for tree structure with less branches,
+not suitable for dictionary wordheads
+*/
+    const caption=this.caption(at);
+    return {id, tagname:'ck', caption,lineoff ,  bk, bkid};
+}
+
 export function getBookInfo (at:number) {
     const booktag=this.defines.bk;
     const bkid=booktag.fields.id.values[at];
-    let bkcaption=booktag?.innertext.get(at);
+    let bkcaption=booktag?.getInnertext(at);
     let short=bkcaption.slice(0,2);
     const bkheading= booktag?.fields.heading?.values[at] || booktag?.innertext?.get(at)
     const at2=bkcaption.indexOf(";");
@@ -58,7 +79,7 @@ export function getBookInfo (at:number) {
     }
     return {id:bkid, caption:bkcaption, short,heading:bkheading,at }
 }
-export function getChunk(at:number){
+export function getChunk(at:any){
     at=parseInt(at);
     const chunktag=this.defines.ck;
     const booktag=this.defines.bk;
@@ -71,7 +92,7 @@ export function getChunk(at:number){
     const bk=getBookInfo.call(this,bkat);
     const bkid=bk.id; //legacy
     const id=chunktag.fields.id.values[at];
-    const innertext=chunktag.innertext.get(at);
+    const innertext=chunktag.getInnertext(at);
     const caption=this.caption(at);
     const depth=chunktag.depths?chunktag.depths[at]||1:1;
     

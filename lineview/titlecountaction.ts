@@ -30,7 +30,7 @@ export class TitleCountAction extends Action{
 			if (pagesize<ACTIONPAGESIZE) pagesize=ACTIONPAGESIZE;
 			
 			for (let j=at1+this.from;j<at2;j++) {
-				const title=chunktag.innertext.get(j);
+				const title=chunktag.getInnertext(j);
 				const line=chunktag.linepos[j];
 				const ck=ptk.nearestChunk(line+1);
 				const address=makeChunkAddress(ck);

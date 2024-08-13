@@ -11,7 +11,7 @@ import {FileLinePosField} from './filelineposfield.ts';
 import {GroupField} from './groupfield.ts';
 import {IOfftext,IOfftag} from './offtext/index.ts';
 import {closeBracketOf} from '../utils/index.ts';
-export function createField(name,def:string,primarykeys,ownkeys) {
+export function createField(name,def:Field|string,primarykeys,ownkeys=false) {
 	if (typeof def!=='string') {
 		return new Field (name,def);
 	}

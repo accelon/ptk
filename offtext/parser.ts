@@ -2,9 +2,11 @@ import {OFFTAG_REGEX_G, OFFTAG_REGEX,OFFTAG_REGEX_TOKENIZE,OFFTAG_NAME_ATTR,ALWA
     QUOTEPAT,QUOTEPREFIX,QSTRING_REGEX_G,QSTRING_REGEX_GQUOTEPAT,
     OFFTAG_LEADBYTE} from './constants.ts';
 import {IOfftag} from './interfaces.ts';
+
+
 import { closeBracketOf} from '../utils/cjk.ts'
 import {substrUTF32} from '../utils/unicode.ts'
-import {Token, TokenType, tokenize} from '../fts/tokenize.ts'
+import {IToken,Token, TokenType, tokenize} from '../fts/tokenize.ts'
 import {jsonify, extractObject } from '../utils/json.ts';
 const parseCompactAttr=(str:string)=>{  //              序號和長度和標記名 簡寫情形，未來可能有 @ 
     const out={}, arr=str.split(/([@#~])/);
@@ -13,7 +15,7 @@ const parseCompactAttr=(str:string)=>{  //              序號和長度和標記
         if      (v==='~') out['to']=arr.shift();  
         else if (v==='@') out['ln']=arr.shift();  // a pointer
         else if (v==='#') {
-                v=arr.shift();
+                v=arr.shift()||'';
                 const m=v.match(OFFTAG_COMPACT_ID); //id with numeric leading may omit #
                 if (m) out.id=m[1];
         } else {
@@ -23,8 +25,8 @@ const parseCompactAttr=(str:string)=>{  //              序號和長度和標記
     return out;
 }
 export const parseAttributes=(rawAttrs:string,compactAttr:string)=>{
-    let quotes=[];             //字串抽出到quotes，方便以空白為拆分單元,
-    const getqstr=(str,withq)=>str.replace(QUOTEPAT,(m,qc)=>{
+    let quotes=Array<string>();             //字串抽出到quotes，方便以空白為拆分單元,
+    const getqstr=(str:string,withq:boolean=false):string=>str.replace(QUOTEPAT,(m,qc)=>{
         return (withq?'"':'')+quotes[parseInt(qc)]+(withq?'"':'');
     });
 
@@ -37,7 +39,7 @@ export const parseAttributes=(rawAttrs:string,compactAttr:string)=>{
     let i=0;
     if (compactAttr) Object.assign(attrs, parseCompactAttr(compactAttr));
     while (attrarr.length) {
-        const it=attrarr.shift();
+        const it=attrarr.shift()||'';
         let eq=-1,key='';
         if (it[0]=='~' || it[0]=='#' || it[0]=='@')  { //short form
            key=it[0];
@@ -62,7 +64,7 @@ export const parseAttributes=(rawAttrs:string,compactAttr:string)=>{
 }
 // 剖析一個offtag,  ('a7[k=1]') 等效於 ('a7','[k=1]')
 // 接受 <a=33 b=44>(舊格式) 或 {a:33,b:44}
-export const parseOfftag=(raw:string,rawAttrs:string)=>{ 
+export const parseOfftag=(raw:string,rawAttrs:string):[string,Record<string,any>]=>{ 
     if (raw[0]==OFFTAG_LEADBYTE) raw=raw.slice(1);
     if (!rawAttrs){
         const at=raw.indexOf('<');
@@ -132,9 +134,9 @@ const resolveEnd=(raw, plain:string,tags:IOfftag[])=>{
 }
 export const stripOfftag=(str:string)=>str.replace(OFFTAG_REGEX_G,'');
 
-export const parseOfftext=(str:string,line:number=0)=>{
+export const parseOfftext=(str:string,line:number=0):[string,Array<IOfftag>]=>{
     if (!str || str.indexOf('^')==-1) return [str||'',[]];
-    let tags=[];
+    let tags=Array<IOfftag>();
     let choff=0,prevoff=0; // choff : offset to plain text
     let text=str.replace(OFFTAG_REGEX_G, (m,rawName,rawAttrs,offset)=>{
         if (!rawName) {
@@ -191,7 +193,6 @@ export const parseOfftext=(str:string,line:number=0)=>{
     }
     return [text,tags];
 }
-export interface IOfftext {raw:string, plain:string , tags:IOfftag[]} ;
 
 export const updateOfftext = (rawtext:string, tag:IOfftag, newtag:IOfftag) =>{
     for (let n in newtag.attrs) {
@@ -207,30 +208,36 @@ export const updateOfftext = (rawtext:string, tag:IOfftag, newtag:IOfftag) =>{
     return rawtext;
 }
 export class Offtext {
+    raw:string;
+    plain:string;
+    tags:Array<IOfftag>
     constructor(raw:string,line:number=0) {
         this.raw=raw;
-        [this.plain, this.tags]=parseOfftext(raw,line);
+        //let plain,tags;
+        let [plain, tags]=parseOfftext(raw,line);
+        this.plain=plain;
+        this.tags=tags;
     }
     getTag(ntag:number){
     	return this.tags[ntag];
     }
-    tagText(tag:number|Offtag,raw=false):string {
+    tagText(tag:number|IOfftag,raw=false):string {
         if (typeof tag=='number') tag=this.tags[tag];
-        if (!tag) return;
+        if (!tag) return '';
         return raw?this.raw.slice(tag.start,tag.end):this.plain.slice(tag.choff,tag.choff+tag.width);
     }
-    tagRawText(tag:number|Offtag):string {
+    tagRawText(tag:number|IOfftag):string {
         return this.tagText(tag,true);
     }
 }
-export const packOfftagAttrs=(attrs,opts={})=>{
+export const packOfftagAttrs=(attrs,opts={omit:Boolean,allowEmpty:Boolean})=>{
     let out='';
-    const omit=(opts||{}).omit;
+    const omit=opts.omit||false;
     const allowEmpty=opts.allowEmpty||false;
     for (let key in attrs) {
         if (omit && omit[key]) continue;
         let v=attrs[key];
-        if (v.indexOf(" ")>-1|| (!v&&allowEmpty)  ) {
+        if (v.indexOf(" ")>-1|| (!v&&opts?.allowEmpty)  ) {
             v='"'+v.replace(/\"/g,'\\"')+'"'; 
         }
         if (out) out+=' ';
@@ -240,10 +247,10 @@ export const packOfftagAttrs=(attrs,opts={})=>{
 }
 //將offtext剖為處理單元, 可直接送給indexer或繪製處理，offtag不searchable，故不會增加 tkoff
 //Token 的text全部接起來，會是輸入的str ，一個byte 不差
-export const tokenizeOfftext=(str:string)=>{
-    let out=[],choff=0;
-    let tkoff=0;
-    const addSnippet=snippet=>{ //不含offtag 的文字段
+export const tokenizeOfftext=(str:string):Array<IToken>=>{
+    let out=Array<IToken>();
+    let tkoff=0,choff=0;
+    const addSnippet=(snippet:string)=>{ //不含offtag 的文字段
         if (!snippet) return;
         const tokens=tokenize(snippet)||[];
         out=out.concat(tokens);
@@ -258,12 +265,13 @@ export const tokenizeOfftext=(str:string)=>{
             tkoff+=tkcount;
         }    
     }
-    str.replace(OFFTAG_REGEX_TOKENIZE, (m,rawName,rawAttrs,offset)=>{
+    str.replace(OFFTAG_REGEX_TOKENIZE, (m,rawName:string,rawAttrs,offset:number)=>{
         const prevtext=str.slice(choff,offset);
         addSnippet(prevtext); //到上一個offtag 之間的文字
         const thetag=str.slice(offset,offset+m.length);
         //將tag及attributes原封不動作為一個token，之後有需要再parse它
-        out.push(new Token( thetag , offset, tkoff, TokenType.OFFTAG));
+        const tk=new Token( thetag , offset, tkoff, TokenType.OFFTAG);
+        out.push(tk);
         choff=offset+m.length;//文字開始之後 , offtext/parser.ts::parseOfftext , 附屬於tag 的文字，視為正常字
     })
     addSnippet(str.slice(choff)); //最後一段文字
@@ -275,7 +283,7 @@ export const tokenizeOfftext=(str:string)=>{
 
 export const sentencize=(linetext:string='',line:number)=>{
     const tokens=tokenizeOfftext(linetext); 
-    const sentences=[];
+    const sentences=Array<IToken>();
     let prevcjk=-1;//避免被短標記破開
     for (let i=0;i<tokens.length;i++) {
         const tk=tokens[i];
@@ -314,10 +322,11 @@ export const eatofftag=(str:string)=>{
     }
     return thetag;
 }
-export const eatbracket=(str:string,breaker='\t',stop=[])=>{ //consume continous brackets
+export const eatbracket=(str:string,breaker='\t',stop:any=null)=>{ //consume continous brackets
     let out='',p=0;
     let ch=str.charAt(p);
     let closebracket=closeBracketOf(ch);
+    if (!stop) stop=[];
     while (closebracket) {
         const at2=str.indexOf(closebracket, p+1);
         if (at2==-1) { // no matching , wrong tag, quit

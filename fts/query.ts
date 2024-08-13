@@ -140,7 +140,7 @@ export async function scanText(tofind:string,opts) {
         }
         const out=res.map((count,idx)=>{
             const id=groupby.fields.id.values[idx];
-            return {count, caption: groupby.innertext.get(idx), 
+            return {count, caption: groupby.getInnertext(idx), 
                 scope:tagname+ (parseInt(id)?id:'#'+id) };
         });
         return out;

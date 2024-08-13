@@ -1,6 +1,6 @@
 import {parseOfftext,Offtext,updateOfftext}  from '../offtext/parser.ts';
 import {Column} from '../linebase/column.ts'
-import {SourceType,ICompiledFile} from './interfaces.ts'
+import {SourceType} from './interfaces.ts'
 import {validate_z,validate_x,validate_y} from './fielder.ts'
 import {StringArray} from '../utils/stringarray.ts'
 import {Typedef} from './typedef.ts'
@@ -8,10 +8,10 @@ import {VError,MAX_VERROR} from './error.ts'
 import {predefines} from './predefines.ts'
 import { packInt } from '../utils/packintarray.ts';
 import {checkFootnote} from './footnotes.ts';
-
-export const sourceType=(firstline:string,filename:string)=>{	
+import {IOfftag} from '../offtext/index.ts'
+export const sourceType=(firstline:string,filename:string='')=>{	
 	const at=firstline.indexOf('\n');
-	let lazy=true , name,caption,tag;
+	let lazy=true , name='',caption='',tag:IOfftag;
 	let consumed=false;
 	let sourcetype=SourceType.Unknown;
 	if (filename) {
@@ -23,7 +23,7 @@ export const sourceType=(firstline:string,filename:string)=>{
 	const [text,tags]=parseOfftext(firstline);	
 	if (tags.length && tags[0].name==':') { //directive
 		const attrs=tags[0].attrs;
-		if (attrs.hasOwnProperty(lazy)) lazy=!!attrs.lazy;
+		if (attrs.hasOwnProperty("lazy")) lazy=!!attrs.lazy;
 		sourcetype=tags[0].attrs.type?.toLowerCase()||sourcetype;
 		name=attrs.name;
 		caption=attrs.caption;
@@ -37,7 +37,11 @@ export const sourceType=(firstline:string,filename:string)=>{
 	// console.log(filename,sourcetype);
 	return {sourcetype,tag,lazy,name,caption,consumed};
 }
-export class CompiledFile implements ICompiledFile {
+export class CompiledFile{
+	errors:Array<string>
+	tagdefs:Array<any>
+	processed:Array<string>
+	sourcetype:string
 	constructor (){
 		this.errors=[];
 		this.tagdefs=[];
@@ -46,6 +50,20 @@ export class CompiledFile implements ICompiledFile {
 	}
 }
 export class Compiler implements ICompiler {
+	typedefs:Record<string,any>;
+	ptkname:string;
+	compilingname:string;
+	line:number;
+	compiledLine:number;
+	compiledFiles:Record<string,any>
+	primarykeys:Record<string,any>
+	errors:Array<any>
+	stopcompile:boolean;
+	toc:Array<any>;
+	zcount:number;
+	prevzline:number;
+	prevdepth:number;
+	tagdefs:Array<string>
 	constructor (opts={}) {
 		this.reset(opts);
 	}
@@ -120,9 +138,9 @@ export class Compiler implements ICompiler {
 	compileBuffer(buffer:string,filename:string) {
 		if (!buffer)   return this.onError(VError.Empty);
 		if (!filename) return this.onError(VError.PtkNoName);
-		let samepage=false, tagdefs=[] , attributes={};
+		let samepage=false, tagdefs=Array<string>() , attributes={};
 		const sa=new StringArray(buffer,{sequencial:true});
-		const firstline=sa.first();
+		const firstline=sa.first()||'';
 		const {sourcetype,tag,lazy,name,caption,consumed}=sourceType(firstline,filename); //only first tag on first line
 
 		if (sourcetype=='txt' && consumed) tagdefs.push(firstline);
@@ -130,7 +148,7 @@ export class Compiler implements ICompiler {
 		let textstart=0;//starting line of indexable text
 		this.compilingname=filename;
 		this.stopcompile=false;
-		let processed=[];
+		let processed=Array<string>();
 		// if (!tag) console.log(firstline,filename);
 
 		if (tag?.name==':') { // system directive
@@ -157,15 +175,15 @@ export class Compiler implements ICompiler {
 			const typedef=text.split('\t') ; // typdef of each field , except field 0
 			const columns=new Column( {typedef, primarykeys:this.primarykeys ,onError:this.onError.bind(this) } );
 			const [serialized,_textstart]=columns.fromStringArray(sa,attrs,1,this.compiledFiles) ; //build from TSV, start from line 1
-			if (!attrs.nocheck) {
+			if (!attrs.hasOwnProperty("nocheck")) {
 				checkFootnote.call(this,attrs,columns.keys,filename);
 			}
 			textstart=_textstart;
 			if (serialized) {
-				compiledname = attrs.name || filename;  //use filename if name is not specified
+				compiledname = attrs?.name || filename;  //use filename if name is not specified
 				serialized.unshift(firstline); //keep the first line
 				//primary key can be refered by other tsv
-				if (attrs.name) this.primarykeys[attrs.name]= columns.keys;
+				if (attrs?.name) this.primarykeys[attrs.name]= columns.keys;
 				this.compiledLine += serialized.length;
 				processed=serialized;
 				textstart++; //add the first line
@@ -174,7 +192,7 @@ export class Compiler implements ICompiler {
 				processed=[];
 			}
 		} else if (sourcetype===SourceType.Offtext) {
-			const out=[];
+			const out=Array<string>();
 			let linetext=sa.first();
 			if (consumed) linetext=sa.next();
 			this.line=0; //for debugging showing line from begining of offtext file
@@ -192,7 +210,7 @@ export class Compiler implements ICompiler {
 		} else { // unknown type
 			if (compiledname.endsWith('.num')) {
 				let linetext=sa.first();
-				const out=[];
+				const out=Array<string>();
 				while (linetext || linetext==='') {
 					const o= packInt(linetext.split(',').map(it=>parseInt(it||'0')));
 					out.push(o);

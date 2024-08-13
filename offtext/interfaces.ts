@@ -1,3 +1,4 @@
+import {IToken} from '../fts/tokenize.ts'
 export interface KeyValuePair {
     key: string;
     value: string;
@@ -15,10 +16,7 @@ export interface IOfftag {
      active:boolean; 
 }
 
-export interface IOfftext {
-	text : string;
-	tags : Offtag[];
-}
+
 // export interface HTMLTag {
 // 	x:number;       //offset from begining of line
 //     closing:number; //one-base to opening HTMLTag
@@ -30,7 +28,7 @@ export interface IOfftext {
 //     empty:boolean;
 // }
 export interface IRenderUnit {
-    token:Token,   //raw token from tokenize
+    token:IToken,   //raw token from tokenize
     open  :IOfftag, //tag open at this token
     close :IOfftag, //tag close at this token
     text :string,  //the text to display
@@ -40,3 +38,11 @@ export interface IRenderUnit {
 export interface RenderOptions {
 
 }
+
+/*
+export interface IOfftext {
+	text : string;
+	tags : Offtag[];
+}
+    */
+export interface IOfftext {raw:string, plain:string , tags:IOfftag[]} 

@@ -23,8 +23,8 @@ const any = (iteree, iterator) => {
   return result;
 };
 
-export const extractObject = (str:string) => {
-  if(str.charAt(0)!=='{') return [ {}, 0];
+export const extractObject = (str:string):[string,number] => {
+  if(str.charAt(0)!=='{') return [ "", 0];
 
   let startIndex = 0;
   let openingChar = str[ startIndex ];

@@ -1,9 +1,7 @@
-import {IOfftag} from '../offtext/index.ts';
-import {ITypedef} from './interfaces.ts';
+import {IOfftag,Offtext} from '../offtext/index.ts';
 import {createField} from './fielder.ts';
 import {VError} from './error.ts';
 import {StringArray} from '../utils/stringarray.ts'
-
 import {unique,packInt,packIntDelta,unpackIntDelta,unpackInt,LEMMA_DELIMITER,removeBracket} from '../utils/index.ts'
 
 /* types of attributes defined by ^:  */
@@ -15,15 +13,24 @@ const reservedAttributes={ //是指令不是屬性名,
 	text:true,
 	type:true //name of painter
 }
-export class Typedef implements ITypedef {
-	constructor (attrs:Map, tagname:string, primarykeys:Map, typedefs:Map) {
+export class Typedef {
+	count:number
+	fields:Record<string,any>
+	mandatory:Record<string,boolean>
+	tagname:string;
+	linepos:Array<number>
+	innertext:Array<string> //this is not good, runtime and 
+	private _innertext:StringArray
+	typedefs:any
+	column:any
+	attrs:Record<string,any>
+	constructor (attrs:Record<string,any>, tagname:string, primarykeys:Record<string,any>, typedefs:Record<string,any>) {
 		this.fields={}; /* attribute might have validator */
 		this.mandatory={};  
 		this.tagname=tagname;
 		this.linepos=[];
-		this.innertext=[];
 		this.typedefs=typedefs;//to other typedefs
-		
+		this.innertext=[];
 		for (let aname in attrs) {
 			const def=attrs[aname];
 			const opts=typeof def=='string'?def:{optional:false};
@@ -72,7 +79,7 @@ export class Typedef implements ITypedef {
 			}
 		} 
 	}	
-	validateFields(tag,line,onError,compiledFiles){
+	validateFields(tag:IOfftag,line,onError,compiledFiles){
 		let touched=false,newtag;
 		this.count++;
 		// for (let aname in tag.attrs) {
@@ -99,7 +106,7 @@ export class Typedef implements ITypedef {
 		}
 		return newtag
 	}
-	validateTag(offtext:IOfftext, tag:IOfftag , line:number, compiledLine:number , compiledFiles, onError) {
+	validateTag(offtext:Offtext, tag:IOfftag , line:number, compiledLine:number , compiledFiles, onError) {
 		if (this.fields.id || this.fields['@'] ||this.fields.ln || this.attrs.savelinepos) { //auto save linepos if validating id
 			this.linepos.push(compiledLine+line);
 		}
@@ -120,16 +127,15 @@ export class Typedef implements ITypedef {
 		const newtag=this.validateFields(tag,line,onError,compiledFiles);
 		return newtag;
 	}
-	deserialize(section,ptk){
+	deserialize(section:Array<string>,ptk){
 		const attrline=section.shift();
 		const attrs=attrline?attrline.split(LEMMA_DELIMITER):[];
 		if (section.length > attrs.length) {
 			this.linepos=unpackIntDelta(section.shift());
 		}
-		this.innertext=null;
 		if (!section.length) return;
 		if (this.fields.bracket) {
-			this.innertext=new StringArray(section.shift(),{sep:LEMMA_DELIMITER});
+			this._innertext=new StringArray(section.shift()||'',{sep:LEMMA_DELIMITER});
 		}
 		for (let i=0;i<attrs.length;i++) {
 			const aname=attrs[i];
@@ -141,7 +147,7 @@ export class Typedef implements ITypedef {
 			if (V?.type==='number'){
 				V.values=unpackInt(section.shift());
 			} else if (V?.type==='text') {
-				V.values=section.length?section.shift().split('\t'):[];
+				V.values=section.length?(section.shift()||'').split('\t'):[];
 			} else if (V?.deserialize) {
 				V.values=V.deserialize(section,ptk);
 			}
@@ -151,14 +157,14 @@ export class Typedef implements ITypedef {
 		}
 	}
 	serialize(){
-		const attrs=[],out=[];
+		const attrs=Array<string>(),out=Array<string>();
 		if (!this.count) return null;
 		if (this.linepos.length || this.fields.bracket) { 
 			//if innertext exists , must pack linepos even if empty
 			out.push(packIntDelta(this.linepos));
 		}
 		if (this.fields.bracket) {
-			out.push(this.innertext.join(LEMMA_DELIMITER));
+			out.push((this.innertext||[]).join(LEMMA_DELIMITER));
 		}
 		for (let aname in this.fields) {
 			const V=this.fields[aname];
@@ -180,4 +186,7 @@ export class Typedef implements ITypedef {
 		out.unshift(attrs.join(LEMMA_DELIMITER));
 		return out.length?out.join('\n'):null;
 	}
+	getInnertext(i:number) {
+		return this._innertext?.get(i)||''
+	}	
 }

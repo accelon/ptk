@@ -14,9 +14,7 @@ export interface ICompiled {
 	textstart:number,//starting of indexable line
 	errors:ICompileError[],
 }
-export interface ITypedef {
-	count:number;
-}
+
 export interface IField {
 	find:Function,
 	validate:Function,

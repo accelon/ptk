@@ -101,7 +101,7 @@ export class Paged{
 
         for (let i=0;i<=this.pagetexts.length-1;i++) {
             const t=this.pagetexts[i];
-            offtext.push('\t'+t);
+            offtext.push('^ck'+(i+1)+' '+t);//decode in pagedGroupFromPtk
         }
 
         tsv.push('^:<name="'+ name+'.tsv'+'">\tdef');

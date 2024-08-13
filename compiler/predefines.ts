@@ -19,7 +19,7 @@ generic:
 ^:fn<id=text>
 ^:t
 ^:connect<source=text target=text book=text>
-^:ln<id=text key=text pin=text>`,
+^:ln<from=text to=text pin=text>`,
 cbeta:
 `^:ak<id=unique bracket=false>
 ^:bk<id=unique heading=text bracket=false reset=ck,p>

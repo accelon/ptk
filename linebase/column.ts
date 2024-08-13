@@ -6,25 +6,38 @@ import {VError} from  "../compiler/error.ts"
 import {tokenize,TokenType} from "../fts/tokenize.ts"
 import {parseOfftext} from '../offtext/index.ts'
 export class Column {
+	fieldvalues:Array<Array<any>>
+	fieldnames:Array<string>
+	fieldsdef:Array<any>
+	name:string
+	attrs:Record<string,any>
+	caption:string
+	keys:StringArray|null
+	primarykeys:Record<string,any>
+	onError:Function
+	tokenfield:number
+	tokentable:Record<string,any>
+	runtimetokentable:Array<string>
+	typedef:Record<string,any>|null
 	constructor(opts={}) {
 		this.fieldvalues=[];
 		this.fieldnames=[];
 		this.fieldsdef=[];
-		this.attrs; //raw attributes in ^:<>
 		this.name='';
 		this.keys=null;  //keys, null if keytype==serial 
 		this.primarykeys=opts.primarykeys||{};
 		this.onError=opts.onError;
 		this.typedef=opts.typedef;
 		this.tokenfield=-1; // 0 tokenize the key field, 1 first field 
-		this.tokentable=null; //快速知道有沒有這個token，免去除, runtime 是 Object
+		this.tokentable={}; //快速知道有沒有這個token，免去除, runtime 是 Object
+		this.runtimetokentable=Array<string>();
 	}
 	//lexicon :: key(sorted primary key) = payload
 	addColumn(name:string){
 		this.fieldnames.push(name)
 		this.fieldvalues.push([]);
 	}
-	tokenizeField(value){
+	tokenizeField(value:string){
 		const tokenized=tokenize(value);
 		for (let i=0;i<tokenized.length;i++) {
 			const {text,type}=tokenized[i];
@@ -75,8 +88,8 @@ export class Column {
 
 		if (this.attrs.tokenfield) {
 			this.tokenfield=parseInt(this.attrs.tokenfield);
-			this.tokentable=section.shift()?.split(LEMMA_DELIMITER);
-			this.tokentable.sort(alphabetically);
+			this.runtimetokentable=(section.shift()||'').split(LEMMA_DELIMITER);
+			this.runtimetokentable.sort(alphabetically);
 		}
 
 		let idx=0 , usesection=false;
@@ -112,8 +125,8 @@ export class Column {
 			console.log('section not consumed');
 		}
 	}
-	fromStringArray(sa:StringArray, attrs={},from=1,compiledFiles):string[]{
-		const allfields=[];
+	fromStringArray(sa:StringArray, attrs={},from=1,compiledFiles):[Array<string>,number]{
+		const allfields=Array<Array<any>>();
 		let line=sa.first();
 		let textstart=0;// starting of indexable text
 		let skipFirstField=false;
@@ -147,7 +160,7 @@ export class Column {
 		for (let i=0;i<allfields.length;i++) {
 			this.addRow(allfields[i], i+1 , skipFirstField,compiledFiles) ; //one base
 		}
-		const out=[]; 
+		const out=Array<string>(); 
 		if (this.keys) out.push(this.keys.join(LEMMA_DELIMITER))
 		if (this.tokenfield>-1) {
 			out.push( Object.keys(this.tokentable).join(LEMMA_DELIMITER) )
@@ -192,11 +205,12 @@ export class Column {
 
 		return [out,textstart];
 	}
-	fromTSV(buffer:string, attrs,from=1):string[]{
+	fromTSV(buffer:string, attrs,from=1):[Array<string>,number]{
 		const sa=new StringArray(buffer,{sequencial:true});
 		return this.fromStringArray(sa,attrs,from,this.compiledFiles);
 	}
 	toTSV(){
+		if (!this.keys) return;
 		let key=this.keys.first();
 		let at=0;
 		const out=Array<string>();

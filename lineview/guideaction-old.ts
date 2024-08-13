@@ -52,7 +52,7 @@ export class GuideAction extends Action{
 		await ptk.loadLines(guideline.map(item=>item[0]));
 
 		const items=guideline.map( ([line,chunk])=>{
-			const chunkname=ptk.defines.ck.innertext.get(chunk);
+			const chunkname=ptk.defines.ck.getInnertext(chunk);
 			const text=ptk.getLine(line);
 			return {chunkname,text,line,chunk}
 		})

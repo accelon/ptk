@@ -12,12 +12,12 @@ export enum TokenType {
 
 import {Word_tailspace_Reg} from './constants.ts'
 
-export function Token(text:string, choff:number, tkoff:number, type:TokenType){
+export function Token(text:string, choff:number, tkoff:number, type:TokenType,line:number=0):IToken{
     return {text,choff,tkoff,type}
 }
-export type IToken = {text:string, choff:number, tkoff:number, type:TokenType};
+export type IToken = {text:string, choff:number, tkoff:number, type:TokenType,line:number};
 
-export const tokenize=(text:string)=>{
+export const tokenize=(text:string):IToken[]=>{
     const out:IToken[]=[];
     let i=0, tkoff=0;
     if (typeof text!=='string') return [];

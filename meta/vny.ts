@@ -11,7 +11,7 @@ const getCorrespondece=(ptk,line)=>{
     for (let i=0;i<pc.fieldnames.length;i++) {
         const bkid=pc.fieldnames[i];
         const bkat=bkidarr.indexOf(bkid);
-        const caption=bktag.innertext.get(bkat);
+        const caption=bktag.getInnertext(bkat);
         if (~bkidarr.indexOf(bkid) && ck.bkid!==bkid) {
             out.push({ caption, bkid, ckid:'pc'+pc.fieldvalues[i][at] })
         }

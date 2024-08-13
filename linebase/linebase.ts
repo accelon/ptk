@@ -3,8 +3,9 @@ import {bsearchNumber,lineBreaksOffset,extractObject,unique} from '../utils/inde
 import {ILineRange} from './interfaces.ts'
 
 let instancecount=0;
+
 const combineRange=range=>{
-	const combined=[];
+	const combined=Array<Array<number>>();
 	let from=0;
 	range=range.filter((it: any)=>!!it);
 	if (Array.isArray(range[0]) && range.length) {
@@ -23,25 +24,34 @@ const combineRange=range=>{
 	}
 	return combined
 }
+type Options = {contentString:string,name:string,zip:any,inmemory:boolean,zipstore:any};
 export class LineBase{
-	private _pages: never[];
-	private _lineoffsets: never[];
+	private _pages: Array<string>;
+	private _lineoffsets: Array<Array<number>>;
 	stamp: number;
-	pagestarts: never[];
-	header: { starts: never[]; sectionnames: never[]; sectionstarts: never[]; sectiontypes: never[]; };
+	pagestarts:  Array<number>;
+	header: { name:string,starts: Array<number>; sectionnames: Array<string>; 
+		sectionstarts: Array<number>; sectiontypes: Array<string>; 
+		preload: Array<string>};
 	name: any;
 	zip: any;
 	zipstore: any;
 	payload: any;
-	private _loader: (page:any) => Promise<void>;
+	private _loader: (page:number) => Promise<void>;
 	failed: boolean;
 	inmemory:boolean;
-	constructor (opts={name:String,contentString:String,inmemory:Boolean}) {
+	opened:boolean;
+	constructor (opts:Options) {
 		this.stamp=++instancecount;
 		this._pages=[];     // read time,   line not split
 		this._lineoffsets=[]; // lineoffsets of each page
 		this.pagestarts=[];
-		this.header={starts:[],sectionnames:[],sectionstarts:[],sectiontypes:[]};
+		this.header={starts:Array<number>(),
+			sectionnames:Array<string>(),
+			sectionstarts:Array<number>(),
+			sectiontypes:Array<string>(),
+			preload:Array<string>(),
+			name:''};
 		this.name=opts.name||'';
 		this.zip=opts.zip;
 		this.zipstore=opts.zipstore;
@@ -65,7 +75,7 @@ export class LineBase{
 			const [headerstr,len]=extractObject(opts.contentString);
 			const header=JSON.parse(headerstr);
 			const lines=opts.contentString.slice(len).split('\n');
-			const payload=lines.shift().replace(/\\n/g,'\n');
+			const payload=(lines.shift()||'').replace(/\\n/g,'\n');
 			this.setPage(0,header,payload)
 			for (let i=0;i<header.starts.length;i++) {
 				const pagedata=lines.slice( (i>0?header.starts[i-1]:0) , header.starts[i]);
@@ -102,7 +112,7 @@ export class LineBase{
 
 	async loadLines(_range:number[] | ILineRange[]){
 	    const that=this; //load a range, or a sequence of line or range.
-	    let toload=[],
+	    let toload=Array<number>(),
 		range=combineRange(_range);
         const notincache={};
         for (let i=0;i<range.length;i++) {
@@ -115,8 +125,8 @@ export class LineBase{
         }
         toload.push(...Object.keys(notincache).map(it=>parseInt(it)));
 
-	    toload=unique(toload.filter(it=> !that._pages[it]));
-	    const jobs=[];
+	    toload=unique(toload.filter((it:number)=> !that._pages[it]));
+	    const jobs=Array<any>();
     	for (let i=0;i<toload.length;i++) {
 	     	jobs.push(this._loader.call(this,toload[i]+1));
 	    }
@@ -152,8 +162,8 @@ export class LineBase{
 	}
 	slice(nline:number,to:number){ //combine array of string from loaded pages
 		if (!to) to=nline+1;
-		const p1=this.pageOfLine(nline,this.pagestarts);
-		const p2=this.pageOfLine(to,this.pagestarts);
+		const p1=this.pageOfLine(nline);
+		const p2=this.pageOfLine(to);
 		let out='' ;
 		for (let i=p1;i<=p2;i++) {
 			if (!this._pages[i]) return out.split('\n');//page not loaded yet
@@ -187,7 +197,7 @@ export class LineBase{
 	isReady() {
 		if (this.payload) return true;
 		const that=this;
-		let timer=0;
+		let timer;
 		return new Promise(resolve=>{
 			timer=setInterval(()=>{
 				if (that.failed) resolve(false); //set by loadScript, loadFetch

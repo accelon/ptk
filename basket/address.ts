@@ -2,6 +2,7 @@ import {ILineRange} from '../linebase/index.ts';
 import {bsearchNumber,unpackInt} from '../utils/index.ts';
 import {ACTIONPAGESIZE} from "../lineview/interfaces.ts";
 import {PTK_ACTION_FROMTILL,PTK_FROMTILL,FROMTILL} from '../offtext/index.ts'
+import { parseOfftext } from '../offtext/parser.ts';
 export const BRANCH_SEP = '.';
 export interface IAddress {
 	ptkname:string,
@@ -239,4 +240,55 @@ export function tagAtAction(action:string):Array{
 		parentlinepos=taglinepos[at];
 	}
 	return out;
+}
+
+export async function fetchTag(ele:string,id:string) {
+	const range=rangeOfElementId.call(this,[[ele,id]]);
+	if (range.length) {
+		const [start,end]=range[0];
+		await this.loadLines([start,start+1])
+		const line=this.getLine(start);
+		const [text,tags]=parseOfftext(line);
+		for (let i=0;i<tags.length;i++) {
+			if (tags[i].name==ele && tags[i].attrs.id==id) {
+				return tags[i]
+			}
+		}
+	}
+	return null;
+}
+export function tagInRange(ele:string,from:number,to:number){
+	if (typeof to=='undefined') {
+		to=this.header.eot;
+	}
+	const linepos=this.defines[ele]?.linepos;
+	if (!linepos) return [];
+	const at=bsearchNumber(linepos, from);
+	let at2=bsearchNumber(linepos, to);
+	if (linepos[at2]>to) at2--;
+	return [at,at2];
+}
+
+export function nearestTag(line,tag, fieldname=''){
+	if (typeof tag=='string') tag=this.defines[tag];
+	if (!tag) return -1;
+	const linepos=tag.linepos;
+	if (!linepos) return null;
+	const at=bsearchNumber(linepos,line)-1;
+	const adjustat=(line<linepos[linepos.length-1])?at :at+1;
+	if (!fieldname) return adjustat;
+	else return tag.fields[fieldname].values[adjustat];
+}
+export function findClosestTag(typedef, key, value, from=0){
+	let at=typedef.fields[key].values.indexOf(value);
+	while (at>=0 && typedef.linepos[at]<from) {
+		at=typedef.fields[key].values.indexOf(value, at+1);
+	}
+	return at;
+}
+export function validId(tagname:string,id:any):boolean {
+	const V=this.defines[tagname]?.fields;
+	if (!V || !V.id) return false;
+	if (V.id.type=='number' && typeof id !=='number') id=parseInt(id);
+	return ~V.id.values.indexOf(id);
 }
