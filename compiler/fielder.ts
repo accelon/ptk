@@ -83,7 +83,9 @@ export function validate_z(offtext:IOfftext,tag:IOfftag){
 
 //多層id 
 export function validate_y(offtext:IOfftext,tag:IOfftag){
+	console.log(tag)
 }
+
 //內文跳轉
 export function validate_x(offtext:IOfftext,tag:IOfftag){
 }

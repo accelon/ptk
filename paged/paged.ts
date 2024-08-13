@@ -32,7 +32,7 @@ export class Paged{
         return this.loadFromString(str);
     }
     async loadFromUrl(url:string) {
-        if (~url.indexOf('/')) url='https://'+url
+        if (!~url.indexOf('http') && ~url.indexOf('/')) url='https://'+url
         else if (url.indexOf(PGDEXT)==-1) url+=PGDEXT
         url=url.replace('/jsbin/','/output.jsbin.com/')
         const text=await loadUrl(url);
@@ -93,7 +93,7 @@ export class Paged{
                 }
             }
         }
-        return out
+        return out;
     }
     dumpOffTsv(name:string){//create .off and .tsv from .pdg
         let offtext=Array<string>();

@@ -77,12 +77,15 @@ export class Compiler implements ICompiler {
 		this.errors=[];
 		this.typedefs={}; 
 		this.stopcompile=false;
+		this.tagdefs=[]; // defines provided by the library, will be added to 000.js payload
+
+		//for y tag
+		
 		//for z tag
 		this.toc=[];
 		this.zcount=0;
 		this.prevzline=0;
 		this.prevdepth=0;
-		this.tagdefs=[]; // defines provided by the library, will be added to 000.js payload
 	}
 	onError(code:VError, msg:string,  refline=-1, line:number) {
 		this.errors.push({name:this.compilingname, line:(line||this.line), code, msg, refline});
