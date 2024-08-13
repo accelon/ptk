@@ -11,11 +11,11 @@ export interface IZipFile {
 	size:number,         //size of content
 	content:Uint8Array,  //decode to utf8 if content is included in zipbuf
 }
-interface IZipStore {
-	files:IZipFile[],
-}
 export class ZipStore {
 	//zipbuf should at least include the Central records.
+	zipbuf:Uint8Array;
+	files:IZipFile[];
+	zipStart:number
 	constructor (zipbuf:Uint8Array) { 
 		//may pass in nodejs readFile result
 		if (zipbuf instanceof ArrayBuffer) {
@@ -26,10 +26,11 @@ export class ZipStore {
 		this.zipStart=0;  //begining first file including header (PK)
 		const {fileCount,centralSize,centralOffset}=this.loadEndRecord();
 
-		if (!fileCount) return null;
-		this.loadFiles(fileCount,centralSize,centralOffset);
+		if (fileCount) {
+			this.loadFiles(fileCount,centralSize,centralOffset);
+		}
 	}
-	private loadFiles(fileCount,centralSize,centralOffset){
+	private loadFiles(fileCount:number,centralSize:number,centralOffset:number){
 		//calculate centraloffset from end of buffer , 
 		//an partial zip buf is smaller than value specified in endRecord
 		const coffset=this.zipbuf.length-ZipConst.endLength-centralSize;
@@ -60,7 +61,7 @@ export class ZipStore {
 
 			if (i===0) this.zipStart=offset; //before zipstart is RedBean 
 			offset+=ZipConst.fileHeaderLength+namelen; //skip the local file header
-			let content;
+			let content=new Uint8Array();
 
 			const inbuf=centralOffset-coffset;
 			if (offset - inbuf>=0) {

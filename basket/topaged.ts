@@ -36,7 +36,7 @@ export const pagedGroupFromPtk=(ptk,pageds:PagedGroup)=>{
 
 
 
-export const PtkFromPagedGroup=async(sources,img=false)=>{
+export const PtkFromPagedGroup=async(sources,img=false):Promise<string|Uint8Array>=>{
     const compiler=new Compiler;
     for (let i=0;i<sources.length;i++) {
         const fn=sources[i].name.replace(/\..*$/g,'');

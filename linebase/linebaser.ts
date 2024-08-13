@@ -1,8 +1,8 @@
 import {escapeTemplateString,pagejsonpfn} from '../utils/index.ts'
-const makePageJsonp=(name,page,start,payload)=>{
+const makePageJsonp=(name:string,page:number,start:number,payload:string)=>{
 	return 'jsonp('+page+',{"name":"'+name+'","start":'+start+'},`'+payload+'`)';
 }
-const makeHeader=(name,header,pagestarts)=>{
+const makeHeader=(name:string,header,pagestarts)=>{
 	const meta=Object.assign( {} , header,{name,starts:pagestarts,buildtime:new Date()})
 	return JSON.stringify(meta);
 }
@@ -14,11 +14,15 @@ export class LineBaser {
 	pagestarts:Array<number>;
 	payload:string;
 	header:{starts:Array<number>,sectionnames:Array<string>
-		,sectionstarts:Array<string>,sectiontypes:Array<string>,preload:Array<string>,
+		,sectionstarts:Array<string>,sectiontypes:Array<string>,
+		preload:Array<string>,
+		fulltext:Array<string>,fulltextcaption:Array<string>,
+		eot:number
 	};
 	name:string;
 	onAddLine:Function;
 	sealed:Boolean;
+	zip:any
 	constructor (opts={}) {
 		this._data=[];      // write time, line splited
 		this._accsize=0;
@@ -30,7 +34,6 @@ export class LineBaser {
 			,fulltext:[],fulltextcaption:[],eot:0};
 		this.name=opts.name||'';
 		this.zip=opts.zip;
-	    this.onAddLine=null;
 	}
 	setName(name) {
 		this.name=name;

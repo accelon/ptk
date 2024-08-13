@@ -1,5 +1,5 @@
 import {storeZip, ZipStore} from '../zip/index.ts';
-import {ILineBaser} from '../linebase/index.ts';
+import {LineBaser} from '../linebase/index.ts';
 
 const move000js=(sources)=>{ //make them close to central directory
 	const out=sources.filter(it=>!it.name.endsWith('/000.js'));
@@ -8,8 +8,8 @@ const move000js=(sources)=>{ //make them close to central directory
 	return out;
 }
 
-export const makeInMemoryPtk=(lbaser:ILineBaser,css:string='',comimage=null)=> {
-	let sources=[] , locals=[];
+export const makeInMemoryPtk=(lbaser:LineBaser,css:string='',comimage:Uint8Array)=> {
+	let sources=Array<any>() , locals=Array<string>();
 	let zip,redbeanbuf;
 
 	lbaser.dumpJs((pagefn,buf)=>{

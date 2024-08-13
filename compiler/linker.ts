@@ -16,7 +16,7 @@ const writeTypedefs=(lbaser:LineBaser, typedefs)=>{
 		}
 	}
 }
-export const makeLineBaser=async (sourcebuffers,compiler:Compiler,contentGetter:any=null)=>{
+export const makeLineBaser=async (sourcebuffers,compiler:Compiler,contentGetter:any=null):Promise<LineBaser>=>{
 	const lbaser=new LineBaser();
 	if (compiler) compiler.reset();
 	else compiler=new Compiler();

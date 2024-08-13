@@ -210,7 +210,7 @@ export class Column {
 		return this.fromStringArray(sa,attrs,from,this.compiledFiles);
 	}
 	toTSV(){
-		if (!this.keys) return;
+		if (!this.keys) return '';
 		let key=this.keys.first();
 		let at=0;
 		const out=Array<string>();

@@ -4,8 +4,8 @@ export const poolHas=(name:string)=>!!_pool[name];
 export const poolGet=(name:string)=>_pool[name];
 export const poolAdd=(name:string,inst)=>_pool[name]=inst;
 export const poolDel=(name:string)=>delete _pool[name];
-export const poolGetAll=()=>{
-    const out=[];
+export const poolGetAll=():Array<any>=>{
+    const out=Array<any>();
     for (const name in _pool) {
         out.push(_pool[name]);
     }
@@ -20,7 +20,7 @@ export const hasLang=(lang:string)=>{
 export const poolParallelPitakas=(ptk)=>{
     let align=ptk.attributes?.align;
     if (!align) align=ptk.name.replace(/\-[^-]+$/,'');
-    const out=[];
+    const out=Array<any>();
     for (const n in _pool) {
         if (_pool[n].attributes.align==align || n.replace(/\-[^-]+$/,'')==align) {
             if (ptk.name!==_pool[n].name) out.push(n);

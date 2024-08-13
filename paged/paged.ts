@@ -3,7 +3,7 @@ import {escapeTemplateString} from '../utils/misc.ts'
 import {loadUrl} from '../utils/helper.ts'
 import {PGDEXT} from './constants.ts'
 import {verifyPermission} from '../platform/chromefs.ts'
-import { eatofftag, unitize } from '../offtext/parser.ts'
+import {unitize } from '../offtext/parser.ts'
 
 export class Paged{
     private handle:FileSystemHandle;
@@ -13,7 +13,7 @@ export class Paged{
     private tocdirty:boolean;
     private rawheader:string;//keep the comment #
     header:{};
-    private _toc:[];
+    private _toc:Array<any>;
 	constructor () {
         this.pagetexts= Array<string>();
         this.entrytexts={};
@@ -165,7 +165,7 @@ export class Paged{
     }
     rebuildToc(){
         this.tocdirty=false;
-        const out=[];
+        const out=Array<any>();
         for (let i=0;i<this.pagetexts.length;i++) {
             const lines=this.pagetexts[i].split('\n');
             for (let j=0;j<lines.length;j++){

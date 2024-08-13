@@ -1,15 +1,15 @@
 import {poolAdd,poolGet,poolDel,poolGetAll}  from './pool.ts';
 import {Pitaka} from './pitaka.ts';
 import {ZipStore} from '../zip/index.ts';
-export const openPtk=async (name,cachedimage)=>{
+export const openPtk=async (name,cachedimage:any=null)=>{
 	let ptk=usePtk(name);
 	if (ptk) return ptk;
 	if (!name) return null;
-	let zipstore;
+	const opts={name};
 	if (cachedimage) {
-		zipstore=new ZipStore(cachedimage);
+		opts["zipstore"]=new ZipStore(cachedimage);
 	}
-	ptk = new Pitaka({name,zipstore});
+	ptk = new Pitaka(opts);
 	poolAdd(name,ptk); //add to pool for jsonp to work.
 	if (await ptk.isReady()) {
 		await ptk.init();
@@ -24,7 +24,7 @@ export const openPtk=async (name,cachedimage)=>{
 	}
 
 }
-export const openInMemoryPtk=async(name:string, ptkimage:UInt8Array)=>{
+export const openInMemoryPtk=async(name:string, ptkimage:Uint8Array)=>{
 	const zipstore=new ZipStore(ptkimage);
 	const ptk=new Pitaka({name,zipstore});
 	if (ptk.isReady()) {
