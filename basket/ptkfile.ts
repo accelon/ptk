@@ -8,7 +8,7 @@ const move000js=(sources)=>{ //make them close to central directory
 	return out;
 }
 
-export const makeInMemoryPtk=(lbaser:LineBaser,css:string='',comimage:Uint8Array)=> {
+export const makeInMemoryPtk=(lbaser:LineBaser,css:string='',comimage:Uint8Array|null=null)=> {
 	let sources=Array<any>() , locals=Array<string>();
 	let zip,redbeanbuf;
 

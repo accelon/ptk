@@ -1,7 +1,7 @@
 import {parseOfftext,Offtext,updateOfftext}  from '../offtext/parser.ts';
 import {Column} from '../linebase/column.ts'
 import {SourceType} from './interfaces.ts'
-import {validate_z,validate_x,validate_y} from './fielder.ts'
+import {addtag_y,addtag_x,validate_z} from './fielder.ts'
 import {StringArray} from '../utils/stringarray.ts'
 import {Typedef} from './typedef.ts'
 import {VError,MAX_VERROR} from './error.ts'
@@ -49,7 +49,7 @@ export class CompiledFile{
 		this.sourcetype='';
 	}
 }
-export class Compiler implements ICompiler {
+export class Compiler{
 	typedefs:Record<string,any>;
 	ptkname:string;
 	compilingname:string;
@@ -80,7 +80,7 @@ export class Compiler implements ICompiler {
 		this.tagdefs=[]; // defines provided by the library, will be added to 000.js payload
 
 		//for y tag
-		
+
 		//for z tag
 		this.toc=[];
 		this.zcount=0;
@@ -115,9 +115,9 @@ export class Compiler implements ICompiler {
 				if (tag.name[0]=='z') {
 					validate_z.call(this,ot,tag);
 				} else if (tag.name[0]=='y') {
-					validate_y.call(this,ot,tag);
+					addtag_y.call(this,tag);	
 				} else if (tag.name[0]=='x') {
-					validate_x.call(this,ot,tag);
+					addtag_x.call(this,tag);
 				} else {
 					const typedef=this.typedefs[tag.name];
 					if (!typedef) {

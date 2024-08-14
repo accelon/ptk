@@ -11,10 +11,10 @@ export interface IAddress {
 	till:number,
 	highlightline:number,
 }
-export const parseAction=(action:string,objform=false)=>{
+export const parseAction=(action:string,objform=false):Array<any>|any=>{
 	if (!action) return [];
 	const branches=action.split(BRANCH_SEP);
-	const out=[];
+	const out=Array<any>();
 	for (let i=0;i<branches.length;i++) {
 		const m1=branches[i].match(/^([a-z_\-]+)#([a-z\d_-]+)$/); // with # id
 		const m2=branches[i].match(/^([a-z_\-]+)(\d+[a-z\d_-]+)$/);  // with number prefix mix id
@@ -221,9 +221,9 @@ export function makeChunkAddress(ck,lineoff=-1):string{
 }
 
 export function tagAtAction(action:string):Array{
-	const [start,end]=this.rangeOfAddress(action);
+	//const [start,end]=this.rangeOfAddress(action);
 	const arr=parseAction(action);
-	const out=[];
+	const out=Array<any>();
 	let parentlinepos=0;
 	for (let i=0;i<arr.length;i++) {
 		let [tagname,id]=arr[i];
@@ -268,8 +268,13 @@ export function tagInRange(ele:string,from:number,to:number){
 	if (linepos[at2]>to) at2--;
 	return [at,at2];
 }
-
-export function nearestTag(line,tag, fieldname=''){
+/* count all tag inside address */
+export function tagCount(address:string,tag:string){
+	const [s,e]=this.rangeOfAddress(address);
+    const [first,last]=this.tagInRange(tag,s,e);
+	return last-first
+}
+export function nearestTag(line:number,tag:any, fieldname=''){
 	if (typeof tag=='string') tag=this.defines[tag];
 	if (!tag) return -1;
 	const linepos=tag.linepos;
@@ -290,5 +295,26 @@ export function validId(tagname:string,id:any):boolean {
 	const V=this.defines[tagname]?.fields;
 	if (!V || !V.id) return false;
 	if (V.id.type=='number' && typeof id !=='number') id=parseInt(id);
-	return ~V.id.values.indexOf(id);
+	return !!~V.id.values.indexOf(id);
+}
+
+export function getTagFields(tagname:string,q:string,fields:Array<string>=[]){
+	const tag=this.defines[tagname];
+	if (!tag) return {};
+	let [qfield,qvalue] =q.split("=");
+	if (!qvalue) {
+		qvalue=qfield;
+		qfield="id";
+	}
+	const out={q,at:-1};
+	const tagfield=tag.fields[qfield];
+	if (!tagfield) return out;
+	const at=tagfield.values.indexOf(qvalue);
+    if (~at) {
+		for(let i=0;i<fields.length;i++) {
+			const f=tag.fields[fields[i]]
+			if (f) out[fields[i]]=f.values[at];
+		}
+    }
+	return out;
 }

@@ -1,6 +1,6 @@
 import {packIntDelta,packInt,unpackInt,unpackIntDelta,StringArray} from '../utils/index.ts';
-export const serializeToc=toc=>{
-	const out=[],texts=[],lines=[],depths=[];
+export const serializeToc=(toc:Array<any>)=>{
+	const out=Array<string>(),texts=Array<string>(),lines=Array<number>(),depths=Array<number>();
 	for (let i=0;i<toc.length;i++) {
 		const {depth,line,text} = toc[i];
 		depths.push(depth);
@@ -15,7 +15,10 @@ export const serializeToc=toc=>{
 	return out;
 }
 export class TableOfContent {
-	constructor(section:string[],name:string){
+	lines:Array<number>
+	depths:Array<number>
+	texts:StringArray
+	constructor(section:string[]){
 		this.lines=unpackIntDelta(section.shift());
 		this.depths=unpackInt(section.shift());
 		this.texts = new StringArray(section.shift());
@@ -25,10 +28,10 @@ export class TableOfContent {
 export const depthOfId=(str:string)=>{
 	return str.split(/(\d+)/).filter(it=>!!it).length;
 }
-export function buildTocTag(toctags){
+export function buildTocTag(toctags:Array<string>){
 	for (let i=0;i<toctags.length;i++) {
 		const toctag=toctags[i];
-		const out=[];
+		const out=Array<number>();
 		if (!this.defines[toctag]) {
 			console.log('not such tag',toctag);
 			continue;

@@ -19,11 +19,3 @@ export interface IField {
 	find:Function,
 	validate:Function,
 }
-export interface ICompiler {
-	ptk:string;   
-	compilingname:string; 
-	line:number;
-	primarykeys:Map<string,any>,
-	compiledFiles:Map<string,ICompiled>,
-	typedefs:Map<string,ITypedef>
-}

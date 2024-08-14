@@ -34,14 +34,19 @@ export const pagedGroupFromPtk=(ptk,pageds:PagedGroup)=>{
     return pageds
 }
 
-
-
 export const PtkFromPagedGroup=async(sources,img=false):Promise<string|Uint8Array>=>{
     const compiler=new Compiler;
     for (let i=0;i<sources.length;i++) {
-        const fn=sources[i].name.replace(/\..*$/g,'');
+        const fn=sources[i].name.replace(/\.[^.]*$/g,'');
         if (fn=='0') continue;
-        sources[i].text="^ak#"+fn+"^bk#"+fn+"\n"+sources[i].text;
+        let header='';
+        if (~sources[i].name.indexOf(".tsv")) {
+            header="^:<name="+fn+" preload=true>\tdef\n"
+        } else {
+            header="^ak#"+fn+"^bk#"+fn+"\n";
+        }
+
+        sources[i].text=header+sources[i].text;
     }
     const lbaser=await makeLineBaser(sources,compiler);
     if (img) {

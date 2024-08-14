@@ -103,11 +103,13 @@ export class Paged{
             const t=this.pagetexts[i];
             offtext.push('^ck'+(i+1)+' '+t);//decode in pagedGroupFromPtk
         }
-
-        tsv.push('^:<name="'+ name+'.tsv'+'">\tdef');
+        
         for (let key in this.entrytexts) {
             const t=this.entrytexts[key];
             tsv.push(key+'\t'+t.replace(/\n/g,'^p '));
+        }
+        if (tsv.length) {
+            tsv.unshift('^:<name="'+ name+'.tsv'+'">\tdef');
         }
         return [offtext.join('\n'),tsv.join('\n')];
     }

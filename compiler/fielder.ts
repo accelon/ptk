@@ -9,7 +9,7 @@ import {NumberField} from './numberfield.ts';
 import {NumbersField} from './numbersfield.ts';
 import {FileLinePosField} from './filelineposfield.ts';
 import {GroupField} from './groupfield.ts';
-import {IOfftext,IOfftag} from './offtext/index.ts';
+import {IOfftext,IOfftag} from '../offtext/interfaces.ts';
 import {closeBracketOf} from '../utils/index.ts';
 export function createField(name,def:Field|string,primarykeys,ownkeys=false) {
 	if (typeof def!=='string') {
@@ -81,11 +81,20 @@ export function validate_z(offtext:IOfftext,tag:IOfftag){
   this.prevdepth=depth;
 }
 
-//多層id 
-export function validate_y(offtext:IOfftext,tag:IOfftag){
-	console.log(tag)
+//只是將 ya3 ，tagname "y", id "a3", 存起來，以後再validate
+export function addtag_y(tag:IOfftag){
+	const typedef=this.typedefs.y;
+	typedef.linepos.push(this.compiledLine+this.line);
+	const V=typedef.fields.id;
+	V.values.push(tag.name.slice(1)+(tag.attrs.id||''));
+	typedef.count++;
 }
 
 //內文跳轉
-export function validate_x(offtext:IOfftext,tag:IOfftag){
+export function addtag_x(tag:IOfftag){
+	const typedef=this.typedefs.x;
+	typedef.linepos.push(this.compiledLine+this.line);
+	const V=typedef.fields.id;
+	V.values.push(tag.name.slice(1)+(tag.attrs.id||''));
+	typedef.count++;
 }
