@@ -85,7 +85,7 @@ export class StringArray {
 		const found=getter(at);
 		return (found.endsWith(pat))?at:-1;
 	}
-	indexOf(pat):number{
+	indexOf(pat:string):number{
 		let at;
 		at=this.buf.indexOf(pat);
 		while (at>-1) {

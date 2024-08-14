@@ -306,15 +306,19 @@ export function getTagFields(tagname:string,q:string,fields:Array<string>=[]){
 		qvalue=qfield;
 		qfield="id";
 	}
-	const out={q,at:-1};
+	const res=Array<any>();
 	const tagfield=tag.fields[qfield];
-	if (!tagfield) return out;
-	const at=tagfield.values.indexOf(qvalue);
-    if (~at) {
+	if (!tagfield) return [];
+
+	let at=tagfield.values.indexOf(qvalue);
+    while (~at) {
+		const out={q,at:-1};
 		for(let i=0;i<fields.length;i++) {
 			const f=tag.fields[fields[i]]
 			if (f) out[fields[i]]=f.values[at];
 		}
+		res.push(out);
+		at=tagfield.values.indexOf(qvalue,at+1)
     }
-	return out;
+	return res;
 }
