@@ -343,6 +343,7 @@ export const eatbracket=(str:string,breaker='\t',stop:any=null)=>{ //consume con
 }
 
 export const unitize=(str:string)=>{
+    if (!str) return [];
     const out=''.split('');
     let prev=0;
     let at=str.indexOf('^',prev);

@@ -1,5 +1,5 @@
 import {getCaption,caption,nearestChunk,getChunk,neighborChunks} from './chunk.ts'
-import {tagInRange,fetchTag,rangeOfElementId,innertext,findClosestTag,validId,nearestTag,
+import {tagInRange,fetchTag,rangeOfElementId,innertext,findClosestTag,validId,nearestTag,alignable,
     rangeOfAddress,fetchAddress,fetchAddressExtra,tagCount,getTagFields,queryTagFields}from './address.ts'
 function humanName(short:true,lang='zh'){
     let n= this.attributes[lang]||this.name;
@@ -27,4 +27,5 @@ export const enableTagFeature=(ptk)=>{
     ptk.neighborChunks=neighborChunks;
     ptk.getCaption=getCaption;
     ptk.caption=caption;
+    ptk.alignable=alignable;
 }

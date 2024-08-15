@@ -357,3 +357,23 @@ export function getTagFields(tagname:string,atarr:number[]|null=null,fields:Arra
 	}
 	return res;
 }
+export function alignable(fn:string){
+	const out=Array<string>();
+	if (!fn) return out;
+
+	//only off can align with other off
+	if (!fn.endsWith(".off"))fn+=".off"
+	const at=this.header.sectionnames.indexOf(fn);
+	if (!~at) return out;
+	const H=this.header;
+	const length=H.sectionstarts[at+1]-H.sectionstarts[at]
+	for (let i=0;i<H.sectionnames.length;i++) {
+		const n=H.sectionnames[i];
+		if (i==at) continue;
+		const len=H.sectionstarts[i+1]-H.sectionstarts[i]
+		if (len==length) {
+			out.push(H.sectionnames[i].replace(".off",""))
+		}
+	}
+	return out;
+}
