@@ -2,7 +2,7 @@
 export const predefines={
 generic:
 `^:ak<id=unique bracket=false reset=n>
-^:bk<id=unique heading=text bracket=false reset=ck,juan>
+^:bk<id=unique heading=text bracket=false reset=ck,juan aligncaption=text>
 ^:ck<id=unique heading=text bracket=false>
 ^:p<id=text>
 ^:n<id=number>

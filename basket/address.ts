@@ -251,7 +251,13 @@ export function tagAtAction(action:string):Array{
 	}
 	return out;
 }
-
+export function getTagById(ele:string,id:string):Object|null{
+	const E=this.defines[ele];
+	if (!this.defines[ele]) return null;
+	const at=E.fields.id.values.indexOf(id);
+	if (!~at) return null;
+	return this.getTagFields(ele,[at])[0];
+}
 export async function fetchTag(ele:string,id:string) {
 	const range=rangeOfElementId.call(this,[[ele,id]]);
 	if (range.length) {
@@ -267,6 +273,7 @@ export async function fetchTag(ele:string,id:string) {
 	}
 	return null;
 }
+
 
 export function tagInRange(ele:string,from:number=0,to:number=0){
 	if (!to) {
@@ -340,7 +347,7 @@ export function getTagFields(tagname:string,atarr:number[]|null=null,fields:Arra
 			}	
 		} else { //return all fields
 			for (let field in tag.fields) {
-				out[field]=tag.fields[field].values[at];
+				if(tag.fields[field].values[at]) out[field]=tag.fields[field].values[at];
 			}
 			out["innertext"]=tag.getInnertext(at);
 		}

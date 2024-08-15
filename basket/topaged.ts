@@ -44,8 +44,15 @@ export const PtkFromPagedGroup=async(sources,img=false):Promise<string|Uint8Arra
         if (~sources[i].name.indexOf(".tsv")) {
             prolog="^:<name="+fn+" preload=true>\tdef\n"
         } else {
-            const title=header?.title?("《"+ header.title +"》"):""
-            prolog="^ak#"+fn+"^bk#"+fn+title+"\n";
+            if (!header.id) header.id=fn;
+            let title='';
+            if (header.title) {
+                title=('《'+ header.title +'》');
+                delete header.title;
+            }
+            const bkattrs=JSON.stringify(header);
+
+            prolog='^ak#'+header.id+'^bk'+bkattrs+title+'\n';
         }
         sources[i].text=prolog+sources[i].text;
     }
