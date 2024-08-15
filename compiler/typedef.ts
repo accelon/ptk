@@ -132,6 +132,7 @@ export class Typedef {
 		const attrs=attrline?attrline.split(LEMMA_DELIMITER):[];
 		if (section.length > attrs.length) {
 			this.linepos=unpackIntDelta(section.shift());
+			this.count=this.linepos.length;
 		}
 		if (!section.length) return;
 		if (this.fields.bracket) {

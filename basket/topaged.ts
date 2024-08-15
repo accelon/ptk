@@ -1,9 +1,9 @@
-import { Column } from '../linebase/column.ts';
-import {PagedGroup} from  '../paged/index.ts'
+// import { Column } from '../linebase/column.ts';
+// import {PagedGroup} from  '../paged/index.ts'
 import {Compiler,makeLineBaser} from '../compiler/index.ts';
-import {makeInMemoryPtk} from '../basket/index.ts'
+import {makeInMemoryPtk} from '../basket/ptkfile.ts'
 
-//see 
+/*  discard, 只能從 pgd 轉 ptk ，先不考慮從 ptk 轉pgd
 export const pagedGroupFromPtk=(ptk,pageds:PagedGroup)=>{
     pageds=pageds||new PagedGroup();
     const {sectiontypes,sectionnames,sectionstarts}=ptk.header;
@@ -33,20 +33,21 @@ export const pagedGroupFromPtk=(ptk,pageds:PagedGroup)=>{
     }
     return pageds
 }
-
+*/
 export const PtkFromPagedGroup=async(sources,img=false):Promise<string|Uint8Array>=>{
     const compiler=new Compiler;
     for (let i=0;i<sources.length;i++) {
         const fn=sources[i].name.replace(/\.[^.]*$/g,'');
+        const header=sources[i].header;
         if (fn=='0') continue;
-        let header='';
+        let prolog='';
         if (~sources[i].name.indexOf(".tsv")) {
-            header="^:<name="+fn+" preload=true>\tdef\n"
+            prolog="^:<name="+fn+" preload=true>\tdef\n"
         } else {
-            header="^ak#"+fn+"^bk#"+fn+"\n";
+            const title=header?.title?("《"+ header.title +"》"):""
+            prolog="^ak#"+fn+"^bk#"+fn+title+"\n";
         }
-
-        sources[i].text=header+sources[i].text;
+        sources[i].text=prolog+sources[i].text;
     }
     const lbaser=await makeLineBaser(sources,compiler);
     if (img) {

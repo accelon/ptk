@@ -30,7 +30,6 @@ export const makeLineBaser=async (sourcebuffers,compiler:Compiler,contentGetter:
 			const content=await contentGetter(i);
 			text=content.text||'';
 		}
-		const ext=buf.name.match(/(.[a-z]+)/)[1]||'';
 		if (buf.name.endsWith('.css')) continue; // todo , should check sourcetype
 		compiler.compileBuffer(text,buf.name);
 		

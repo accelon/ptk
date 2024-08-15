@@ -107,8 +107,8 @@ export const parseAddress=(address:string):IAddress=>{
 	};
 }
 
-export function rangeOfElementId(eleidarr){
-	const out=[], ptk=this;
+export function rangeOfElementId(eleidarr:string[]){
+	const out=Array<any>(), ptk=this;
 	let from=0,to=ptk.header.eot;
 	for (let i=0;i<eleidarr.length;i++) {
 		const [ele,id]=eleidarr[i];
@@ -142,6 +142,16 @@ export function rangeOfElementId(eleidarr){
 			}
 		}
 	}
+	// last should not cross section boundary
+	const sstarts=ptk.header.sectionstarts;
+	for (let i=0;i<out.length;i++) {
+		let [first,last]=out[i];
+		const at=bsearchNumber(sstarts,first+1);
+		if (last>sstarts[at]) {
+			out[i][1]=sstarts[at];
+		}
+	}
+
 	return out;
 }
 export function rangeOfAddress(address:string|IAddress):ILineRange{
@@ -257,8 +267,9 @@ export async function fetchTag(ele:string,id:string) {
 	}
 	return null;
 }
-export function tagInRange(ele:string,from:number,to:number){
-	if (typeof to=='undefined') {
+
+export function tagInRange(ele:string,from:number=0,to:number=0){
+	if (!to) {
 		to=this.header.eot;
 	}
 	const linepos=this.defines[ele]?.linepos;
@@ -297,28 +308,52 @@ export function validId(tagname:string,id:any):boolean {
 	if (V.id.type=='number' && typeof id !=='number') id=parseInt(id);
 	return !!~V.id.values.indexOf(id);
 }
-
-export function getTagFields(tagname:string,q:string,fields:Array<string>=[]){
+export function queryTagFields(tagname:string,q:string,fields:Array<string>=[]):number[]{
 	const tag=this.defines[tagname];
-	if (!tag) return {};
+	if (!tag) return [];
 	let [qfield,qvalue] =q.split("=");
 	if (!qvalue) {
 		qvalue=qfield;
 		qfield="id";
 	}
-	const res=Array<any>();
+	const atarr=Array<number>();
 	const tagfield=tag.fields[qfield];
 	if (!tagfield) return [];
-
 	let at=tagfield.values.indexOf(qvalue);
     while (~at) {
-		const out={q,at:-1};
-		for(let i=0;i<fields.length;i++) {
-			const f=tag.fields[fields[i]]
-			if (f) out[fields[i]]=f.values[at];
-		}
-		res.push(out);
+		atarr.push(at);
 		at=tagfield.values.indexOf(qvalue,at+1)
     }
+	return this.getTagFields(tagname,atarr,fields);
+}
+export function getTagFields(tagname:string,atarr:number[]|null=null,fields:Array<string>|null=null):any[]{
+	const tag=this.defines[tagname];
+	if (!tag) return [];	
+	const res=Array<any>();
+
+	const emitFields=(at:number)=>{
+		const out={at};
+		if (fields) {
+			for(let i=0;i<fields.length;i++) {
+				const f=tag.fields[fields[i]]
+				if (f) out[fields[i]]=f.values[at];
+			}	
+		} else { //return all fields
+			for (let field in tag.fields) {
+				out[field]=tag.fields[field].values[at];
+			}
+			out["innertext"]=tag.getInnertext(at);
+		}
+		return out;
+	}
+	if (! atarr) {
+		for (let i=0;i<tag.count;i++) {
+			res.push(emitFields(i));
+		}
+	} else {
+		for(let i=0;i<atarr.length;i++) {
+			res.push(emitFields(atarr[i]));
+		}
+	}
 	return res;
 }

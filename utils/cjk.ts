@@ -1,3 +1,4 @@
+export const REGEX_IRE=/‵([\u3400-\u9FFF\uD800-\uDFFF]+)′/g
 export const isSurrogate=(s)=>(s.codePointAt(0)||0)>0xffff;
 
 export const CJKRanges={
@@ -170,3 +171,4 @@ export const extractIDS=line=>{
     })
     return out;
 }
+

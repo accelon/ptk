@@ -82,8 +82,7 @@ export class LineBaser {
 		};
 		this.header.sectionnames.push(name);
 		this.header.sectionstarts.push(this._data.length);
-
-		if (name.startsWith("_")) type=name.slice(1); // _tokens, _postings, and _toc
+		if (name.startsWith("_")&&!type) type=name.slice(1); // _tokens, _postings, and _toc
 
 		this.header.sectiontypes.push(type);
 	}
