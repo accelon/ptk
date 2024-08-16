@@ -46,12 +46,12 @@ export const PtkFromPagedGroup=async(sources,img=false):Promise<string|Uint8Arra
         } else {
             if (!header.id) header.id=fn;
             let title='';
+            const H=Object.assign({},header)
             if (header.title) {
                 title=('《'+ header.title +'》');
-                delete header.title;
+                delete H.title;//shouldn't delete header.title
             }
-            const bkattrs=JSON.stringify(header);
-
+            const bkattrs=JSON.stringify(H);
             prolog='^ak#'+header.id+'^bk'+bkattrs+title+'\n';
         }
         sources[i].text=prolog+sources[i].text;

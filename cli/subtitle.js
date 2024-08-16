@@ -13,7 +13,6 @@ const doSRT=(content,filename)=>{
         const start=Math.floor((parseInt(h)*3600+parseInt(m)*60+parseInt(s)+(parseInt(f)/1000))*10);
         let end=Math.floor((parseInt(h2)*3600+parseInt(m2)*60+parseInt(s2)+(parseInt(f2)/1000))*10);
         if (start>end) {
-            
             console.log(cyan(filename)+"\nInvalid Timestamp "+red(`${h}:${m}:${s},${f} --> ${h2}:${m2}:${s2},${f2}`));
             end=start+20;//自動改為2秒
         }
