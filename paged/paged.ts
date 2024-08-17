@@ -95,6 +95,17 @@ export class Paged{
         }
         return out;
     }
+    listEntries(tofind:string,max=100) {
+        const regex=new RegExp(tofind);
+        const out=Array<string>();
+        for (let key in this.entrytexts) {
+            if (key.match(regex)) {
+                if (out.length>=max) break;
+                out.push(key);
+            }
+        }
+        return out;
+    }
     dumpOffTsv(name:string){//create .off and .tsv from .pdg
         let offtext=Array<string>();
         let tsv=Array<string>();

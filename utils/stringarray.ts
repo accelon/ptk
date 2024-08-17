@@ -7,12 +7,16 @@
  * */
 import {bsearchGetter,StringGetter,bsearchNumber} from '../utils/bsearch.ts';
 export const LEMMA_DELIMITER = '\x7f';
+export const SA_MATCH_ANY=3, SA_MATCH_START=0,SA_MATCH_MIDDLE=1,SA_MATCH_END=2;
 export class StringArray {
 	private buf:string='';
 	private sep:string='';
 	private charpos:number[]=[];
 	private middleCache={};
 	private endCache={};
+	private now:number;
+	private sequencial:boolean;
+	private delimiter:string;
 	constructor (buf:string,opts={}){
 		this.sequencial=opts.sequencial;
 		this.delimiter=opts.delimiter||''; //separate key and value
@@ -105,7 +109,7 @@ export class StringArray {
 			return this.middleCache[infix];
 		}
 		let idx=this.buf.indexOf(infix);
-		const out=[]; 
+		const out=Array<number>();
 		while (idx>-1) {
 			const at=this.at(idx);
 			const lp=at?this.charpos[at-1]:0;
@@ -123,7 +127,7 @@ export class StringArray {
 		const getter:StringGetter=this.get.bind(this);
 		let at=bsearchGetter( getter, prefix ); // this.get(0) return len
 		if (at==-1) return [];
-		const out=[];
+		const out=Array<number>();
 		const len=this.len();
 		while (at<len) {
 			const found=this.get(at);
@@ -139,10 +143,10 @@ export class StringArray {
 		if (this.endCache.hasOwnProperty(suffix)) {
 			console.log('cache')
 			return this.endCache[suffix];
-		}			
+		}
 		if (suffix[suffix.length-1]!==this.sep) suffix=suffix+this.sep;
 		let idx=this.buf.indexOf(suffix);
-		const out=[]; 
+		const out=Array<number>();
 		while (idx>-1 && this.buf.charAt(idx-1)!==this.sep) {
 			const at=this.at(idx);
 			out.push(at);
@@ -152,10 +156,30 @@ export class StringArray {
 		this.endCache[suffix]=out;
 		return out;
 	}
-	enumMode(s:string,mode=0):number[]{
-		if (mode==0) return this.enumStart(s);
-		else if (mode==1) return this.enumMiddle(s);
-		else if (mode==2) return this.enumEnd(s);
+	enumAny(infix:string,max=999):number[]{
+		if (this.middleCache.hasOwnProperty(infix)) {
+			return this.middleCache[infix];
+		}
+		let idx=this.buf.indexOf(infix);
+		const out=Array<number>();
+		while (idx>-1) {
+			const at=this.at(idx);
+			const lp=at?this.charpos[at-1]:0;
+			const lp2=this.charpos[at]-1-infix.length;
+			if (idx>=lp && idx<=lp2) {
+				out.push(at);
+				if (out.length>max) break;
+			}
+			idx=this.buf.indexOf(infix,this.charpos[at]+this.sep.length);
+		}
+		this.middleCache[infix]=out;
+		return out;
+	}
+	enumMode(s:string,mode=0,max):number[]{
+		if (mode==SA_MATCH_ANY) return this.enumAny(s,max);
+		else if (mode==SA_MATCH_START) return this.enumStart(s,max);
+		else if (mode==SA_MATCH_MIDDLE) return this.enumMiddle(s,max);
+		else if (mode==SA_MATCH_END) return this.enumEnd(s,max);
 		return [];
 	}	
 	matchLongest(text:string):string[] { // find longest word
