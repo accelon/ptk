@@ -373,7 +373,7 @@ export const unitize=(str:string)=>{
     }
     return out;
 }
-export const offTagType=str=>{
+export const offTagType=(str:string)=>{
     const offtag=eatofftag(str);
     str=str.slice(offtag.length);
     const ch=str.charAt(0)

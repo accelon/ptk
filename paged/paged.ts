@@ -3,25 +3,27 @@ import {escapeTemplateString} from '../utils/misc.ts'
 import {loadUrl} from '../utils/helper.ts'
 import {PGDEXT} from './constants.ts'
 import {verifyPermission} from '../platform/chromefs.ts'
-import {unitize } from '../offtext/parser.ts'
+import {offTagType, unitize } from 'ptk/offtext/parser.ts'
 
 export class Paged{
     private handle:FileSystemHandle;
     private pagetexts:Array<string>;
     private entrytexts:{};
-    dirty:number;
-    private tocdirty:boolean;
     private rawheader:string;//keep the comment #
     header:{};
-    private _toc:Array<any>;
+    anchors:Array<any>
+    anchornames:Array<string>
+    anchorpagelines:Array<[number,number,string]>
+    dirty:number;
 	constructor () {
         this.pagetexts= Array<string>();
         this.entrytexts={};
         this.header={};
+        this.anchors=[];
+        this.anchornames=[];
+        this.anchorpagelines=[];
         this.rawheader='';
         this.dirty=0;
-        this.tocdirty=true;
-        this._toc=[];
     }
     get lastpage() {return this.pagetexts.length}
     get filehandle() {return this.handle}
@@ -73,6 +75,7 @@ export class Paged{
         }
         this.rawheader=header.join('\n');
         this.header=this.parseHeader(header);
+        this.buildAnchor();
         return this;
     }
     parseHeader(lines:string[]){
@@ -100,6 +103,17 @@ export class Paged{
         const out=Array<string>();
         for (let key in this.entrytexts) {
             if (key.match(regex)) {
+                if (out.length>=max) break;
+                out.push(key);
+            }
+        }
+        return out;
+    }
+    scanEntries(tofind:string,max=100) {
+        const regex=new RegExp(tofind);
+        const out=Array<string>();
+        for (let key in this.entrytexts) {
+            if (this.entrytexts[key].match(regex)) {
                 if (out.length>=max) break;
                 out.push(key);
             }
@@ -171,29 +185,34 @@ export class Paged{
         if (n>0&&n<=this.pagetexts.length) {
             this.pagetexts[n-1]=value;
         }
-        this.tocdirty=true;
     }
     setEntryText(entry:string,value:string){
         this.entrytexts[entry]=value;
     }
-    rebuildToc(){
-        this.tocdirty=false;
+    findAnchor(){
+
+    }
+    buildAnchor(){
         const out=Array<any>();
-        for (let i=0;i<this.pagetexts.length;i++) {
-            const lines=this.pagetexts[i].split('\n');
+        const tagnames=Array<string>();
+        const taglines=Array<[number,number,string]>();
+        const texts=this.pagetexts;
+        for (let i=0;i<texts.length;i++) {
+            const lines=texts[i].split('\n');
             for (let j=0;j<lines.length;j++){
                 const units=unitize(lines[j]);
                 for (let k=0;k<units.length;k++) {
                     if (units[k].startsWith('^z')||units[k].startsWith('^y')) {
-                        out.push({caption:units[k], page:i+1, line:j})
+                        out.push({caption:units[k], page:i+1, line:j});
+                        const [text,type,offtag]=offTagType(units[k].slice(1));
+                        tagnames.push(offtag);
+                        taglines.push([i+1,j,text]);
                     }
                 }
             }
         }
-        this._toc=out;
-    }
-    get toc(){
-        if (this.tocdirty) this.rebuildToc();
-        return this._toc;
-    }
+        this.anchors=out;
+        this.anchornames=tagnames;
+        this.anchorpagelines=taglines;
+    }    
 }
