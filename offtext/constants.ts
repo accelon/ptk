@@ -26,3 +26,4 @@ export const PTK_FROMTILL = /^([a-z\.\d\-_]+\:)(>\d+)?(<\d+)?(:[\-\d]+)?$/;
 export const PTK_ACTION_FROMTILL = /^([a-z\.\d\-_]+\:)?([^<>\d:]+[^:<>]*)(>\d+)?(<\d+)?(:[\-\d]+)?$/;
 
 export const MIN_ABRIDGE=8; //minimum token in abridge segment
+

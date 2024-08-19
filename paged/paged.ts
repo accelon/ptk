@@ -189,8 +189,22 @@ export class Paged{
     setEntryText(entry:string,value:string){
         this.entrytexts[entry]=value;
     }
-    findAnchor(){
-
+    findAnchor(id:string){//page,line,name
+        const at=this.anchornames.indexOf(id);
+        if (~at) return [...this.anchorpagelines[at],this.anchornames[at]]
+        return [];
+    }
+    sliceOfAnchor(id:string) {  //pagetext, yidarr in this page
+        const at=this.anchornames.indexOf(id);
+        const yidarr=[];
+        if (!~at) return ['',yidarr];
+        const [spage,sline]=this.anchorpagelines[at];
+        let [epage,eline]=this.anchorpagelines[at+1]||[];
+        let text='';
+        const lines=this.pagetexts[spage-1].split('\n');
+        // the slice will not cross page boundary
+        text=lines.slice(sline,epage>spage?lines.length:eline).join('\n')
+        return [text,yidarr,spage]
     }
     buildAnchor(){
         const out=Array<any>();
@@ -214,5 +228,5 @@ export class Paged{
         this.anchors=out;
         this.anchornames=tagnames;
         this.anchorpagelines=taglines;
-    }    
+    }
 }

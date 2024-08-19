@@ -312,7 +312,8 @@ export const eatofftag=(str:string)=>{
     }
     while (thetag.length<128 && ch && p<str.length) {
         const cp=str.charCodeAt(p)||0;
-        if ( (cp>0x2d&&cp<=0x3b)|| (cp>=0x61&&cp<=0x7a)||cp==0x23 ||cp==0x5f||cp==0x7e){ // -./0123456789:;_#   a-z ~  
+        if ( (cp>0x2d&&cp<=0x3b)|| (cp>=0x61&&cp<=0x7a)
+            ||cp==0x40||cp==0x23 ||cp==0x5f||cp==0x7e){ // -./0123456789:;_#@   a-z ~  
             thetag+=ch;
             p++
         } else {
@@ -394,8 +395,8 @@ export const offTagType=(str:string)=>{
             }
             return [str, "offtext", offtag]//just remove ^, keep bracket
         }
-    } else { // see if 
-        if (!str) return [offtag,'offtext',""]
+    } else {
+        if (!str) return ["",'offtext',offtag] ;//without brackets
         try{
             const r=jsonify(offtag);
             return [str , 'offtext',offtag]
@@ -403,4 +404,20 @@ export const offTagType=(str:string)=>{
             return [str , 'unknown',offtag]
         }
     }
+}
+//  page 
+//  page.line    // line must be number
+//  page@book
+//  page@book.lineoff 
+//  page.line@book
+export const parseTransclude=(addr:string)=>{
+	let lineoff=0;
+	const m=addr.match(/\.(\d+)/);
+	if (m) {
+		lineoff=parseInt(m[1]);
+        addr=addr.replace(m[0],'');
+	}
+	let [page,book]=addr.split('@');
+
+	return [page,book,lineoff]	;
 }
