@@ -48,10 +48,10 @@ export class Paged{
         for (let i=0;i<lines.length;i++) {
             const line=lines[i]
             const at=lines[i].indexOf('\t');
-            if (at==0) {
+            if (at==0) { //page breaker
                 isEntry=false;
                 this.pagetexts.push(line.slice(1));
-            } else if (at>0) {
+            } else if (at>0) { //entry
                 isEntry=true;
                 key=line.substring(0,at);
                 if (parseInt(key).toString()==key) throw "cannot be pure number"
@@ -60,26 +60,25 @@ export class Paged{
                 } else {
                     this.entrytexts[key]=payload;
                 }    
-            } else {
+            } else { //normal line
                 if (isEntry) {
                     this.entrytexts[key]+='\n'+line;
-                } else if (this.pagetexts.length) {//text section starts
-                    this.pagetexts[this.pagetexts.length-1]+='\n'+line;
-                } else {
-                    header.push(line);
+                } else {//text section starts
+                    if (!this.pagetexts.length) this.pagetexts.push(line)
+                    else this.pagetexts[this.pagetexts.length-1]+='\n'+line;
                 }
             }
         }
-        if (!this.pagetexts.length) {
+        if (this.pagetexts.length<2) {
             this.pagetexts.push('blank page')
         }
-        this.rawheader=header.join('\n');
-        this.header=this.parseHeader(header);
+        this.header=this.parseHeader(this.pagetexts[0]);
         this.buildAnchor();
         return this;
     }
-    parseHeader(lines:string[]){
+    parseHeader(text:string){
         const out={};
+        const lines=text.split('\n')
         for (let i=0;i<lines.length;i++) {
             const line=lines[i];
             const ch=line.charAt(0);
@@ -150,11 +149,13 @@ export class Paged{
         }
         return out.join('\n');
     }
-    insertPage(thispage:number, newcontent=''){        
+    insertPage(thispage:number, newcontent=''){      
+        if (!thispage)  return 0;
         this.pagetexts.splice(thispage,0,newcontent);
         return thispage+1;
     }
     deletePage(thispage:number){
+        if (!thispage) return this;
         this.pagetexts.splice(thispage,1);
         return this;
     }
@@ -179,11 +180,13 @@ export class Paged{
         return this.entrytexts[entry];
     }
     pageText(n:number){
-        return this.pagetexts[n-1];
+        return this.pagetexts[n];
     }
     setPageText(n:number,value:string){
-        if (n>0&&n<=this.pagetexts.length) {
-            this.pagetexts[n-1]=value;
+        if (n==0) {
+            this.header=this.parseHeader(value);
+        } else if (n>=0 && n<this.pagetexts.length) {
+            this.pagetexts[n]=value;
         }
     }
     setEntryText(entry:string,value:string){
