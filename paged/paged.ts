@@ -204,14 +204,14 @@ export class Paged{
     }
     sliceOfAnchor(id:string) {  //pagetext, yidarr in this page
         const at=this.anchornames.indexOf(id);
-        const yidarr=[];
         if (!~at) return ['',yidarr];
         const [spage,sline]=this.anchorpagelines[at];
         let [epage,eline]=this.anchorpagelines[at+1]||[];
-        let text='';
-        const lines=this.pagetexts[spage-1].split('\n');
+        const lines=this.pagetexts[spage].split('\n');
         // the slice will not cross page boundary
-        text=lines.slice(sline,epage>spage?lines.length:eline).join('\n')
+        
+        const text=lines.slice(sline,epage>spage?lines.length:eline).join('\n')
+        const yidarr=Paged.buildYidArr(text,sline);
         return [text,yidarr,spage]
     }
     buildAnchor(){
@@ -219,16 +219,16 @@ export class Paged{
         const tagnames=Array<string>();
         const taglines=Array<[number,number,string]>();
         const texts=this.pagetexts;
-        for (let i=0;i<texts.length;i++) {
+        for (let i=1;i<texts.length;i++) {
             const lines=texts[i].split('\n');
             for (let j=0;j<lines.length;j++){
                 const units=unitize(lines[j]);
                 for (let k=0;k<units.length;k++) {
                     if (units[k].startsWith('^z')||units[k].startsWith('^y')) {
-                        out.push({caption:units[k], page:i+1, line:j});
+                        out.push({caption:units[k], page:i, line:j});
                         const [text,type,offtag]=offTagType(units[k].slice(1));
                         tagnames.push(offtag);
-                        taglines.push([i+1,j,text]);
+                        taglines.push([i,j,text]);
                     }
                 }
             }
@@ -237,7 +237,18 @@ export class Paged{
         this.anchornames=tagnames;
         this.anchorpagelines=taglines;
     }
-    upperYid=(yid:string)=>{
+    static buildYidArr(text:string,linestart=0){
+        const lines=text.split(/\n/);
+        const out=Array<[string,number]>();
+        for (let i=0;i<lines.length;i++){
+            const m=lines[i].match(/\^(y[a-z\d]+)/);
+            if (m) {
+                out.push([m[1] ,i+linestart])
+            }
+        }
+        return out;
+    }    
+    static upperYid(yid:string){
         const [page]=parsePageBookLine(yid)
         let newyid=page.replace(/\d+$/,'');
         if (newyid==page) {
@@ -247,7 +258,7 @@ export class Paged{
     }
     bookTitle(yid:string) {
         const header=this.header;
-        const upper=this.upperYid(yid);
+        const upper=Paged.upperYid(yid);
         const c=this.findAnchor(upper);
         let res=(header.title?'':'@'+paged.name)+//缺title 要補上fn
         '《'+(header.title?header.title+'．':'')+ removeBracket(c[2])+'》';
