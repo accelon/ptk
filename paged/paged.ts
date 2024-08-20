@@ -4,6 +4,8 @@ import {loadUrl} from '../utils/helper.ts'
 import {PGDEXT} from './constants.ts'
 import {verifyPermission} from '../platform/chromefs.ts'
 import {offTagType, unitize } from 'ptk/offtext/parser.ts'
+import { parsePageBookLine } from "../offtext/parser.ts";
+import { removeBracket } from "../utils/cjk.ts";
 
 export class Paged{
     private handle:FileSystemHandle;
@@ -15,6 +17,7 @@ export class Paged{
     anchornames:Array<string>
     anchorpagelines:Array<[number,number,string]>
     dirty:number;
+    name:string;
 	constructor () {
         this.pagetexts= Array<string>();
         this.entrytexts={};
@@ -27,24 +30,25 @@ export class Paged{
     }
     get lastpage() {return this.pagetexts.length}
     get filehandle() {return this.handle}
-    async loadFromHandle(h:FileSystemHandle){
+    async loadFromHandle(h:FileSystemHandle,_name:string){
         const workingfile=await h.getFile();
         const str=await workingfile.text(); 
         this.handle=h;
-        return this.loadFromString(str);
+        this.name=_name;
+        return this.loadFromString(str,_name);
     }
-    async loadFromUrl(url:string) {
+    async loadFromUrl(url:string,_name:string) {
         if (!~url.indexOf('http') && ~url.indexOf('/')) url='https://'+url
         else if (url.indexOf(PGDEXT)==-1) url+=PGDEXT
         url=url.replace('/jsbin/','/output.jsbin.com/')
         const text=await loadUrl(url);
-        return this.loadFromString(text);
+        if (!_name) _name=(url.match(/([A-Za-z\-_]+)\.pgd/)||['','noname'])[1];
+        return this.loadFromString(text,_name);
     }
-    loadFromString(str:string){
+    loadFromString(str:string,_name:string){
         const obj={};
         const lines=str.split(/\r?\n/);
         let key='', isEntry=false;
-        const header=Array<string>();
         for (let i=0;i<lines.length;i++) {
             const line=lines[i]
             const at=lines[i].indexOf('\t');
@@ -74,6 +78,7 @@ export class Paged{
         }
         this.header=this.parseHeader(this.pagetexts[0]);
         this.buildAnchor();
+        this.name=_name;
         return this;
     }
     parseHeader(text:string){
@@ -231,5 +236,21 @@ export class Paged{
         this.anchors=out;
         this.anchornames=tagnames;
         this.anchorpagelines=taglines;
+    }
+    upperYid=(yid:string)=>{
+        const [page]=parsePageBookLine(yid)
+        let newyid=page.replace(/\d+$/,'');
+        if (newyid==page) {
+            newyid=page.replace(/[a-z]+$/,'');
+        }
+        return newyid;
+    }
+    bookTitle(yid:string) {
+        const header=this.header;
+        const upper=this.upperYid(yid);
+        const c=this.findAnchor(upper);
+        let res=(header.title?'':'@'+paged.name)+//缺title 要補上fn
+        '《'+(header.title?header.title+'．':'')+ removeBracket(c[2])+'》';
+        return res;
     }
 }

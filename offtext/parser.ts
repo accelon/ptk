@@ -410,7 +410,7 @@ export const offTagType=(str:string)=>{
 //  page@book
 //  page@book.lineoff 
 //  page.line@book
-export const parsePageBookLine=(addr:string)=>{
+export const parsePageBookLine=(addr:string):[string,string,number]=>{
 	let lineoff=0;
 	const m=addr.match(/\.(\d+)/);
 	if (m) {

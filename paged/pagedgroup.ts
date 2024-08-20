@@ -7,19 +7,19 @@ export class PagedGroup {
     }
     add(name:string,content:string){
         const paged=new Paged();
-        paged.loadFromString(content);
+        paged.loadFromString(content,name);
         this._pageds[name]=paged;
         return paged;
     }
     async addHandle(name:string,handle:FileSystemHandle){
         const paged=new Paged();
-        await paged.loadFromHandle(handle);
+        await paged.loadFromHandle(handle,name);
         this._pageds[name]=paged;
         return paged;
     }
     async addUrl(name:string,url:string){
         const paged=new Paged();
-        await paged.loadFromUrl(url);
+        await paged.loadFromUrl(url,name);
         this._pageds[name]=paged;
         return paged;    
     }
@@ -54,6 +54,9 @@ export class PagedGroup {
             }
         }
         return out;
+    }
+    exists(key:string){
+        return !!this._pageds[key];
     }
     get first() {
         return this.names.length?this.names[0]:'';
