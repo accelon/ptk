@@ -28,7 +28,7 @@ export class Paged{
         this.rawheader='';
         this.dirty=0;
     }
-    get lastpage() {return this.pagetexts.length}
+    get lastpage() {return this.pagetexts.length-1}
     get filehandle() {return this.handle}
     async loadFromHandle(h:FileSystemHandle,_name:string){
         const workingfile=await h.getFile();
@@ -130,7 +130,7 @@ export class Paged{
 
         for (let i=0;i<=this.pagetexts.length-1;i++) {
             const t=this.pagetexts[i];
-            offtext.push('^ck'+(i+1)+' '+t);//decode in pagedGroupFromPtk
+            offtext.push('^dk'+(i)+' '+t);//decode in pagedGroupFromPtk, chunk without name
         }
         
         for (let key in this.entrytexts) {
