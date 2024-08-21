@@ -2,7 +2,7 @@ import {OFFTAG_REGEX_G, OFFTAG_REGEX,OFFTAG_REGEX_TOKENIZE,OFFTAG_NAME_ATTR,ALWA
     QUOTEPAT,QUOTEPREFIX,QSTRING_REGEX_G,QSTRING_REGEX_GQUOTEPAT,
     OFFTAG_LEADBYTE} from './constants.ts';
 import {IOfftag} from './interfaces.ts';
-
+import { removeBracket } from '../utils/cjk.ts';
 
 import { closeBracketOf} from '../utils/cjk.ts'
 import {substrUTF32} from '../utils/unicode.ts'
@@ -420,4 +420,11 @@ export const parsePageBookLine=(addr:string):[string,string,number]=>{
 	let [page,book]=addr.split('@');
 
 	return [page,book,lineoff]	;
+}
+//parse a complete transclusion with chinese
+export const parseTransclusion=(str:string)=>{
+    if (str.startsWith('^')) str=str.slice(1);
+    const tag=eatofftag(str);
+    const innertext=removeBracket(str.slice(tag.length));
+    return [tag,innertext];
 }

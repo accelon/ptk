@@ -13,18 +13,18 @@ export class Paged{
     private entrytexts:{};
     private rawheader:string;//keep the comment #
     header:{};
-    anchors:Array<any>
-    anchornames:Array<string>
-    anchorpagelines:Array<[number,number,string]>
+    anchors:Record<string,Array<any>>
+    anchornames:Record<string,Array<string>>
+    anchorpagelines:Record<string,Array<[number|string,number,string]>>
     dirty:number;
     name:string;
 	constructor () {
         this.pagetexts= Array<string>();
         this.entrytexts={};
         this.header={};
-        this.anchors=[];
-        this.anchornames=[];
-        this.anchorpagelines=[];
+        this.anchors={};
+        this.anchornames={};
+        this.anchorpagelines={};
         this.rawheader='';
         this.dirty=0;
     }
@@ -197,16 +197,16 @@ export class Paged{
     setEntryText(entry:string,value:string){
         this.entrytexts[entry]=value;
     }
-    findAnchor(id:string){//page,line,name
-        const at=this.anchornames.indexOf(id);
-        if (~at) return [...this.anchorpagelines[at],this.anchornames[at]]
+    findAnchor(id:string,anchortag='y'){//[page,line,name]
+        const at=this.anchornames[anchortag].indexOf(id);
+        if (~at) return [...this.anchorpagelines[anchortag][at],this.anchornames[at]]
         return [];
     }
-    sliceOfAnchor(id:string) {  //pagetext, yidarr in this page
-        const at=this.anchornames.indexOf(id);
-        if (!~at) return ['',yidarr];
-        const [spage,sline]=this.anchorpagelines[at];
-        let [epage,eline]=this.anchorpagelines[at+1]||[];
+    sliceOfAnchor(id:string,anchortag='y') {  //pagetext, yidarr in this page
+        const at=this.anchornames[anchortag].indexOf(id);
+        if (!~at) return ['',[]];
+        const [spage,sline]=this.anchorpagelines[anchortag][at];
+        let [epage,eline]=this.anchorpagelines[anchortag][at+1]||[];
         const lines=this.pagetexts[spage].split('\n');
         // the slice will not cross page boundary
         
@@ -214,28 +214,32 @@ export class Paged{
         const yidarr=Paged.buildYidArr(text,sline);
         return [text,yidarr,spage]
     }
-    buildAnchor(){
-        const out=Array<any>();
-        const tagnames=Array<string>();
-        const taglines=Array<[number,number,string]>();
-        const texts=this.pagetexts;
-        for (let i=1;i<texts.length;i++) {
-            const lines=texts[i].split('\n');
+
+    buildAnchor(tagname='y'){
+        const scanText=(page:number|string,text:string)=>{
+            const lines=text.split('\n');
             for (let j=0;j<lines.length;j++){
+                if (!~lines[j].indexOf('^'+tagname))continue;
                 const units=unitize(lines[j]);
                 for (let k=0;k<units.length;k++) {
-                    if (units[k].startsWith('^z')||units[k].startsWith('^y')) {
-                        out.push({caption:units[k], page:i, line:j});
+                    if (units[k].startsWith('^'+tagname)) {
+                        out.push({caption:units[k], page, line:j});
                         const [text,type,offtag]=offTagType(units[k].slice(1));
                         tagnames.push(offtag);
-                        taglines.push([i,j,text]);
+                        taglines.push([page,j,text]);
                     }
                 }
             }
         }
-        this.anchors=out;
-        this.anchornames=tagnames;
-        this.anchorpagelines=taglines;
+        const out=Array<any>();
+        const tagnames=Array<string>();
+        const taglines=Array<[number|string,number,string]>();
+        for (let i=1;i<this.pagetexts.length;i++) scanText(i,this.pagetexts[i])
+        for (let key in this.entrytexts) scanText(key,this.entrytexts[key])        
+
+        this.anchors[tagname]=out;
+        this.anchornames[tagname]=tagnames;
+        this.anchorpagelines[tagname]=taglines;
     }
     static buildYidArr(text:string,linestart=0){
         const lines=text.split(/\n/);

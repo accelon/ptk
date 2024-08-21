@@ -1,9 +1,13 @@
 import { Paged } from "./paged.ts";
-
+import { parsePageBookLine, parseTransclusion } from "../offtext/parser.ts";
+import { CJKWordBegin_Reg } from "../fts/constants.ts";
+import { removeBracket } from "../utils/cjk.ts";
 export class PagedGroup {
     private _pageds:{};
+    backlinks:Record<string,Record<string,Array<any>>>;
     constructor(){
         this._pageds={};
+        this.backlinks={};
     }
     add(name:string,content:string){
         const paged=new Paged();
@@ -60,5 +64,46 @@ export class PagedGroup {
     }
     get first() {
         return this.names.length?this.names[0]:'';
+    }
+    guessBookName(innertext:string):string{
+        innertext=removeBracket(innertext);
+        const m=innertext.match(CJKWordBegin_Reg);
+        if (m) {
+            const bookname=m[1];
+            for (let key in this._pageds) {
+                const paged=this._pageds[key];
+                const header=paged.header;
+                if (header.title==bookname) {
+                    return key;
+                }
+            }
+        }
+        return '';
+    }    
+    buildBacklinks(){
+        for (let key in this._pageds) {
+            const paged=this._pageds[key];
+            paged.buildAnchor('x');
+            for (let i=0;i<paged.anchors.x.length;i++){
+                const {caption,page,line}=paged.anchors.x[i];
+                const [tag,innertext ]=parseTransclusion(caption);
+                let [xpage,xbook,xlineoff]=parsePageBookLine(tag.slice(1));
+                if (!xbook) xbook=this.guessBookName(innertext);
+                if (!xbook) xbook=key;
+                //console.log(caption,spage,sbook,sline,innertext)
+                const yid='y'+xpage;
+                const spaged=this.getItem(xbook);
+                const [spage,sline]=spaged.findAnchor(yid);
+                if (spage) {
+                    if (!this.backlinks[xbook]) this.backlinks[xbook]={};
+                    if (!this.backlinks[xbook][spage]) this.backlinks[xbook][spage]=[];
+                    this.backlinks[xbook][spage].push([sline+xlineoff , page+'@'+key ]);    
+                } else {
+                    console.log(caption,'not found in',xbook);
+                }
+            }
+        }
+
+        console.log('buildbacklinks',this.backlinks)
     }
 }
