@@ -115,9 +115,9 @@ export class Compiler{
 				if (tag.name[0]=='z') {
 					validate_z.call(this,ot,tag);
 				} else if (tag.name[0]=='y') {
-					addtag_y.call(this,tag);	
+					addtag_y.call(this,ot,tag);	
 				} else if (tag.name[0]=='x') {
-					addtag_x.call(this,tag);
+					addtag_x.call(this,ot,tag);
 				} else {
 					const typedef=this.typedefs[tag.name];
 					if (!typedef) {

@@ -3,9 +3,6 @@ import {escapeTemplateString} from '../utils/misc.ts'
 import {loadUrl} from '../utils/helper.ts'
 import {PGDEXT} from './constants.ts'
 import {verifyPermission} from '../platform/chromefs.ts'
-import {offTagType, unitize } from 'ptk/offtext/parser.ts'
-import { parsePageBookLine } from "../offtext/parser.ts";
-import { removeBracket } from "../utils/cjk.ts";
 
 export class Paged{
     private handle:FileSystemHandle;
@@ -13,18 +10,12 @@ export class Paged{
     private entrytexts:{};
     private rawheader:string;//keep the comment #
     header:{};
-    anchors:Record<string,Array<any>>
-    anchornames:Record<string,Array<string>>
-    anchorpagelines:Record<string,Array<[number|string,number,string]>>
     dirty:number;
     name:string;
 	constructor () {
         this.pagetexts= Array<string>();
         this.entrytexts={};
         this.header={};
-        this.anchors={};
-        this.anchornames={};
-        this.anchorpagelines={};
         this.rawheader='';
         this.dirty=0;
     }
@@ -77,7 +68,6 @@ export class Paged{
             this.pagetexts.push('blank page')
         }
         this.header=this.parseHeader(this.pagetexts[0]);
-        this.buildAnchor();
         this.name=_name;
         return this;
     }
@@ -196,76 +186,5 @@ export class Paged{
     }
     setEntryText(entry:string,value:string){
         this.entrytexts[entry]=value;
-    }
-    findAnchor(id:string,anchortag='y'){//[page,line,name]
-        const at=this.anchornames[anchortag].indexOf(id);
-        if (~at) return [...this.anchorpagelines[anchortag][at],this.anchornames[at]]
-        return [];
-    }
-    sliceOfAnchor(id:string,anchortag='y') {  //pagetext, yidarr in this page
-        const at=this.anchornames[anchortag].indexOf(id);
-        if (!~at) return ['',[]];
-        const [spage,sline]=this.anchorpagelines[anchortag][at];
-        let [epage,eline]=this.anchorpagelines[anchortag][at+1]||[];
-        const lines=this.pagetexts[spage].split('\n');
-        // the slice will not cross page boundary
-        
-        const text=lines.slice(sline,epage>spage?lines.length:eline).join('\n')
-        const yidarr=Paged.buildYidArr(text,sline);
-        return [text,yidarr,spage]
-    }
-
-    buildAnchor(tagname='y'){
-        const scanText=(page:number|string,text:string)=>{
-            const lines=text.split('\n');
-            for (let j=0;j<lines.length;j++){
-                if (!~lines[j].indexOf('^'+tagname))continue;
-                const units=unitize(lines[j]);
-                for (let k=0;k<units.length;k++) {
-                    if (units[k].startsWith('^'+tagname)) {
-                        out.push({caption:units[k], page, line:j});
-                        const [text,type,offtag]=offTagType(units[k].slice(1));
-                        tagnames.push(offtag);
-                        taglines.push([page,j,text]);
-                    }
-                }
-            }
-        }
-        const out=Array<any>();
-        const tagnames=Array<string>();
-        const taglines=Array<[number|string,number,string]>();
-        for (let i=1;i<this.pagetexts.length;i++) scanText(i,this.pagetexts[i])
-        for (let key in this.entrytexts) scanText(key,this.entrytexts[key])        
-
-        this.anchors[tagname]=out;
-        this.anchornames[tagname]=tagnames;
-        this.anchorpagelines[tagname]=taglines;
-    }
-    static buildYidArr(text:string,linestart=0){
-        const lines=text.split(/\n/);
-        const out=Array<[string,number]>();
-        for (let i=0;i<lines.length;i++){
-            const m=lines[i].match(/\^(y[a-z\d]+)/);
-            if (m) {
-                out.push([m[1] ,i+linestart])
-            }
-        }
-        return out;
-    }    
-    static upperYid(yid:string){
-        const [page]=parsePageBookLine(yid)
-        let newyid=page.replace(/\d+$/,'');
-        if (newyid==page) {
-            newyid=page.replace(/[a-z]+$/,'');
-        }
-        return newyid;
-    }
-    bookTitle(yid:string) {
-        const header=this.header;
-        const upper=Paged.upperYid(yid);
-        const c=this.findAnchor(upper);
-        let res=(header.title?'':'@'+paged.name)+//缺title 要補上fn
-        '《'+(header.title?header.title+'．':'')+ removeBracket(c[2])+'》';
-        return res;
     }
 }

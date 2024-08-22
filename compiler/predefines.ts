@@ -19,8 +19,8 @@ generic:
 ^:https<bracket=false onclick=gourl>
 ^:fn<id=text>
 ^:t
-^:x<id=text savelinepos=true>
-^:y<id=text bracket=false savelinepos=true>
+^:x<id=text bracket=false savelinepos=true>
+^:y<id=unique bracket=false savelinepos=true>
 ^:connect<source=text target=text book=text>
 ^:ln<from=text to=text pin=text>`,
 cbeta:

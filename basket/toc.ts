@@ -13,3 +13,4 @@ export const enableFeatureTOC=(ptk:any)=>{
         buildTocTag.call(ptk,toctags);
     }
 }
+

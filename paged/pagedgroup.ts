@@ -80,30 +80,4 @@ export class PagedGroup {
         }
         return '';
     }    
-    buildBacklinks(){
-        for (let key in this._pageds) {
-            const paged=this._pageds[key];
-            paged.buildAnchor('x');
-            for (let i=0;i<paged.anchors.x.length;i++){
-                const {caption,page,line}=paged.anchors.x[i];
-                const [tag,innertext ]=parseTransclusion(caption);
-                let [xpage,xbook,xlineoff]=parsePageBookLine(tag.slice(1));
-                if (!xbook) xbook=this.guessBookName(innertext);
-                if (!xbook) xbook=key;
-                //console.log(caption,spage,sbook,sline,innertext)
-                const yid='y'+xpage;
-                const spaged=this.getItem(xbook);
-                const [spage,sline]=spaged.findAnchor(yid);
-                if (spage) {
-                    if (!this.backlinks[xbook]) this.backlinks[xbook]={};
-                    if (!this.backlinks[xbook][spage]) this.backlinks[xbook][spage]=[];
-                    this.backlinks[xbook][spage].push([sline+xlineoff , page+'@'+key ]);    
-                } else {
-                    console.log(caption,'not found in',xbook);
-                }
-            }
-        }
-
-        console.log('buildbacklinks',this.backlinks)
-    }
 }
