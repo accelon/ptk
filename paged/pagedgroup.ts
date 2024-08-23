@@ -65,19 +65,5 @@ export class PagedGroup {
     get first() {
         return this.names.length?this.names[0]:'';
     }
-    guessBookName(innertext:string):string{
-        innertext=removeBracket(innertext);
-        const m=innertext.match(CJKWordBegin_Reg);
-        if (m) {
-            const bookname=m[1];
-            for (let key in this._pageds) {
-                const paged=this._pageds[key];
-                const header=paged.header;
-                if (header.title==bookname) {
-                    return key;
-                }
-            }
-        }
-        return '';
-    }    
+
 }

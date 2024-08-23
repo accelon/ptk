@@ -98,8 +98,10 @@ export function addtag_x(offtext:IOfftext,tag:IOfftag){
 	const typedef=this.typedefs.x;
 	typedef.linepos.push(this.compiledLine+this.line);
 	const V=typedef.fields.id;
-	V.values.push(tag.name.slice(1)+(tag.attrs.id||''));
+	const id=(tag.attrs.id+ (tag.attrs.ln?('@'+tag.attrs.ln):''))||'';
+	V.values.push(tag.name.slice(1)+id);
 	let text=removeBracket(offtext.tagText(tag));
-	typedef.innertext.push(text);	
+	typedef.innertext.push(text);
+	//translate 
 	typedef.count++;
 }
