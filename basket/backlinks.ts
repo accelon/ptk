@@ -41,12 +41,10 @@ function buildLocalBacklinks(){
         const addr='bk#'+book+'.y#'+page;
         const [s,e]=this.rangeOfAddress(addr);
         //console.log(page,book,line,addr,s,e);
-        console.log(addr,s+line,Xlinepos[i])
         if (!L[book]) L[book]={};
         if (!L[book][s+line]) L[book][s+line]=[];
         L[book][s+line].push(Xlinepos[i]);
     }
-    console.log(L)
 }
 export const enableBacklinkFeature=(ptk)=>{
     ptk.LocalBackLinks={};

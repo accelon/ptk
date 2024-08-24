@@ -130,7 +130,7 @@ export class Paged{
             dkcount++;
         }
         if (dkcount>this.pagetexts.length) { //overwrite PtkFromPagedGroup default tsv header
-            tsv.unshift("^:<name="+name+".tsv preload=true >\tat=number");
+            tsv.unshift("^:<name="+name+" preload=true>\tdkat=number");
         }
         return [offtext.join('\n'),tsv.join('\n')];
     }
