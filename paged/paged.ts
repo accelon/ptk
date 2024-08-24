@@ -122,13 +122,15 @@ export class Paged{
             const t=this.pagetexts[i];
             offtext.push('^dk'+(i)+' '+t);//decode in pagedGroupFromPtk, chunk without name
         }
-        
+        let dkcount=this.pagetexts.length;
         for (let key in this.entrytexts) {
             const t=this.entrytexts[key];
-            tsv.push(key+'\t'+t.replace(/\n/g,'^p '));
+            offtext.push('^dk'+(dkcount)+' '+t);
+            tsv.push(key+'\t'+dkcount);
+            dkcount++;
         }
-        if (tsv.length) {
-            tsv.unshift('^:<name="'+ name+'.tsv'+'">\tdef');
+        if (dkcount>this.pagetexts.length) { //overwrite PtkFromPagedGroup default tsv header
+            tsv.unshift("^:<name="+name+".tsv preload=true >\tat=number");
         }
         return [offtext.join('\n'),tsv.join('\n')];
     }

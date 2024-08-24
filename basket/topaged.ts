@@ -42,7 +42,9 @@ export const PtkFromPagedGroup=async(sources,img=false):Promise<string|Uint8Arra
         if (fn=='0') continue;
         let prolog='';
         if (~sources[i].name.indexOf(".tsv")) {
-            prolog="^:<name="+fn+" preload=true>\tdef\n"
+            if (!sources[i].text.startsWith('^:')) {
+                prolog="^:<name="+fn+" preload=true >\tval\n"
+            }
         } else {
             if (!header.id) header.id=fn;
             let title='';

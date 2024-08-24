@@ -38,10 +38,11 @@ export class LineBaser {
 	setName(name) {
 		this.name=name;
 	}
-	asString(){
+	asString(escape=false){
 		const header=makeHeader(this.name,this.header||{},this.pagestarts)
+		const payload=escape?escapeTemplateString(this._data.join('\n')):this._data.join('\n')
 		//payload right after header json object, a single string
-		return header+this.payload.replace(/\n/g,'\\n')+'\n'+escapeTemplateString(this._data.join('\n'));
+		return header+this.payload.replace(/\n/g,'\\n')+'\n'
 	}
 	dumpJs(cb:Function) {
 		if (!this.name) {
