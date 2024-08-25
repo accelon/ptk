@@ -7,14 +7,14 @@ import {verifyPermission} from '../platform/chromefs.ts'
 export class Paged{
     private handle:FileSystemHandle;
     private pagetexts:Array<string>;
-    private entrytexts:{};
+    private pagenames:Array<string>;
     private rawheader:string;//keep the comment #
     header:{};
     dirty:number;
     name:string;
 	constructor () {
+        this.pagenames= Array<string>();
         this.pagetexts= Array<string>();
-        this.entrytexts={};
         this.header={};
         this.rawheader='';
         this.dirty=0;
@@ -39,29 +39,15 @@ export class Paged{
     loadFromString(str:string,_name:string){
         const obj={};
         const lines=str.split(/\r?\n/);
-        let key='', isEntry=false;
         for (let i=0;i<lines.length;i++) {
             const line=lines[i]
             const at=lines[i].indexOf('\t');
-            if (at==0) { //page breaker
-                isEntry=false;
-                this.pagetexts.push(line.slice(1));
-            } else if (at>0) { //entry
-                isEntry=true;
-                key=line.substring(0,at);
-                if (parseInt(key).toString()==key) throw "cannot be pure number"
-                const payload=line.substring(at+1);
-                if (obj.hasOwnProperty(key)) {
-                } else {
-                    this.entrytexts[key]=payload;
-                }    
+            if (~at) { //page breaker
+                this.pagenames.push(line.slice(0,at))
+                this.pagetexts.push(line.slice(at+1));
             } else { //normal line
-                if (isEntry) {
-                    this.entrytexts[key]+='\n'+line;
-                } else {//text section starts
-                    if (!this.pagetexts.length) this.pagetexts.push(line)
-                    else this.pagetexts[this.pagetexts.length-1]+='\n'+line;
-                }
+                if (!this.pagetexts.length) this.pagetexts.push(line)
+                else this.pagetexts[this.pagetexts.length-1]+='\n'+line;
             }
         }
         if (this.pagetexts.length<2) {
@@ -95,10 +81,11 @@ export class Paged{
     listEntries(tofind:string,max=100) {
         const regex=new RegExp(tofind);
         const out=Array<string>();
-        for (let key in this.entrytexts) {
-            if (key.match(regex)) {
+        const N=this.pagenames;
+        for (let i=0;i<N.length;i++) {
+            if (N[i].match(regex)) {
                 if (out.length>=max) break;
-                out.push(key);
+                out.push(N[i]);
             }
         }
         return out;
@@ -106,10 +93,13 @@ export class Paged{
     scanEntries(tofind:string,max=100) {
         const regex=new RegExp(tofind);
         const out=Array<string>();
-        for (let key in this.entrytexts) {
-            if (this.entrytexts[key].match(regex)) {
+        const N=this.pagenames;
+        const T=this.pagetexts;
+        for (let i=0;i<N.length;i++) {
+            if (!N[i]) continue;
+            if (T[i].match(regex)) {
                 if (out.length>=max) break;
-                out.push(key);
+                out.push(N[i]);
             }
         }
         return out;
@@ -121,15 +111,9 @@ export class Paged{
         for (let i=0;i<=this.pagetexts.length-1;i++) {
             const t=this.pagetexts[i];
             offtext.push('^dk'+(i)+' '+t);//decode in pagedGroupFromPtk, chunk without name
+            if (this.pagenames[i]) tsv.push(this.pagenames[i]+'\t'+i)
         }
-        let dkcount=this.pagetexts.length;
-        for (let key in this.entrytexts) {
-            const t=this.entrytexts[key];
-            offtext.push('^dk'+(dkcount)+' '+t);
-            tsv.push(key+'\t'+dkcount);
-            dkcount++;
-        }
-        if (dkcount>this.pagetexts.length) { //overwrite PtkFromPagedGroup default tsv header
+        if (tsv.length) { //overwrite PtkFromPagedGroup default tsv header
             tsv.unshift("^:<name="+name+" preload=true>\tdkat=number");
         }
         return [offtext.join('\n'),tsv.join('\n')];
@@ -138,11 +122,7 @@ export class Paged{
         const out=[this.rawheader]; //TODO , sync from this.header
         for (let i=0;i<=this.pagetexts.length-1;i++) {
             const t=this.pagetexts[i];
-            out.push('\t'+(escape?escapeTemplateString(t):t));
-        }
-        for (let key in this.entrytexts) {
-            const t=this.entrytexts[key];
-            out.push(key+'\t'+(escape?escapeTemplateString(t):t));
+            out.push(this.pagenames[i]+'\t'+(escape?escapeTemplateString(t):t));
         }
         return out.join('\n');
     }
@@ -173,20 +153,31 @@ export class Paged{
         }
         return false;
     }
-    entryText(entry:string){
-        return this.entrytexts[entry];
-    }
-    pageText(n:number){
+    // entryText(entry:string){
+    //     return this.entrytexts[entry];
+    // }
+    pageText(n:number|string){
+        if ( typeof n=='string' && parseInt(n).toString()!==n) {
+            n=this.pagenames.indexOf(n);
+        }
         return this.pagetexts[n];
     }
-    setPageText(n:number,value:string){
+    pageName(n:number) {
+        return this.pagenames[n-1];
+    }
+    setPageText(n:number|string,value:string){
+        if ( typeof n=='string' && parseInt(n).toString()!==n) {
+            n=this.pagenames.indexOf(n);
+        }
+        if (!~n) return ;
+
         if (n==0) {
             this.header=this.parseHeader(value);
         } else if (n>=0 && n<this.pagetexts.length) {
             this.pagetexts[n]=value;
         }
     }
-    setEntryText(entry:string,value:string){
-        this.entrytexts[entry]=value;
-    }
+    // setEntryText(entry:string,value:string){
+    //     this.entrytexts[entry]=value;
+    // }
 }
