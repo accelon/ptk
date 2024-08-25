@@ -1,6 +1,7 @@
 import {removeBracket} from '../utils/cjk.ts'
 import {CJKWordBegin_Reg} from '../fts/constants.ts'
 import { parsePageBookLine } from "../offtext/parser.ts";
+import {toSim} from 'lossless-simplified-chinese';
 function backlinksOf(bk:string,line:number){
     const BK=this.LocalBackLinks[bk];
     if (!BK) return [];
@@ -16,7 +17,10 @@ function guessBookId(t:string){
 const buildBookNames=(ptk:any)=>{
     for (let i=0;i<ptk.defines.bk.linepos.length;i++) {
         const id=ptk.defines.bk.fields.id.values[i];
-        ptk.BookIdByName[ptk.defines.bk.getInnertext(i)]= id;
+        const t=ptk.defines.bk.getInnertext(i);
+        ptk.BookIdByName[t]= id;
+        ptk.BookIdByName[toSim(t)]= id;
+        ptk.BookNameById[id]=t;
     }
 }
 function bookNameById(id:string){
@@ -49,6 +53,7 @@ function buildLocalBacklinks(){
 export const enableBacklinkFeature=(ptk)=>{
     ptk.LocalBackLinks={};
     ptk.BookIdByName={};
+    ptk.BookNameById={};
     ptk.buildLocalBacklinks=buildLocalBacklinks;
     ptk.guessBookId=guessBookId;
     ptk.bookNameById=bookNameById;
