@@ -71,7 +71,7 @@ export class StringArray {
 		return s;
 	}
 	get(idx:number):string{ //0 zero base
-		if (this.sequencial) return null;
+		if (this.sequencial||idx<0) return '';
 		if (idx==-1) return this.charpos.length.toString() ; //for  bsearchGetter
 		const from = idx==0?0:this.charpos[idx-1];
 		const to= this.charpos[idx]  -  (idx==this.charpos.length-1?0:1);
