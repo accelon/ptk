@@ -91,26 +91,26 @@ export class Paged{
     }
     listEntries(tofind:string,max=100) {
         const regex=new RegExp(tofind);
-        const out=Array<string>();
+        const out=Array<number>();
         const N=this.pagenames;
         for (let i=1;i<N.length;i++) {
             if (N[i].match(regex)) {
                 if (out.length>=max) break;
-                if (N[i]) out.push(N[i]);
+                out.push(i);
             }
         }
         return out;
     }
     scanEntries(tofind:string,max=100) {
         const regex=new RegExp(tofind);
-        const out=Array<string>();
+        const out=Array<number>();
         const N=this.pagenames;
         const T=this.pagetexts;
         for (let i=1;i<N.length;i++) {
             if (!N[i]) continue;
             if (T[i].match(regex)) {
                 if (out.length>=max) break;
-                out.push(N[i]);
+                out.push(i);
             }
         }
         return out;
