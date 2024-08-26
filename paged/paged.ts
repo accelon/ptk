@@ -1,3 +1,12 @@
+/*
+  *.pgd format
+  
+  #optional comments
+  {json header}
+  \t nameless record
+  allow multi line
+  name\t named record
+*/
 import {extractObject, jsonify} from '../utils/json.ts'
 import {escapeTemplateString} from '../utils/misc.ts'
 import {loadUrl} from '../utils/helper.ts'
@@ -37,7 +46,6 @@ export class Paged{
         return this.loadFromString(text,_name);
     }
     loadFromString(str:string,_name:string){
-        const obj={};
         const lines=str.split(/\r?\n/);
         for (let i=0;i<lines.length;i++) {
             const line=lines[i]
@@ -46,7 +54,10 @@ export class Paged{
                 this.pagenames.push(line.slice(0,at))
                 this.pagetexts.push(line.slice(at+1));
             } else { //normal line
-                if (!this.pagetexts.length) this.pagetexts.push(line)
+                if (!this.pagetexts.length) {
+                    this.pagetexts.push(line)
+                    this.pagenames.push('')
+                }
                 else this.pagetexts[this.pagetexts.length-1]+='\n'+line;
             }
         }
@@ -82,10 +93,10 @@ export class Paged{
         const regex=new RegExp(tofind);
         const out=Array<string>();
         const N=this.pagenames;
-        for (let i=0;i<N.length;i++) {
+        for (let i=1;i<N.length;i++) {
             if (N[i].match(regex)) {
                 if (out.length>=max) break;
-                out.push(N[i]);
+                if (N[i]) out.push(N[i]);
             }
         }
         return out;
@@ -95,7 +106,7 @@ export class Paged{
         const out=Array<string>();
         const N=this.pagenames;
         const T=this.pagetexts;
-        for (let i=0;i<N.length;i++) {
+        for (let i=1;i<N.length;i++) {
             if (!N[i]) continue;
             if (T[i].match(regex)) {
                 if (out.length>=max) break;
@@ -107,7 +118,6 @@ export class Paged{
     dumpOffTsv(name:string){//create .off and .tsv from .pdg
         let offtext=Array<string>();
         let tsv=Array<string>();
-
         for (let i=0;i<=this.pagetexts.length-1;i++) {
             const t=this.pagetexts[i];
             offtext.push('^dk'+(i)+' '+t);//decode in pagedGroupFromPtk, chunk without name
@@ -115,6 +125,7 @@ export class Paged{
         }
         if (tsv.length) { //overwrite PtkFromPagedGroup default tsv header
             tsv.unshift("^:<name="+name+" preload=true>\tdkat=number");
+            //dkat might have gap as some pages are nameless
         }
         return [offtext.join('\n'),tsv.join('\n')];
     }
@@ -129,11 +140,13 @@ export class Paged{
     insertPage(thispage:number, newcontent=''){      
         if (!thispage)  return 0;
         this.pagetexts.splice(thispage,0,newcontent);
+        this.pagenames.splice(thispage,0,'');
         return thispage+1;
     }
     deletePage(thispage:number){
         if (!thispage) return this;
         this.pagetexts.splice(thispage,1);
+        this.pagenames.splice(thispage,1);
         return this;
     }
     async browserSave(opts){
@@ -153,9 +166,6 @@ export class Paged{
         }
         return false;
     }
-    // entryText(entry:string){
-    //     return this.entrytexts[entry];
-    // }
     pageText(n:number|string){
         if ( typeof n=='string' && parseInt(n).toString()!==n) {
             n=this.pagenames.indexOf(n);
@@ -163,21 +173,19 @@ export class Paged{
         return this.pagetexts[n];
     }
     pageName(n:number) {
-        return this.pagenames[n-1];
+        return this.pagenames[n];
     }
     setPageText(n:number|string,value:string){
+        let m=-1;
+        if (typeof n=='number') m=n;
         if ( typeof n=='string' && parseInt(n).toString()!==n) {
-            n=this.pagenames.indexOf(n);
+            m=this.pagenames.indexOf(n);
         }
-        if (!~n) return ;
-
-        if (n==0) {
+        if (!~m) return ;
+        if (m==0) {
             this.header=this.parseHeader(value);
-        } else if (n>=0 && n<this.pagetexts.length) {
-            this.pagetexts[n]=value;
+        } else if (m>=0 && m<this.pagetexts.length) {
+            this.pagetexts[m]=value;
         }
     }
-    // setEntryText(entry:string,value:string){
-    //     this.entrytexts[entry]=value;
-    // }
 }
