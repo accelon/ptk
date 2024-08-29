@@ -113,7 +113,7 @@ export function rangeOfElementId(eleidarr:string[]){
 	for (let i=0;i<eleidarr.length;i++) {
 		const [ele,id]=eleidarr[i];
 		if (ptk.defines[ele]) {
-			const idtype=ptk.defines[ele].fields?.id;
+			const idtype=ptk.defines[ele]?.fields.id;
 			const _id=(idtype?.type=='number')?parseInt(id):id;
 			const startfrom=bsearchNumber(ptk.defines[ele].linepos, from);
 			const at=idtype.values.indexOf(_id,startfrom);
@@ -134,8 +134,8 @@ export function rangeOfElementId(eleidarr:string[]){
 			const at2=at==-1?ptk.defines.ak?.fields.id.values.indexOf(ele):-1;
 
 			if (i==0 && (~at||~at2) ) {
-				const first=ptk.defines.bk.linepos[at]||ptk.defines.ak.linepos[at2];
-				let last=ptk.defines.bk.linepos[at+1]||ptk.defines.ak.linepos[at2+1];
+				const first=ptk.defines.bk?.linepos[at]||ptk.defines.ak?.linepos[at2];
+				let last=ptk.defines.bk?.linepos[at+1]||ptk.defines.ak?.linepos[at2+1];
 				if (!last) last=ptk.header.eot;
 				out.push([first,last]);
 				from=first;

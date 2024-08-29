@@ -15,7 +15,7 @@ function guessBookId(t:string){
     }
 }
 const buildBookNames=(ptk:any)=>{
-    for (let i=0;i<ptk.defines.bk.linepos.length;i++) {
+    for (let i=0;i<ptk.defines.bk?.linepos.length;i++) {
         const id=ptk.defines.bk.fields.id.values[i];
         const t=ptk.defines.bk.getInnertext(i);
         ptk.BookIdByName[t]= id;

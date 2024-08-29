@@ -10,8 +10,12 @@ generic:
 ^:o<@=link>
 ^:j<@=link>
 ^:k<id=text>
+^:png<src=text>
 ^:ad
 ^:bc
+^:cut
+^:paste
+^:notranslation
 ^:ver<savelinepos=true>
 ^:f<id=text>
 ^:i<bracket=false @=text savelinepos=true>
@@ -22,7 +26,9 @@ generic:
 ^:x<id=text @=text bracket=false savelinepos=true>
 ^:y<id=unique bracket=false savelinepos=true>
 ^:connect<source=text target=text book=text>
-^:ln<from=text to=text pin=text>`,
+^:ln<from=text to=text pin=text>
+^:bb
+^:sz`,
 cbeta:
 `^:ak<id=unique bracket=false>
 ^:bk<id=unique heading=text bracket=false reset=ck,p>
