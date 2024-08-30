@@ -34,7 +34,7 @@ export const pagedGroupFromPtk=(ptk,pageds:PagedGroup)=>{
     return pageds
 }
 */
-export const PtkFromPagedGroup=async(sources,img=false):Promise<string|Uint8Array>=>{
+export const PtkFromPagedGroup=async(sources,img=false,escape=false):Promise<string|Uint8Array>=>{
     const compiler=new Compiler;
     for (let i=0;i<sources.length;i++) {
         const fn=sources[i].name.replace(/\.[^.]*$/g,'');
@@ -63,6 +63,6 @@ export const PtkFromPagedGroup=async(sources,img=false):Promise<string|Uint8Arra
         const ptkimage=makeInMemoryPtk(lbaser);
         return ptkimage;
     } else {
-        return lbaser.asString();
+        return lbaser.asString(escape);
     }
 }
