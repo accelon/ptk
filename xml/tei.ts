@@ -89,7 +89,7 @@ const p=(el,ctx)=>{
     return '\n^cb'+ctx.pn+ctx.lbcount;
 }
 const g=(el,ctx)=>{
-    if (ctx.hide)return;
+    if (ctx.hide)return '';
     const uni=ctx.charmap[ el.attrs.ref.slice(1)];
     if (uni) {
         return uni;

@@ -9,7 +9,7 @@ const escapeQuote=t=>{
 }
 const nullify_note=content=>{
     //夾注    
-    content=content.replace(/<note([^>]*?)>([^<]+)<\/note>/g,(m,_attrs,t)=>{
+    content=content.replace(/<note([^>]*?)>([^<]+?)<\/note>/g,(m,_attrs,t)=>{
         const attrs=parseXMLAttribute(_attrs);
         const {place,type,n,resp} = attrs;
         let note='';
@@ -38,7 +38,7 @@ const nullify_note=content=>{
     return content;
 }
 const nullify_rdg=content=>{
-    content=content.replace(/<rdg([^>]*?)>([^<]*?)<\/rdg>/g,(m,_attrs,t)=>{
+    content=content.replace(/<rdg([^>]*?)>(.*?)<\/rdg>/g,(m,_attrs,t)=>{
         const {resp,wit}=parseXMLAttribute(_attrs);
         if (resp=='Taisho' || typeof resp=='undefined') {
              //有時漏了resp，視為 "Taisho", 如 T22n1428_001 : 0575b2901
@@ -71,7 +71,10 @@ const nullify_cbtt=content=>{
     return content;
 }
 export const nullify_cbeta=content=>{
+    content=content.replace(/<g ref="#CB(\d+)"\/>/g,"#CB$1;");//for note to work properly
+
     content=content.replace(/<figure><graphic url="([^>]+)"><\/graphic><\/figure>/g,'[fg_$1]')
+    
     content=content.replace(/<space([^>]*?)\/>/g,(m,attrs)=>{
         const attributes=parseXMLAttribute(attrs)
         return ' '.repeat(parseInt(attributes.quantity))
@@ -83,6 +86,5 @@ export const nullify_cbeta=content=>{
     content=nullify_rdg(content);
     content=nullify_choice(content);
     content=nullify_note(content);
-    
     return content;
 }

@@ -129,8 +129,10 @@ export const StockCharMap_cbeta={
 export const buildCharMap_cbeta=tree=>{
     const out=StockCharMap_cbeta;
     const charDecl=xpath(tree,'teiHeader/encodingDesc/charDecl');
+    
     for (let i=0;i<charDecl?.children.length;i++) {
         const item=charDecl.children[i];
+
         if (item.name=='char') {
             const id=item.attrs['xml:id'];
             for (let j=0;j<item.children.length;j++){

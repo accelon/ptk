@@ -19,7 +19,7 @@ export class Paged{
     private pagenames:Array<string>;
     private rawheader:string;//keep the comment #
     header:{};
-    dirty:number;
+    private dirty:number;
     name:string;
 	constructor () {
         this.pagenames= Array<string>();
@@ -161,7 +161,7 @@ export class Paged{
             const writable = await handle.createWritable();
             await writable.write(out);
             await writable.close();
-            this.dirty=0;
+            this.clearDirty();
             return true;
         }
         return false;
@@ -187,5 +187,11 @@ export class Paged{
         } else if (m>=0 && m<this.pagetexts.length) {
             this.pagetexts[m]=value;
         }
+    }
+    clearDirty(){
+        this.dirty=0;
+    }
+    makeDirty(){
+        this.dirty++;
     }
 }

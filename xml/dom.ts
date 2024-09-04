@@ -40,7 +40,7 @@ export const walkDOM=(el,ctx,onOpen={},onClose={},onText=null)=>{
         ctx.out+=onText?onText(el,ctx):el;
     }
     if (!el) {
-        console.log('empty tag')
+        //console.log('empty tag')
         return;
     }
     const openhandler= onOpen[el.name] || onOpen["*"];

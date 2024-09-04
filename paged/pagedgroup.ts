@@ -32,10 +32,10 @@ export class PagedGroup {
         return Object.keys(this._pageds);
     }
     clearDirty(name:string) {
-        if (this._pageds[name]) this._pageds[name].dirty=0;
+        if (this._pageds[name]) this._pageds[name].clearDirty();
     }
-    setDirty(name:string) {
-        if (this._pageds[name]) this._pageds[name].dirty++;
+    markDirty(name:string) {
+        if (this._pageds[name]) this._pageds[name].markDirty();
     }
     getDirty(name:string) {
         return this._pageds[name]?.dirty||0;
