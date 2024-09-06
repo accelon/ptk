@@ -27,7 +27,7 @@ export const fromChineseNumber=(str:string)=>{
     .replace(/^十/,'1')
     .replace(/十$/,'0')
     .replace(/十/,'')
-    .replace(/[○〇零]/g,'0'));
+    .replace(/[○〇O零]/g,'0'));
 }
 export const chineseDigit=n=>{
     return 
