@@ -4,18 +4,20 @@ import {parseQuery,scanText,scoreLine,hitsOfLine} from '../fts/query.ts';
 import {footNoteAddress,footNoteByAddress,footNoteInTSV} from './footnote.ts';
 import {foreignLinksAtTag,getParallelBook,getParallelLine,enumParallelsPtk} from './parallel.ts';
 import {addBacklinks, addForeignLinks } from './links.ts';
-
-import { enableFeatureFTS} from './postings.ts';
-import {enableFeatureTOC} from './toc.ts'
-
+import {enableBacklinkFeature} from './backlinks.ts'
+import {enableFTSFeature} from './postings.ts';
+import {enableTOCFeature} from './toc.ts'
+import {enableTagFeature} from './tagfeature.ts'
 
 export const enableFeature=(ptk:any,feature:string)=>{
-    if (feature=="abkck") {
-        //if (ptk.defines.ak)
+    if (feature=="tag") {
+        enableTagFeature(ptk);
     } else if (feature=='toc') {
-        enableFeatureTOC(ptk)
+        enableTOCFeature(ptk)
     } else if (feature=='fts') {
-        enableFeatureFTS(ptk)
+        enableFTSFeature(ptk)
+    } else if (feature=='backlink') {
+        enableBacklinkFeature(ptk)
     }
 }
 export const enableFeatures=(ptk:any,features:Array<string>|string)=>{

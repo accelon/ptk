@@ -191,7 +191,7 @@ export class Paged{
     clearDirty(){
         this.dirty=0;
     }
-    makeDirty(){
+    markDirty(){
         this.dirty++;
     }
 }

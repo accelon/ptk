@@ -1,5 +1,17 @@
-export const REGEX_IRE=/‵([\u3400-\u9FFF\uD800-\uDFFF]+)′/g
+export const REGEX_IRE=/‵([\u3400-\u9FFF\uD800-\uDFFF\uE000-\ufadf]+)′/g
+export const REGEX_CJK_PHRASE=/([\u3400-\u9FFF\uD800-\uDFFF\uE000-\ufadf]+)/g
 export const isSurrogate=(s)=>(s.codePointAt(0)||0)>0xffff;
+
+export const isCJKChar=(u:string|number)=>{
+    if (typeof u=='string') u=u.charCodeAt(0);
+    return ((u>=0x2e80&&u<=0x2fd5)
+            ||(u>=0x3041&&u<=0x3096)
+            ||(u>=0x30a1&&u<=0x319f)
+            ||(u>=0x3400&&u<=0x9fff)
+            ||(u>=0xd400&&u<=0xdfff)
+            ||(u>=0xe000&&u<=0xfadf)
+            ||(u>=0xc000&&u<=0xd7ff))
+}
 
 export const CJKRanges={
     'BMP': [0x4e00,0x9fa5],
@@ -172,3 +184,28 @@ export const extractIDS=line=>{
     return out;
 }
 
+
+export const sentenceFromRange=(str:string,pos:number)=>{
+    let start=pos,end=pos;
+    while (start>0) {
+        let cp=str.charCodeAt(start);
+        if (!isCJKChar(cp)) {
+            start++;
+            break;
+        }
+        else start--;
+    }
+    while(end<str.length) {
+        let cp=str.charCodeAt(end);
+        if (isCJKChar(cp)) end++;
+        else break;
+    }
+
+    return [str.slice(start,end),(pos-start>=0?pos-start:0)]
+}
+export const sentencePosfromSelection=(oritext:string)=>{//supply oritext , might be simplified
+    const sel=document.getSelection();
+    const range=sel.getRangeAt(0);
+    const [sentence,pos]=sentenceFromRange(oritext||sel.anchorNode.data,range.startOffset);
+    return [sentence,pos,range.endOffset-range.startOffset];
+}

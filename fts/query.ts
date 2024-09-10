@@ -2,6 +2,8 @@ import {plAnd,plRanges,plCount} from './posting.ts';
 import {fromSim} from 'lossless-simplified-chinese'
 import {bsearchNumber} from '../utils/bsearch.ts'
 import { plTrim } from './posting.ts';
+import {unique, sortObj } from '../utils/sortedarray.ts';
+
 export const TOFIND_MAXLEN=50;
 export const MAX_PHRASE=5;
 
@@ -82,21 +84,27 @@ export function scoreLine(postings,chunklinepos,tlp){
     return scoredLine;
 }
 
-export async function phraseQuery(phrase:string){
+
+export function phraseQuerySync(phrase:string,tokens=null){
+    tokens=tokens||this.loadPostingsSync(phrase);
+    if (!tokens) return [];
     phrase=phrase.trim();
     const qkey=this.name+'@'+phrase;
     let out=this.queryCache[qkey];
     if (out) return out;
-    const tokens=await this.loadPostings(phrase);
-
-    if (!tokens) return [];
     out=tokens[0];
     for (let i=1;i<tokens.length;i++) {
         let pl1=out;
         out=plAnd(pl1,tokens[i],i);
     }
     this.queryCache[qkey]=out||[];
-    return this.queryCache[qkey];
+    return this.queryCache[qkey];    
+}
+
+export async function phraseQuery(phrase:string){
+    const tokens=await this.loadPostings(phrase);
+    if (!tokens) return [];
+    return phraseQuerySync.call(this,phrase,tokens);
 }
 export async function parseQuery(tofind:string,opts){
     opts=opts||{};
@@ -162,4 +170,72 @@ export function hitsOfLine(line,allpostings){
     return hits;
 }
 
-export default {phraseQuery,scanText,validateTofind,scoreLine,TOFIND_MAXLEN,hitsOfLine};
+const tofindInSentence=(sentence:string,pos=0,len=0)=>{
+    let tofinds=Array<string>();
+    if (len>0) {
+        return [sentence.slice(pos,pos+len)];
+    }
+    if (sentence.length<4) tofinds.push(sentence)
+    for (let i=pos;i<=sentence.length;i++) {
+        let t=sentence.slice(pos,i);
+        if (t.length>1) tofinds.push(t);
+        t=sentence.slice(pos-1,i);
+        if (t.length>1) tofinds.push(t);
+        t=sentence.slice(pos+1,i);
+        if (t.length>1) tofinds.push(t);
+        if (t.length>5) continue;
+    }
+    return unique(tofinds);
+}
+const statSentencePhrase=(tofinds:Array<string>,postings:Array<Array<number>>)=>{
+    const out={};
+    if (tofinds.length==0) {
+        return []
+    } else if (tofinds.length==1) {
+        return [[tofinds[0],postings[0]]];
+    }
+    const total=postings.reduce((p,n,i)=>p+Math.log(tofinds[i].length* n.length),0);
+    const avg=total/postings.length;
+    for (let i=0;i<postings.length;i++) {
+        if (Math.log(postings[i].length*tofinds[i].length)>avg &&postings[i].length>1) {
+            out[tofinds[i]]=postings[i];
+        }
+    }
+    if (!Object.keys(out).length) {
+        for (let i=0;i<postings.length;i++) {
+            out[tofinds[i]]=postings[i];
+        }
+    }
+    //dedup 諸比  諸比丘, 衛國  , 舍衛國
+    for (let key in out) {
+        for (let shortkey in out) {
+            if (key==shortkey || !out[shortkey].length) continue;
+            if ((key.startsWith(shortkey)||key.endsWith(shortkey))&& 
+                out[key].length*1.1>=out[shortkey].length ) {
+                out[shortkey]=[];
+            }
+        }
+    }
+    for (let key in out) {
+        if (out[key].length==0) delete out[key];
+    }
+
+    return sortObj(out,(a,b)=>b[1].length-a[1].length).slice(0,3);
+}
+export async function searchSentence(sentence:string,pos=0,len=0){
+    const out=[];
+    const tofinds=tofindInSentence(sentence.trim(),pos);
+    for (let i=0;i<tofinds.length;i++) {
+        const tf=tofinds[i];
+        out.push(await phraseQuery.call(this,tf));
+    }
+    return statSentencePhrase(tofinds,out);
+}
+export function searchSentenceSync(sentence:string,pos=0,len=0){
+    const tofinds=tofindInSentence(sentence.trim(),pos,len);
+    const out=tofinds.map(it=>phraseQuerySync.call(this,it));   
+    return statSentencePhrase(tofinds,out);
+}
+
+export default {phraseQuery,scanText,validateTofind,scoreLine,
+    TOFIND_MAXLEN,hitsOfLine,searchSentence,searchSentenceSync};

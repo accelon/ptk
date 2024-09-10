@@ -1,7 +1,5 @@
 import { Paged } from "./paged.ts";
-import { parsePageBookLine, parseTransclusion } from "../offtext/parser.ts";
-import { CJKWordBegin_Reg } from "../fts/constants.ts";
-import { removeBracket } from "../utils/cjk.ts";
+
 export class PagedGroup {
     private _pageds:{};
     backlinks:Record<string,Record<string,Array<any>>>;

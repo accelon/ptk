@@ -41,4 +41,5 @@ export class Inverted {
 		}
 		return out;
 	}
+
 }

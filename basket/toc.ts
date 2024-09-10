@@ -1,7 +1,7 @@
 import {TableOfContent,buildTocTag} from '../compiler/toc.ts';
 import {sourceType} from '../compiler/index.ts'
 
-export const enableFeatureTOC=(ptk:any)=>{
+export const enableTOCFeature=(ptk:any)=>{
     //build chunk toc
     const section=ptk.getSection("toc");
     if (ptk.attributes.toctag&&section&&section.length>1) {       
