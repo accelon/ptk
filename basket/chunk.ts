@@ -71,7 +71,7 @@ export function getBookInfo (at:number) {
     const bkid=booktag.fields.id.values[at];
     let bkcaption=booktag?.getInnertext(at);
     let short=bkcaption.slice(0,2);
-    const bkheading= booktag?.fields.heading?.values[at] || booktag?.innertext?.get(at)
+    const bkheading= booktag?.fields.heading?.values[at] || booktag?.getInnertext(at)
     const at2=bkcaption.indexOf(";");
     if (~at2) {
         short=bkcaption.slice(at2+1);

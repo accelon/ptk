@@ -12,12 +12,13 @@ export const openPtk=async (name,cachedimage:any=null)=>{
 	ptk = new Pitaka(opts);
 	poolAdd(name,ptk); //add to pool for jsonp to work.
 	if (await ptk.isReady()) {
-		await ptk.init();
-		
+		await ptk.init();	
+		/*
 		const poolptk=poolGetAll();
 		for (let i=0;i<poolptk.length;i++) {
-			poolptk[i].addForeignLinks( ptk);
+			poolptk[i].addForeignLinks(ptk);
 		}
+		*/
 		return ptk;
 	} else {
 		poolDel(name);

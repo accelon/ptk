@@ -101,7 +101,7 @@ export const ui23=(appname,devport=5001)=>{
     writeTemplateContent('appname.off',offdir);
     writeTemplateContent('appname.tsv',offdir);
   
-    writeChanged(engdir+'/0.off','^:<ptk='+appname+'-en zh=英 en=Name lang=en  quickhome=1>\n^:l\n^"audio\n^"img');
+    writeChanged(engdir+'/0.off','^:<ptk='+appname+'-en zh=英 en=Name lang=en  quickhome=1>\n^:l\n^:audio\n^:img');
     writeTemplateContent('appname.en.off',engdir+'/');
 
     //writeChanged(rudir+'/0.off','^:<ptk='+appname+'-ru zh=俄文名 ru=Русский en=Name lang=ru>');

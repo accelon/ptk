@@ -8,6 +8,7 @@ import {enableBacklinkFeature} from './backlinks.ts'
 import {enableFTSFeature} from './postings.ts';
 import {enableTOCFeature} from './toc.ts'
 import {enableTagFeature} from './tagfeature.ts'
+import { tagAtAction } from './address.ts';
 
 export const enableFeature=(ptk:any,feature:string)=>{
     if (feature=="tag") {
@@ -27,12 +28,16 @@ export const enableFeatures=(ptk:any,features:Array<string>|string)=>{
 
 export const enableAccelon23Features=(ptk:any)=>{
     //check fields
-
+    
+    enableTagFeature(ptk);
+    enableTOCFeature(ptk);
+    enableFTSFeature(ptk)
     ptk.scanColumnFields=scanColumnFields;
     ptk.searchColumnField=searchColumnField;
     ptk.scanText=scanText;
     ptk.parseQuery=parseQuery;
     ptk.scoreLine=scoreLine;
+    ptk.tagAtAction=tagAtAction;
 
     ptk.scanCache={};
     ptk.queryCache={};
@@ -53,8 +58,6 @@ export const enableAccelon23Features=(ptk:any)=>{
     ptk.backlinks={};
     ptk.rowOf=rowOf;
     ptk.hitsOfLine=hitsOfLine;
-
-   
+  
     ptk.parallels={}; //parallels showing flag, ptkname:string, onoff:boolean
-
 }

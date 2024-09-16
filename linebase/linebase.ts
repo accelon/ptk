@@ -178,7 +178,8 @@ export class LineBase{
 				} else { //same block
 					out+=this._pages[i].slice(slicefrom,sliceto);
 				}
-			} else out+='\n'+this._pages[i];//middle
+			//} else out+='\n'+this._pages[i];//middle , 2024/9/16 excessive \n for loading tag section
+			} else out+= (out.length?'\n':'')+this._pages[i]; //dirty workaround
 		}
 		return out.split('\n');
 	}
