@@ -118,7 +118,7 @@ export class Compiler{
 					addtag_y.call(this,ot,tag);	
 				} else if (tag.name[0]=='x') {
 					addtag_x.call(this,ot,tag);
-				} else {
+				} else if (tag.name!==':') {
 					const typedef=this.typedefs[tag.name];
 					if (!typedef) {
 						console.error('unknown tag\n',str, tag.name)

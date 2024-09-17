@@ -30,6 +30,9 @@ generic:
 ^:connect<source=text target=text book=text>
 ^:ln<from=text to=text pin=text>
 ^:bb
+^:audio
+^:clip
+^:img
 ^:sz`,
 cbeta:
 `^:ak<id=unique bracket=false>

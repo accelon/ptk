@@ -85,6 +85,7 @@ export const ui23=(appname,devport=5001)=>{
     writeTemplateFile('appname.png',distdir);
     writeTemplateFile('appname512.png',distdir);
     writeTemplateFile('global.css',distdir);
+    writeTemplateFile('qrcode.min.js',distdir);
 
     writeChanged('dev.cmd','npm run dev');
     writeChanged('.gitignore',`*.ptk\nnode_modules\ndist`);

@@ -16,7 +16,8 @@
             '$APPNAME$512.png',
             '$APPNAME$.manifest',
             'offline.html',
-            'ProvidentPaliSegoe.otf'
+            'ProvidentPaliSegoe.otf',
+            'qrcode.min.js'
         ]);
     };
 
