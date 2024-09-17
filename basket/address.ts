@@ -142,16 +142,18 @@ export function rangeOfElementId(eleidarr:string[]){
 			}
 		}
 	}
-	// last should not cross section boundary
-	const sstarts=ptk.header.sectionstarts;
-	for (let i=0;i<out.length;i++) {
-		let [first,last]=out[i];
-		const at=bsearchNumber(sstarts,first+1);
-		if (last>sstarts[at]) {
-			out[i][1]=sstarts[at];
-		}
+	//for multple tag range, last should not cross section boundary
+	//workaround for ak range
+	if (eleidarr.length>1) {
+		const sstarts=ptk.header.sectionstarts;
+		for (let i=0;i<out.length;i++) {
+			let [first,last]=out[i];
+			const at=bsearchNumber(sstarts,first+1);
+			if (last>sstarts[at]) {
+				out[i][1]=sstarts[at];
+			}
+		}	
 	}
-
 	return out;
 }
 export function rangeOfAddress(address:string|IAddress):ILineRange{
