@@ -34,7 +34,7 @@ export const pagedGroupFromPtk=(ptk,pageds:PagedGroup)=>{
     return pageds
 }
 */
-export const PtkFromPagedGroup=async(sources,img=false,escape=false):Promise<string|Uint8Array>=>{
+export const PtkFromPagedGroup=async(sources,img=false,escape=false):Promise<string|Uint8Array>=>{  
     const compiler=new Compiler;
     for (let i=0;i<sources.length;i++) {
         const fn=sources[i].name.replace(/\.[^.]*$/g,'');
@@ -45,16 +45,6 @@ export const PtkFromPagedGroup=async(sources,img=false,escape=false):Promise<str
             if (!sources[i].text.startsWith('^:')) {
                 prolog="^:<name="+fn+" preload=true >\tval\n"
             }
-        } else {
-            if (!header.id) header.id=fn;
-            let title='';
-            const H=Object.assign({},header)
-            if (header.title) {
-                title=('《'+ header.title +'》');
-                delete H.title;//shouldn't delete header.title
-            }
-            const bkattrs=JSON.stringify(H);
-            prolog='^ak#'+header.id+'^bk'+bkattrs+title+'\n';
         }
         sources[i].text=prolog+sources[i].text;
     }

@@ -28,7 +28,6 @@ export const enableFeatures=(ptk:any,features:Array<string>|string)=>{
 
 export const enableAccelon23Features=(ptk:any)=>{
     //check fields
-    
     enableTagFeature(ptk);
     enableTOCFeature(ptk);
     enableFTSFeature(ptk)

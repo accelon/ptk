@@ -10,6 +10,7 @@ export interface IAddress {
 	from:number,
 	till:number,
 	highlightline:number,
+	lineoff:number
 }
 export const parseAction=(action:string,objform=false):Array<any>|any=>{
 	if (!action) return [];

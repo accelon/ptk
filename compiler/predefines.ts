@@ -12,6 +12,8 @@ generic:
 ^:o<@=link>
 ^:j<@=link>
 ^:k<id=text>
+^:wiki
+^:baidu
 ^:png<src=text>
 ^:ad
 ^:bc

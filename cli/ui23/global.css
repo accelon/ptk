@@ -111,8 +111,11 @@ a {color:var(--hyperlink)}
 .abridged {font-size:85%;color:gray}
 .offtag_f {font-size:85%}
 .footnote {font-size:90%;color:aqua}
-.transclusion{text-decoration-line:underline;text-decoration-style:dashed}
+.transclusion_link{text-decoration-line:underline;text-decoration-style:dashed}
+.transclusion_broken {color:lightcoral;text-decoration: underline;text-decoration-style:dotted}
 .transclusion_opened{text-decoration-line:underline;text-decoration-style:wavy}
+.transclusion_url{border-bottom: 1px cyan solid}
+.transclusion_url:after{content:"🌐"}
 .offtag_ck{color:var(--depthcolor2)}
 .offtag_ak{color:var(--depthcolor3)}
 .offtag_l {text-decoration-line:underline;text-decoration-style:solid;}

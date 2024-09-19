@@ -41,6 +41,7 @@ export const ptkFromString=(name:string,contentString:string)=>{
 	return ptk;
 }
 export const usePtk=(name:string)=>{
+	if (!name) return null;
 	return poolGet(name);
 }
 

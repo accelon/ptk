@@ -115,7 +115,8 @@ export class Paged{
         }
         return out;
     }
-    dumpOffTsv(name:string){//create .off and .tsv from .pdg
+    dumpOffTsv(name:string=''){//create .off and .tsv from .pdg
+        name=name||this.name;
         let offtext=Array<string>();
         let tsv=Array<string>();
         for (let i=0;i<=this.pagetexts.length-1;i++) {
@@ -124,10 +125,19 @@ export class Paged{
             if (this.pagenames[i]) tsv.push(this.pagenames[i]+'\t'+i)
         }
         if (tsv.length) { //overwrite PtkFromPagedGroup default tsv header
-            tsv.unshift("^:<name="+name+" preload=true>\tdkat=number");
+            tsv.unshift("^:<name="+name+">\tdkat=number");
             //dkat might have gap as some pages are nameless
         }
-        return [offtext.join('\n'),tsv.join('\n')];
+        let title='';
+        const H=Object.assign({},this.header)
+        if (!H.id) H.id=name;
+        if (H.title) {
+            title=('《'+ H.title +'》');
+            delete H.title;//shouldn't delete header.title
+        }
+        const bkattrs=JSON.stringify(H);
+        const prolog='^ak#'+H.id+'^bk'+bkattrs+title+'\n';
+        return [prolog+offtext.join('\n'),tsv.join('\n')];
     }
     dump(escape=false){
         const out=[this.rawheader]; //TODO , sync from this.header

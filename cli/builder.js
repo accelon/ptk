@@ -6,7 +6,7 @@ const {blue,red,cyan} = colors;
 
 const arg=process.argv[3];
 const isSourceFile=fn=>{
-    return fn.endsWith('.off')||fn.endsWith('.tsv')||fn.endsWith('.num')
+    return fn.endsWith('.off')||fn.endsWith('.tsv')||fn.endsWith('.num')||fn.endsWith('.pgd')
 }
 
 export const builder=async opts=>{

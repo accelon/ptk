@@ -19,11 +19,11 @@ export const dobuild=async (files, opts={})=>{
 	let  css='';
 	const compiler=new Compiler();
 
-	const getFileContent=i=>{
-		let text=fs.readFileSync(Path.join(indir,sources[i].name),'utf8');
-		if (text.indexOf('\r')) text=text.replace(/\r?\n/g,'\n').replace(/\r/g,'\n');
-		return {text};
-	}
+	// const getFileContent=i=>{
+	// 	let text=fs.readFileSync(Path.join(indir,sources[i].name),'utf8');
+	// 	if (text.indexOf('\r')) text=text.replace(/\r?\n/g,'\n').replace(/\r/g,'\n');
+	// 	return {text};
+	// }
 	for (let i=0;i<files.length;i++) {
 		const name=files[i];
 		if (name=='accelon22.css') {
@@ -36,10 +36,18 @@ export const dobuild=async (files, opts={})=>{
 			console.log('empty file',name);
 			continue;
 		}
-		sources.push({name});
+		if (name.endsWith(PTK.PGDEXT)){
+			const paged=new PTK.Paged()
+			paged.loadFromString(text,name.replace(PTK.PGDEXT,''));
+			const [off,tsv]=paged.dumpOffTsv();
+			sources.push({name:paged.name+'.off',text:off});
+			sources.push({name:paged.name+'.tsv',text:tsv});
+		} else {
+			sources.push({name,text});
+		}
 		process.stdout.write('\r adding'+files[i]+ '  '+(i+1)+'/'+files.length+'        ');
 	}
-	lbaser=await PTK.makeLineBaser(sources,compiler,getFileContent);
+	lbaser=await PTK.makeLineBaser(sources,compiler);
 
 	css=css||PTK.cssSkeleton(compiler.typedefs, compiler.ptkname);
 
