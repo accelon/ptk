@@ -75,7 +75,7 @@ export const statStrIntobject=(o:IntergerMap)=>{
     return out;
 }
 
-export const fromObj=(obj:Map,cb:Function|null)=>{
+export const fromObj=(obj:Map,cb:Function|boolean)=>{
     const arr=[];
     for (let key in obj) {
         if (!cb) {
