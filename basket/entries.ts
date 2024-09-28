@@ -108,40 +108,43 @@ export const enumEntries=(ptk,fn,tofind,max=100)=>{
         return out;
     }
 }
-export const getRawColumnText=(ptk,bk,key)=>{
+const getBookColumnText=(ptk,bk,key)=>{
     const col=ptk.columns[bk];
     if (!col||!col.keys) return [-1,''];
     const at=col.keys.indexOf(key);
     if (at==-1) return [-1,''];
     const dk=col.dkat[at];
     const [s,e]=ptk.rangeOfAddress('bk#'+bk+'.dk#'+dk);
-    return [at,ptk.slice(s,e).join('\n')];
+    return [at,ptk.slice(s,e).join('\n'),bk];
+}
+export const getAnyColumnText=(ptk,book,key)=>{
+    if (book) {
+        return getBookColumnText(ptk,book,key);
+    } else {
+        let at,text;
+        for (let bk of Object.keys(ptk.columns)) {
+            [at,text]=getBookColumnText(ptk,bk,key);
+            if (at>-1) return [at,text,bk];
+        }
+        return [-1,''];
+    }
 }
 export const getColumnText=(ptk,bk,key)=>{
-    let [at,content]=getRawColumnText(ptk,bk,key);
+    let [at,content,book]=getAnyColumnText(ptk,bk,key);
+    //book may overwrite bk if empty
     let m=content.match(/@(.+)$/);
     while (m) {
-        if (m && ~ptk.columns[bk].keys.indexOf(m[1])) {
-            [at,content]=getRawColumnText(ptk,bk,m[1]);
+        content='';
+        key=m[1];
+        if (m) {
+            [at,content]=getAnyColumnText(ptk,bk,m[1]);
         } else break;
         m=content.match(/@([^ <>\[\]\{\}]+)$/);
     }
-    return [content, {},at,0];
+    return [content,[{key}],at,0];
 }
 export const columnTextByKey=(ptk,key,bk='')=>{
-    const columnkeys=Object.keys(ptk.columns);
-    if (bk) {
-        return getColumnText(ptk,bk,key);
-    } else {
-        let content,lineinfo,at,lineoff;
-        for (let i=0;i<columnkeys.length;i++) {
-            [content,lineinfo,at,lineoff]=getColumnText(ptk,columnkeys[i],key);
-            if (content) {
-                return [content,lineinfo,at,lineoff];
-            }
-        }
-    }    
-    return ['',{},-1,0];
+    return getColumnText(ptk,bk,key);
 }
 
 export const  pageFromPtk=(ptk,book,page)=>{
@@ -172,7 +175,7 @@ export const getSliceText=(bk:string,pg:string,ptk,getPageText)=>{
             const yidarr=yidarrInRange(ptk,s,e);
             const numberpage=ptk.nearestTag(s,"dk");
             const lineoff=s-ptk.defines.dk.linepos[numberpage]
-            const lineinfo=[]
+            const lineinfo=[];
             const book=ptk.nearestTag(s+1,'bk','id');
             const locallinks=ptk.LocalBackLinks[book]||[];
             for (let i=0;i<lines.length;i++) {
@@ -180,7 +183,7 @@ export const getSliceText=(bk:string,pg:string,ptk,getPageText)=>{
             }
             return [lines.join('\n'),lineinfo,numberpage, lineoff];
         } else {//fi
-            return getColumnText(ptk,bk,pg)
+            return columnTextByKey(ptk,pg,bk)
         }
     }
     return ['',[],0,0]
@@ -190,6 +193,7 @@ export const brokenTransclusions=async (ptk,dictptk)=>{
     await ptk.loadAll();
     const notfound={};
     if (!dictptk) dictptk=ptk;
+
     for (let i=1;i<ptk.header.eot;i++){
         const line=ptk.getLine(i);
         const units=unitize(line);
@@ -197,11 +201,11 @@ export const brokenTransclusions=async (ptk,dictptk)=>{
             const u=units[j];
             if (u.startsWith('^[')) {
                 const [tag,innertext]=parseTransclusion(u);
- 
-                const [t]=columnTextByKey(dictptk,innertext);
+                 const [t,obj]=columnTextByKey(dictptk,innertext);
                 if (!t) {
-                    if (!notfound[innertext]) notfound[innertext]=0;
-                    notfound[innertext]++;
+                    const key=obj[0].key||innertext; //alias key
+                    if (!notfound[key]) notfound[key]=0;
+                    notfound[key]++;
                 }
             }
         }

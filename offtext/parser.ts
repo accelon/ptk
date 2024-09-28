@@ -425,6 +425,12 @@ export const parsePageBookLine=(addr:string):[string,string,number]=>{
 export const parseTransclusion=(str:string)=>{
     if (str.startsWith('^')) str=str.slice(1);
     const tag=eatofftag(str);
-    const innertext=removeBracket(str.slice(tag.length));
-    return [tag,innertext];
+    let innertext=removeBracket(str.slice(tag.length));
+    const at=innertext.indexOf('|');
+    let caption=innertext;
+    if (at>0) {
+        caption=innertext.slice(0,at)
+        innertext=innertext.slice(at+1);
+    }
+    return [tag,innertext,caption];
 }
