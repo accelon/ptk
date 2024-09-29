@@ -210,7 +210,16 @@ export const brokenTransclusions=async (ptk,dictptk)=>{
             }
         }
     }
-    
     console.log(fromObj(notfound,true))
     return [];
+}
+
+export const entryBackLinks=(ptk,entry)=>{
+    const [tag,innertext,caption]=parseTransclusion(entry);
+    const cols=Object.keys(ptk.columns);
+    for (let i=0;i<cols.length;i++){
+        const col=ptk.columns[cols[i]];
+        
+
+    }
 }

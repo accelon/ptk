@@ -172,8 +172,9 @@ export class LineBase{
 				if (nline) slicefrom++; //skip the \n for first line
 				const sliceto=this.getPageLineOffset(i,  to- (p2>0?this.pagestarts[p2-1]:0) );
 				if (p2>p1) {
+					const append=this._pages[i].slice(0, sliceto);
 					if (i==p1) out = this._pages[i].slice(slicefrom); //+1 skip the \n
-					else out+= (out?'\n':'')+this._pages[i].slice(0, sliceto); 
+					else out+= (out&&append?'\n':'')+append; //add extra \n if append is not null
 					//do not allow empty line become the first line
 				} else { //same block
 					out+=this._pages[i].slice(slicefrom,sliceto);

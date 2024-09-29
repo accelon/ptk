@@ -64,6 +64,7 @@ export const parseAttributes=(rawAttrs:string,compactAttr:string)=>{
 }
 // 剖析一個offtag,  ('a7[k=1]') 等效於 ('a7','[k=1]')
 // 接受 <a=33 b=44>(舊格式) 或 {a:33,b:44}
+
 export const parseOfftag=(raw:string,rawAttrs:string):[string,Record<string,any>]=>{ 
     if (raw[0]==OFFTAG_LEADBYTE) raw=raw.slice(1);
     if (!rawAttrs){
@@ -139,8 +140,15 @@ export const parseOfftext=(str:string,line:number=0):[string,Array<IOfftag>]=>{
     let tags=Array<IOfftag>();
     let choff=0,prevoff=0; // choff : offset to plain text
     let text=str.replace(OFFTAG_REGEX_G, (m,rawName,rawAttrs,offset)=>{
-        if (!rawName) {
-            console.log(str)
+        if (!rawName) {//may be transclusion
+            if (rawAttrs&&rawAttrs.startsWith('[')) {
+                const transclusiontag: IOfftag ={name:'',offset,aoffset:offset+1, attrs:{}, 
+                    line, choff, width:0, start:offset+2,end:offset+rawAttrs.length, active:false }
+                tags.push(transclusiontag);
+                const innertext=removeBracket(rawAttrs);
+                return innertext;
+            }
+            return '';
         }
         let [tagName,attrs]=parseOfftag(rawName,rawAttrs);
         let width=0;

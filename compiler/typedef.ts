@@ -127,7 +127,7 @@ export class Typedef {
 		const newtag=this.validateFields(tag,line,onError,compiledFiles);
 		return newtag;
 	}
-	deserialize(section:Array<string>,ptk){
+	deserialize(section:Array<string>,ptk,sectionmame){
 		const attrline=section.shift();
 		const attrs=attrline?attrline.split(LEMMA_DELIMITER):[];
 		if (section.length > attrs.length) {
@@ -154,7 +154,7 @@ export class Typedef {
 			}
 		}
 		if (section.length) {
-			console.log("unconsumed section lines",section.length);
+			console.log("unconsumed section lines",section.length,sectionmame);
 		}
 	}
 	serialize(){

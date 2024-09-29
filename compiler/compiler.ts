@@ -1,14 +1,15 @@
-import {parseOfftext,Offtext,updateOfftext}  from '../offtext/parser.ts';
+import {parseOfftext,Offtext,updateOfftext, parseTransclusion}  from '../offtext/parser.ts';
 import {Column} from '../linebase/column.ts'
 import {SourceType} from './interfaces.ts'
 import {addtag_y,addtag_x,validate_z} from './fielder.ts'
-import {StringArray} from '../utils/stringarray.ts'
+import {StringArray,LEMMA_DELIMITER} from '../utils/stringarray.ts'
 import {Typedef} from './typedef.ts'
 import {VError,MAX_VERROR} from './error.ts'
 import {predefines} from './predefines.ts'
-import { packInt } from '../utils/packintarray.ts';
+import { packInt, packIntDelta } from '../utils/packintarray.ts';
 import {checkFootnote} from './footnotes.ts';
 import {IOfftag} from '../offtext/index.ts'
+
 export const sourceType=(firstline:string,filename:string='')=>{	
 	const at=firstline.indexOf('\n');
 	let lazy=true , name='',caption='',tag:IOfftag;
@@ -64,6 +65,7 @@ export class Compiler{
 	prevzline:number;
 	prevdepth:number;
 	tagdefs:Array<string>
+	backlinks:Record<string,Array<number>>
 	constructor (opts={}) {
 		this.reset(opts);
 	}
@@ -79,6 +81,7 @@ export class Compiler{
 		this.stopcompile=false;
 		this.tagdefs=[]; // defines provided by the library, will be added to 000.js payload
 
+		this.backlinks={};
 		//for y tag
 
 		//for z tag
@@ -119,15 +122,24 @@ export class Compiler{
 				} else if (tag.name[0]=='x') {
 					addtag_x.call(this,ot,tag);
 				} else if (tag.name!==':') {
-					const typedef=this.typedefs[tag.name];
-					if (!typedef) {
-						console.error('unknown tag\n',str, tag.name)
-						//this.onError(VError.TypeTagName);
-					} else {
-						const newtag=typedef.validateTag(ot,tag , this.line,this.compiledLine,this.compiledFiles, this.onError.bind(this));
-						if (newtag) {
-							str=updateOfftext(str,tag,newtag);
+					if (!tag.name) { //目前只處理 ^[]
+						const innertext=ot.tagText(tag,true);
+						const [t,link]=parseTransclusion('^['+innertext+']');
+						if (!this.backlinks[link]) {
+							this.backlinks[link]=new Array<number>;
 						}
+						this.backlinks[link].push(this.line);
+					} else {
+						const typedef=this.typedefs[tag.name];
+						if (!typedef) {
+							console.error('unknown tag\n',str, tag.name)
+							//this.onError(VError.TypeTagName);
+						} else {
+							const newtag=typedef.validateTag(ot,tag , this.line,this.compiledLine,this.compiledFiles, this.onError.bind(this));
+							if (newtag) {
+								str=updateOfftext(str,tag,newtag);
+							}
+						}	
 					}
 				}
 			}
@@ -231,4 +243,15 @@ export class Compiler{
 			errors:this.errors,samepage,tagdefs, attributes, linestart };
 		return this.compiledFiles[filename];
 	}
+}
+
+export const serializeBacklinks=(backlinks)=>{
+	const keys=Object.keys(backlinks);
+	const out=[];
+	out.push(keys.join(LEMMA_DELIMITER));
+	for (let i=0;i<keys.length;i++){
+		const pos=backlinks[keys[i]];
+		out.push(packIntDelta(pos));
+	}
+	return out;
 }

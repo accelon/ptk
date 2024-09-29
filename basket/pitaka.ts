@@ -57,7 +57,7 @@ export class Pitaka extends LineBase {
 			if (!this.defines[n].fields.lazy) {
 				const section=this.getSection('^'+n);
 				if (section && section.length) {
-					this.defines[n].deserialize(section,this); //call typedef.ts:deserialize
+					this.defines[n].deserialize(section,this,n); //call typedef.ts:deserialize
 				} else {
 					this.defines[n].empty=true;
 				}
