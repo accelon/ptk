@@ -93,7 +93,7 @@ export class StringArray {
 		let at;
 		at=this.buf.indexOf(pat);
 		while (at>-1) {
-			if (at==0) return 0;
+			if (at==0&&this.buf.charAt(pat.length)==this.sep) return 0;
 			if (this.buf.length== pat.length+at) return this.len()-1;
 			if ( this.buf.charAt(at-1)==this.sep&&
                  this.buf.charAt(at+pat.length)==this.sep) {

@@ -144,8 +144,6 @@ export const getColumnText=(ptk,bk,key)=>{
     return [content,[{key}],at,0];
 }
 export const columnTextByKey=(ptk,key,bk='')=>{
-    //if (key=="果報") debugger
-
     return getColumnText(ptk,bk,key);
 }
 
