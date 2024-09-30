@@ -2,6 +2,7 @@ export const parseJsonp=(str:string)=>{
     const start=str.indexOf('{');
     const end=str.indexOf('},`')+1;
     let payload=str.substring(end+2,str.length-1);
+    if (payload[payload.length-1]=='`') payload=payload.slice(0,payload.length-1)
     //indexOf is much faster than regex, replace only when needed
     if (payload.indexOf("\\\\")>-1) payload=payload.replace(/\\\\/g,"\\");
     if (payload.indexOf("\\`")>-1)  payload=payload.replace(/\\`/g,"`");
