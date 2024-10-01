@@ -1,5 +1,5 @@
 import {LineBaser} from '../linebase/index.ts';
-import {Compiler,serializeBacklinks} from './compiler.ts';
+import {Compiler,serializeBackTransclusion} from './compiler.ts';
 import {Indexer} from '../fts/index.ts';
 import {parseOfftext} from '../offtext/index.ts';
 import {serializeToc} from './toc.ts';
@@ -59,17 +59,17 @@ export const makeLineBaser=async (sourcebuffers,compiler:Compiler,contentGetter:
 		}
 	}
 	//write backlinks
-	const backlinks=serializeBacklinks(compiler.backlinks);
+	const backtransclusions=serializeBackTransclusion(compiler.backtransclusions);
 	indexer.finalize();
 	const [tokens,postings,wordcount]=indexer.serialize();
 	lbaser.header.eot = lbaser._data.length;
-	lbaser.header.preload.push('_tokens','_toc','_backlinks');
+	lbaser.header.preload.push('_tokens','_toc','_backtransclusions');
 	lbaser.header.wordcount=wordcount;
 	tokens.unshift('^:<type="tokens">');
 	lbaser.append(tokens,{newpage:true,name:'_tokens'});
 	lbaser.append(postings,{newpage:true,name:'_postings'});
 	if (compiler.toc.length) lbaser.append(serializeToc(compiler.toc), {newpage:true,name:'_toc'});
-	lbaser.append(backlinks,{newpage:true,name:'_backlinks'});
+	lbaser.append(backtransclusions,{newpage:true,name:'_backtransclusions'});
 
 	lbaser.payload=alltagdefs.filter(it=>!!it).join('\n');
 

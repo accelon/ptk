@@ -130,7 +130,8 @@ export const packInt=(arr, delta=false)=>{
 		}
 		int=(delta? arr[i]-prev: arr[i] ) +1 ;
 		if (int<0 && delta) {
-			throw new Error('negative delta', arr[i],'prev',prev);
+			console.log('arr length',arr.length, 'now',arr[i],'prev',prev);
+			throw new Error('negative delta');
 		}
 		prev=arr[i]||0;
 	}

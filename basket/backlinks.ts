@@ -2,10 +2,19 @@ import {removeBracket} from '../utils/cjk.ts'
 import {CJKWordBegin_Reg} from '../fts/constants.ts'
 import { parsePageBookLine } from "../offtext/parser.ts";
 import {toSim} from 'lossless-simplified-chinese';
-function backlinksOf(bk:string,line:number){
+import { LEMMA_DELIMITER, StringArray } from '../utils/stringarray.ts';
+import { unpackIntDelta } from '../utils/unpackintarray.ts';
+import {columnTextByKey,keyOfEntry,entriesOfKey} from '../basket/entries.ts'
+function backLinksOf(bk:string,line:number){
     const BK=this.LocalBackLinks[bk];
     if (!BK) return [];
     return BK[line]||[];
+}
+function backTransclusionOf(entry:string){
+    const ptk=this;
+    const key=ptk.keyOfEntry(entry);
+    const items=ptk.backtransclusions[key];
+    return items.map(it=>entriesOfKey(ptk,it,true)).filter(it=>!!it);
 }
 function guessBookId(t:string){
     t=removeBracket(t);
@@ -18,6 +27,7 @@ const buildBookNames=(ptk:any)=>{
     for (let i=0;i<ptk.defines.bk?.linepos.length;i++) {
         const id=ptk.defines.bk.fields.id.values[i];
         const t=ptk.defines.bk.getInnertext(i);
+        if (!t)continue;
         ptk.BookIdByName[t]= id;
         ptk.BookIdByName[toSim(t)]= id;
         ptk.BookNameById[id]=t;
@@ -27,38 +37,81 @@ function bookNameById(id:string){
     const tag=this.getTagById('bk',id);
     return this.defines.bk.getInnertext(tag?.at);
 }
-function buildLocalBacklinks(){
-    const X=this.defines.x;
-    const Y=this.defines.y;
-    const L=this.LocalBackLinks;
+const findEntryByDkat=(ptk,dkat)=>{
+    const cols=Object.keys(ptk.columns);
+    for (let col in ptk.columns) {
+        const at=ptk.columns[col].dkat.indexOf(dkat);
+        if (~at) return ptk.columns[col].keys.get(at);
+    }
+    return '';
+}
+
+
+function buildBackTransclusions(ptk){
+    const section=ptk.getSection('_backtransclusions');
+    if (!section.length) return ;
+    const out={};
+    const keys=new StringArray(section.shift(),{sep:LEMMA_DELIMITER});
+    const dk=ptk.defines.dk;
+    if (!dk) return out;
+    for (let i=0;i<keys.len();i++) {
+        //if (keys.get(i)=='佛陀') debugger
+        const linepos=unpackIntDelta(section.shift());
+        //convert linepos to entry
+        const entries=[];
+        for (let j=0;j<linepos.length;j++) {
+            const dkat=dk.linepos.indexOf(linepos[j]);
+            if (~dkat){
+                const e=findEntryByDkat(ptk,dkat);
+                if (e) entries.push(e);
+            }
+        }
+        //resolve the key from entry, which is not determine at compile time
+        const [content,objarr]=columnTextByKey(ptk,keys.get(i));
+        const key=objarr[0].key;
+        if (!out[key])out[key]=entries;
+        else {
+            out[key].concat(entries);
+            out[key].sort();
+        }
+    }
+    return out;
+}
+function buildLocalBacklinks(ptk){
+    const X=ptk.defines.x;
+    const Y=ptk.defines.y;
+    const L={};
     if (!X||!Y) return ;
     const XID=X.fields.id.values;
-    const Xlinepos=this.defines.x.linepos;
+    const Xlinepos=ptk.defines.x.linepos;
     for (let i=0;i<XID.length;i++) {
         let [page,book,line]=parsePageBookLine(XID[i]);
         if (!book) {
             const innertext=X.getInnertext(i);
-            book=guessBookId.call(this,innertext);
+            book=guessBookId.call(ptk,innertext);
         }
-        const sbook=this.nearestTag(Xlinepos[i],'bk','id');
+        const sbook=ptk.nearestTag(Xlinepos[i],'bk','id');
         if (!book) book=sbook;
         const addr='bk#'+book+'.y#'+page;
-        const [s,e]=this.rangeOfAddress(addr);
+        const [s,e]=ptk.rangeOfAddress(addr);
         //console.log(page,book,line,addr,s,e);
         if (!L[book]) L[book]={};
         if (!L[book][s+line]) L[book][s+line]=[];
         L[book][s+line].push(Xlinepos[i]);
     }
+    return L;
 }
+
 export const enableBacklinkFeature=(ptk)=>{
-    ptk.LocalBackLinks={};
     ptk.BookIdByName={};
     ptk.BookNameById={};
-    ptk.buildLocalBacklinks=buildLocalBacklinks;
     ptk.guessBookId=guessBookId;
     ptk.bookNameById=bookNameById;
     //initial build
-    ptk.backlinksOf=backlinksOf;
+    ptk.backLinksOf=backLinksOf;
+    ptk.backTransclusionOf=backTransclusionOf;
+    ptk.keyOfEntry=keyOfEntry;
     buildBookNames(ptk);
-    ptk.buildLocalBacklinks();
+    ptk.LocalBackLinks=buildLocalBacklinks(ptk);
+    ptk.backtransclusions=buildBackTransclusions(ptk);
 }

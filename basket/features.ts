@@ -30,7 +30,8 @@ export const enableAccelon23Features=(ptk:any)=>{
     //check fields
     enableTagFeature(ptk);
     enableTOCFeature(ptk);
-    enableFTSFeature(ptk)
+    enableFTSFeature(ptk);
+    enableBacklinkFeature(ptk);
     ptk.scanColumnFields=scanColumnFields;
     ptk.searchColumnField=searchColumnField;
     ptk.scanText=scanText;

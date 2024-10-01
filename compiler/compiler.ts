@@ -6,7 +6,8 @@ import {StringArray,LEMMA_DELIMITER} from '../utils/stringarray.ts'
 import {Typedef} from './typedef.ts'
 import {VError,MAX_VERROR} from './error.ts'
 import {predefines} from './predefines.ts'
-import { packInt, packIntDelta } from '../utils/packintarray.ts';
+import {packInt, packIntDelta } from '../utils/packintarray.ts';
+import {unique} from '../utils/sortedarray.ts'
 import {checkFootnote} from './footnotes.ts';
 import {IOfftag} from '../offtext/index.ts'
 
@@ -65,7 +66,7 @@ export class Compiler{
 	prevzline:number;
 	prevdepth:number;
 	tagdefs:Array<string>
-	backlinks:Record<string,Array<number>>
+	backtransclusions:Record<string,Array<number>>
 	constructor (opts={}) {
 		this.reset(opts);
 	}
@@ -81,7 +82,7 @@ export class Compiler{
 		this.stopcompile=false;
 		this.tagdefs=[]; // defines provided by the library, will be added to 000.js payload
 
-		this.backlinks={};
+		this.backtransclusions={};
 		//for y tag
 
 		//for z tag
@@ -125,10 +126,10 @@ export class Compiler{
 					if (!tag.name) { //目前只處理 ^[]
 						const innertext=ot.tagText(tag,true);
 						const [t,link]=parseTransclusion('^['+innertext+']');
-						if (!this.backlinks[link]) {
-							this.backlinks[link]=new Array<number>;
+						if (!this.backtransclusions[link]) {
+							this.backtransclusions[link]=new Array<number>;
 						}
-						this.backlinks[link].push(this.line);
+						this.backtransclusions[link].push(this.compiledLine+this.line);
 					} else {
 						const typedef=this.typedefs[tag.name];
 						if (!typedef) {
@@ -245,12 +246,12 @@ export class Compiler{
 	}
 }
 
-export const serializeBacklinks=(backlinks)=>{
-	const keys=Object.keys(backlinks);
+export const serializeBackTransclusion=(backtransclusions)=>{
+	const keys=Object.keys(backtransclusions);
 	const out=[];
 	out.push(keys.join(LEMMA_DELIMITER));
 	for (let i=0;i<keys.length;i++){
-		const pos=backlinks[keys[i]];
+		const pos=backtransclusions[keys[i]];
 		out.push(packIntDelta(pos));
 	}
 	return out;

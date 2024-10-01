@@ -118,6 +118,7 @@ const getBookColumnText=(ptk,bk,key)=>{
     return [at,ptk.slice(s,e).join('\n'),bk];
 }
 export const getAnyColumnText=(ptk,book,key)=>{
+    if (!key) return [-1,''];
     if (book) {
         return getBookColumnText(ptk,book,key);
     } else {
@@ -129,10 +130,11 @@ export const getAnyColumnText=(ptk,book,key)=>{
         return [-1,''];
     }
 }
+const TRANSCLUSION_INDIRECT_REGEX=/@(.+)$/
 export const getColumnText=(ptk,bk,key)=>{
     let [at,content,book]=getAnyColumnText(ptk,bk,key);
     //book may overwrite bk if empty
-    let m=content.match(/@(.+)$/);
+    let m=content.match(TRANSCLUSION_INDIRECT_REGEX);
     while (m) {
         content='';
         key=m[1];
@@ -210,16 +212,32 @@ export const brokenTransclusions=async (ptk,dictptk)=>{
             }
         }
     }
-    console.log(fromObj(notfound,true))
+    const notfoundarr=fromObj(notfound,true);
+    if (notfoundarr.length) console.log(notfoundarr)
     return [];
 }
-
-export const entryBackLinks=(ptk,entry)=>{
-    const [tag,innertext,caption]=parseTransclusion(entry);
-    const cols=Object.keys(ptk.columns);
-    for (let i=0;i<cols.length;i++){
-        const col=ptk.columns[cols[i]];
-        
-
+//return term key given entry,  
+export function keyOfEntry(entry:string){
+    let [at,text]=getAnyColumnText(this,'',entry);
+    let key=entry,m;
+    while (m=text.match(TRANSCLUSION_INDIRECT_REGEX)) {
+        key=m[1];
+        [at,text]=getAnyColumnText(this,'',key);
     }
+    return key;
+}
+export const entriesOfKey=(ptk,key,firstonly=false)=>{
+    const out=[];
+    for (let bk of Object.keys(ptk.columns)) {
+        const col=ptk.columns[bk];
+        if (!col.dkat)continue;
+        for (let j=0;j<col.dkat.length;j++) {
+            const [s,e]=ptk.rangeOfAddress("bk#"+bk+".dk#"+col.dkat[j]);
+            const text=ptk.slice(s,e).join('\n');
+            if (text.endsWith('@'+key)) {
+                out.push( col.keys.get(j) );
+            }
+        }
+    }
+    return firstonly?(out[0]||''):out;
 }
