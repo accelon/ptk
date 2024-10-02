@@ -249,6 +249,7 @@ export class Compiler{
 export const serializeBackTransclusion=(backtransclusions)=>{
 	const keys=Object.keys(backtransclusions);
 	const out=[];
+	if (!keys.length) return [];
 	out.push(keys.join(LEMMA_DELIMITER));
 	for (let i=0;i<keys.length;i++){
 		const pos=backtransclusions[keys[i]];

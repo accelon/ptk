@@ -63,13 +63,18 @@ export const makeLineBaser=async (sourcebuffers,compiler:Compiler,contentGetter:
 	indexer.finalize();
 	const [tokens,postings,wordcount]=indexer.serialize();
 	lbaser.header.eot = lbaser._data.length;
-	lbaser.header.preload.push('_tokens','_toc','_backtransclusions');
+	lbaser.header.preload.push('_tokens','_toc');
 	lbaser.header.wordcount=wordcount;
 	tokens.unshift('^:<type="tokens">');
 	lbaser.append(tokens,{newpage:true,name:'_tokens'});
 	lbaser.append(postings,{newpage:true,name:'_postings'});
 	if (compiler.toc.length) lbaser.append(serializeToc(compiler.toc), {newpage:true,name:'_toc'});
-	lbaser.append(backtransclusions,{newpage:true,name:'_backtransclusions'});
+
+	if (backtransclusions.length){
+		lbaser.header.preload.push('_backtransclusions');
+		lbaser.append(backtransclusions,{newpage:true,name:'_backtransclusions'});
+	}
+	
 
 	lbaser.payload=alltagdefs.filter(it=>!!it).join('\n');
 

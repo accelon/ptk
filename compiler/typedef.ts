@@ -110,13 +110,15 @@ export class Typedef {
 		if (this.fields.id || this.fields['@'] ||this.fields.ln || this.attrs.savelinepos) { //auto save linepos if validating id
 			this.linepos.push(compiledLine+line);
 		}
+		
 		if (this.attrs.bracket) { // false to keep the bracket
 			let tagtext=offtext.tagText(tag);
 			if (!tagtext) { //use entire line as innertext
-				tagtext=offtext.plain.trim().slice(0,10);
+				tagtext=offtext.plain.trim();
 			}
 			if (this.attrs.bracket!=='true') tagtext=removeBracket(tagtext);
-			this.innertext.push(tagtext);
+			this.innertext.push(tagtext.slice(0,15));
+			//if (this.tagname=='ak'||this.tagname=='bk') console.log(tagtext,tag)
 		}
 		for (let aname in this.mandatory) {
 			if (!tag.attrs.hasOwnProperty(aname) && this.mandatory[aname]) {

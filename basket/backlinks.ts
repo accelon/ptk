@@ -12,8 +12,9 @@ function backLinksOf(bk:string,line:number){
 }
 function backTransclusionOf(entry:string){
     const ptk=this;
+    if (!ptk.backtransclusions) return [];
     const key=ptk.keyOfEntry(entry);
-    const items=ptk.backtransclusions[key];
+    const items=ptk.backtransclusions[key]||[];
     return items.map(it=>entriesOfKey(ptk,it,true)).filter(it=>!!it);
 }
 function guessBookId(t:string){
@@ -49,13 +50,12 @@ const findEntryByDkat=(ptk,dkat)=>{
 
 function buildBackTransclusions(ptk){
     const section=ptk.getSection('_backtransclusions');
-    if (!section.length) return ;
+    if (!section.length) return {};
     const out={};
     const keys=new StringArray(section.shift(),{sep:LEMMA_DELIMITER});
     const dk=ptk.defines.dk;
     if (!dk) return out;
     for (let i=0;i<keys.len();i++) {
-        //if (keys.get(i)=='佛陀') debugger
         const linepos=unpackIntDelta(section.shift());
         //convert linepos to entry
         const entries=[];
