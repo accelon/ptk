@@ -38,11 +38,16 @@ function bookNameById(id:string){
     const tag=this.getTagById('bk',id);
     return this.defines.bk.getInnertext(tag?.at);
 }
-const findEntryByDkat=(ptk,dkat)=>{
+const findEntryByDk=(ptk,dkid,bk)=>{
     const cols=Object.keys(ptk.columns);
-    for (let col in ptk.columns) {
-        const at=ptk.columns[col].dkat.indexOf(dkat);
-        if (~at) return ptk.columns[col].keys.get(at);
+    if (bk && ptk.columns[bk]) {
+        const at=ptk.columns[bk].dkat.indexOf(parseInt(dkid));
+        if (~at) return ptk.columns[bk].keys.get(at);
+    } else {
+        for (let col in ptk.columns) {
+            const at=ptk.columns[col].dkat.indexOf(dkat);
+            if (~at) return ptk.columns[col].keys.get(at);
+        }    
     }
     return '';
 }
@@ -56,13 +61,16 @@ function buildBackTransclusions(ptk){
     const dk=ptk.defines.dk;
     if (!dk) return out;
     for (let i=0;i<keys.len();i++) {
+        //if (keys.get(i)=='阿育王') debugger
         const linepos=unpackIntDelta(section.shift());
         //convert linepos to entry
         const entries=[];
         for (let j=0;j<linepos.length;j++) {
             const dkat=dk.linepos.indexOf(linepos[j]);
             if (~dkat){
-                const e=findEntryByDkat(ptk,dkat);
+                const bk=ptk.nearestTag(linepos[j],'bk','id')
+                const dkid=dk.fields.id.values[dkat];
+                const e=findEntryByDk(ptk,dkid,bk);
                 if (e) entries.push(e);
             }
         }
