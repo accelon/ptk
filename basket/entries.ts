@@ -239,5 +239,7 @@ export const entriesOfKey=(ptk,key,firstonly=false)=>{
             }
         }
     }
-    return firstonly?(out[0]||''):out;
+    if (out.length==0) {//沒有中文名
+        return key;
+    } else return firstonly?(out[0]||''):out;
 }

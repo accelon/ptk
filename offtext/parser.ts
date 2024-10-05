@@ -390,7 +390,7 @@ export const offTagType=(str:string)=>{
     if (closeBracketOf(ch)) {
         if (ch==='['){
             return [str.slice(1,str.length-1), "transclusion", offtag]
-        } else if (ch==='<') {
+        } else if (ch==='<' && !offtag.length) {
             return [str, "html", offtag]
         } else {
             if (offtag.charAt(0)=='{') { //json as offtag
@@ -432,8 +432,12 @@ export const parsePageBookLine=(addr:string):[string,string,number]=>{
 //parse a complete transclusion with chinese
 export const parseTransclusion=(str:string)=>{
     if (str.startsWith('^')) str=str.slice(1);
-    const tag=eatofftag(str);
-    let innertext=removeBracket(str.slice(tag.length));
+    let tag='',innertext=str;
+    if (!str.indexOf('[')) {
+        tag=eatofftag(str);
+        innertext=removeBracket(str.slice(tag.length));
+    }
+
     const at=innertext.indexOf('|');
     let caption=innertext;
     if (at>0) {

@@ -131,8 +131,6 @@ export class Compiler{
 						}
 						
 						this.backtransclusions[link].push(this.compiledLine+this.line);
-						if (link=='九分教')
-						console.log(this.compiledLine,this.line, link,str)
 					} else {
 						const typedef=this.typedefs[tag.name];
 						if (!typedef) {
