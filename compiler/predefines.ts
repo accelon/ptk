@@ -17,6 +17,8 @@ generic:
 ^:png<src=text>
 ^:ad
 ^:bc
+^:gatha
+^:au
 ^:cut
 ^:paste
 ^:notranslation

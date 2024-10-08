@@ -25,14 +25,22 @@ export const makeLineBaser=async (sourcebuffers,compiler:Compiler,contentGetter:
 
 	for (let i=0;i<sourcebuffers.length;i++) {
 		const buf=sourcebuffers[i];
+		if (!buf) {
+			console.log('empty')
+			continue;
+		}
 		let text=buf.text||'';
 		if (!text && contentGetter) {
 			const content=await contentGetter(i);
 			text=content.text||'';
 		}
+
 		if (buf.name.endsWith('.css')) continue; // todo , should check sourcetype
 		compiler.compileBuffer(text,buf.name);
 		
+		if (!compiler.compiledFiles[buf.name]) {
+			continue;
+		}
 		const {name,caption,errors,processed,samepage,
 			lazy,tagdefs,textstart,sourcetype}=compiler.compiledFiles[buf.name];
 

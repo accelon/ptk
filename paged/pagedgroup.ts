@@ -2,6 +2,7 @@ import { Paged } from "./paged.ts";
 
 export class PagedGroup {
     private _pageds:{};
+    private _keeped={};// name of keepText
     backlinks:Record<string,Record<string,Array<any>>>;
     constructor(){
         this._pageds={};
@@ -29,6 +30,12 @@ export class PagedGroup {
     get names() {
         return Object.keys(this._pageds);
     }
+    markKeeped(name:string){
+        this._keeped[name]=true;
+    }
+    clearKeeped(name:string){
+        this._keeped[name]=false;
+    }
     clearDirty(name:string) {
         if (this._pageds[name]) this._pageds[name].clearDirty();
     }
@@ -37,7 +44,10 @@ export class PagedGroup {
     }
     getDirty(name:string) {
         return this._pageds[name]?.dirty||0;
-    }    
+    }
+    keepCount(){
+        return this.keeped;
+    }
     getItem(name:string){
         return this._pageds[name];
     }
@@ -63,5 +73,11 @@ export class PagedGroup {
     get first() {
         return this.names.length?this.names[0]:'';
     }
-
+    get keeped(){
+        let keeped=0;
+        for (let name in this._keeped) {
+            if (this._keeped[name]) keeped++;
+        }
+        return keeped;
+    }
 }

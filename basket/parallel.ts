@@ -80,6 +80,7 @@ export function enumParallelsPtk(address:string){ //list ptk having same bk and 
     const ptk=this;
     const range=ptk.rangeOfAddress(address);
     const ck=ptk.nearestChunk(range[0]+1);
+    if (!ck) return [];
     const paralleladdress='bk#'+ck.bkid+'.ck#'+ck.id;
     const ptks=poolParallelPitakas(ptk);
     const out=[ptk.header.name];
