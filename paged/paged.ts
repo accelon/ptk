@@ -46,12 +46,18 @@ export class Paged{
         return this.loadFromString(text,_name);
     }
     loadFromString(str:string,_name:string){
+        const keys={};
         const lines=str.split(/\r?\n/);
         for (let i=0;i<lines.length;i++) {
             const line=lines[i]
             const at=lines[i].indexOf('\t');
             if (~at) { //page breaker
-                this.pagenames.push(line.slice(0,at))
+                const key=line.slice(0,at);
+                if (!keys[key]) keys[key]=true;
+                else if (key){
+                    console.log('dup key',key)
+                }
+                this.pagenames.push(key)
                 this.pagetexts.push(line.slice(at+1));
             } else { //normal line
                 if (!this.pagetexts.length) {

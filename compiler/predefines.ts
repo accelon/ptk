@@ -15,6 +15,7 @@ generic:
 ^:wiki
 ^:baidu
 ^:png<src=text>
+^:jpg<src=text>
 ^:ad
 ^:bc
 ^:gatha

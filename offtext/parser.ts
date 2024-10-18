@@ -368,7 +368,7 @@ export const unitize=(str:string)=>{
         let prevtext='';
         const offtag=eatofftag(str.slice(p));
         prevtext=str.slice(prev,p-1);
-        if (prevtext) out.push(prevtext);            
+        if (prevtext) out.push(prevtext);
         const brackets=eatbracket(str.slice(p+offtag.length),'', ['[','{','<']);
         out.push( '^'+str.slice(p,p+brackets.length+offtag.length));
         p+=offtag.length;
