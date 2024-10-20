@@ -160,7 +160,7 @@ export const  pageFromPtk=(ptk,book,page)=>{
     }
     const lines=ptk.slice(s,e)
     const text=lines.join('\n');
-    const locallinks=ptk.LocalBackLinks[book]||[]
+    const locallinks=(ptk.LocalBackLinks&&ptk.LocalBackLinks[book])||[];
     for (let i=0;i<e-s;i++) {
         lineinfo[i]={yid:yidarr[i], locallinks:locallinks[s+i] }
     }
@@ -179,7 +179,7 @@ export const getSliceText=(bk:string,pg:string,ptk,getPageText)=>{
             const lineoff=s-ptk.defines.dk.linepos[numberpage]
             const lineinfo=[];
             const book=ptk.nearestTag(s+1,'bk','id');
-            const locallinks=ptk.LocalBackLinks[book]||[];
+            const locallinks=(ptk.LocalBackLinks&&ptk.LocalBackLinks[book])||[];
             for (let i=0;i<lines.length;i++) {
                 lineinfo[i]={yid:yidarr[i],locallinks:locallinks[s+i]}
             }
@@ -192,6 +192,7 @@ export const getSliceText=(bk:string,pg:string,ptk,getPageText)=>{
 }
 
 export const brokenTransclusions=async (ptk,dictptk)=>{
+    if (!ptk) return [];
     await ptk.loadAll();
     const notfound={};
     if (!dictptk) dictptk=ptk;

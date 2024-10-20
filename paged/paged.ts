@@ -21,10 +21,12 @@ export class Paged{
     header:{};
     private dirty:number;
     name:string;
+    log:Array<string>;
 	constructor () {
         this.pagenames= Array<string>();
         this.pagetexts= Array<string>();
         this.header={};
+        this.log=[];
         this.rawheader='';
         this.dirty=0;
     }
@@ -55,7 +57,7 @@ export class Paged{
                 const key=line.slice(0,at);
                 if (!keys[key]) keys[key]=true;
                 else if (key){
-                    console.log('dup key',key)
+                    this.log.push(_name+' dup key:'+key);
                 }
                 this.pagenames.push(key)
                 this.pagetexts.push(line.slice(at+1));
@@ -89,7 +91,7 @@ export class Paged{
                         out[key]=obj[key];
                     }   
                 } catch {
-                    console.log("header error", line);
+                    this.log.push("header error "+line);
                 }
             }
         }

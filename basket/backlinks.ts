@@ -61,7 +61,6 @@ function buildBackTransclusions(ptk){
     const dk=ptk.defines.dk;
     if (!dk) return out;
     for (let i=0;i<keys.len();i++) {
-        //if (keys.get(i)=='阿育王') debugger
         const linepos=unpackIntDelta(section.shift());
         //convert linepos to entry
         const entries=[];

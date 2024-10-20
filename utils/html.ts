@@ -1,6 +1,11 @@
 ﻿export const escapeHTML=s=>s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
 const Entities={
 	lt:'<',gt:'>','amp':'&',
+	'eacute':'é',
+	'agrave':'à',
+	'hellip':'…',
+	'igrave':'ì',
+	'ugrave':'ù',
 	'ntilde':'ñ','Ntilde':'Ñ',
 	'nbsp':' ','quot':'"',"ucirc":'û','acirc':'â','icirc':'î'
 }

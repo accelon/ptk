@@ -28,7 +28,7 @@ export class Indexer {
 		this.wordcount =0;
 	}
 	addLine(line:string) {
-		if (!line) {
+		if (!line||line.startsWith('iVBO') || ~line.indexOf('.png\t')|| ~line.indexOf('.jpg\t')) {
 			this.tokenlist.push(0);
 			return;
 		}

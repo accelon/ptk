@@ -66,25 +66,32 @@ export const parseAttributes=(rawAttrs:string,compactAttr:string)=>{
 // 接受 <a=33 b=44>(舊格式) 或 {a:33,b:44}
 
 export const parseOfftag=(raw:string,rawAttrs:string):[string,Record<string,any>]=>{ 
+    let attrs={};
     if (raw[0]==OFFTAG_LEADBYTE) raw=raw.slice(1);
-    if (!rawAttrs){
-        const at=raw.indexOf('<');
-        const at2=raw.indexOf('{');
-        if (at2>0) {
-            rawAttrs=raw.slice(at);
-            raw=raw.slice(0,at);
-        } else if (at>0) {
-            rawAttrs=raw.slice(at);
-            raw=raw.slice(0,at);
-        }
+    if (rawAttrs) {
+        if (rawAttrs[0]!=='<' && rawAttrs[0]!=='{') {
+            //attrs.innertext=removeBracket(rawAttrs);
+            rawAttrs='';
+        } else {
+            const at=raw.indexOf('<');
+            const at2=raw.indexOf('{');
+            if (at2>0) {
+                rawAttrs=raw.slice(at);
+                raw=raw.slice(0,at);
+            } else if (at>0) {
+                rawAttrs=raw.slice(at);
+                raw=raw.slice(0,at);
+            }
+        }    
     }
+
     const o=raw.match(OFFTAG_NAME_ATTR);
     if (!o) {
         console.log("\ninvalid tag, raw",raw,'attr',rawAttrs);
         return [raw,{}];
     } else {
         let [m2, tagName, compactAttr]=o;
-        let attrs={};
+        
         if (rawAttrs&&rawAttrs.charAt(0)=='{') {
             const attrs2=jsonify(rawAttrs);
             attrs=parseAttributes('',compactAttr);
@@ -92,7 +99,7 @@ export const parseOfftag=(raw:string,rawAttrs:string):[string,Record<string,any>
                 attrs[key]=attrs2[key];
             }
         } else {
-            attrs=parseAttributes(rawAttrs,compactAttr);
+            if (compactAttr || rawAttrs) attrs=parseAttributes(rawAttrs,compactAttr);
         }        
         return [tagName,attrs];            
     }
