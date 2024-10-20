@@ -1,3 +1,4 @@
+import {getBookColumnText} from './entries.ts'
 
 export function findFootmarkInBook(ptk,id:string,line) {
     const ck=ptk.nearestChunk(line);
@@ -43,12 +44,24 @@ export function footNoteInTSV(id:string,line:number){//assuming footnote=bk
         ck=ptk.nearestChunk(line);
     }
     if (!ck) return '';
-    const footnotecol=ptk.columns[ck.bkid];//each tsv has one book
+    let bkid=ck.bkid+"-note";//優先
+    let footnotecol=ptk.columns[bkid]
+    if (!footnotecol) {
+        bkid=ck.bkid;
+        footnotecol=ptk.columns[bkid];//each tsv has one book
+    }
     if (!footnotecol) return '--no note--';
+
     if (footnotecol.attrs.footnote=='ck' && !hasck) {
         id=ck.id+'.'+id;
     }
-    return footnotecol.fieldByKey(id,"note")||'';
+    let o=footnotecol.fieldByKey(id,"note")||'';
+    if (!o) { //try dkat
+        const key=ck.id+'.'+id;
+        const r=getBookColumnText(ptk,bkid,key)
+        o=r[1]; 
+    }
+    return o;
 }
 export function footNoteByAddress(id:string,line:number){
     const ptk=this;

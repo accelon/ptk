@@ -42,7 +42,7 @@ export function caption(at:number){
     return caption+ parents.join('');
 }
 export function nearestChunk( line:number) {
-    const chunktag=this.defines.ck;
+    const chunktag=this.defines.ck||this.defines.dk;
     const at=this.nearestTag(line,chunktag);
     return this.getChunk(at);
 }
@@ -81,7 +81,7 @@ export function getBookInfo (at:number) {
 }
 export function getChunk(at:any){
     at=parseInt(at);
-    const chunktag=this.defines.ck;
+    const chunktag=this.defines.ck||this.defines.dk;
     const booktag=this.defines.bk;
 
     if (at<0) return null;

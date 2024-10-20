@@ -108,7 +108,7 @@ export const enumEntries=(ptk,fn,tofind,max=100)=>{
         return out;
     }
 }
-const getBookColumnText=(ptk,bk,key)=>{
+export const getBookColumnText=(ptk,bk,key)=>{
     const col=ptk.columns[bk];
     if (!col||!col.keys) return [-1,''];
     const at=col.keys.indexOf(key);
@@ -164,7 +164,7 @@ export const  pageFromPtk=(ptk,book,page)=>{
     for (let i=0;i<e-s;i++) {
         lineinfo[i]={yid:yidarr[i], locallinks:locallinks[s+i] }
     }
-    return [text,lineinfo,page,0]
+    return [text,lineinfo,page,s]
 }
 export const getSliceText=(bk:string,pg:string,ptk,getPageText)=>{
         if (parseInt(pg).toString()==pg) {

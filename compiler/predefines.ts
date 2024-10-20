@@ -14,6 +14,7 @@ generic:
 ^:k<id=text>
 ^:wiki
 ^:baidu
+^:note
 ^:png<src=text>
 ^:jpg<src=text>
 ^:ad

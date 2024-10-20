@@ -19,19 +19,27 @@ export const enableFeature=(ptk:any,feature:string)=>{
         enableFTSFeature(ptk)
     } else if (feature=='backlink') {
         enableBacklinkFeature(ptk)
+    } else if (feature=='footnote') {
+        enableFootnoteFeature(ptk)
     }
 }
 export const enableFeatures=(ptk:any,features:Array<string>|string)=>{
     if (!Array.isArray(features)) features=[features];
     features.forEach(f=>enableFeature(ptk,f))
 }
-
+export const enableFootnoteFeature=(ptk:any)=>{
+    ptk.inlineNote=inlineNote;
+    ptk.footNoteAddress=footNoteAddress;
+    ptk.footNoteByAddress=footNoteByAddress;
+    ptk.footNoteInTSV=footNoteInTSV;
+}
 export const enableAccelon23Features=(ptk:any)=>{
     //check fields
     enableTagFeature(ptk);
     enableTOCFeature(ptk);
     enableFTSFeature(ptk);
     enableBacklinkFeature(ptk);
+    enableFootnoteFeature(ptk);
     ptk.scanColumnFields=scanColumnFields;
     ptk.searchColumnField=searchColumnField;
     ptk.scanText=scanText;
@@ -42,10 +50,6 @@ export const enableAccelon23Features=(ptk:any)=>{
     ptk.scanCache={};
     ptk.queryCache={};
     ptk.columnField=columnField;
-    ptk.inlineNote=inlineNote;
-    ptk.footNoteAddress=footNoteAddress;
-    ptk.footNoteByAddress=footNoteByAddress;
-    ptk.footNoteInTSV=footNoteInTSV;
     ptk.foreignLinksAtTag=foreignLinksAtTag;
     ptk.getParallelBook=getParallelBook;
     ptk.getParallelLine=getParallelLine;
