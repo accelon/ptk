@@ -39,6 +39,9 @@ export class Paged{
         this.name=_name;
         return this.loadFromString(str,_name);
     }
+    setHandle(h:FileSystemHandle){
+        this.handle=h;    
+    }
     async loadFromUrl(url:string,_name:string) {
         if (!~url.indexOf('http') && ~url.indexOf('/')) url='https://'+url
         else if (url.indexOf(PGDEXT)==-1) url+=PGDEXT
@@ -148,8 +151,8 @@ export class Paged{
         return [prolog+offtext.join('\n'),tsv.join('\n')];
     }
     dump(escape=false){
-        const out=[this.rawheader]; //TODO , sync from this.header
-        for (let i=0;i<=this.pagetexts.length-1;i++) {
+        const out=[this.pagetexts[0]];
+        for (let i=1;i<=this.pagetexts.length-1;i++) {
             const t=this.pagetexts[i];
             out.push(this.pagenames[i]+'\t'+(escape?escapeTemplateString(t):t));
         }
@@ -167,7 +170,7 @@ export class Paged{
         this.pagenames.splice(thispage,1);
         return this;
     }
-    async browserSave(opts){
+    async browserSave(opts){ /* save to file, create handle if neeed */
         const out=this.dump();
         let handle=this.handle;
         if (!handle) {
@@ -180,9 +183,9 @@ export class Paged{
             await writable.write(out);
             await writable.close();
             this.clearDirty();
-            return true;
+            this.handle=handle;
+            return handle;
         }
-        return false;
     }
     pageText(n:number|string){
         if ( typeof n=='string' && parseInt(n).toString()!==n) {

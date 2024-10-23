@@ -45,7 +45,7 @@ const findEntryByDk=(ptk,dkid,bk)=>{
         if (~at) return ptk.columns[bk].keys.get(at);
     } else {
         for (let col in ptk.columns) {
-            const at=ptk.columns[col].dkat.indexOf(dkat);
+            const at=ptk.columns[col].dkat?.indexOf(dkid);
             if (~at) return ptk.columns[col].keys.get(at);
         }    
     }

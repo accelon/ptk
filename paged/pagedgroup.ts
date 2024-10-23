@@ -48,6 +48,9 @@ export class PagedGroup {
     keepCount(){
         return this.keeped;
     }
+    getKeeped(name:string){
+        return this._keeped[name];
+    }
     getItem(name:string){
         return this._pageds[name];
     }
