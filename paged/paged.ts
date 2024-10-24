@@ -196,6 +196,12 @@ export class Paged{
     pageName(n:number) {
         return this.pagenames[n];
     }
+    setPageName(pagename:string,n:number){
+        this.pagenames[n]=pagename;
+    }
+    findPageName(pagename:string){
+        return this.pagenames.indexOf(pagename);
+    }
     setPageText(n:number|string,value:string){
         let m=-1;
         if (typeof n=='number') m=n;

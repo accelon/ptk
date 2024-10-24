@@ -5,13 +5,18 @@ export class PagedGroup {
     private _keeped={};// name of keepText
     backlinks:Record<string,Record<string,Array<any>>>;
     constructor(){
+        this.reset();
+    }
+    reset(){
         this._pageds={};
         this.backlinks={};
+        this._keeped={};
     }
     add(name:string,content:string){
         const paged=new Paged();
         paged.loadFromString(content,name);
         this._pageds[name]=paged;
+        
         return paged;
     }
     async addHandle(name:string,handle:FileSystemHandle){
@@ -33,6 +38,7 @@ export class PagedGroup {
     markKeeped(name:string){
         this._keeped[name]=true;
     }
+    
     clearKeeped(name:string){
         this._keeped[name]=false;
     }
@@ -61,7 +67,7 @@ export class PagedGroup {
         const out=Array<string>();
         const paged=this._pageds[name];
         if (!paged) return [];
-
+        
         for (let key in this._pageds) {
             if (key==name) continue;
             if ( this._pageds[key].lastpage==paged.lastpage) {

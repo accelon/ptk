@@ -373,16 +373,17 @@ export function alignable(fn:string){
 
 	//only off can align with other off
 	if (!fn.endsWith(".off"))fn+=".off"
-	const at=this.header.sectionnames.indexOf(fn);
-	if (!~at) return out;
 	const H=this.header;
+	const at=H.sectionnames.indexOf(fn);
+	if (!~at) return out;
 	const length=H.sectionstarts[at+1]-H.sectionstarts[at]
 	for (let i=0;i<H.sectionnames.length;i++) {
 		const n=H.sectionnames[i];
 		if (i==at) continue;
 		const len=H.sectionstarts[i+1]-H.sectionstarts[i]
-		if (len==length) {
-			out.push(H.sectionnames[i].replace(".off",""))
+		if (len==length && n.match(/^[a-z]/) 
+			&& n.endsWith('.off') && n!==H.sectionnames[at]) {
+			out.push(n.replace(".off",""))
 		}
 	}
 	return out;

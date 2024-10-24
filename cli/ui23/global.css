@@ -120,3 +120,4 @@ a {color:var(--hyperlink)}
 .offtag_ak{color:var(--depthcolor3)}
 .offtag_l {text-decoration-line:underline;text-decoration-style:solid;}
 .dimtext {opacity:0.5}
+.overflowscroll {overflow-y:auto;height:95vh}
