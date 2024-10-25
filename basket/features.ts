@@ -1,6 +1,6 @@
 /* accelon 23 backend */
 import {columnField,inlineNote,rowOf,scanColumnFields,searchColumnField} from './columns.ts';
-import {parseQuery,scanText,scoreLine,hitsOfLine} from '../fts/query.ts';
+
 import {footNoteAddress,footNoteByAddress,footNoteInTSV} from './footnote.ts';
 import {foreignLinksAtTag,getParallelBook,getParallelLine,enumParallelsPtk} from './parallel.ts';
 import {addBacklinks, addForeignLinks } from './links.ts';
@@ -42,9 +42,7 @@ export const enableAccelon23Features=(ptk:any)=>{
     enableFootnoteFeature(ptk);
     ptk.scanColumnFields=scanColumnFields;
     ptk.searchColumnField=searchColumnField;
-    ptk.scanText=scanText;
-    ptk.parseQuery=parseQuery;
-    ptk.scoreLine=scoreLine;
+
     ptk.tagAtAction=tagAtAction;
 
     ptk.scanCache={};
@@ -61,7 +59,6 @@ export const enableAccelon23Features=(ptk:any)=>{
 
     ptk.backlinks={};
     ptk.rowOf=rowOf;
-    ptk.hitsOfLine=hitsOfLine;
   
     ptk.parallels={}; //parallels showing flag, ptkname:string, onoff:boolean
 }

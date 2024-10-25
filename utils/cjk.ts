@@ -200,8 +200,9 @@ export const sentenceFromRange=(str:string,pos:number)=>{
         if (isCJKChar(cp)) end++;
         else break;
     }
-
-    return [str.slice(start,end),(pos-start>=0?pos-start:0)]
+    let p=(pos-start>=0?pos-start:0);
+    let s=str.slice(start,end);
+    return [s,p]
 }
 export const sentencePosfromSelection=(oritext:string)=>{//supply oritext , might be simplified
     const sel=document.getSelection();

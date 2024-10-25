@@ -1,7 +1,6 @@
-import {Inverted,plContain,
+import {Inverted,plContain,parseQuery,scanText,scoreLine,hitsOfLine,
     searchSentence,searchSentenceSync,
     getPostings,loadPostingsSync,loadPostings} from '../fts/index.ts';
-
 
 
 export function postingLine(posting:number[]){
@@ -21,5 +20,9 @@ export const enableFTSFeature=(ptk:any)=>{
         ptk.postingline=postingLine;        
         ptk.searchSentenceSync=searchSentenceSync;   
         ptk.searchSentence=searchSentence;
+        ptk.parseQuery=parseQuery;
+        ptk.scanText=scanText;
+        ptk.hitsOfLine=hitsOfLine;
+        ptk.scoreLine=scoreLine;        
     }
 }

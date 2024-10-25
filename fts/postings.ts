@@ -37,5 +37,5 @@ const loadPostinglines=async (ptk,s:string)=>{
 export async function loadPostings(s:string){
     const ptk=this;
     await loadPostinglines(ptk,s);
-    return ptk.loadPostings.call(ptk,s);
+    return ptk.loadPostingsSync.call(ptk,s);
 }	

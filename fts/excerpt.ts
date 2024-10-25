@@ -15,7 +15,7 @@ export const listExcerpts=async (ptk,tofind,opts={})=>{
 
     const [phrases,postings]=await ptk.parseQuery(tofind,{tosim:ptk.attributes.lang=='zh'});
     let chunkobj={}, lineobj={},hitcount=0;
-    const chunklinepos=ptk.defines.ck.linepos;
+    const chunklinepos=(ptk.defines.ck||ptk.defines.dk).linepos;
     for (let i=0;i<postings.length;i++) {
         const pl=plTrim(postings[i], sectionfrom,sectionto);
         const [pllines,lineshits]=plContain(pl,ptk.inverted.tokenlinepos,true);

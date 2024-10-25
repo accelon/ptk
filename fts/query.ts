@@ -178,11 +178,11 @@ const tofindInSentence=(sentence:string,pos=0,len=0)=>{
     if (sentence.length<4) tofinds.push(sentence)
     for (let i=pos;i<=sentence.length;i++) {
         let t=sentence.slice(pos,i);
-        if (t.length>1) tofinds.push(t);
+        if (t.length>1) tofinds.push(t.trim());
         t=sentence.slice(pos-1,i);
-        if (t.length>1) tofinds.push(t);
+        if (t.length>1) tofinds.push(t.trim());
         t=sentence.slice(pos+1,i);
-        if (t.length>1) tofinds.push(t);
+        if (t.length>1) tofinds.push(t.trim());
         if (t.length>5) continue;
     }
     return unique(tofinds);
@@ -232,7 +232,7 @@ export async function searchSentence(sentence:string,pos=0,len=0){
     return statSentencePhrase(tofinds,out);
 }
 export function searchSentenceSync(sentence:string,pos=0,len=0){
-    const tofinds=tofindInSentence(sentence.trim(),pos,len);
+    const tofinds=tofindInSentence(sentence,pos,len);
     const out=tofinds.map(it=>phraseQuerySync.call(this,it));   
     return statSentencePhrase(tofinds,out);
 }
