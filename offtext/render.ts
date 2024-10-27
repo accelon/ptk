@@ -139,7 +139,7 @@ export const renderOfftext=(linetext='', opts={})=>{
     return [runits,ot];
 }
 
-export const abridgeRenderUnits=(runits:RenderUnit[], minwidth=20)=>{
+export const abridgeRenderUnits=(runits:RenderUnit[], minwidth=10)=>{
     const out=[];
     let abridged=[];
     const addAbridge=(final=false)=>{
