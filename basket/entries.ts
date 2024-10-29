@@ -2,22 +2,20 @@ import { parsePageBookLine, parseTransclusion, unitize } from "../offtext/parser
 import { fromObj } from "../utils/sortedarray.ts";
 export const buildYToc=(ptk,book)=>{
     const Y=ptk?.defines.y;
-
     if (!Y) return [];
     const ID=Y.fields.id;
     const out=[];
     const [from,to]=ptk.rangeOfAddress('bk#'+book)
+    const DK=ptk.defines.dk;
     for (let i=0;i<ID.values.length;i++) {
         const linepos=Y.linepos[i]
         if (linepos<from || linepos>to) continue;
-        const t=Y.getInnertext(i);
-        if (t) {
-            const caption='^y'+ID.values[i]+'《'+t+'》';
-            const at=ptk.nearestTag( linepos+1,'dk');
-            const page=parseInt(ptk.defines.dk.fields.id.values[at]);
-            const line=linepos-ptk.defines.dk.linepos[at];
-            out.push({caption,page,line})
-        }
+        const at=ptk.nearestTag( linepos+1,'dk');
+        const page=parseInt(DK.fields.id.values[at]);
+        const line=linepos-DK.linepos[at];
+        const t=Y.getInnertext(i)||captionOfPage(ptk,book,page,line);
+        let caption='^y'+ID.values[i]+'《'+t+'》';
+        out.push({caption,page,line})
     }
     return out;
 }
@@ -62,9 +60,10 @@ export const pageBookLineOfAnchor=(anchor,ptk)=>{
 
 export const yidarrInRange=(ptk,s,e)=>{
     const [first,last]=ptk.tagInRange("y",s,e);
-    const idarr=ptk.defines.y.fields.id.values;
-    const linepos=ptk.defines.y.linepos;
+    const idarr=ptk.defines.y?.fields.id.values;
+    const linepos=ptk.defines.y?.linepos;
     const out=[];
+    if (!idarr||!linepos) return []
     for (let i=first;i<=last;i++) {
         out[linepos[i]-s]="y"+idarr[i];
     }
