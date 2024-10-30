@@ -15,6 +15,7 @@ generic:
 ^:wiki
 ^:baidu
 ^:note
+^:miss
 ^:png<id=text src=text>
 ^:svg<id=text>
 ^:uiicon<id=text>

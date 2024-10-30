@@ -26,12 +26,12 @@ export const JSONParse=(str:string)=>{ //parse a loss json
 
 export const humanBytes=(n:number):[number,string]=>{
     if (n<1024) {
-        return [n,'b'];
+        return [n,'B'];
     }
     if (n<1024*1024) {
-        return [parseFloat((n/1024).toFixed(2)) ,'kb'];
+        return [parseFloat((n/1024).toFixed(2)) ,'KB'];
     } else {
-        return [parseFloat((n/(1024*1024)).toFixed(2)),'mb'];
+        return [parseFloat((n/(1024*1024)).toFixed(2)),'MB'];
     }
 }
 export function debounce(f,ms){
