@@ -171,6 +171,9 @@ export function hitsOfLine(line,allpostings){
 }
 
 const tofindInSentence=(sentence:string,pos=0,len=0)=>{
+    if (pos==-1) {
+        return [sentence];
+    }
     let tofinds=Array<string>();
     if (len>0) {
         return [sentence.slice(pos,pos+len)];

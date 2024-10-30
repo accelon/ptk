@@ -17,7 +17,6 @@ export class Paged{
     private handle:FileSystemHandle;
     private pagetexts:Array<string>;
     private pagenames:Array<string>;
-    private rawheader:string;//keep the comment #
     header:{};
     private dirty:number;
     name:string;
@@ -27,7 +26,6 @@ export class Paged{
         this.pagetexts= Array<string>();
         this.header={};
         this.log=[];
-        this.rawheader='';
         this.dirty=0;
     }
     get lastpage() {return this.pagetexts.length-1}
@@ -83,7 +81,7 @@ export class Paged{
         const out={};
         const lines=text.split('\n')
         for (let i=0;i<lines.length;i++) {
-            const line=lines[i];
+            const line=lines[i].trim();
             const ch=line.charAt(0);
             if (ch==='#') continue;
             if (ch==='{') {
