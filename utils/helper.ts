@@ -19,3 +19,6 @@ export const loadUrl=async (url:string)=>{
     }
     return text;
 }
+export const urlPrefix=()=>{
+    return location.href.slice(0,location.href.length-location.search.length).replace(/index.html$/,'')
+}

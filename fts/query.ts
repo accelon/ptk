@@ -235,6 +235,7 @@ export async function searchSentence(sentence:string,pos=0,len=0){
     return statSentencePhrase(tofinds,out);
 }
 export function searchSentenceSync(sentence:string,pos=0,len=0){
+    if (!sentence.trim()) return [];
     const tofinds=tofindInSentence(sentence,pos,len);
     const out=tofinds.map(it=>phraseQuerySync.call(this,it));   
     return statSentencePhrase(tofinds,out);

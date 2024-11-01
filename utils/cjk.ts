@@ -183,13 +183,16 @@ export const extractIDS=line=>{
     })
     return out;
 }
+export const isWordChar=(cp)=>{
+    return (cp>=0x41 && cp<=0x5a) ||(cp>=0x61&&cp<=0x7a)
+    || (cp>=0xc0&&cp<=0x2af)||(cp>=0x370&&cp<0x10ff) ||(cp>=0x1E00&&cp<0x1fff);
+}
 
-
-export const sentenceFromRange=(str:string,pos:number)=>{
+export const sentenceFromRange=(str:string,pos:number,func=isCJKChar)=>{
     let start=pos,end=pos;
     while (start>0) {
         let cp=str.charCodeAt(start);
-        if (!isCJKChar(cp)) {
+        if (!func(cp)) {
             start++;
             break;
         }
@@ -197,16 +200,24 @@ export const sentenceFromRange=(str:string,pos:number)=>{
     }
     while(end<str.length) {
         let cp=str.charCodeAt(end);
-        if (isCJKChar(cp)) end++;
+        if (func(cp)) end++;
         else break;
     }
-    let p=(pos-start>=0?pos-start:0);
     let s=str.slice(start,end);
+    while (s.charAt(0)==' ') {
+        s=s.slice(start+1)
+        start++;        
+    }
+    const p=(pos-start>=0?pos-start:0);
     return [s,p]
 }
 export const sentencePosfromSelection=(oritext:string)=>{//supply oritext , might be simplified
     const sel=document.getSelection();
     const range=sel.getRangeAt(0);
-    const [sentence,pos]=sentenceFromRange(oritext||sel.anchorNode.data,range.startOffset);
+    let [sentence,pos]=sentenceFromRange(oritext||sel.anchorNode.data,range.startOffset);
+    if (!sentence) {
+        //try sanskrit/english
+        [sentence,pos]=sentenceFromRange(oritext||sel.anchorNode.data,range.startOffset, isWordChar);
+    }
     return [sentence,pos,range.endOffset-range.startOffset];
 }

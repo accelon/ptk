@@ -2,7 +2,9 @@ import {plTrim,plContain} from '../fts/posting.ts';
 import {MAXPHRASELEN} from '../fts/constants.ts';
 import {fromObj,bsearchNumber} from '../utils/index.ts';
 export const listExcerpts=async (ptk,tofind,opts={})=>{
-    const tlp=ptk.inverted.tokenlinepos;
+    if (!ptk) return {}
+    const tlp=ptk.inverted?.tokenlinepos;
+    if (!tlp) return {};
     let sectionfrom=0,sectionto=0;
     if (opts.range) {
         const [first,last]=ptk.rangeOfAddress(opts.range);
@@ -38,7 +40,7 @@ export const listExcerpts=async (ptk,tofind,opts={})=>{
             if (!lineobj[line]) lineobj[line]=[];
             lineobj[line].push( ...lineshits[j].map(it=>it*MAXPHRASELEN + phraselen)  );
             
-            const at=bsearchNumber(chunklinepos, line)-1;
+            const at=bsearchNumber(chunklinepos, line+1)-1;
             if (!chunkobj[at]) {
                 chunkobj[ at ]=0;
             }
