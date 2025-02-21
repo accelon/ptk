@@ -13,9 +13,6 @@ generic:
 ^:j<@=link>
 ^:k<id=text>
 ^:wiki
-^:baidu
-^:note
-^:miss
 ^:png<id=text src=text>
 ^:svg<id=text>
 ^:uiicon<id=text>
@@ -42,7 +39,28 @@ generic:
 ^:audio
 ^:clip
 ^:img
-^:sz`,
+^:sz
+^:sc
+^:missing
+^:misalign
+^:ff
+^:part
+^:vaggo
+^:errorpunc
+^:puncerror
+^:error
+^:doubt
+^:tofix
+^:add
+^:pg
+^:swap
+^:move
+^:baidu
+^:note
+^:miss
+^:person
+^:diff
+^:corr`,
 cbeta:
 `^:ak<id=unique bracket=false>
 ^:bk<id=unique heading=text bracket=false reset=ck,p>
