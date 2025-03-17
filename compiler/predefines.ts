@@ -7,6 +7,7 @@ generic:
 ^:dk<id=unique>
 ^:p<id=text>
 ^:n<id=number>
+^:folio<id=number>
 ^:m<id=text>
 ^:juan<id=number>
 ^:o<@=link>
