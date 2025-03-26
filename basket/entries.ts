@@ -175,7 +175,7 @@ export const getSliceText=(bk:string,pg:string,ptk,getPageText)=>{
             const [s,e]=ptk.rangeOfAddress('bk#'+bk+'.y#'+page.slice(1));
             const lines=ptk.slice(s,e);
             const yidarr=yidarrInRange(ptk,s,e);
-            const numberpage=ptk.nearestTag(s,"dk");
+            const numberpage=ptk.nearestTag(s+1,"dk");
             const lineoff=s-ptk.defines.dk.linepos[numberpage]
             const lineinfo=[];
             const book=ptk.nearestTag(s+1,'bk','id');

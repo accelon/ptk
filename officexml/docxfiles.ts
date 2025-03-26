@@ -15,6 +15,7 @@ const docx2offtext=async (ctx,fn)=>{
     const out=processDocument(await zip.file('word/document.xml').async('string'),ctx);
     if (!ctx.output) ctx.output={};
     ctx.output[filename]=out;
+    ctx.currentoutput=out;
 }
 export const processDocuments=async (ctx)=>{ //JSZip.loadAsync
     const t=new Date();
@@ -26,7 +27,7 @@ export const processDocuments=async (ctx)=>{ //JSZip.loadAsync
         } else {
             await docx2offtext(ctx,item);
         }
+        ctx.onDocEnd&& ctx.onDocEnd(ctx,item);
     }    
-    ctx.postProcess&& ctx.postProcess(ctx);
     console.log('time elapsed',new Date()-t)
 }
