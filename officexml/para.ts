@@ -32,13 +32,16 @@ export const dumppara=(para,ctx)=>{
             let arr=child.children;
             //憲法 第22條（基本人權保障）相關解釋 nested hyperlink
             out+=open(attrs)
-            if (arr[0].name=='w:hyperlink') {
-                let h='';
+            let h='';
+            if (arr[0]?.name=='w:hyperlink') {
                 for (let j=0;j<arr[0].children.length;j++) {
                     h+= dumprun(arr[0].children[j]);
-                }
-                out+=h;
-            }           
+                }                
+            }
+            for (let j=0;j<arr.length;j++) {
+                if (arr[j].name=='w:r') h+= dumprun(arr[j]);
+            }
+            out+=h;
             out+=close(attrs)
         } else if (child.name=='w:pPr') {
              for (let i=0;i<child.children.length;i++) {
@@ -51,6 +54,7 @@ export const dumppara=(para,ctx)=>{
             out+=open(attrs)
         }
     }
-    out+= closepara?closepara(para.attrs):''
+    out+=closepara?closepara(para.attrs):''
+    out=ctx.onPara?ctx.onPara(ctx,out):'';
     return out;
 }

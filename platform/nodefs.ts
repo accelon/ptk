@@ -1,5 +1,5 @@
 /* browser should not include this file*/
-import {fromObj,alphabetically} from '../utils/sortedarray.ts';
+import {fromObj} from '../utils/sortedarray.ts';
 import {humanBytes} from '../utils/index.ts';
 import {grey,green} from '../cli/colors.cjs'; // lukeed/kleur
 export {filesFromPattern} from "./fsutils.ts"

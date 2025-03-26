@@ -2,7 +2,8 @@ export const getRels=(children,ctx)=>{
     const out={};
     for (let i=0;i<children.length;i++) {
         const attrs=children[i].attrs;
-        let target=attrs['Target']
+        if (!attrs) continue;
+        let target=(attrs['Target']||'')
         .replace('.docx','')
         .replace('../law/','')
         .replace('../law1/','')
@@ -10,7 +11,7 @@ export const getRels=(children,ctx)=>{
         .replace('../law3/','')
 
         if (ctx.idmap[target]) target=ctx.idmap[target];
-        out[ attrs['Id']] =  target;
+        if (target)out[ attrs['Id']] =  target;
     }  
     return out;
 }

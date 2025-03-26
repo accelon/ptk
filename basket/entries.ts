@@ -45,15 +45,16 @@ export const captionOfPage=(ptk,bk,page,line=0,bookname=false)=>{
     }
     return (bookname?(ptk.BookNameById[bk]+'．') :'')+caption;
 }
-export const pageBookLineOfAnchor=(anchor,ptk)=>{
-    const [xyidline,book]=anchor.split('@');
+export const pageBookLineOfAnchor=(anchor,ptk,bk)=>{
+    let [xyidline,book]=anchor.split('@');
+    book=book||bk;
     let [xyid,loff]=xyidline.split('.');
     loff=parseInt(loff)||0;
     const [bookstart]=ptk.rangeOfAddress('bk#'+book);
     const [s,e]=ptk.rangeOfAddress('bk#'+book+'.y#'+xyid.slice(1));
-    let bookat=ptk.nearestTag(bookstart,"dk");
+    let bookat=ptk.nearestTag(bookstart+1,"dk");
     if (bookat<0) bookat=0;
-    const numberpage=ptk.nearestTag(s,"dk")-bookat;
+    const numberpage=ptk.nearestTag(s+1,"dk")-bookat;
     const lineoff=s-ptk.defines.dk.linepos[numberpage]+loff;
     return numberpage+'@'+book+ (lineoff?'.'+lineoff:'');
 }
@@ -114,7 +115,7 @@ export const getBookColumnText=(ptk,bk,key)=>{
     if (at==-1) return [-1,''];
     const dk=col.dkat[at];
     const [s,e]=ptk.rangeOfAddress('bk#'+bk+'.dk#'+dk);
-    return [at,ptk.slice(s,e).join('\n'),bk];
+    return [dk,ptk.slice(s,e).join('\n'),bk];
 }
 export const getAnyColumnText=(ptk,book,key)=>{
     if (!key) return [-1,''];
@@ -166,7 +167,7 @@ export const  pageFromPtk=(ptk,book,page)=>{
     return [text,lineinfo,page,s]
 }
 export const getSliceText=(bk:string,pg:string,ptk,getPageText)=>{
-        if (parseInt(pg).toString()==pg) {
+    if (parseInt(pg).toString()==pg) {
         return ptk?pageFromPtk(ptk,bk,pg):getPageText(pg,bk);
     } else if (ptk) {
         if (pg.startsWith('x')||pg.startsWith('y')) {
@@ -183,8 +184,8 @@ export const getSliceText=(bk:string,pg:string,ptk,getPageText)=>{
                 lineinfo[i]={yid:yidarr[i],locallinks:locallinks[s+i]}
             }
             return [lines.join('\n'),lineinfo,numberpage, lineoff];
-        } else {//fi
-            return columnTextByKey(ptk,pg,bk)
+        } else {
+            return columnTextByKey(ptk,pg,bk);
         }
     }
     return ['',[],0,0]
