@@ -26,8 +26,8 @@ export const processDocuments=async (ctx)=>{ //JSZip.loadAsync
             ctx.cwd=item.slice(3);
         } else {
             await docx2offtext(ctx,item);
+            ctx.onDocEnd&& ctx.onDocEnd(ctx,item);
         }
-        ctx.onDocEnd&& ctx.onDocEnd(ctx,item);
     }    
     console.log('time elapsed',new Date()-t)
 }
