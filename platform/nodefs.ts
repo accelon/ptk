@@ -1,7 +1,7 @@
 /* browser should not include this file*/
 import {fromObj} from '../utils/sortedarray.ts';
 import {humanBytes} from '../utils/index.ts';
-import {grey,green} from '../cli/colors.cjs'; // lukeed/kleur
+import {grey,green} from '../cli/colors.js'; // lukeed/kleur
 export {filesFromPattern} from "./fsutils.ts"
 export const makePitakaZip=async(arr:Uint8Array, writer)=>{
     arr[7] |= 0x80 ; //set the flag , so that we know it is a pitaka zip

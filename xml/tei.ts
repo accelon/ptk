@@ -1,5 +1,5 @@
 import { getInserts,insertText,toBase26 } from "../utils/index.ts";
-import { onOfftext } from "../xml/index.js";
+import { onOfftext } from "../xml/dom.ts";
 const unhide=ctx=>{ (ctx.hide?ctx.hide--:0) };
 
 export const onTextWithInserts=(el,ctx)=>{

@@ -61,7 +61,7 @@ export class ZipStore {
 
 			if (i===0) this.zipStart=offset; //before zipstart is RedBean 
 			offset+=ZipConst.fileHeaderLength+namelen; //skip the local file header
-			let content=new Uint8Array();
+			let content
 
 			const inbuf=centralOffset-coffset;
 			if (offset - inbuf>=0) {

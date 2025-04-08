@@ -19,3 +19,5 @@ dist
 *.csv
 *-xor
 test
+node_modules
+nodebundle.js

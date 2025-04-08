@@ -1,8 +1,8 @@
 import { parallelWithDiff } from '../align/parallels.ts';
 import {IAddress,usePtk} from '../basket/index.ts';
 import {parseCriteria} from '../fts/criteria.ts';
-import {IAction} from './interfaces.ts';
-export const ACTIONPAGESIZE=5;
+import {IAction,ACTIONPAGESIZE} from './interfaces.ts';
+
 export const EXCERPTACTIONPREFIX='*';
 export const GUIDEACTIONPREFIX='!';
 export const TITLECOUNTACTIONPREFIX='~';

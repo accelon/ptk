@@ -6,12 +6,12 @@
   "bin": "cli/bin.js",
   "main": "./index.ts",
   "scripts": {
-    "dev-cjs": "npx rollup node.ts --file nodebundle.js --format cjs --plugin @rollup/plugin-typescript -w",
-    "min-cjs": "npx rollup node.ts --file nodebundle.js --format cjs --plugin @rollup/plugin-typescript --minimize",
-    "dev": "npx rollup index.ts --file index.js --format cjs --plugin @rollup/plugin-typescript",
-    "build-cjs": "npx rollup node.ts --file nodebundle.js --format cjs --plugin @rollup/plugin-typescript --silent",
-    "build": "npx rollup node.ts --file index.js --format iife --plugin @rollup/plugin-typescript",
-    "build-browser": "npx rollup ptk.ts --format=iife --outfile=ptk.js",
+    "dev-cjs": "esbuild --platform=node --format=cjs --bundle --watch node.ts --outfile=nodebundle.cjs",
+    "min-cjs": "esbuild --platform=node --minify --format=cjs --bundle node.ts --outfile=nodebundle.min.cjs",
+    "dev": "esbuild --format=iife --bundle --watch index.ts --outfile=index.js",
+    "build-cjs": "esbuild --platform=node  --format=cjs --bundle node.ts --outfile=nodebundle.cjs",
+    "build": "esbuild --format=iife --bundle index.ts --outfile=index.js",
+    "build-browser": "esbuild --format=iife --bundle ptk.ts --outfile=ptk.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "repository": {

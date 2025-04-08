@@ -1,6 +1,6 @@
 import {diffChars} from 'diff';
 import {isPunc} from './cjk.ts'
-import {red,green} from '../cli/colors.cjs'; // lukeed/kleur
+import {red,green} from '../cli/colors.js'; // lukeed/kleur
 const CJKWordEnd_Reg=/([\u2e80-\u2fd5\u3041-\u3096\u30a1-\u319f\u3400-\u9fff\ud400-\udfff\ue000-\ufadf\uc000-\ud7ff]+$)/;
 export const diffCJK=(qstr, source, x,w)=>{ //source text is longer than qstr
     let qsrc=source.substr(x,w), adjusted=false;
