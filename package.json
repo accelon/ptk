@@ -6,10 +6,10 @@
   "bin": "cli/bin.js",
   "main": "./index.ts",
   "scripts": {
-    "dev-cjs": "npx rollup node.ts --file nodebundle.js --format cjs --plugin @rollup/plugin-typescript -w",
+    "dev-cjs": "npx rollup node.ts --file nodebundle.jsptk --format cjs --plugin @rollup/plugin-typescript -w",
     "min-cjs": "npx rollup node.ts --file nodebundle.js --format cjs --plugin @rollup/plugin-typescript --minimize",
     "dev": "npx rollup index.ts --file index.js --format cjs --plugin @rollup/plugin-typescript",
-    "build-cjs": "bun build node.ts >  nodebundle.cjs",
+    "build-cjs": "npx rollup node.ts --file nodebundle.cjs --format cjs --plugin @rollup/plugin-typescript --silent",
     "build": "npx rollup node.ts --file index.js --format iife --plugin @rollup/plugin-typescript",
     "build-browser": "npx rollup ptk.ts --format=iife --outfile=ptk.js",
     "test": "echo \"Error: no test specified\" && exit 1"
