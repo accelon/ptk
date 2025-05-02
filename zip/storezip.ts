@@ -21,10 +21,9 @@ export const storeZip=(inputs:ZipInput[], opts={})=>{
 	const centralRecords=[];
 	for (let i=0;i<inputs.length;i++) {
 		const {name,date,content}=inputs[i];
-		const contentarr=(typeof content=='string')?Buffer.from(content):content;
+		const contentarr=(typeof content=='string')?Buffer.from(content,'utf-8'):content;
 		const encodedname=encodeString(name);
-		let crc=crc32(content);
-		// console.log('storing',crc,content.subarray(0,16),content.length)
+		let crc=crc32(contentarr);
 		const fileoffset=offset;
 		const header=fileHeader(encodedname, contentarr.length, date || datenow , crc);
 		zipbuf.set(header, offset); 	offset+=header.length;
@@ -33,7 +32,7 @@ export const storeZip=(inputs:ZipInput[], opts={})=>{
 		const rec=centralHeader(encodedname, contentarr.length, date|| datenow,crc, fileoffset );
 		centralRecords.push(rec);
     	centralRecords.push(encodedname);
-    	centralSize+=  rec.length+ encodedname.length ;
+    	centralSize+=rec.length+ encodedname.length ;
 	}
 	const centralOffset=offset;
     for (const record of centralRecords) {
