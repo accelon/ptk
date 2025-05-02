@@ -1,6 +1,6 @@
 import { loadScript,parseJsonp } from "../utils/loadscript.ts";
 import {poolGet} from '../basket/pool.ts';
-const pagefilename=page=>page.toString().padStart(3,'0')+'.js';
+export const pagefilename=page=>page.toString().padStart(3,'0')+'.js';
 const makePageURI=(folder,page)=>{
     const fn=folder+'/'+pagefilename(page);
     return fn;
@@ -25,13 +25,9 @@ export async function loadRemoteZip (page){
 }
 
 export async function loadInMemoryZipStore (page) { 
-    let content;
     const fn=this.name+'/'+pagefilename(page);
-    for (let i=0;i<this.zipstore.files.length;i++) {
-        if (this.zipstore.files[i].name==fn) {
-            content=new TextDecoder().decode(this.zipstore.files[i].content);
-        }
-    }
+    const f=this.zipstore.find(fn)
+    const content=f&&new TextDecoder().decode(f.content);
     content&&this.setPage(page,...parseJsonp(content));
 }
 

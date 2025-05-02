@@ -30,6 +30,7 @@ export class ZipStore {
 			this.loadFiles(fileCount,centralSize,centralOffset);
 		}
 	}
+
 	private loadFiles(fileCount:number,centralSize:number,centralOffset:number){
 		//calculate centraloffset from end of buffer , 
 		//an partial zip buf is smaller than value specified in endRecord
@@ -68,6 +69,13 @@ export class ZipStore {
 				content= this.zipbuf.subarray(offset-inbuf,offset-inbuf+size);
 			} // else host will do lazy loading
 			this.files.push({name,offset,size,content});       //offset and size of actual data in the zip image
+		}
+	}
+	find(name:string){
+		for (let i=0;i<this.files.length;i++) {
+			if (this.files[i].name==name) {
+				return this.files[i];
+			}
 		}
 	}
 	private loadEndRecord(){

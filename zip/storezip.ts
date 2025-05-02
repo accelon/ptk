@@ -2,7 +2,7 @@
 import {encodeString,makeBuffer, clampInt16,clampInt32,makeUint8Array,crc32} from './utils.ts'
 import {fileHeader,ZipConst,centralHeader} from './format.ts'
 interface ZipInput {
-	filename:string,
+	name:string,
 	content:Uint8Array,
 	date:Date,
 }
@@ -21,10 +21,10 @@ export const storeZip=(inputs:ZipInput[], opts={})=>{
 	const centralRecords=[];
 	for (let i=0;i<inputs.length;i++) {
 		const {name,date,content}=inputs[i];
-		const contentarr=content
-		//const contentarr= (typeof content=='string')?new TextEncoder().encode(content):content;
+		const contentarr=(typeof content=='string')?Buffer.from(content):content;
 		const encodedname=encodeString(name);
-		let crc=crc32(contentarr);
+		let crc=crc32(content);
+		// console.log('storing',crc,content.subarray(0,16),content.length)
 		const fileoffset=offset;
 		const header=fileHeader(encodedname, contentarr.length, date || datenow , crc);
 		zipbuf.set(header, offset); 	offset+=header.length;
