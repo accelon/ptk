@@ -20,6 +20,7 @@ export const makeLineBaser=async (sourcebuffers,compiler:Compiler,contentGetter:
 	const lbaser=new LineBaser();
 	if (compiler) compiler.reset();
 	else compiler=new Compiler();
+	
 	const indexer=new Indexer();
 	const alltagdefs=compiler.tagdefs.concat([]); //add built-in defines to 000.js payload
 
@@ -90,7 +91,6 @@ export const makeLineBaser=async (sourcebuffers,compiler:Compiler,contentGetter:
 		compiler.ptkname=new Date();
 	 	return {err:"missing ptk name"};	
 	 }
-
 	writeTypedefs(lbaser,compiler.typedefs)
 
 	lbaser.setName(compiler.ptkname);

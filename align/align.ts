@@ -7,10 +7,11 @@ export const toParagraphs=(L,opts={})=>{
     const bkpf=(opts.bkid||'').replace(/\..+$/,'');
 
     for (let i=0;i<L.length;i++) {
-        if (L[i].indexOf('^n')>-1 && L[i].substr(0,3)!=='^n ') {
-            const id=L[i].match(/\^n([\d\-\.]+)/);
+        const line=L[i]||''
+        if (line.indexOf('^n')>-1 && line.substr(0,3)!=='^n ') {
+            const id=line.match(/\^n([\d\-\.]+)/);
             if (!id) {
-                console.log('no id',L[i],i)
+                console.log('no id',line,i)
             }
             if (pid) {
                 out.push([pid,unbreak?removeSentenceBreak(lines):lines]);
@@ -18,7 +19,7 @@ export const toParagraphs=(L,opts={})=>{
             }
             pid=(bkpf?bkpf+'.':'')+id[1];
         }
-        lines.push(L[i]);
+        lines.push(line);
     }
     out.push([pid,unbreak?removeSentenceBreak(lines):lines]);
     return out;

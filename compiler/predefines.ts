@@ -6,7 +6,9 @@ generic:
 ^:ck<id=unique heading=text bracket=false>
 ^:dk<id=unique>
 ^:p<id=text>
+^:b<bracket=false>
 ^:n<id=number>
+^:pn<id=text>
 ^:folio<id=number>
 ^:m<id=text>
 ^:juan<id=number>
@@ -83,6 +85,8 @@ cs:
 ^:bk<id=unique heading=text bracket=false>
 ^:ck<id=unique heading=text bracket=false>
 ^:n<id=unique resetby=bk>
+^:p<id=number>
+^:ti<id=number heading=text bracket=false>
 ^:f<id=number>
 ^:h
 ^:sz

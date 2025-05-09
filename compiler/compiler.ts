@@ -71,7 +71,7 @@ export class Compiler{
 		this.reset(opts);
 	}
 	reset(opts={}){
-		this.ptkname='';
+		//this.ptkname=''; do not reset ptkname
 		this.compilingname='';
 		this.line=0;
 		this.compiledLine=0;
@@ -134,7 +134,8 @@ export class Compiler{
 					} else {
 						const typedef=this.typedefs[tag.name];
 						if (!typedef) {
-							console.error('unknown tag\n',str, tag.name)
+							console.error('unknown tag\n', tag.name)
+							debugger
 							//this.onError(VError.TypeTagName);
 						} else {
 							const newtag=typedef.validateTag(ot,tag , this.line,this.compiledLine,this.compiledFiles, this.onError.bind(this));
@@ -182,6 +183,8 @@ export class Compiler{
 			}
 			attributes=tag.attrs;
 		}
+
+
 		const linestart=this.compiledLine;
 		if (sourcetype===SourceType.TSV) {
 			const [text,tags]=parseOfftext(firstline);
@@ -213,6 +216,9 @@ export class Compiler{
 			let linetext=sa.first();
 			if (consumed) linetext=sa.next();
 			this.line=0; //for debugging showing line from begining of offtext file
+			if (!Object.keys(tagdefs).length) {
+				this.setPredefine();//use generic incase 0.off not exists
+			}
 			while (linetext || linetext==='') {
 				const o=this.compileOfftext(linetext, tagdefs);
 				if (o || o=='') {
