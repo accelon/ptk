@@ -109,12 +109,11 @@ export class Typedef {
 	validateTag(offtext:Offtext, tag:IOfftag , line:number, compiledLine:number , compiledFiles, onError) {
 		if (this.fields.id || this.fields['@'] ||this.fields.ln || this.attrs.savelinepos) { //auto save linepos if validating id
 			this.linepos.push(compiledLine+line);
-		}
-		
+		}	
 		if (this.attrs.bracket) { // false to keep the bracket
 			let tagtext=offtext.tagText(tag);
 			if (!tagtext) { //use entire line as innertext
-				tagtext=offtext.plain.trim();
+				tagtext=offtext.plain.trim()||"noname";
 			}
 			if (this.attrs.bracket!=='true') tagtext=removeBracket(tagtext);
 			this.innertext.push(tagtext.slice(0,15));

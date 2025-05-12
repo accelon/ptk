@@ -7,7 +7,6 @@ import {Typedef} from './typedef.ts'
 import {VError,MAX_VERROR} from './error.ts'
 import {predefines} from './predefines.ts'
 import {packInt, packIntDelta } from '../utils/packintarray.ts';
-import {unique} from '../utils/sortedarray.ts'
 import {checkFootnote} from './footnotes.ts';
 import {IOfftag} from '../offtext/index.ts'
 
@@ -108,12 +107,11 @@ export class Compiler{
 			let tagstr=str.slice(tag.offset,tag.end);
 			if (tag.name[0]==':' && tag.name.length>1) {
 				const newtagname=tag.name.slice(1);
-				//if (this.typedefs[newtagname]) {
-					//this.onError(VError.TypeRedef, newtagname);
-				//} else {
-				//just redefine without warning
+				if (this.typedefs[newtagname]) {
+					this.onError(VError.TypeRedef, newtagname);
+				} else {
 					this.typedefs[newtagname]= new Typedef(tag.attrs,newtagname,this.primarykeys, this.typedefs);
-				//}
+				}
 				tagdefs.push(tagstr);
 			} else {
 				if (tag.name[0]=='z') {
@@ -183,6 +181,9 @@ export class Compiler{
 			}
 			attributes=tag.attrs;
 		}
+		if (!Object.keys(this.tagdefs).length) {
+			this.setPredefine();//use generic incase 0.off not exists
+		}
 
 
 		const linestart=this.compiledLine;
@@ -216,9 +217,6 @@ export class Compiler{
 			let linetext=sa.first();
 			if (consumed) linetext=sa.next();
 			this.line=0; //for debugging showing line from begining of offtext file
-			if (!Object.keys(tagdefs).length) {
-				this.setPredefine();//use generic incase 0.off not exists
-			}
 			while (linetext || linetext==='') {
 				const o=this.compileOfftext(linetext, tagdefs);
 				if (o || o=='') {

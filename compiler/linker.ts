@@ -23,7 +23,7 @@ export const makeLineBaser=async (sourcebuffers,compiler:Compiler,contentGetter:
 	
 	const indexer=new Indexer();
 	const alltagdefs=compiler.tagdefs.concat([]); //add built-in defines to 000.js payload
-
+	
 	for (let i=0;i<sourcebuffers.length;i++) {
 		const buf=sourcebuffers[i];
 		if (!buf) {
@@ -45,6 +45,7 @@ export const makeLineBaser=async (sourcebuffers,compiler:Compiler,contentGetter:
 		const {name,caption,errors,processed,samepage,
 			lazy,tagdefs,textstart,sourcetype}=compiler.compiledFiles[buf.name];
 
+		
 		alltagdefs.push(...tagdefs);
 		if (!lazy) lbaser.header.preload.push(name);
 		lbaser.append(processed,{name:name.replace('*',''),samepage,sourcetype});
