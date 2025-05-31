@@ -15,7 +15,7 @@ export const dobuild=async (files, opts={})=>{
 	console.log('input', filecount,'files', list,((filecount>list.length)?'...':'')  );
 	const outdir=opts.outdir||'';
 	const indir=opts.indir||'';
-	let lbaser=new LineBaser();
+	let lbaser;
 	let  css='';
 	const compiler=new Compiler();
 
@@ -47,6 +47,7 @@ export const dobuild=async (files, opts={})=>{
 		}
 		process.stdout.write('\r adding'+files[i]+ '  '+(i+1)+'/'+files.length+'        ');
 	}
+	compiler.ptkname=opts.ptkname; //incase no 0.off
 	lbaser=await PTK.makeLineBaser(sources,compiler);
 
 	css=css||PTK.cssSkeleton(compiler.typedefs, compiler.ptkname);
@@ -55,7 +56,6 @@ export const dobuild=async (files, opts={})=>{
 	process.stdout.write('\r');
 	const folder=outdir+lbaser.name+'/';
 	if (!fs.existsSync(folder) && opts.jsonp) fs.mkdirSync(folder);
-
 	if (typeof lbaser=='string') { //fatal
 		console.log(red(lbaser))
 	} else {

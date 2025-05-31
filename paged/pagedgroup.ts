@@ -70,7 +70,9 @@ export class PagedGroup {
         
         for (let key in this._pageds) {
             if (key==name) continue;
-            if ( this._pageds[key].lastpage==paged.lastpage) {
+            if ( this._pageds[key].lastpage==paged.lastpage
+              //  || name.replace(/_[a-z][a-z]$/,'')==key.replace(/_[a-z][a-z]+$/,'') //same prefix, assume langauge code 2 chars
+            ) {
                 out.push( key )
             }
         }

@@ -133,7 +133,6 @@ export class Compiler{
 						const typedef=this.typedefs[tag.name];
 						if (!typedef) {
 							console.error('unknown tag\n', tag.name)
-							debugger
 							//this.onError(VError.TypeTagName);
 						} else {
 							const newtag=typedef.validateTag(ot,tag , this.line,this.compiledLine,this.compiledFiles, this.onError.bind(this));
