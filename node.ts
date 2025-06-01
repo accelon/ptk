@@ -1,6 +1,5 @@
 export * from './index.ts'
 export * from './platform/nodefs.ts'
-export * from './utils/testutils.ts'
 export * from './align/index.ts'
 export * from './pali/index.ts'
 export * from './xml/index.ts'
