@@ -268,8 +268,12 @@ export const removeSubPara=paralines=>{
     return out;
 }
 export const autoEnglishBreak=line=>{// insert \n 
-    return line.replace(/(.{5})([\.\?\!”:\"\–]) ([‘“A-W\"])/g,"$1$2\n $3")
+    return line.replace(/([^ ]{5})([\.\?\!”:\"\–]) ([‘“A-W\"])/g,"$1$2\n $3")
 }
+export const autoSanskritBreak=line=>{// insert \n 
+    return line.replace(/(.{10})([\?\.\!”:\"\–\/\|]+) /g,"$1$2\n ")
+}
+
 export const autoChineseBreak=line=>{// insert \n
     return line.replace(/([！。？][』」”’〕]+)/g,"$1\n")
     .replace(/([^。？；：\d]{4,15})([？；：])/g,"$1$2\n")

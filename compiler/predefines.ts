@@ -9,6 +9,12 @@ generic:
 ^:b<bracket=false>
 ^:n<id=number>
 ^:pn<id=text>
+^:ii<bracket=false>
+^:quote
+^:fig<bracket=false>
+^:image
+^:quotei
+^:s<bracket=false>
 ^:folio<id=number>
 ^:m<id=text>
 ^:juan<id=number>
