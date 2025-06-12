@@ -3,7 +3,7 @@ import {bsearch} from '../utils/bsearch.ts'
 import {alphabetically} from '../utils/sortedarray.ts'
 import {enumBases} from './stem.ts'
 import {removeSubstring} from '../utils/array.ts'
-import {fromIAST,toIAST,lexify,syllablify,formulate,orthOf} from 'provident-pali'
+import {fromIAST,toIAST,lexify,syllablify,formulate,orthOf} from '../provident-pali'
 
 
 export class Formula {

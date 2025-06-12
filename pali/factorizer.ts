@@ -1,4 +1,4 @@
-import {parseFormula,orthOf,LEX_REG_G, lexemeOf} from 'provident-pali' 
+import {parseFormula,orthOf,LEX_REG_G, lexemeOf} from '../provident-pali' 
 /* cannot work in side offtag */
 const markupLex=(lex,showlexeme)=>{
 	let s='',left,right;

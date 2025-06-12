@@ -1,4 +1,5 @@
 ﻿#!/usr/bin/env node
+const version='2025.6.12'
 import * as colors from './colors.cjs'; // lukeed/kleur
 const {blue,yellow,red,cyan,underline,magenta,green} = colors;
 
@@ -19,6 +20,7 @@ import {sentbuilder} from './sent.js'
 import Path from 'path';
 import {js,ptk,com,builder} from './builder.js'
 import {ui23} from './ui23.js';
+import {toiast,toppli} from './ppli.js';
 //import {brk} from './brk.js';
 await PTK.nodefs;
 
@@ -71,7 +73,7 @@ const help=()=>{
     console.log(underline('Making Pitaka 制作'));
     console.log('$',yellow('ptk ptk '),magenta('ptkname'), 'pack into a ptk file(zip)   打包成ptk(zip)文件',cyan('ptkname.ptk'))
     console.log('$',yellow('ptk js  '),magenta('ptkname'), '*.js files output to   输出js文件到 ',cyan('ptkname'));
-   console.log('$',yellow('ptk sent     '),magenta('ptkname'),'read offtext and generate sent.tsv, 從 off 產生 sent.tsv');
+   console.log('$',yellow('ptk sent'),magenta('ptkname'),'read offtext and generate sent.tsv, 從 off 產生 sent.tsv');
     console.log('$',yellow('ptk dump'),magenta('ptkname'),'倒出 ptk 內容');
 
     //console.log('$',yellow('ptk com [lstfile]'),magenta('ptkname'),  'stand-alone executable 制造自足程序 ',cyan('ptkname.com'))
@@ -107,11 +109,13 @@ const help=()=>{
 
     console.log('$',yellow('ptk cbeta    '),cyan('filename|string'),'convert cbeta address');
     console.log('$',yellow('ptk addn     '),cyan('filename'),'add ^n');
-    console.log('$',yellow('ptk copyn  '),cyan('filename'),cyan('targetfile'),'migrate n ');
+    console.log('$',yellow('ptk copyn    '),cyan('filename'),cyan('targetfile'),'migrate n ');
 
     console.log('$',yellow('ptk ui23     '),cyan('name'),cyan('dev-port=5001'),'create scaffold ui32 in cwd');
+    console.log('$',yellow('ptk toppli   '),cyan('filenamename'),'convert romanized to provident');
+    console.log('$',yellow('ptk toiast '),cyan('filenamename'),'convert provident to romanized');
 
-    console.log('PTK-CLI ver',green('2023.5.15'));
+    console.log('PTK-CLI ver',green(version));
 }
 const test=()=>{
     console.log(PTK.sentencize('我是一^f#4<xxx>，個句子'));
@@ -120,7 +124,7 @@ const elapses=['ptk','js','sent','adb2zip','dumpxml','dump']
 try {
     console.time('elapsed')
     await ({'--help':help,'-h':help,ptk,js,com,dedup,unique,listwords,cbeta,align,crlf,sent,test,ui23,copytag,
-    union,ngram,intersect,xor,xmltag,tei,dumpxml,dump,markj,markid,adb2zip,ts,addn,copyn})[cmd](arg,arg2,arg3);
+    union,ngram,intersect,xor,xmltag,tei,dumpxml,dump,markj,markid,adb2zip,ts,addn,copyn,toiast, toppli})[cmd](arg,arg2,arg3);
     if (~elapses.indexOf(cmd)  ) {
         console.log('\n')
         console.timeEnd('elapsed')

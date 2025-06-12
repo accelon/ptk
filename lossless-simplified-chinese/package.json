@@ -1,0 +1,21 @@
+{
+  "name": "lossless-simplified-chinese",
+  "version": "0.1.0",
+  "description": "無損、可逆的繁體轉簡體",
+  "type":"module",
+  "main": "index.js",
+  "scripts": {
+    "test": "node test"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/accelon/lossless-simplified-chinese.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/accelon/lossless-simplified-chinese/issues"
+  },
+  "homepage": "https://github.com/accelon/lossless-simplified-chinese#readme"
+}

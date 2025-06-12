@@ -1,5 +1,5 @@
 import {indexOfs} from '../utils/array.ts';
-import {fromSim} from 'lossless-simplified-chinese';
+import {fromSim} from '../lossless-simplified-chinese';
 
 export function columnField(name:string, field:string, idx:number) {
 	const column=this.columns[name];

@@ -1,7 +1,7 @@
 import {removeBracket} from '../utils/cjk.ts'
 import {CJKWordBegin_Reg} from '../fts/constants.ts'
 import { parsePageBookLine } from "../offtext/parser.ts";
-import {toSim} from 'lossless-simplified-chinese';
+import {toSim} from '../lossless-simplified-chinese';
 import { LEMMA_DELIMITER, StringArray } from '../utils/stringarray.ts';
 import { unpackIntDelta } from '../utils/unpackintarray.ts';
 import {columnTextByKey,keyOfEntry,entriesOfKey} from '../basket/entries.ts'
