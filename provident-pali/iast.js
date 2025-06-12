@@ -28,10 +28,12 @@ export const breakIASTSyllable=str=>{
 }
 const Vowels={
     '':'',
-    'a':'','ā':'A','i':'I','ī':'II','u':'U','ū':'UU','e':'E','o':'O'
+    //'a':'','ā':'A','i':'I','ī':'II','u':'U','ū':'UU','e':'E','o':'O'
+    'a':'','ā':'A','i':'I','ī':'IA','u':'U','ū':'UA','e':'E','o':'O'
 }
 const beginVowels={
-    'a':'a','ā':'aA','i':'i','ī':'iI','u':'u','ū':'uU','o':'o','e':'e',
+    //'a':'a','ā':'aA','i':'i','ī':'iI','u':'u','ū':'uU','o':'o','e':'e',
+    'a':'a','ā':'aA','i':'i','ī':'iA','u':'u','ū':'uA','o':'o','e':'e',
 }
 const i2p={
     // '|':'|', //allow | in a word, convert from । ॥ and 
@@ -173,10 +175,10 @@ export const toIASTWord=p=>{
     const leadv='aeiou'.indexOf(ch);
     if (leadv>-1) {
         if (p[0]=='a'&&p[1]=='A') {out+='ā';i++}
-        // else if (p[0]=='i'&&p[1]=='A') {out+='ī';i++}
-        // else if (p[0]=='u'&&p[1]=='A') {out+='ū';i++}
-         else if (p[0]=='i'&&p[1]=='I') {out+='ī';i++}
-         else if (p[0]=='u'&&p[1]=='U') {out+='ū';i++}
+         else if (p[0]=='i'&&p[1]=='A') {out+='ī';i++}
+         else if (p[0]=='u'&&p[1]=='A') {out+='ū';i++}
+         else if (p[0]=='i'&&p[1]=='I') {out+='ī';i++} //not recommend
+         else if (p[0]=='u'&&p[1]=='U') {out+='ū';i++}//not recommend
 
         else out+=ch;
         i++;
@@ -251,6 +253,11 @@ const OFFTAG_REGEX=/(\^[a-z_]+[#@\/\.\:~a-z_\-\d]*)(\[(?:\\.|.)*?\])?/ //標記�
 export const toIASTOffText=parts=>{
     if (!parts) return '';
     if (typeof parts==='string') parts=parts.split(OFFTAG_REGEX);
-    return doParts(parts,/([a-zA-Z]+)/,toIASTWord).replace(/।/g,'.').replace(/॥/g,'.')
+    return doParts(parts,/([a-zA-Z]+)/,toIASTWord)
 }
 
+export const fromIASTOffText=parts=>{
+    if (!parts) return '';
+    if (typeof parts==='string') parts=parts.split(OFFTAG_REGEX);
+    return doParts(parts,romanized_charset,fromIAST)
+}
