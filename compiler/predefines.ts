@@ -5,6 +5,8 @@ generic:
 ^:bk<id=unique heading=text bracket=false reset=ck,dk,juan aligncaption=text>
 ^:ck<id=unique heading=text bracket=false>
 ^:dk<id=unique>
+^:h<id=text>
+^:end<id=text>
 ^:p<id=text>
 ^:b<bracket=false>
 ^:n<id=number>

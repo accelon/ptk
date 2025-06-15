@@ -1,5 +1,5 @@
 import {plAnd,plRanges,plCount} from './posting.ts';
-import {fromSim} from '../lossless-simplified-chinese'
+import {fromSim} from '../lossless-simplified-chinese/index.ts'
 import {bsearchNumber} from '../utils/bsearch.ts'
 import { plTrim } from './posting.ts';
 import {unique, sortObj } from '../utils/sortedarray.ts';

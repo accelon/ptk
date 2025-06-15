@@ -1,6 +1,6 @@
 import {StringArray,unpackIntDelta,LEMMA_DELIMITER,bsearchNumber} from '../utils/index.ts';
 import {tokenize,TokenType} from './tokenize.ts';
-import {fromSim} from '../lossless-simplified-chinese'
+import {fromSim} from '../lossless-simplified-chinese/index.ts'
 
 export class Inverted {
 	constructor(section:string[],postingStart:number){
