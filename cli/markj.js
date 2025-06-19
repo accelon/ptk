@@ -3,9 +3,9 @@
 找不到則加到 ^j@notfound
 輸出檔名後綴 .out
 */
-import {writeChanged, bsearchNumber,similarSentence,
+import {writeChanged, bsearchNumber,
     similarSet,unique,
-    openPtk, readTextLines, parseAddress, parseAction, rangeOfAddress, alphabetically} from '../nodebundle.cjs'
+    openPtk, readTextLines, parseAddress, parseAction,  alphabetically} from '../nodebundle.cjs'
 
 const tidyLine=str=>{
     str=str.replace(/（[^）]+?）/g,'')

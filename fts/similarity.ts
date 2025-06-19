@@ -1,4 +1,6 @@
+/*
 import {diffChars} from 'diff';
+
 export const similarSentence=(s1,s2)=>{
     let differ=0,equal=0;
     const d=diffChars(s1,s2);
@@ -12,3 +14,4 @@ export const similarSentence=(s1,s2)=>{
     const sim=  equal*2 / (s1.length+s2.length) ;
     return sim;
 }
+*/

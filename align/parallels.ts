@@ -14,7 +14,6 @@ export const parallelWithDiff=(ptk,line,includeself=false,local=true,remote=fals
     const lineoff=line-bookstart;
     const bkid=ptk.defines.bk.fields.id.values[bkat];
     const books=ptk.getParallelBook(bkid);
-    const [bkstart,bkend]=ptk.rangeOfAddress('bk#'+bkid);
 
     if (local) {
         for (let i=0;i<books.length;i++) {

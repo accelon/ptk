@@ -1,5 +1,5 @@
 import {OFFTAG_REGEX_G} from "../offtext/constants.ts"
-import { diffChars, diffWords } from "diff";
+
 import { posPin } from "./pinpos.ts";
 export const spacify=str=>{ //remove all offtext and non ascii character, for more precise diff
     return str.replace(OFFTAG_REGEX_G,(m,tagname,attr)=>{
@@ -81,48 +81,7 @@ export const breakSentence=(arr,breakpos,paraprefix='')=>{
     }
     return out;
 }
-const SENTENCESEP=String.fromCodePoint(0x2fff);
-const SENTENCESEP1=String.fromCodePoint(0x2ffe);
-export const diffBreak=(p1,p2,id,marker='<>')=>{//p1 cs(larger unit), p2(smaller unit,guiding text)
-    let out='';
-    const s1=p1.join(SENTENCESEP1), s2=p2.join(SENTENCESEP);
-    const D=diffChars(s1,s2);
-    for (let i=0;i<D.length;i++) {
-        const d=D[i];
-        let at=d.value.indexOf(SENTENCESEP);
-        while (at>-1) {
-            out+='\n';
-            at=d.value.indexOf(SENTENCESEP,at+1);
-        }
-        if ( (!d.added && !d.removed) || d.removed) out+=d.value;
-    }
-    
-    out=out.replace(/\n( *)\u2ffe/g,'$1\n'+marker) //確定p1換行符在行首
-           .replace(/\u2ffe([ “‘]*)\n/g,'\n'+marker+'$1');
-    if (out.indexOf(SENTENCESEP1)>0) {
-        out=out.replace(/\u2ffe/g,'\n'+marker);//deal with leadch in the middle
-    }
-    //convert to breakpos
-    const breaklines=out.split('\n'), breakpos=[];
-    let linepos=[],offset=0, 
-        ln=0; //line index of original text
-    const regmarker=new RegExp(marker,"g");
-    for (let i=0;i<breaklines.length;i++) {
-        if (breaklines[i].substring(0,marker.length)===marker) {
-            breakpos.push(linepos);
-            offset=0;
-            ln++;
-            linepos=[];
-        }
-        let len=breaklines[i].replace(regmarker,'').length;
-        if (offset>0) linepos.push(offset+ (p1[ln][offset-1]===' '?-1:0) ); //' \n' to '\n '
-        offset+=len;
-    }
-    breakpos.push(linepos);
 
-    while (p1.length>breakpos.length) breakpos.push([]);//make sure breakpos has same length
-    return breakpos;
-}
 
 //ensure array length
 export const ensureArrayLength=(arr,length,marker='<>')=>{
@@ -376,5 +335,5 @@ export const guidedBreakLines=(buf,pins,fn='')=>{
 }
 
 export default {spacify,removeHeader,removeBold,removeSentenceBreak,autoENBreak,
-    autoBreak,paragraphSimilarity,diffBreak,breakSentence,ensureArrayLength,ensureChunkHasPN,
+    autoBreak,paragraphSimilarity,breakSentence,ensureArrayLength,ensureChunkHasPN,
     hookFromParaLines, breakByPin ,autoChineseBreak,removeSubPara,afterPN,beforePN,guidedBreakLines}

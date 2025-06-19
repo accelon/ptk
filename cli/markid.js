@@ -5,9 +5,7 @@
 
 輸出檔名後綴 .out
 */
-import {writeChanged, bsearchNumber,similarSentence,
-    similarSet,unique,
-    openPtk, readTextLines, parseAddress, parseAction, rangeOfAddress, alphabetically, closeBracketOf} from '../nodebundle.cjs'
+import {writeChanged,  openPtk, readTextLines, parseAddress, closeBracketOf} from '../nodebundle.cjs'
 export const markid=async ()=>{
     console.time('markj')
     const address=process.argv[3];
