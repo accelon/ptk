@@ -39,6 +39,7 @@ const nullify_note=content=>{
 }
 const nullify_rdg=content=>{
     content=content.replace(/<rdg([^>]*?)>(.*?)<\/rdg>/g,(m,_attrs,t)=>{
+        t=t.replace(/<.+?>/g,'');
         const {resp,wit}=parseXMLAttribute(_attrs);
         if (resp=='Taisho' || typeof resp=='undefined') {
              //有時漏了resp，視為 "Taisho", 如 T22n1428_001 : 0575b2901
@@ -50,6 +51,21 @@ const nullify_rdg=content=>{
     });
     return content;
 }
+const nullify_lem=content=>{
+    content=content.replace(/<lem([^>]*?)>(.*?)<\/lem>/g,(m,_attrs,t)=>{
+        t=t.replace(/<.+?>/g,'');
+        const {resp,wit}=parseXMLAttribute(_attrs);
+        if (resp=='Taisho' || typeof resp=='undefined') {
+             //有時漏了resp，視為 "Taisho", 如 T22n1428_001 : 0575b2901
+            return '<t_lem t="'+t+'" wit="'+wit+'"/>';
+        } else {
+            return '<_lem t="'+t+'" resp="'+resp+'" wit="'+wit+'"/>';
+        }
+        
+    });
+    return content;
+}
+
 const nullify_choice=content=>{
     content=content.replace(/<orig([^>]*?)>([^<]*?)<\/orig>/g,(m,_attrs,t)=>{
         return '<_orig t="'+t+'"/>';        
@@ -84,6 +100,7 @@ export const nullify_cbeta=content=>{
     content=nullify_note(content);
     content=nullify_note(content); //recursive , T14n0443_004.xml 0337016
     content=nullify_rdg(content);
+    content=nullify_lem(content);
     content=nullify_choice(content);
     content=nullify_note(content);
     return content;

@@ -62,7 +62,7 @@ const pb=(el,ctx)=>{
     let out='', pn=el.attrs.n.replace(/^0+/,'');
     let voltag='';
     ctx.vol=parseInt(el.attrs['xml:id'].substr(1,2));
-
+    if (!ctx.volumname) ctx.volumname={};
     if (el.attrs.n==='0001a') {
         ctx.compact=true;
         const ak=ctx.volumname[ctx.vol]?'^ak'+ctx.vol+'【'+ctx.volumname[ctx.vol]+'】':''

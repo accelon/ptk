@@ -71,7 +71,7 @@ const parseBuffer=(buf:string,fn='',ctx)=>{
     chunk='^juan'+juan;
 
     if (!ctx.teictx) { //cross multiple file
-        ctx.teictx={defs:ctx.labeldefs||{},lbcount:0,hide:0,snippet:'', volumname:ctx.volumname,
+        ctx.teictx={defs:ctx.labeldefs||{},lbcount:0,hide:0,snippet:'', volumname:ctx.volumname||{},
         div:0,charmap,fn,started:false,transclusion:ctx.transclusion||{},milestones:ctx.milestones||{}};    
     }
     ctx.teictx.sutraNo=sutraNo;
