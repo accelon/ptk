@@ -94,7 +94,10 @@ const parseFile=async (f,ctx)=>{
     if (ext=='.xml') {
         const xmlcontent=tidy(await fs.promises.readFile(f,'utf8'));
         
-        const nullified=nullify_cbeta( xmlcontent);
+        let nullified=nullify_cbeta( xmlcontent);
+        if (ctx.postNullify) {
+            nullified=ctx.postNullify(nullified)
+        }
         
        //if (~fn.indexOf('T01n0001_004')) writeChanged(fn+'-nullify',nullified,true)
         const parsed=parseBuffer( nullified ,fn,ctx);
