@@ -11,11 +11,11 @@ import {markj} from './markj.js';
 import {markid} from './markid.js';
 import {dumpxml} from './dumpxml.js';
 import {dump} from './dumpptk.js';
-import {adb2zip} from './adb2zip.js';
+// import {adb2zip} from './adb2zip.js';
 import {ts} from './subtitle.js'
 import {cbeta} from './cbeta.js'
 import {addn,copyn,copytag} from './addn.js'
-import {align,crlf} from './align.js'
+//import {align,crlf} from './align.js'
 import {sentbuilder} from './sent.js'
 import Path from 'path';
 import {js,ptk,com,builder} from './builder.js'
@@ -103,7 +103,7 @@ const help=()=>{
     console.log('$',yellow('ptk copytag   '),cyan('from'),cyan('to'), magenta('tag'), '將 from 的 tag 複製到 to ');
     
 
-    console.log('$',yellow('ptk adb2zip  '),cyan('filename'),'adb to zip ');
+    // console.log('$',yellow('ptk adb2zip  '),cyan('filename'),'adb to zip ');
 
     console.log('$',yellow('ptk ts       '),cyan('filename'),'parse subtitle (*.srt) 字幕轉標記');
 
@@ -120,11 +120,11 @@ const help=()=>{
 const test=()=>{
     console.log(PTK.sentencize('我是一^f#4<xxx>，個句子'));
 }
-const elapses=['ptk','js','sent','adb2zip','dumpxml','dump']
+const elapses=['ptk','js','sent','dumpxml','dump']
 try {
     console.time('elapsed')
-    await ({'--help':help,'-h':help,ptk,js,com,dedup,unique,listwords,cbeta,align,crlf,sent,test,ui23,copytag,
-    union,ngram,intersect,xor,xmltag,tei,dumpxml,dump,markj,markid,adb2zip,ts,addn,copyn,toiast, toppli})[cmd](arg,arg2,arg3);
+    await ({'--help':help,'-h':help,ptk,js,com,dedup,unique,listwords,cbeta,sent,test,ui23,copytag,
+    union,ngram,intersect,xor,xmltag,tei,dumpxml,dump,markj,markid,ts,addn,copyn,toiast, toppli})[cmd](arg,arg2,arg3);
     if (~elapses.indexOf(cmd)  ) {
         console.log('\n')
         console.timeEnd('elapsed')
