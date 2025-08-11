@@ -84,7 +84,6 @@ const parseBuffer=(buf:string,fn='',ctx)=>{
     return content;
 }
 const tidy=content=>{
-    
     return content.replace(/([、，；]?)<caesura[^>]*\/>/g,(m,m1)=>m1||'　');
 }
 const parseFile=async (f,ctx)=>{
