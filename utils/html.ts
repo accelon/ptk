@@ -11,15 +11,15 @@ const Entities={
 }
 
 export const entity2unicode=s=>{
-    s=s.replace(/&#x([\dABCDEF]+);/g,(m,m1)=>{
+    s=s.replace(/&#x([\dABCDEF]{3,20});/g,(m,m1)=>{
         return String.fromCodePoint( parseInt(m1,16));
-    }).replace(/&#(\d+);/g,(m,m1)=>{
+    }).replace(/&#(\d{2,5});/g,(m,m1)=>{
         return String.fromCodePoint( parseInt(m1,10));
-    }).replace(/&([^;]+);/g,(m,m1)=>{
+    }).replace(/&([^;]{5,20});/g,(m,m1)=>{
     	const rep=Entities[m1];
     	if (!rep) {
     		console.log('cannot parse','&'+m1+';');
-    		throw "wrong entity";
+    		throw "wrong entity ";
     	}
     	return rep;
     });
