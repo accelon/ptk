@@ -1,5 +1,5 @@
 ﻿#!/usr/bin/env node
-const version='2025.6.12'
+const version='2026.2.6'
 import * as colors from './colors.cjs'; // lukeed/kleur
 const {blue,yellow,red,cyan,underline,magenta,green} = colors;
 

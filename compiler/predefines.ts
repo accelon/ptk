@@ -6,18 +6,21 @@ generic:
 ^:ck<id=unique heading=text bracket=false>
 ^:dk<id=unique>
 ^:h<id=text>
+^:cb<id=text>
 ^:end<id=text>
 ^:p<id=text>
 ^:b<bracket=false>
 ^:n<id=number>
 ^:pn<id=text>
+^:lb<id=text>
 ^:ii<bracket=false>
 ^:quote
 ^:fig<bracket=false>
 ^:image
 ^:quotei
 ^:s<bracket=false>
-^:folio<id=number>
+^:pb<id=unique resetby=bk>
+^:folio<id=unique reset=pb lines=number bracket=false>
 ^:m<id=text>
 ^:juan<id=number>
 ^:o<@=link>
