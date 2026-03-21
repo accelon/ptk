@@ -16,7 +16,7 @@ export const DOMFromString=(str)=>{
         el = !el ? child : el.cnode(child);
     }
     const endElement=name=>{
-        if (name === el.name) {
+        if (el && name === el.name) {
             if (el.parent) {
               el = el.parent;
             } else if (!tree) {

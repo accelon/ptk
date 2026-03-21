@@ -61,7 +61,7 @@
         if (~accept.indexOf('text/') || request.url.endsWith('.js')|| request.url.endsWith('.css')) { //html, css , js, try to fetch updates
             // Fix for Chrome bug: https://code.google.com/p/chromium/issues/detail?id=573937
           if (request.mode != 'navigate') {
-              const url=(~request.url.indexOf('index.js')&& navigator.onLine&&request.url.indexOf('?')==-1)?request.url+'?'+Math.random():request.url;
+              const url=(request.url.startsWith('index')&& navigator.onLine&&request.url.indexOf('?')==-1)?request.url+'?'+Math.random():request.url;
                var request = new Request(url, {//force update
                   method: 'GET',
                   headers: request.headers,
