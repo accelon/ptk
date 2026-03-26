@@ -57,7 +57,11 @@ const nullify_lem=content=>{
         const {resp,wit}=parseXMLAttribute(_attrs);
         if (resp=='Taisho' || typeof resp=='undefined') {
              //有時漏了resp，視為 "Taisho", 如 T22n1428_001 : 0575b2901
-            return '<t_lem t="'+t+'" wit="'+wit+'"/>';
+            if (wit=='【大】') {
+                return t;
+            } else {
+                return '<t_lem t="'+t+'" wit="'+wit+'"/>';
+            }
         } else {
             return '<_lem t="'+t+'" resp="'+resp+'" wit="'+wit+'"/>';
         }

@@ -93,7 +93,7 @@ const parseFile=async (f,ctx)=>{
     if (ext=='.xml') {
         const xmlcontent=tidy(await fs.promises.readFile(f,'utf8'));
         
-        let nullified=nullify_cbeta( xmlcontent);
+        let nullified=nullify_cbeta(xmlcontent);
         if (ctx.postNullify) {
             nullified=ctx.postNullify(nullified)
         }
