@@ -26,6 +26,19 @@ export const toFolioText=lines=>{
     // if (remain) text.push(remain);
     return text;
 }
+export const bookByFolio=(fid,ptk)=>{
+    if (ptk) {
+        const folio=ptk.defines.folio;
+        const bk=ptk.defines.bk;
+        const at=folio.fields.id.values.indexOf(fid);
+        if (!~at) return '';
+        const line=folio.linepos[at]+1;
+        const at2=bsearchNumber(bk.linepos, line)-1;//closest bk
+        return bk.fields.id.values[at2];   
+    } else {
+        return fid.replace(/\d+$/,'')
+    }
+}
 export const countFolioChar=linetext=>{
     let prev=0,textlen=0,textsnip='',count=0;
     const consumeChar=()=>{
@@ -194,15 +207,11 @@ export class FolioText {
         if (at==-1) return [0,0];
         return [this.pbpos[at] , this.pbpos[at+1] ];
     }
-    async load(bkfolio) {
+    async load(bkfolio:string) {
         const ptk=this.ptk;
-        let bk='',folio=bkfolio; 
-        if (bkfolio.match(/\d$/)) {
-            bk=bkfolio.replace(/\d+$/g,'');
-        } else {
-            folio='';
-            bk=bkfolio;
-        }
+        let folio=bkfolio; 
+        let bk=bookByFolio(bkfolio,ptk)
+
         let from,to;
         const addr=(bk?("bk#"+bk):'')+ (folio?'.':'')+(folio?('folio#'+folio):'');//+(pb?".pb#"+pb:'');
         [from,to]=ptk.rangeOfAddress( addr);

@@ -15,6 +15,20 @@ export const isLatest=async(url,cacheName)=>{
     const isLatest=(cached && contentlength == cached.headers.get('Content-Length'));
     return isLatest;
 }
+export const deleteFromCache=async(cacheName,cachefn)=>{
+    const cache=await caches.open(cacheName);
+    const cached=await cache.match(cachefn);
+    if (cached){
+        cache.delete(cachefn);
+    } else if (cachefn) {//try as pattern
+        const files=await cache.matchAll();
+        files.map(res=>{
+            if (res.url.match(cachefn)) {
+                cache.delete(res.url)
+            }
+        });
+    }
+}
 export const downloadToCache=async(cacheName,url,cb)=>{
     const cachefn=url.replace(/\?.+/,'');//remove tailing timestamp
 
