@@ -37,7 +37,7 @@ export const downloadToCache=async(cacheName,url,cb)=>{
     // && location.host.indexOf('127.0.0.1')==-1) url="https://nissaya.cn/"+url.replace(/^\//,'');
     
     const ContentType=~url.indexOf('.mp3')?"audio/mpeg":"application/octet-stream";
-    const origin="https://nissaya.cn";
+    const origin="https://"+location.host;
 
     const cache=await caches.open(cacheName);
     const cached=await cache.match(cachefn);
@@ -54,10 +54,13 @@ export const downloadToCache=async(cacheName,url,cb)=>{
     let headresponse = await fetch(url,{method:"HEAD", mode:"no-cors",redirect:"follow", credentials: "omit", origin,headers:{Accept:ContentType}});
     const lastmodified=headresponse.headers.get('Content-Length');
     if (cached && lastmodified == cached.headers.get('Content-Length')) {
-        // console.log('use cached')
         return cached;
     }
-
+    if (headresponse.status>=400) {
+        cb&&cb('not found');
+        return '';
+    }
+    
     cb&&cb('requesting')
     let response = await fetch(url,{method:"GET",mode:"no-cors",
     redirect:"follow", credentials: "omit", origin,
@@ -83,7 +86,6 @@ export const downloadToCache=async(cacheName,url,cb)=>{
             chunks.push(value);
             receivedLength += value.length;
             cb&&cb( Math.floor( (100*receivedLength/contentLength))+'% / '+humanBytes(contentLength));
-        // console.log(`Received ${receivedLength} of ${contentLength}`)
         }
     
         // Step 4: concatenate chunks into single Uint8Array
@@ -124,6 +126,7 @@ export const ptkInCache=async (cacheName)=> {
 export const mp3InCache=async (cacheName)=> {
     return await fileInCache(/([a-z_\-]+)\.mp3/,cacheName,'.mp3');
 }
+
 export const isMobile=()=>{
     const ua=navigator?.userAgent;
     return ~ua.indexOf('iPhone')||~ua.indexOf('iPad')||~ua.indexOf('Android')||~ua.indexOf('Mobile')
