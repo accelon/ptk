@@ -21,3 +21,5 @@ dist
 test
 node_modules
 nodebundle.js
+main.js
+bun.lock

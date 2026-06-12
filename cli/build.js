@@ -1,5 +1,5 @@
 import PTK from '../nodebundle.cjs';
-const {LineBaser,Compiler,writeChanged,humanBytes,makeInMemoryPtk} = PTK;
+const {LineBaser,Compiler,writeChanged,humanBytes,makeInMemoryPtk,makeBinaryPtk} = PTK;
 //import kluer from './kluer.js'
 import * as colors from './colors.js';
 import Path from 'path';
@@ -10,6 +10,7 @@ const filelist=files=>files.length>10?[files.length,files.slice(0,10)]:[files.le
 export const dobuild=async (files, opts={})=>{
 	const jsonp=opts.jsonp;
 	const com=opts.com;
+	const bin=opts.bin;
 	const [filecount, list]=filelist(files);
 	const sources=[];
 	console.log('input', filecount,'files', list,((filecount>list.length)?'...':'')  );
@@ -71,6 +72,7 @@ export const dobuild=async (files, opts={})=>{
 			if (com) {  //build with redbean
 				image=fs.readFileSync(com);//along with bin.js
 			}
+
 			const ptkimage=makeInMemoryPtk(lbaser,css,image);
 			outfn=outdir+lbaser.name+(com?'.com':'.ptk');
 			await fs.writeFileSync(outfn,ptkimage);

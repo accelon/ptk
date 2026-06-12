@@ -1,0 +1,12 @@
+{
+  "name": "obsidian-ptk",
+  "version": "0.0.1",
+  "scripts": {
+    "dev": "bun build src/main.ts --outdir . --watch --target browser --external obsidian --format cjs",
+    "build": "bun build src/main.ts --outdir . --target browser --external obsidian --format cjs"
+  },
+  "devDependencies": {
+    "obsidian": "^1.13.1",
+    "typescript": "^5.0.0"
+  }
+}

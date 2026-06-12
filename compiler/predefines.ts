@@ -55,6 +55,8 @@ generic:
 ^:img
 ^:sz
 ^:sc
+^:mc
+^:v
 ^:missing
 ^:misalign
 ^:ff

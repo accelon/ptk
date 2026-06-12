@@ -44,6 +44,7 @@ export class LineBaser {
 		//payload right after header json object, a single string
 		return header+this.payload.replace(/\n/g,'\\n')+'\n'+text;
 	}
+
 	dumpJs(cb:Function) {
 		if (!this.name) {
 			throw "need a name before dumping"
