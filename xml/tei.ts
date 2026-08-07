@@ -77,7 +77,7 @@ const pb=(el,ctx)=>{
         if (voltag) out=voltag;
     }
 
-    return out;
+    return out+'^pb'+pn;
 }
 const p=(el,ctx)=>{
     if (ctx.prevpn==ctx.pn && ctx.prevlb==ctx.lbcount) {
@@ -121,7 +121,9 @@ const lb=(el,ctx)=>{
             }
         })
     }
-    return out;
+    let nline=el.attrs.n;
+    nline=nline.slice(nline.length-2).replace(/^0/,'')
+    return out+ (nline!='1'?'^lb'+nline:''); //pb served as lb1
 }
 // const cbtt=(el,ctx)=>{
 //     let s='';

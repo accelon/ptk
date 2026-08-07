@@ -104,7 +104,7 @@ const parseFile=async (f,ctx)=>{
         for (let i=0;i<lines.length;i++) {
             let line=lines[i];
             if (! (line.startsWith('^h')||line.startsWith('^bk'))) {
-                lines[i]=breakChineseSentence(line);
+                lines[i]=ctx.nobreak?line:breakChineseSentence(line);
             }
         }
         return lines.join('\n');

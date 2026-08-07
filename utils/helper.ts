@@ -1,7 +1,9 @@
+
 export const sleep=(time:number)=>new Promise(r=>{ setTimeout(()=>r() , time)});
 
-export const updateUrl=(address:String)=>{
+export const updateUrl=(address:string,AppPrefix:string='')=>{
     window.location.hash='#'+address;
+    if (AppPrefix) localStorage.setItem(AppPrefix+'homeurl',address); 
 }
 export const addressFromUrl=()=>{
     let hash=window.location.hash;

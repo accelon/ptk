@@ -2,6 +2,7 @@ import {poolAdd,poolGet,poolDel,poolGetAll}  from './pool.ts';
 import {Pitaka} from './pitaka.ts';
 import {ZipStore} from '../zip/index.ts';
 export const openPtk=async (name,cachedimage:any=null)=>{
+	if (name.endsWith('.ptk')) name=name.replace(/\.ptk$/,'');
 	let ptk=usePtk(name);
 	if (ptk) return ptk;
 	if (!name) return null;
@@ -35,12 +36,14 @@ export const openInMemoryPtk=async(name:string, ptkimage:Uint8Array)=>{
 	}
 }
 export const ptkFromString=(name:string,contentString:string)=>{
+	if (name.endsWith('.ptk')) name=name.replace(/\.ptk$/,'');
 	const ptk=new Pitaka({name,contentString});
 	ptk.init();
 	poolAdd(name,ptk)
 	return ptk;
 }
 export const usePtk=(name:string)=>{
+	if (name.endsWith('.ptk')) name=name.replace(/\.ptk$/,'');
 	if (!name) return null;
 	return poolGet(name);
 }
