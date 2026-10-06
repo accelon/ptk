@@ -75,6 +75,22 @@ async function splitGlob(
     return { baseDir: trimmed, pattern: "**/*.txt", single: false };
   }
 }
+
+export async function listFiles(globPath: string): Promise<string[]> {
+  const { baseDir, pattern, single } = await splitGlob(globPath);
+  const files: string[] = [];
+  if (single) {
+    files.push(pattern); // pattern 即 basename
+  } else {
+    const glob = new Bun.Glob(pattern);
+    for await (const f of glob.scan({ cwd: baseDir, onlyFiles: true })) {
+      files.push(join(baseDir, f));
+    }
+    files.sort();
+  }
+
+  return files;
+}
 export async function processFiles(opts: ProcessOptions): Promise<void> {
   const outputDir = opts.outputDir ?? "out";
   const doLine = opts.doLine;
